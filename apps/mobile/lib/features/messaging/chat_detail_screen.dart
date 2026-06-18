@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/supabase_locator.dart';
 import 'messaging_provider.dart';
@@ -70,7 +69,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.chevronLeft, color: Color(0xFF1E293B)),
+          icon: const Icon(Icons.chevron_left, color: Color(0xFF1E293B)),
           onPressed: () => context.pop(),
         ),
         titleSpacing: 0,
@@ -91,7 +90,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                             : null,
                         color: primaryColor.withValues(alpha: 0.1),
                       ),
-                      child: _partnerProfile!['avatar_url'] == null ? const Icon(LucideIcons.user, size: 20) : null,
+                      child: _partnerProfile!['avatar_url'] == null ? const Icon(Icons.person, size: 20) : null,
                     ),
                     if (_partnerProfile!['is_online'] == true)
                       Container(
@@ -116,11 +115,11 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             ),
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.phone, color: Color(0xFF0F62FE), size: 18),
+            icon: const Icon(Icons.phone, color: Color(0xFF0F62FE), size: 18),
             onPressed: () => context.push('/appointments'),
           ),
           IconButton(
-            icon: const Icon(LucideIcons.video, color: Color(0xFF0F62FE), size: 20),
+            icon: const Icon(Icons.videocam, color: Color(0xFF0F62FE), size: 20),
             onPressed: () => context.push('/appointments'),
           ),
           const SizedBox(width: 8),
@@ -136,7 +135,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(LucideIcons.shieldCheck, color: Color(0xFF10B981), size: 14),
+                const Icon(Icons.verified, color: Color(0xFF10B981), size: 14),
                 const SizedBox(width: 8),
                 const Text(
                   'Messages and data are end-to-end encrypted.',
@@ -209,7 +208,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), shape: BoxShape.circle),
-            child: Icon(LucideIcons.messageSquare, size: 48, color: primaryColor.withValues(alpha: 0.2)),
+            child: Icon(Icons.chat_bubble, size: 48, color: primaryColor.withValues(alpha: 0.2)),
           ),
           const SizedBox(height: 24),
           const Text('Start your consultation', style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w900)),
@@ -240,7 +239,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-                    child: const Icon(LucideIcons.plus, color: Color(0xFF64748B), size: 20),
+                    child: const Icon(Icons.add, color: Color(0xFF64748B), size: 20),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -265,7 +264,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: const BoxDecoration(color: Color(0xFF0F62FE), shape: BoxShape.circle),
-                    child: const Icon(LucideIcons.send, color: Colors.white, size: 20),
+                    child: const Icon(Icons.send, color: Colors.white, size: 20),
                   ),
                 ),
               ],
@@ -295,19 +294,19 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               children: [
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(LucideIcons.fileText, 'Prescription', const Color(0xFF10B981)),
+                  child: _buildAttachmentOption(Icons.description, 'Prescription', const Color(0xFF10B981)),
                 ),
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(LucideIcons.clipboardList, 'Reports', const Color(0xFF0F62FE)),
+                  child: _buildAttachmentOption(Icons.assignment, 'Reports', const Color(0xFF0F62FE)),
                 ),
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(LucideIcons.image, 'Images', const Color(0xFF8B5CF6)),
+                  child: _buildAttachmentOption(Icons.image, 'Images', const Color(0xFF8B5CF6)),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: _buildAttachmentOption(LucideIcons.mapPin, 'Location', const Color(0xFF06B6D4)),
+                  child: _buildAttachmentOption(Icons.location_on, 'Location', const Color(0xFF06B6D4)),
                 ),
               ],
             ),
@@ -391,7 +390,7 @@ class _MessageBubble extends StatelessWidget {
                       ),
                       if (isMe) ...[
                         const SizedBox(width: 4),
-                        Icon(LucideIcons.checkCheck, size: 12, color: message.isRead ? const Color(0xFF60A5FA) : Colors.white70),
+                        Icon(Icons.done_all, size: 12, color: message.isRead ? const Color(0xFF60A5FA) : Colors.white70),
                       ],
                     ],
                   ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'messaging_provider.dart';
 
@@ -20,7 +19,7 @@ class ChatListScreen extends ConsumerWidget {
         scrolledUnderElevation: 0,
         title: Row(
           children: [
-            const Icon(LucideIcons.messageCircle, color: primaryColor, size: 24),
+            const Icon(Icons.chat, color: primaryColor, size: 24),
             const SizedBox(width: 12),
             const Text(
               'Chats',
@@ -46,7 +45,7 @@ class ChatListScreen extends ConsumerWidget {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(LucideIcons.edit3, color: Color(0xFF1E293B), size: 18),
+              child: const Icon(Icons.edit, color: Color(0xFF1E293B), size: 18),
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -74,7 +73,7 @@ class ChatListScreen extends ConsumerWidget {
                 decoration: InputDecoration(
                   hintText: 'Search chats...',
                   hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                  prefixIcon: Icon(LucideIcons.search, color: Color(0xFF94A3B8), size: 18),
+                  prefixIcon: Icon(Icons.search, color: Color(0xFF94A3B8), size: 18),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -158,7 +157,7 @@ class ChatListScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(LucideIcons.messageSquare, size: 64, color: primaryColor.withValues(alpha: 0.1)),
+          Icon(Icons.chat_bubble, size: 64, color: primaryColor.withValues(alpha: 0.1)),
           const SizedBox(height: 16),
           const Text(
             'No conversations yet',
@@ -215,7 +214,7 @@ class _ChatTile extends StatelessWidget {
                     color: primaryColor.withValues(alpha: 0.1),
                   ),
                   child: contact.avatarUrl == null
-                      ? const Icon(LucideIcons.user, color: Color(0xFF0F62FE))
+                      ? const Icon(Icons.person, color: Color(0xFF0F62FE))
                       : null,
                 ),
                 if (contact.isOnline)

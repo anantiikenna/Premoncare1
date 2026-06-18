@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -42,7 +41,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(LucideIcons.arrowLeft, color: Color(0xFF1E293B)),
+              icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
               onPressed: () => context.pop(),
             ),
             const SizedBox(width: 4),
@@ -52,7 +51,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 color: primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(LucideIcons.bell, color: primaryColor, size: 20),
+              child: const Icon(Icons.notifications, color: primaryColor, size: 20),
             ),
             const SizedBox(width: 12),
             const Column(
@@ -88,7 +87,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
             ),
           ),
           IconButton(
-            icon: const Icon(LucideIcons.filter, color: Color(0xFF1E293B), size: 18),
+            icon: const Icon(Icons.filter_list, color: Color(0xFF1E293B), size: 18),
             onPressed: () {
               setState(() {
                 _selectedFilter = _selectedFilter == 'Unread only' ? 'This Week' : 'Unread only';
@@ -142,7 +141,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                       decoration: const InputDecoration(
                         hintText: 'Search notifications...',
                         hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                        prefixIcon: Icon(LucideIcons.search, color: Color(0xFF94A3B8), size: 16),
+                        prefixIcon: Icon(Icons.search, color: Color(0xFF94A3B8), size: 16),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(vertical: 12),
                       ),
@@ -163,7 +162,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                       value: _selectedFilter,
                       icon: const Padding(
                         padding: EdgeInsets.only(left: 8),
-                        child: Icon(LucideIcons.chevronDown, size: 14, color: Color(0xFF1E293B)),
+                        child: Icon(Icons.expand_more, size: 14, color: Color(0xFF1E293B)),
                       ),
                       style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 12),
                       onChanged: (String? newValue) {
@@ -176,7 +175,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                           value: value,
                           child: Row(
                             children: [
-                              const Icon(LucideIcons.calendar, size: 14, color: Color(0xFF94A3B8)),
+                              const Icon(Icons.calendar_today, size: 14, color: Color(0xFF94A3B8)),
                               const SizedBox(width: 8),
                               Text(value),
                             ],
@@ -214,7 +213,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 const SizedBox(height: 12),
                 
                 _buildNotificationCard(
-                  icon: LucideIcons.calendar,
+                  icon: Icons.calendar_today,
                   iconBg: const Color(0xFF0F62FE).withValues(alpha: 0.1),
                   iconColor: const Color(0xFF0F62FE),
                   title: 'Appointment Confirmed',
@@ -224,7 +223,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   badgeColor: const Color(0xFF0F62FE),
                   footer: Row(
                     children: [
-                      const Icon(LucideIcons.calendar, size: 12, color: Color(0xFF94A3B8)),
+                      const Icon(Icons.calendar_today, size: 12, color: Color(0xFF94A3B8)),
                       const SizedBox(width: 4),
                       const Text('Today, 10:15 AM', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
                     ],
@@ -232,7 +231,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 ),
                 
                 _buildNotificationCard(
-                  icon: LucideIcons.wallet,
+                  icon: Icons.account_balance_wallet,
                   iconBg: const Color(0xFF10B981).withValues(alpha: 0.1),
                   iconColor: const Color(0xFF10B981),
                   title: 'Payment Verified',
@@ -243,7 +242,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   action: _buildActionBtn('View Receipt', () => context.push('/appointments')),
                   footer: const Row(
                     children: [
-                      Icon(LucideIcons.hash, size: 12, color: Color(0xFF94A3B8)),
+                      Icon(Icons.tag, size: 12, color: Color(0xFF94A3B8)),
                       SizedBox(width: 4),
                       Text('Transaction ID: TXN-8394721', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
                     ],
@@ -251,7 +250,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 ),
                 
                 _buildNotificationCard(
-                  icon: LucideIcons.userPlus,
+                  icon: Icons.person_add,
                   iconBg: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                   iconColor: const Color(0xFFF59E0B),
                   title: 'Verification Approved',
@@ -262,7 +261,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 ),
                 
                 _buildNotificationCard(
-                  icon: LucideIcons.alertTriangle,
+                  icon: Icons.warning_amber,
                   iconBg: const Color(0xFFEF4444).withValues(alpha: 0.1),
                   iconColor: const Color(0xFFEF4444),
                   title: 'Missed Consultation',
@@ -273,7 +272,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   action: _buildActionBtn('Reschedule', () => context.push('/appointments'), isOutline: true, color: const Color(0xFFEF4444)),
                   footer: const Row(
                     children: [
-                      Icon(LucideIcons.calendar, size: 12, color: Color(0xFFEF4444)),
+                      Icon(Icons.calendar_today, size: 12, color: Color(0xFFEF4444)),
                       SizedBox(width: 4),
                       Text('Today, 9:00 AM', style: TextStyle(fontSize: 11, color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
                     ],
@@ -281,7 +280,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 ),
 
                 _buildNotificationCard(
-                  icon: LucideIcons.fileText,
+                  icon: Icons.description,
                   iconBg: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
                   iconColor: const Color(0xFF8B5CF6),
                   title: 'Lab Report Available',
@@ -293,7 +292,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                 ),
 
                 _buildNotificationCard(
-                  icon: LucideIcons.bell,
+                  icon: Icons.notifications,
                   iconBg: const Color(0xFF3B82F6).withValues(alpha: 0.1),
                   iconColor: const Color(0xFF3B82F6),
                   title: 'Appointment Reminder',
@@ -314,7 +313,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   ),
                   child: Row(
                     children: [
-                      const Icon(LucideIcons.shieldCheck, color: Color(0xFF10B981), size: 24),
+                      const Icon(Icons.verified, color: Color(0xFF10B981), size: 24),
                       const SizedBox(width: 16),
                       const Expanded(
                         child: Column(
@@ -332,7 +331,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                         child: const Row(
                           children: [
                             Text('Learn more', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 11, fontWeight: FontWeight.bold)),
-                            Icon(LucideIcons.chevronRight, size: 12, color: Color(0xFF0F62FE)),
+                            Icon(Icons.chevron_right, size: 12, color: Color(0xFF0F62FE)),
                           ],
                         ),
                       ),
@@ -389,7 +388,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                   color: const Color(0xFFEF4444).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(LucideIcons.alertCircle, color: Color(0xFFEF4444), size: 24),
+                child: const Icon(Icons.warning, color: Color(0xFFEF4444), size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(

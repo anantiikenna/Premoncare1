@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:math' as math;
 import 'admin_scaffold.dart';
 
@@ -90,9 +89,9 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
         ),
         Row(
           children: [
-            _buildIconButton(LucideIcons.search),
+            _buildIconButton(Icons.search),
             const SizedBox(width: 12),
-            _buildIconButton(LucideIcons.filter, label: 'Filter'),
+            _buildIconButton(Icons.filter_list, label: 'Filter'),
           ],
         )
       ],
@@ -124,13 +123,13 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildStatCard('Open Disputes', '24', '8', true, LucideIcons.alertTriangle, Colors.orange),
+          _buildStatCard('Open Disputes', '24', '8', true, Icons.warning_amber, Colors.orange),
           const SizedBox(width: 16),
-          _buildStatCard('Pending Review', '12', '3', true, LucideIcons.clock, Colors.amber),
+          _buildStatCard('Pending Review', '12', '3', true, Icons.access_time, Colors.amber),
           const SizedBox(width: 16),
-          _buildStatCard('Resolved Cases', '148', '16', true, LucideIcons.checkCircle, Colors.green),
+          _buildStatCard('Resolved Cases', '148', '16', true, Icons.check_circle, Colors.green),
           const SizedBox(width: 16),
-          _buildStatCard('High Risk', '5', '2', true, LucideIcons.flag, Colors.red),
+          _buildStatCard('High Risk', '5', '2', true, Icons.flag, Colors.red),
         ],
       ),
     );
@@ -163,7 +162,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           const SizedBox(height: 12),
           Row(
             children: [
-              Icon(isUp ? LucideIcons.arrowUp : LucideIcons.arrowDown, size: 14, color: isUp ? Colors.green[600] : Colors.red[600]),
+              Icon(isUp ? Icons.arrow_upward : Icons.arrow_downward, size: 14, color: isUp ? Colors.green[600] : Colors.red[600]),
               const SizedBox(width: 4),
               Text(
                 '$change vs yesterday',
@@ -208,7 +207,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
     return Column(
       children: [
         _buildDisputeCard(
-          icon: LucideIcons.wallet,
+          icon: Icons.account_balance_wallet,
           iconColor: Colors.orange,
           title: 'Payment Not Confirmed',
           description: 'Patient claims N12,000 payment was sent but consultation was denied.',
@@ -221,7 +220,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           badgeColor: Colors.red,
         ),
         _buildDisputeCard(
-          icon: LucideIcons.video,
+          icon: Icons.videocam,
           iconColor: Colors.blue,
           title: 'Session Ended Unexpectedly',
           description: 'Video consultation disconnected after 4 minutes.',
@@ -234,7 +233,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           badgeColor: Colors.amber,
         ),
         _buildDisputeCard(
-          icon: LucideIcons.flag,
+          icon: Icons.flag,
           iconColor: Colors.red,
           title: 'Suspicious Receipt Upload',
           description: 'Possible edited payment receipt detected.',
@@ -247,7 +246,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           badgeColor: Colors.red,
         ),
         _buildDisputeCard(
-          icon: LucideIcons.refreshCcw,
+          icon: Icons.refresh,
           iconColor: Colors.green,
           title: 'Refund Request',
           description: 'Patient requested refund due to duplicate payment.',
@@ -260,7 +259,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           badgeColor: Colors.green,
         ),
         _buildDisputeCard(
-          icon: LucideIcons.messageSquare,
+          icon: Icons.chat_bubble,
           iconColor: Colors.purple,
           title: 'Doctor Behavior Complaint',
           description: 'Patient reported unprofessional communication.',
@@ -335,7 +334,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (badgeText == 'High Risk') ...[
-                                Icon(LucideIcons.alertTriangle, size: 12, color: badgeColor),
+                                Icon(Icons.warning_amber, size: 12, color: badgeColor),
                                 const SizedBox(width: 4),
                               ],
                               Text(
@@ -379,7 +378,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
               const SizedBox(width: 8),
               Text(doctorName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
               const Spacer(),
-              const Icon(LucideIcons.chevronRight, size: 18, color: Color(0xFF64748B)),
+              const Icon(Icons.chevron_right, size: 18, color: Color(0xFF64748B)),
             ],
           ),
           const SizedBox(height: 16),
@@ -423,11 +422,11 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           ),
           child: Column(
             children: [
-              _buildQuickActionItem(LucideIcons.filePlus, Colors.green, 'New Dispute', 'Create new dispute'),
-              _buildQuickActionItem(LucideIcons.upload, Colors.blue, 'Upload Evidence', 'Add file or document'),
-              _buildQuickActionItem(LucideIcons.settings, Colors.blue, 'Bulk Actions', 'Update multiple cases'),
-              _buildQuickActionItem(LucideIcons.alertTriangle, Colors.orange, 'Escalated Cases', 'View escalated only'),
-              _buildQuickActionItem(LucideIcons.shieldAlert, Colors.red, 'Fraud Monitoring', 'High risk activities', showDivider: false),
+              _buildQuickActionItem(Icons.note_add, Colors.green, 'New Dispute', 'Create new dispute'),
+              _buildQuickActionItem(Icons.upload, Colors.blue, 'Upload Evidence', 'Add file or document'),
+              _buildQuickActionItem(Icons.settings, Colors.blue, 'Bulk Actions', 'Update multiple cases'),
+              _buildQuickActionItem(Icons.warning_amber, Colors.orange, 'Escalated Cases', 'View escalated only'),
+              _buildQuickActionItem(Icons.gpp_bad, Colors.red, 'Fraud Monitoring', 'High risk activities', showDivider: false),
             ],
           ),
         ),
@@ -443,7 +442,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
                 children: [
                   Text('This Month', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   SizedBox(width: 4),
-                  Icon(LucideIcons.chevronDown, size: 14),
+                  Icon(Icons.expand_more, size: 14),
                 ],
               ),
             )
@@ -497,7 +496,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                child: Icon(LucideIcons.shieldCheck, color: primaryColor, size: 20),
+                child: Icon(Icons.verified, color: primaryColor, size: 20),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -509,7 +508,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
                 children: [
                   Text('Learn more', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)),
                   const SizedBox(width: 4),
-                  Icon(LucideIcons.chevronRight, size: 16, color: primaryColor),
+                  Icon(Icons.chevron_right, size: 16, color: primaryColor),
                 ],
               )
             ],
@@ -531,7 +530,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           ),
           title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A))),
           subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-          trailing: const Icon(LucideIcons.chevronRight, size: 18, color: Color(0xFF64748B)),
+          trailing: const Icon(Icons.chevron_right, size: 18, color: Color(0xFF64748B)),
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('$title functionality coming soon')),

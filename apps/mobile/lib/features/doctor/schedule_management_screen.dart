@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../../shared/widgets/global_user_avatar.dart';
 import '../../../core/supabase_locator.dart';
 
@@ -60,7 +59,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, color: Color(0xFF1E293B)),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -74,7 +73,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.bell, color: Color(0xFF1E293B)),
+            icon: const Icon(Icons.notifications, color: Color(0xFF1E293B)),
             onPressed: () => context.push('/notifications'),
           ),
           Padding(
@@ -135,10 +134,10 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     children: [
-                      _buildQuickAction(LucideIcons.clock, 'Working Hours', const Color(0xFF8B5CF6)),
-                      _buildQuickAction(LucideIcons.calendar, 'Unavailable Days', const Color(0xFFEF4444)),
-                      _buildQuickAction(LucideIcons.coffee, 'Break Times', const Color(0xFFF59E0B)),
-                      _buildQuickAction(LucideIcons.alertCircle, 'Emergency Availability', const Color(0xFF10B981)),
+                      _buildQuickAction(Icons.access_time, 'Working Hours', const Color(0xFF8B5CF6)),
+                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', const Color(0xFFEF4444)),
+                      _buildQuickAction(Icons.local_cafe, 'Break Times', const Color(0xFFF59E0B)),
+                      _buildQuickAction(Icons.warning, 'Emergency Availability', const Color(0xFF10B981)),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -153,7 +152,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(LucideIcons.globe, color: primaryColor, size: 20),
+                        const Icon(Icons.language, color: primaryColor, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -164,7 +163,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                             ],
                           ),
                         ),
-                        const Icon(LucideIcons.chevronRight, color: Color(0xFF94A3B8), size: 16),
+                        const Icon(Icons.chevron_right, color: Color(0xFF94A3B8), size: 16),
                       ],
                     ),
                   ),
@@ -175,7 +174,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Schedule hours copied to all days')),
                     );
-                  }, actionLabel: 'Copy to all', actionIcon: LucideIcons.copy),
+                  }, actionLabel: 'Copy to all', actionIcon: Icons.content_copy),
                   const SizedBox(height: 16),
                   ..._weeklyHours.map((day) => _buildDayRow(day)),
                   const SizedBox(height: 32),
@@ -185,7 +184,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Break time added')),
                     );
-                  }, actionLabel: 'Add Break', actionIcon: LucideIcons.plus),
+                  }, actionLabel: 'Add Break', actionIcon: Icons.add),
                   const SizedBox(height: 16),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -213,7 +212,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                             ),
                             child: const Row(
                               children: [
-                                Icon(LucideIcons.shieldCheck, color: Color(0xFF10B981), size: 16),
+                                Icon(Icons.verified, color: Color(0xFF10B981), size: 16),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -242,7 +241,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                             ),
                             child: const Row(
                               children: [
-                                Icon(LucideIcons.info, color: primaryColor, size: 16),
+                                Icon(Icons.info, color: primaryColor, size: 16),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -446,7 +445,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
           ] else
             const Text('Unavailable', style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8), fontStyle: FontStyle.italic)),
           const SizedBox(width: 8),
-          const Icon(LucideIcons.plus, size: 18, color: Color(0xFFCBD5E1)),
+          const Icon(Icons.add, size: 18, color: Color(0xFFCBD5E1)),
         ],
       ),
     );
@@ -464,7 +463,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
         children: [
           Text(time, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
           const SizedBox(width: 4),
-          const Icon(LucideIcons.chevronDown, size: 14, color: Color(0xFF94A3B8)),
+          const Icon(Icons.expand_more, size: 14, color: Color(0xFF94A3B8)),
         ],
       ),
     );
@@ -486,7 +485,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
             children: [
               Text(brk['time']!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
               const SizedBox(width: 12),
-              const Icon(LucideIcons.trash2, size: 16, color: Color(0xFFEF4444)),
+              const Icon(Icons.delete, size: 16, color: Color(0xFFEF4444)),
             ],
           ),
           const SizedBox(height: 4),

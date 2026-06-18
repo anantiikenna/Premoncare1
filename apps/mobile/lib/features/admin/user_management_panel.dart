@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'admin_providers.dart';
 import 'admin_scaffold.dart';
 
@@ -50,7 +49,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
       child: Row(
         children: [
           _QuickActionBtn(
-            icon: LucideIcons.plus,
+            icon: Icons.add,
             label: 'Add User',
             color: primaryColor,
             onTap: () {
@@ -61,7 +60,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           ),
           const SizedBox(width: 12),
           _QuickActionBtn(
-            icon: LucideIcons.copy,
+            icon: Icons.content_copy,
             label: 'Bulk Actions',
             color: const Color(0xFF64748B),
             onTap: () {
@@ -72,7 +71,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           ),
           const SizedBox(width: 12),
           _QuickActionBtn(
-            icon: LucideIcons.download,
+            icon: Icons.download,
             label: 'Export Users',
             color: const Color(0xFF64748B),
             onTap: () {
@@ -83,7 +82,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           ),
           const SizedBox(width: 12),
           _QuickActionBtn(
-            icon: LucideIcons.userPlus,
+            icon: Icons.person_add,
             label: 'Invite User',
             color: const Color(0xFF64748B),
             onTap: () {
@@ -94,7 +93,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           ),
           const SizedBox(width: 12),
           _QuickActionBtn(
-            icon: LucideIcons.fileText,
+            icon: Icons.description,
             label: 'User Logs',
             color: const Color(0xFF64748B),
             onTap: () {
@@ -184,35 +183,35 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
                 label: 'Total Users',
                 value: stats['total'].toString(),
                 trend: '+18.6%',
-                icon: LucideIcons.users,
+                icon: Icons.people,
                 color: const Color(0xFF0F62FE),
               ),
               _StatCard(
                 label: 'Doctors',
                 value: stats['doctors'].toString(),
                 trend: '+14.2%',
-                icon: LucideIcons.stethoscope,
+                icon: Icons.medical_services,
                 color: const Color(0xFF10B981),
               ),
               _StatCard(
                 label: 'Patients',
                 value: stats['patients'].toString(),
                 trend: '+19.3%',
-                icon: LucideIcons.user,
+                icon: Icons.person,
                 color: const Color(0xFF8B5CF6),
               ),
               _StatCard(
                 label: 'Pending',
                 value: stats['pending'].toString(),
                 trend: '-6.1%',
-                icon: LucideIcons.clock,
+                icon: Icons.access_time,
                 color: const Color(0xFFF59E0B),
               ),
               _StatCard(
                 label: 'Suspended',
                 value: stats['suspended'].toString(),
                 trend: '-3.4%',
-                icon: LucideIcons.alertCircle,
+                icon: Icons.warning,
                 color: const Color(0xFFEF4444),
               ),
             ],
@@ -237,7 +236,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             child: Row(
               children: [
                 Icon(
-                  LucideIcons.search,
+                  Icons.search,
                   color: const Color(0xFF94A3B8),
                   size: 20,
                 ),
@@ -272,7 +271,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           child: Row(
             children: [
               Icon(
-                LucideIcons.filter,
+                Icons.filter_list,
                 color: const Color(0xFF1E293B),
                 size: 18,
               ),
@@ -449,8 +448,8 @@ class _StatCard extends StatelessWidget {
             children: [
               Icon(
                 trend.startsWith('+')
-                    ? LucideIcons.trendingUp
-                    : LucideIcons.trendingDown,
+                    ? Icons.trending_up
+                    : Icons.trending_down,
                 color: trend.startsWith('+')
                     ? const Color(0xFF10B981)
                     : const Color(0xFFEF4444),
@@ -576,7 +575,7 @@ class _UserListItem extends StatelessWidget {
               IconButton(
                 onPressed: () => _showActionSheet(context, user),
                 icon: const Icon(
-                  LucideIcons.moreHorizontal,
+                  Icons.more_horiz,
                   color: Color(0xFF94A3B8),
                 ),
               ),
@@ -701,7 +700,7 @@ class _UserActionSheet extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           _ActionTile(
-            icon: LucideIcons.ban,
+            icon: Icons.block,
             label: user['account_status'] == 'suspended'
                 ? 'Activate Account'
                 : 'Suspend Account',
@@ -717,7 +716,7 @@ class _UserActionSheet extends ConsumerWidget {
             },
           ),
           _ActionTile(
-            icon: LucideIcons.shieldAlert,
+            icon: Icons.gpp_bad,
             label: 'Ban Account (Permanent)',
             color: const Color(0xFFEF4444),
             onTap: () {
@@ -726,7 +725,7 @@ class _UserActionSheet extends ConsumerWidget {
             },
           ),
           _ActionTile(
-            icon: LucideIcons.edit3,
+            icon: Icons.edit,
             label: 'Edit Profile Information',
             onTap: () {
               // Navigate to edit profile
@@ -734,7 +733,7 @@ class _UserActionSheet extends ConsumerWidget {
             },
           ),
           _ActionTile(
-            icon: LucideIcons.refreshCcw,
+            icon: Icons.refresh,
             label: 'Reset Verification State',
             onTap: () {
               adminService.resetVerification(user['id']);
@@ -742,7 +741,7 @@ class _UserActionSheet extends ConsumerWidget {
             },
           ),
           _ActionTile(
-            icon: LucideIcons.eye,
+            icon: Icons.visibility,
             label: 'Impersonate / Support View',
             color: const Color(0xFF0F62FE),
             onTap: () {
@@ -751,7 +750,7 @@ class _UserActionSheet extends ConsumerWidget {
             },
           ),
           _ActionTile(
-            icon: LucideIcons.zap,
+            icon: Icons.bolt,
             label: 'Emergency Intervention',
             color: const Color(0xFFF59E0B),
             onTap: () {
