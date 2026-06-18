@@ -1,0 +1,78 @@
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+
+export async function updateSession(request: NextRequest) {
+    let supabaseResponse = NextResponse.next({
+        request,
+    })
+
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+
+    const supabase = createServerClient(
+        url || 'https://placeholder.supabase.co',
+        key || 'placeholder-key',
+        {
+            cookies: {
+                getAll() {
+                    return request.cookies.getAll()
+                },
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+                    supabaseResponse = NextResponse.next({
+                        request,
+                    })
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        supabaseResponse.cookies.set(name, value, options)
+                    )
+                },
+            },
+        }
+    )
+
+    // refreshing the auth token
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Handle protected routes
+    const pathname = request.nextUrl.pathname
+
+    if (!user && (
+        pathname.startsWith('/admin') ||
+        pathname.startsWith('/doctor') ||
+        pathname.startsWith('/patient') ||
+        pathname.startsWith('/notifications') ||
+        pathname.startsWith('/messages') ||
+        pathname.startsWith('/profile')
+    )) {
+        return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    if (user) {
+        // Fetch role to enforce route protection
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+        const role = profile?.role || 'patient'
+
+        // Prevent cross-role access
+        if (pathname.startsWith('/admin') && role !== 'admin') {
+            return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url))
+        }
+        if (pathname.startsWith('/doctor') && pathname !== '/doctor/apply' && role !== 'doctor' && role !== 'admin') {
+            return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url))
+        }
+        if (pathname.startsWith('/patient') && role !== 'patient' && role !== 'admin') {
+            return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url))
+        }
+
+        // Redirect from login/register if already authenticated
+        if (pathname === '/login' || pathname === '/register') {
+            return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url))
+        }
+    }
+
+    return supabaseResponse
+}

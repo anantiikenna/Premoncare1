@@ -1,0 +1,360 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../shared/widgets/generic_user_avatar.dart';
+
+class SelectDurationScreen extends StatefulWidget {
+  final String doctorId;
+  final String doctorName;
+  final double hourlyRate;
+  final bool isEmergency;
+
+  const SelectDurationScreen({
+    super.key,
+    required this.doctorId,
+    required this.doctorName,
+    required this.hourlyRate,
+    required this.isEmergency,
+  });
+
+  @override
+  State<SelectDurationScreen> createState() => _SelectDurationScreenState();
+}
+
+class _SelectDurationScreenState extends State<SelectDurationScreen> {
+  int _selectedDuration = 30;
+
+  /// Price per minute from hourly rate (with emergency multiplier applied)
+  double get _ratePerMinute => (widget.hourlyRate / 60) * (widget.isEmergency ? 5 : 1);
+
+  int _priceForDuration(int minutes) => (_ratePerMinute * minutes).toInt();
+
+  @override
+  Widget build(BuildContext context) {
+    final isEmergency = widget.isEmergency;
+    final primaryColor = isEmergency ? const Color(0xFFEF4444) : const Color(0xFF0F62FE);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: Stack(
+        children: [
+          Positioned(top: -150, right: -100, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
+          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.05), size: 400)),
+
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildAppBar(context, isEmergency),
+                  const SizedBox(height: 24),
+                  Text(isEmergency ? 'PRIORITY DISPATCH' : 'CLINICAL BOOKING',
+                      style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                  const SizedBox(height: 12),
+                  Text(isEmergency ? 'Emergency Access' : 'Booking Details',
+                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+                  const SizedBox(height: 32),
+
+                  _SpecialistPreviewCard(
+                    isEmergency: isEmergency,
+                    primaryColor: primaryColor,
+                    doctorName: widget.doctorName,
+                    hourlyRate: widget.hourlyRate,
+                  ),
+                  const SizedBox(height: 40),
+
+                  _buildSectionTitle('SESSION DURATION'),
+                  const SizedBox(height: 16),
+                  _DurationSelector(
+                    selectedDuration: _selectedDuration,
+                    primaryColor: primaryColor,
+                    hourlyRate: widget.hourlyRate,
+                    isEmergency: isEmergency,
+                    onSelected: (val) => setState(() => _selectedDuration = val),
+                  ),
+                  const SizedBox(height: 40),
+
+                  _buildSectionTitle('PRICING ARCHITECTURE'),
+                  const SizedBox(height: 16),
+                  _PricingModule(
+                    selectedDuration: _selectedDuration,
+                    hourlyRate: widget.hourlyRate,
+                    isEmergency: isEmergency,
+                    primaryColor: primaryColor,
+                  ),
+                  const SizedBox(height: 48),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 64,
+                    child: ElevatedButton(
+                      onPressed: () => context.push('/confirm-booking', extra: {
+                        'doctorId': widget.doctorId,
+                        'doctorName': widget.doctorName,
+                        'durationMinutes': _selectedDuration,
+                        'totalAmount': _priceForDuration(_selectedDuration).toDouble(),
+                        'isEmergency': isEmergency,
+                      }),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E293B),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isEmergency ? 'AUTHORIZE EMERGENCY CARE' : 'PROCEED TO CONFIRMATION',
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                          ),
+                          const SizedBox(width: 12),
+                          const Icon(Icons.arrow_forward_rounded, size: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
+  }
+
+  Widget _buildAppBar(BuildContext context, bool isEmergency) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => context.pop(),
+            child: Container(
+              width: 48, height: 48,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
+              child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
+            ),
+          ),
+          if (isEmergency) _EmergencyBadge(),
+        ],
+      ),
+    );
+  }
+}
+
+class _SpecialistPreviewCard extends StatelessWidget {
+  final bool isEmergency;
+  final Color primaryColor;
+  final String doctorName;
+  final double hourlyRate;
+
+  const _SpecialistPreviewCard({
+    required this.isEmergency,
+    required this.primaryColor,
+    required this.doctorName,
+    required this.hourlyRate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final displayName = doctorName.startsWith('Dr.') ? doctorName : 'Dr. $doctorName';
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: isEmergency ? const Color(0xFFFEE2E2) : const Color(0xFFF1F5F9)),
+      ),
+      child: Row(
+        children: [
+          const GenericUserAvatar(radius: 36, avatarUrl: null),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(displayName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+                const SizedBox(height: 4),
+                Text('₦${hourlyRate.toStringAsFixed(0)} / hour', style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DurationSelector extends StatelessWidget {
+  final int selectedDuration;
+  final Color primaryColor;
+  final double hourlyRate;
+  final bool isEmergency;
+  final Function(int) onSelected;
+
+  const _DurationSelector({
+    required this.selectedDuration,
+    required this.primaryColor,
+    required this.hourlyRate,
+    required this.isEmergency,
+    required this.onSelected,
+  });
+
+  int _price(int mins) {
+    final perMin = (hourlyRate / 60) * (isEmergency ? 5 : 1);
+    return (perMin * mins).toInt();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final durations = [15, 30, 45, 60];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      clipBehavior: Clip.none,
+      child: Row(
+        children: durations.map((mins) {
+          final isSelected = selectedDuration == mins;
+          return GestureDetector(
+            onTap: () => onSelected(mins),
+            child: Container(
+              width: 110,
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              decoration: BoxDecoration(
+                color: isSelected ? primaryColor : Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(color: isSelected ? primaryColor : const Color(0xFFF1F5F9)),
+                boxShadow: isSelected
+                    ? [BoxShadow(color: primaryColor.withValues(alpha: 0.25), blurRadius: 20, offset: const Offset(0, 10))]
+                    : [],
+              ),
+              child: Column(
+                children: [
+                  Text('$mins',
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : const Color(0xFF1E293B), letterSpacing: -1)),
+                  Text('MINS',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: isSelected ? Colors.white70 : const Color(0xFF94A3B8), letterSpacing: 1)),
+                  const SizedBox(height: 16),
+                  Text('₦${_price(mins)}',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : primaryColor)),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _PricingModule extends StatelessWidget {
+  final int selectedDuration;
+  final double hourlyRate;
+  final bool isEmergency;
+  final Color primaryColor;
+
+  const _PricingModule({
+    required this.selectedDuration,
+    required this.hourlyRate,
+    required this.isEmergency,
+    required this.primaryColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final perMin = hourlyRate / 60;
+    final multiplier = isEmergency ? 5 : 1;
+    final total = (perMin * multiplier * selectedDuration).toInt();
+    final totalStr = total.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: Column(
+        children: [
+          _PriceRow(label: 'CLINICAL BASE RATE', value: '₦${perMin.toStringAsFixed(0)} / MIN'),
+          const SizedBox(height: 16),
+          _PriceRow(label: 'SESSION DURATION', value: '$selectedDuration MINUTES'),
+          if (isEmergency) ...[
+            const SizedBox(height: 16),
+            const _PriceRow(label: 'EMERGENCY PREMIUM', value: '5X RATE APPLIED', isUrgent: true),
+          ],
+          const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: Divider(color: Color(0xFFF1F5F9), thickness: 2)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('TOTAL ESTIMATE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Color(0xFF64748B), letterSpacing: 0.5)),
+              Text('₦$totalStr', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32, color: primaryColor, letterSpacing: -1.5)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriceRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isUrgent;
+  const _PriceRow({required this.label, required this.value, this.isUrgent = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF94A3B8), letterSpacing: 0.5)),
+        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: isUrgent ? const Color(0xFFEF4444) : const Color(0xFF1E293B))),
+      ],
+    );
+  }
+}
+
+class _EmergencyBadge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFFECACA))),
+      child: const Row(
+        children: [
+          Icon(Icons.bolt_rounded, color: Color(0xFFEF4444), size: 16),
+          SizedBox(width: 8),
+          Text('PRIORITY ACCESS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFB91C1C), letterSpacing: 0.5)),
+        ],
+      ),
+    );
+  }
+}
+
+class _MeshCircle extends StatelessWidget {
+  final Color color;
+  final double size;
+  const _MeshCircle({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [BoxShadow(color: color, blurRadius: 80, spreadRadius: 40)],
+      ),
+    );
+  }
+}

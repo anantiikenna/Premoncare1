@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "900969368854",
+    "project_id": "premoncare",
+    "storage_bucket": "premoncare.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900969368854:android:569e2a63ba9941aafa9437",
+        "android_client_info": {
+          "package_name": "com.premoncare.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp0gPIZeXarnmxHF4VXmnhcA0uqcuvatU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

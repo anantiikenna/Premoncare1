@@ -1,0 +1,478 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { getAuditTimeline } from '@/lib/queries-client'
+import type { AuditEvent } from '@/lib/queries-base'
+
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@/components/ui/dialog'
+import {
+    ShieldCheck,
+    CreditCard,
+    MessageSquare,
+    Calendar,
+    AlertTriangle,
+    Activity,
+    Clock,
+    RefreshCw,
+    Eye,
+    Filter,
+    ArrowUpDown,
+    FileText,
+} from 'lucide-react'
+
+const FILTERS = ['All', 'Verification', 'Payments', 'Forum', 'Appointments', 'Alerts'] as const
+type FilterType = (typeof FILTERS)[number]
+
+const TYPE_CONFIG: Record<AuditEvent['type'], { icon: typeof ShieldCheck; color: string; bg: string; label: string }> = {
+    verification: { icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'Verification' },
+    payment: { icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'Payment' },
+    forum: { icon: MessageSquare, color: 'text-violet-500', bg: 'bg-violet-500/10', label: 'Forum' },
+    appointment: { icon: Calendar, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'Appointment' },
+    system: { icon: Activity, color: 'text-slate-500', bg: 'bg-slate-500/10', label: 'System' },
+}
+
+const SEVERITY_CONFIG: Record<AuditEvent['severity'], { badge: string; dot: string }> = {
+    success: { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+    info: { badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+    warning: { badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+    danger: { badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
+}
+
+function formatRelativeTime(timestamp: string) {
+    const diff = Date.now() - new Date(timestamp).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return 'Just now'
+    if (mins < 60) return `${mins}m ago`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days}d ago`
+    return new Date(timestamp).toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })
+}
+
+function formatTimestamp(timestamp: string) {
+    return new Date(timestamp).toLocaleString('en-NG', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+}
+
+function groupEventsByDate(events: AuditEvent[]) {
+    const groups = new Map<string, AuditEvent[]>()
+    for (const event of events) {
+        const date = new Date(event.timestamp).toLocaleDateString('en-NG', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+        })
+        if (!groups.has(date)) groups.set(date, [])
+        groups.get(date)!.push(event)
+    }
+    return groups
+}
+
+export default function AdminAuditTimelinePage() {
+    const [events, setEvents] = useState<AuditEvent[]>([])
+    const [stats, setStats] = useState({ totalActions: 0, securityAlerts: 0, recentChanges: 0 })
+    const [loading, setLoading] = useState(true)
+    const [activeFilter, setActiveFilter] = useState<FilterType>('All')
+    const [sortAsc, setSortAsc] = useState(false)
+    const [selectedEvent, setSelectedEvent] = useState<AuditEvent | null>(null)
+
+    const fetchAuditData = useCallback(async () => {
+        setLoading(true)
+        try {
+            const result = await getAuditTimeline(100)
+            setEvents(result.events)
+            setStats(result.stats)
+        } catch (err) {
+            console.error('Failed to fetch audit timeline:', err)
+        } finally {
+            setLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        fetchAuditData()
+    }, [fetchAuditData])
+
+    const filteredEvents = events.filter((e) => {
+        if (activeFilter === 'All') return true
+        if (activeFilter === 'Alerts') return e.severity === 'danger' || e.severity === 'warning'
+        return e.type === activeFilter.toLowerCase()
+    })
+
+    const sortedEvents = [...filteredEvents].sort((a, b) =>
+        sortAsc
+            ? new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+            : new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )
+
+    const groupedEvents = groupEventsByDate(sortedEvents)
+
+    return (
+        <div className="min-h-screen bg-slate-50 p-6 md:p-12">
+            <div className="max-w-6xl mx-auto space-y-8">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-violet-600 font-black uppercase tracking-widest text-xs">
+                            <FileText className="h-4 w-4" />
+                            Platform Administration
+                        </div>
+                        <h1 className="text-3xl font-black text-slate-800 tracking-tight">Audit Timeline</h1>
+                        <p className="text-sm font-semibold text-slate-500">
+                            Track and review all system activities across the platform.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-500/20 rounded-full">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-xs font-black text-emerald-600 tracking-wider">LIVE</span>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={fetchAuditData}
+                            disabled={loading}
+                            className="rounded-xl"
+                        >
+                            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                            Refresh
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Stats Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard
+                        value={stats.totalActions.toLocaleString()}
+                        title="Total Actions"
+                        subtitle="Last 30 days"
+                        icon={Activity}
+                        color="text-blue-500"
+                        bgColor="bg-blue-500/10"
+                    />
+                    <StatCard
+                        value={stats.securityAlerts.toLocaleString()}
+                        title="Security Alerts"
+                        subtitle="Flagged activities"
+                        icon={AlertTriangle}
+                        color="text-rose-500"
+                        bgColor="bg-rose-500/10"
+                    />
+                    <StatCard
+                        value={stats.recentChanges.toLocaleString()}
+                        title="Recent Changes"
+                        subtitle="Last 24 hours"
+                        icon={Clock}
+                        color="text-amber-500"
+                        bgColor="bg-amber-500/10"
+                    />
+                    <StatCard
+                        value={events.filter((e) => e.type === 'verification').length.toLocaleString()}
+                        title="Verifications"
+                        subtitle="Processed actions"
+                        icon={ShieldCheck}
+                        color="text-emerald-500"
+                        bgColor="bg-emerald-500/10"
+                    />
+                </div>
+
+                {/* Filter Chips */}
+                <div className="flex flex-wrap items-center gap-2">
+                    <Filter className="h-4 w-4 text-slate-400 mr-1" />
+                    {FILTERS.map((filter) => {
+                        const count =
+                            filter === 'All'
+                                ? events.length
+                                : filter === 'Alerts'
+                                  ? events.filter((e) => e.severity === 'danger' || e.severity === 'warning').length
+                                  : events.filter((e) => e.type === filter.toLowerCase()).length
+                        return (
+                            <button
+                                key={filter}
+                                onClick={() => setActiveFilter(filter)}
+                                className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
+                                    activeFilter === filter
+                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                        : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
+                                }`}
+                            >
+                                {filter}
+                                <span
+                                    className={`ml-1.5 text-[10px] font-black ${
+                                        activeFilter === filter ? 'text-blue-200' : 'text-slate-400'
+                                    }`}
+                                >
+                                    {count}
+                                </span>
+                            </button>
+                        )
+                    })}
+                </div>
+
+                {/* Sort Toggle */}
+                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm font-black text-slate-800">{sortedEvents.length} Events</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                        <span className="text-sm font-semibold text-slate-500">
+                            {activeFilter === 'All' ? 'All Categories' : activeFilter}
+                        </span>
+                    </div>
+                    <button
+                        onClick={() => setSortAsc(!sortAsc)}
+                        className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-700"
+                    >
+                        {sortAsc ? 'Oldest First' : 'Newest First'}
+                        <ArrowUpDown className="w-4 h-4" />
+                    </button>
+                </div>
+
+                {/* Timeline */}
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <RefreshCw className="h-8 w-8 text-slate-300 animate-spin mb-4" />
+                        <p className="text-sm font-bold text-slate-400">Loading audit events...</p>
+                    </div>
+                ) : sortedEvents.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <Activity className="h-8 w-8 text-slate-300" />
+                        </div>
+                        <p className="text-sm font-black text-slate-800">No Events Found</p>
+                        <p className="text-xs font-semibold text-slate-400 mt-1">
+                            {activeFilter !== 'All'
+                                ? 'Try adjusting your filters to see more activity.'
+                                : 'No audit events have been recorded yet.'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-8">
+                        {Array.from(groupedEvents.entries()).map(([date, dateEvents]) => (
+                            <div key={date}>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="text-sm font-black text-slate-800">{date}</span>
+                                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                        {dateEvents.length} events
+                                    </span>
+                                </div>
+                                <div className="space-y-4">
+                                    {dateEvents.map((event) => (
+                                        <TimelineEvent
+                                            key={event.id}
+                                            event={event}
+                                            onViewDetails={setSelectedEvent}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Footer */}
+                <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                        <ShieldCheck className="h-5 w-5 text-blue-500" />
+                        <p className="text-sm font-bold text-blue-900">
+                            All audit activities are securely stored for compliance and investigation purposes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Detail Dialog */}
+            <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
+                <DialogContent className="sm:max-w-lg">
+                    {selectedEvent && <EventDetailContent event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
+                </DialogContent>
+            </Dialog>
+        </div>
+    )
+}
+
+function StatCard({
+    value,
+    title,
+    subtitle,
+    icon: Icon,
+    color,
+    bgColor,
+}: {
+    value: string
+    title: string
+    subtitle: string
+    icon: typeof Activity
+    color: string
+    bgColor: string
+}) {
+    return (
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${bgColor} mb-4`}>
+                <Icon className={`h-5 w-5 ${color}`} />
+            </div>
+            <h3 className="text-2xl font-black text-slate-800 tracking-tight">{value}</h3>
+            <p className="text-sm font-bold text-slate-800">{title}</p>
+            <p className="text-xs font-semibold text-slate-500 mt-1">{subtitle}</p>
+        </div>
+    )
+}
+
+function TimelineEvent({
+    event,
+    onViewDetails,
+}: {
+    event: AuditEvent
+    onViewDetails: (event: AuditEvent) => void
+}) {
+    const config = TYPE_CONFIG[event.type]
+    const severity = SEVERITY_CONFIG[event.severity]
+    const Icon = config.icon
+
+    return (
+        <div className="flex gap-4 group">
+            <div className="w-20 shrink-0 pt-2 text-right">
+                <div className="text-sm font-bold text-slate-800">
+                    {new Date(event.timestamp).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div className="text-xs font-semibold text-slate-500">{formatRelativeTime(event.timestamp)}</div>
+            </div>
+            <div className="flex flex-col items-center">
+                <div className={`w-3 h-3 rounded-full mt-3 relative z-10 shadow-sm ${severity.dot}`} />
+                <div className="w-0.5 h-full bg-slate-200 -mt-2 -mb-2 group-last:hidden" />
+            </div>
+            <div className="flex-1 pb-4">
+                <Card className="rounded-2xl border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                    <CardContent className="p-5">
+                        <div className="flex items-start gap-4">
+                            <div className={`p-3 rounded-xl ${config.bg}`}>
+                                <Icon className={`h-6 w-6 ${config.color}`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                    <h4 className="font-black text-slate-800 text-base leading-tight">{event.title}</h4>
+                                    <Badge variant="outline" className={`shrink-0 text-[10px] font-bold ${severity.badge}`}>
+                                        {event.severity === 'danger' ? 'Alert' : event.severity === 'warning' ? 'Pending' : event.severity === 'success' ? 'Success' : 'Info'}
+                                    </Badge>
+                                </div>
+                                <p className="text-sm font-semibold text-slate-500 mt-1">{event.description}</p>
+
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs">
+                                    {Object.entries(event.meta).slice(0, 3).map(([key, val]) => (
+                                        <div key={key} className="flex items-center gap-1.5">
+                                            <span className="font-semibold text-slate-400">{key}:</span>
+                                            <span className="font-bold text-slate-700">{val}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-2 mt-4">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => onViewDetails(event)}
+                                        className="h-8 px-3 text-xs font-bold rounded-lg"
+                                    >
+                                        <Eye className="h-3.5 w-3.5 mr-1" />
+                                        View Details
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    )
+}
+
+function EventDetailContent({ event, onClose }: { event: AuditEvent; onClose: () => void }) {
+    const config = TYPE_CONFIG[event.type]
+    const severity = SEVERITY_CONFIG[event.severity]
+    const Icon = config.icon
+
+    return (
+        <>
+            <DialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className={`p-2 rounded-xl ${config.bg}`}>
+                        <Icon className={`h-5 w-5 ${config.color}`} />
+                    </div>
+                    <div>
+                        <DialogTitle className="text-lg">{event.title}</DialogTitle>
+                        <DialogDescription>{formatTimestamp(event.timestamp)}</DialogDescription>
+                    </div>
+                </div>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+                <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Description</p>
+                    <p className="text-sm font-semibold text-slate-700">{event.description}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-slate-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</p>
+                        <p className="text-sm font-bold text-slate-800 mt-0.5">{config.label}</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Severity</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                            <span className={`w-2 h-2 rounded-full ${severity.dot}`} />
+                            <p className="text-sm font-bold text-slate-800 capitalize">{event.severity}</p>
+                        </div>
+                    </div>
+                    {event.actor && (
+                        <div className="bg-slate-50 rounded-xl p-3">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Actor</p>
+                            <p className="text-sm font-bold text-slate-800 mt-0.5">{event.actor}</p>
+                        </div>
+                    )}
+                    {event.target && (
+                        <div className="bg-slate-50 rounded-xl p-3">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target</p>
+                            <p className="text-sm font-bold text-slate-800 mt-0.5">{event.target}</p>
+                        </div>
+                    )}
+                </div>
+
+                {Object.keys(event.meta).length > 0 && (
+                    <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Metadata</p>
+                        <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                            {Object.entries(event.meta).map(([key, val]) => (
+                                <div key={key} className="flex items-center justify-between">
+                                    <span className="text-xs font-semibold text-slate-500">{key}</span>
+                                    <span className="text-xs font-bold text-slate-800">{val}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <DialogFooter>
+                <Button variant="outline" onClick={onClose} className="rounded-xl">
+                    Close
+                </Button>
+            </DialogFooter>
+        </>
+    )
+}

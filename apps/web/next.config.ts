@@ -1,0 +1,38 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  logging: {
+    browserToTerminal: true,
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload', // Use HTTPS everywhere (Host agnostic)
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          }
+        ],
+      },
+    ]
+  },
+};
+
+export default nextConfig;

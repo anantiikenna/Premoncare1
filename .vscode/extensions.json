@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "dart-code.flutter",
+    "dart-code.dart-code",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-postgres.postgresql",
+    "vscjava.vscode-java-pack",
+    "fwcd.kotlin"
+  ]
+}

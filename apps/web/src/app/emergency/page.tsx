@@ -1,0 +1,480 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { 
+  ShieldAlert, 
+  ArrowRight, 
+  ArrowLeft, 
+  CheckCircle2, 
+  Loader2, 
+  Banknote, 
+  Star, 
+  Clock, 
+  Activity,
+  AlertCircle
+} from 'lucide-react'
+import Image from 'next/image'
+import { OTPForm } from '@/components/auth/otp-form'
+import { toast } from 'sonner'
+import { getUserFacingError } from '@/lib/user-facing-errors'
+
+interface EmergencyDoctor {
+  id: string
+  full_name: string
+  specialty?: string | null
+  avatar_url?: string | null
+  consultation_fee?: number | null
+  experience_years?: number | null
+  clinic_address?: string | null
+  payment_instructions?: string | null
+  reviews?: { rating: number | null }[] | null
+}
+
+export default function EmergencyBookingPage() {
+  const [step, setStep] = useState(1)
+  const [doctors, setDoctors] = useState<EmergencyDoctor[]>([])
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
+  const [selectedDoctor, setSelectedDoctor] = useState<EmergencyDoctor | null>(null)
+  const [duration, setDuration] = useState(15)
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+
+  const router = useRouter()
+  const supabase = createClient()
+  const [otpVerified, setOtpVerified] = useState(false)
+  const [showOtp, setShowOtp] = useState(false)
+
+  const sendOtp = async () => {
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+      },
+    })
+
+    if (otpError) throw otpError
+    toast.success('Verification code sent to ' + email)
+  }
+
+  const handleVerifyOtp = async (code: string) => {
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: 'email',
+    })
+
+    if (verifyError) throw verifyError
+    setOtpVerified(true)
+    setShowOtp(false)
+    handleNext()
+    toast.success('Identity Verified')
+  }
+
+  const handleResendOtp = async () => {
+    await sendOtp()
+  }
+
+  useEffect(() => {
+    async function fetchDoctors() {
+      setLoading(true)
+      const now = new Date().toISOString()
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, specialty, avatar_url, consultation_fee, experience_years, clinic_address, payment_instructions, reviews(rating)')
+        .eq('role', 'doctor')
+        .eq('verification_status', 'approved')
+        .eq('subscription_status', 'active')
+        .gt('subscription_expires_at', now)
+
+      if (data) setDoctors(data)
+      setLoading(false)
+    }
+    fetchDoctors()
+  }, [supabase])
+
+  const handleNext = () => setStep(step + 1)
+  const handleBack = () => setStep(step - 1)
+
+  const handleSubmit = async () => {
+    if (!selectedDoctor) {
+      setError('Please select a doctor before starting emergency booking')
+      return
+    }
+
+    setSubmitting(true)
+    setError(null)
+
+    try {
+      // 1. Create a "Shadow Profile" or link to guest_token
+      // For this demo, we'll store guest info in a dedicated table or use metadata
+      // In a real implementation, we'd trigger a Supabase function to create a guest record
+      
+      const guestToken = `guest_${Math.random().toString(36).substring(7)}`
+      localStorage.setItem('premon_guest_token', guestToken)
+      localStorage.setItem('premon_guest_email', email)
+
+      // 2. Insert the emergency appointment
+      const { error: bookingError } = await supabase
+        .from('appointments')
+        .insert({
+          patient_id: null, // Guest
+          doctor_id: selectedDoctor.id,
+          appointment_date: new Date().toISOString(),
+          reason: 'EMERGENCY CONSULTATION (Guest)',
+          duration_minutes: duration,
+          status: 'pending',
+          is_patient_approved: true,
+          is_emergency: true,
+          total_amount: ((selectedDoctor.consultation_fee || 50) * duration * 5 / 15),
+          metadata: {
+            is_emergency: true,
+            guest_email: email,
+            guest_phone: phone,
+            guest_token: guestToken,
+            pricing_multiplier: 5
+          }
+        })
+
+      if (bookingError) throw bookingError
+      setSuccess(true)
+    } catch (err: unknown) {
+      console.error('Emergency booking failed', err)
+      setError(getUserFacingError(err, 'We could not start the emergency booking. Please try again or contact support.'))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <Card className="w-full max-w-xl border-red-200 shadow-2xl">
+          <CardHeader className="bg-red-50 text-center pb-8 border-b border-red-100">
+            <CheckCircle2 className="h-16 w-16 text-red-600 mx-auto mb-4" />
+            <CardTitle className="text-3xl font-black text-red-900">Emergency Initiated</CardTitle>
+            <CardDescription className="text-red-700 font-bold mt-2 uppercase tracking-widest text-xs">
+              Immediate Payment Required to Start
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-8 space-y-6">
+            <div className="bg-white border-2 border-red-500 rounded-3xl p-6 shadow-lg">
+              <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-red-600">
+                <Banknote className="h-6 w-6" /> P2P Payment Instructions
+              </h3>
+              <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                To start your consultation with <span className="font-bold text-slate-900">Dr. {selectedDoctor?.full_name}</span> immediately, please pay the emergency fee:
+              </p>
+              <div className="text-4xl font-black text-slate-900 mb-6 text-center">
+                ₦{((selectedDoctor?.consultation_fee || 50) * duration * 5 / 15).toLocaleString()}
+              </div>
+              <div className="p-5 bg-slate-900 text-white rounded-2xl font-mono text-sm shadow-inner">
+                {selectedDoctor?.payment_instructions || 'Transfer to: Premon Bank - 0123456789'}
+              </div>
+              <p className="text-[10px] text-red-500 mt-4 font-bold uppercase text-center italic">
+                Once paid, the doctor will be alerted for immediate session startup.
+              </p>
+            </div>
+
+            <div className="space-y-4 pt-4">
+              <Button 
+                onClick={() => router.push('/account-conversion')} 
+                className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black hover:scale-105 transition-transform shadow-xl shadow-slate-900/20"
+              >
+                Secure My Medical Records
+              </Button>
+              <p className="text-xs text-center text-slate-400 font-medium italic">
+                A copy of these instructions has been sent to {email}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans selection:bg-red-100 selection:text-red-900">
+      <div className="max-w-4xl mx-auto py-12 md:py-20 px-6">
+        <header className="text-center space-y-4 mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">
+            <ShieldAlert className="h-4 w-4" /> Emergency Access Mode
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter">
+            Rapid Consult. <span className="text-red-600 italic">No Wait.</span>
+          </h1>
+          <p className="text-slate-500 font-medium max-w-xl mx-auto">
+            Bypass registration and connect with a verified specialist in minutes. 
+            <span className="block mt-2 font-bold text-red-500">Premium 5x emergency rates apply.</span>
+          </p>
+        </header>
+
+        <Card className="border-none shadow-[0_20px_50px_-20px_rgba(220,38,38,0.15)] overflow-hidden">
+          <CardHeader className="bg-slate-900 text-white p-8 md:p-10">
+            <div className="flex justify-between items-center">
+              <div className="space-y-1">
+                <CardTitle className="text-2xl font-black">Emergency Booking</CardTitle>
+                <CardDescription className="text-slate-400 font-medium">Step {step} of 3</CardDescription>
+              </div>
+              <div className="h-12 w-12 rounded-2xl bg-red-600 flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.5)]">
+                <Activity className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div className="w-full bg-white/10 h-1.5 rounded-full mt-8 overflow-hidden">
+              <div 
+                className="bg-red-600 h-full transition-all duration-500 ease-out"
+                style={{ width: `${(step / 3) * 100}%` }}
+              />
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-8 md:p-10 space-y-8">
+            {error && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">
+                {error}
+              </div>
+            )}
+            {step === 1 && (
+              <div className="space-y-6">
+                <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                  {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                      <Loader2 className="h-10 w-10 animate-spin text-red-600" />
+                      <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">Searching Online Doctors...</p>
+                    </div>
+                  ) : doctors.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 px-6 text-center border-2 border-dashed border-red-100 rounded-[2rem] bg-red-50/10">
+                      <div className="h-16 w-16 rounded-2xl bg-red-100 flex items-center justify-center mb-4 shadow-inner text-red-600">
+                        <ShieldAlert className="h-8 w-8" />
+                      </div>
+                      <h4 className="text-lg font-black text-slate-900 mb-2">No Specialists Online</h4>
+                      <p className="text-sm text-slate-500 max-w-sm mb-6 leading-relaxed">
+                        All verified doctors are currently offline or handling critical clinical cases. Please try again in a few minutes, or return to safety.
+                      </p>
+                      <Button 
+                        onClick={() => router.push('/')} 
+                        className="h-11 rounded-xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest px-6"
+                      >
+                        Return to Safety
+                      </Button>
+                    </div>
+                  ) : (
+                    doctors.map((doctor) => (
+                      <div 
+                        key={doctor.id}
+                        onClick={() => setSelectedDoctor(doctor)}
+                        className={`
+                          group relative flex items-center gap-5 p-6 rounded-[2rem] border-2 transition-all cursor-pointer
+                          ${selectedDoctor?.id === doctor.id 
+                            ? 'border-red-600 bg-red-50/50 shadow-lg' 
+                            : 'border-slate-100 hover:border-red-200 hover:bg-slate-50'}
+                        `}
+                      >
+                        <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-full overflow-hidden border-4 border-white shadow-md">
+                          <Image 
+                            src={doctor.avatar_url || `https://i.pravatar.cc/150?u=${doctor.id}`} 
+                            alt={doctor.full_name} 
+                            fill 
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-lg font-black text-slate-900">Dr. {doctor.full_name}</h4>
+                            <CheckCircle2 className="h-4 w-4 text-red-600" />
+                          </div>
+                          <p className="text-sm text-slate-500 font-bold">{doctor.specialty || 'Emergency Care'}</p>
+                          <div className="flex items-center gap-4 pt-1">
+                            <div className="flex items-center gap-1 text-amber-500 font-black text-xs">
+                              <Star className="h-3 w-3 fill-current" /> 4.9
+                            </div>
+                            <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                              {doctor.experience_years || 5}+ Years Exp.
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xl font-black text-red-600">₦{((doctor.consultation_fee || 50) * 5).toLocaleString()}</div>
+                          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Emergency Rate</div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+
+    {step === 2 && (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {!showOtp ? (
+          <>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="space-y-3">
+                <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Your Contact Email</Label>
+                <Input 
+                  placeholder="email@example.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-14 rounded-2xl border-slate-200 focus:ring-red-600 focus:border-red-600 text-lg"
+                />
+              </div>
+              <div className="space-y-3">
+                <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Mobile Number</Label>
+                <Input 
+                  placeholder="+234..." 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="h-14 rounded-2xl border-slate-200 focus:ring-red-600 focus:border-red-600 text-lg"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Consultation Duration</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[15, 30, 45, 60].map((mins) => (
+                  <div 
+                    key={mins}
+                    onClick={() => setDuration(mins)}
+                    className={`
+                      p-4 rounded-2xl border-2 text-center transition-all cursor-pointer
+                      ${duration === mins 
+                        ? 'border-red-600 bg-red-600 text-white shadow-lg' 
+                        : 'border-slate-100 hover:border-red-200'}
+                    `}
+                  >
+                    <div className="text-xl font-black">{mins}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest opacity-70">Minutes</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="py-4">
+            <OTPForm email={email} onVerify={handleVerifyOtp} onResend={handleResendOtp} />
+          </div>
+        )}
+
+                <div className="p-6 bg-slate-900 rounded-[2rem] text-white flex items-center justify-between shadow-2xl">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                      <Clock className="h-6 w-6 text-red-500" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-widest opacity-50">Total Emergency Fee</div>
+                      <div className="text-2xl font-black">
+                        ₦{((selectedDoctor?.consultation_fee || 50) * duration * 5 / 15).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="border-red-500 text-red-500 font-black px-4 py-1 rounded-full uppercase tracking-widest text-[10px]">
+                    5x Premium Included
+                  </Badge>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-8 animate-in zoom-in-95 duration-500">
+                <div className="bg-red-50 border-2 border-red-100 p-8 rounded-[3rem] text-center space-y-6">
+                  <div className="h-20 w-20 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-red-200">
+                    <AlertCircle className="h-10 w-10 text-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-slate-900">Confirm Emergency Consult</h3>
+                    <p className="text-slate-600 font-medium">
+                      You are about to initiate an emergency session with <span className="font-bold text-red-600">Dr. {selectedDoctor?.full_name}</span>.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-left">
+                    <div className="p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration</div>
+                      <div className="text-lg font-black text-slate-900">{duration} Minutes</div>
+                    </div>
+                    <div className="p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing</div>
+                      <div className="text-lg font-black text-red-600">5x Multiplier</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-4 bg-white/50 rounded-2xl border border-red-200 text-left">
+                    <ShieldAlert className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-900 font-bold leading-relaxed italic">
+                      By proceeding, you acknowledge that payment must be verified by the doctor before the session starts.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+
+          <CardFooter className="p-8 md:p-10 bg-slate-50 border-t border-slate-100 flex justify-between gap-6">
+            <Button 
+              variant="ghost" 
+              onClick={step === 1 ? () => router.push('/') : handleBack}
+              className="h-14 px-8 rounded-2xl font-bold hover:bg-slate-200 transition-colors"
+            >
+              <ArrowLeft className="mr-2 h-5 w-5" /> {step === 1 ? 'Cancel' : 'Back'}
+            </Button>
+            
+            {step < 3 ? (
+              <Button 
+                onClick={() => {
+                  if (step === 1) handleNext()
+                  else if (step === 2) {
+                    if (!otpVerified) {
+                      if (!email || !phone) {
+                        toast.error('Email and Phone are required')
+                        return
+                      }
+                      sendOtp()
+                        .then(() => setShowOtp(true))
+                        .catch((otpError) => {
+                          console.error('Emergency OTP send failed', otpError)
+                          toast.error(getUserFacingError(otpError, 'We could not send the verification code. Please try again.'))
+                        })
+                    } else {
+                      handleNext()
+                    }
+                  }
+                }}
+                disabled={step === 1 ? !selectedDoctor : (!email || !phone) || (step === 2 && showOtp)}
+                className="h-14 px-12 rounded-2xl bg-slate-900 text-white font-black hover:scale-105 transition-transform"
+              >
+                {step === 2 && !otpVerified ? 'Verify Identity' : 'Continue'} <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="h-14 px-16 rounded-2xl bg-red-600 text-white font-black hover:scale-105 transition-transform shadow-xl shadow-red-200"
+              >
+                {submitting ? (
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                ) : (
+                  <Activity className="h-6 w-6 mr-2" />
+                )}
+                Initiate Consult Now
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+
+        <footer className="mt-12 text-center text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
+          © 2026 Premon Care - Rapid Response Infrastructure
+        </footer>
+      </div>
+    </div>
+  )
+}

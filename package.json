@@ -1,0 +1,13 @@
+{
+  "name": "premoncare-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "metro": "^0.80.3",
+    "metro-resolver": "^0.80.3"
+  }
+}

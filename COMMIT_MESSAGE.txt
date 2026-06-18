@@ -1,0 +1,79 @@
+feat: comprehensive security, payment, UX, and data integrity overhaul
+
+## Security
+- Remove Dodo Payments and Paystack gateway integrations (P2P manual receipt verification active)
+- Disable /api/payments/webhook and /api/payments/paystack/webhook endpoints (return 501)
+- Remove fallback from service_role to anon key in supabase clients (fail-hard on missing credentials)
+- Update Supabase credentials across all env files
+
+## Payment System (P2P Manual)
+- Rewrite /api/payments/checkout to create manual pending payment records
+- Checkout returns paymentId + message for receipt upload flow
+- Remove Paystack dropdown from admin settings
+- Update .env.example files with DISABLED markers for payment gateway keys
+
+## Mobile App - Bug Fixes
+- Fix theme seed color 0xFF6366F1 -> 0xFF0F62FE (Indigo brand)
+- Fix earnings_analytics_screen currency symbol INR -> NGN
+- Fix providers.dart syntax errors, add admin providers (stats, verifications, disputes, doctor applications)
+- Use sequential await instead of Future.wait to avoid type inference error
+- Fix GlassCard dark mode support (theme-aware borders/shadows)
+- Reduce splash screen delay 4s -> 2s
+- Fix keyboard dismissal on login/register screens
+- Fix doctor dashboard Switch touch target
+- Add SafeArea wrappers to consultation, forum, subscription screens
+
+## Mobile App - Dead Buttons Fixed (46 buttons across 24 files)
+- Auth: login social card, forgot password phone reset, password reset success, session expired contact support
+- Patient: upload receipt (4 actions), booking confirmed, booking failed, consultation summary, payment failed
+- Forum: create post (3 actions), post detail menu, ask doctor submit, saved followed search
+- Doctor: earnings calendar, subscription contact support, patient details menu, schedule management avatar
+- Admin: subscription plan control (switch/edit/create tier), notification control panel, doctor subscription view all, financial moderation action, user management (5 quick actions)
+- Shared: no internet info dialog, emergency failed (retry/call/chat), consultation details, chat compose, upload failed contact support, settings notification bell
+
+## Mobile App - UX Overhaul (13 fixes)
+- Create design tokens: core/app_colors.dart + core/app_typography.dart
+- Update theme with AppColors, AppBarTheme, SnackBarTheme
+- Admin auth gate: new admin_login_screen.dart with Supabase role check
+- Registration password visibility toggle (eye/eye_off icons)
+- Email keyboard type on registration
+- Red CTAs -> Indigo on 4 auth screens
+- Splash screen error handling with 8s timeout
+- Font sizes 10/11 -> 12px on auth screens (WCAG compliance)
+- Onboarding brand color teal -> Indigo
+- Session expired shield icon -> home icon
+- Admin dashboard loading state with real Supabase data
+- Admin navigation consolidated (IndexedStack, removed 7 duplicate sheet items)
+
+## Mobile App - Plugin Updates
+- supabase_flutter 2.12.4 -> 2.15.0
+- firebase_core 4.7.0 -> 4.11.0
+- firebase_messaging 16.2.0 -> 16.4.0
+- go_router 17.2.3 -> 17.3.0
+- flutter_riverpod 3.3.1 -> 3.3.2
+- jitsi_meet_flutter_sdk 12.1.1 -> 12.1.3
+- permission_handler 12.0.1 -> 12.0.3
+- posthog_flutter 5.24.2 -> 5.27.0
+- Fix Supabase deprecation: anonKey -> publishableKey
+
+## Web App - Admin Pages Wired to Real Data
+- Audit timeline: hardcoded -> real Supabase data with filters and date grouping
+- Reports: hardcoded -> real KPIs, SVG line chart, donut chart, CSV export
+- Subscriptions: hardcoded -> real doctor profiles with per-row actions
+- Disputes: hardcoded -> real dispute records with resolve/escalate actions
+- Emergency queue: real Supabase update, loading states, live stats
+- Doctor profile [id]: hardcoded dummy -> real Supabase fetch with reviews
+
+## Web App - Dead Buttons Fixed (20+ buttons across 12 files)
+- Emergency queue: Refresh Live Feed, Auto-Assign, 4 QuickActions, 3 filter tabs
+- Audit timeline: Close button
+- Doctor profile [id]: Share Profile, View Credentials, Chat, Book Video, Book Appointment
+- Doctor schedule: Booking Preferences, View Calendar, Copy to all, Add Break, Delete Break
+- Settings page: 6 settings rows + Delete Account with confirmation
+- Patient dashboard: Got it dismiss, Audit Progress real status
+- Doctor dashboard: ArrowUpRight navigation, Export Session Logs
+- Doctor appointment manager: View all, Full Calendar, View All Requests
+- Notification badge: hardcoded 8 -> 0
+
+## Web App - Pre-existing Bug Fix
+- Fix TypeScript error in doctor-actions.ts: 'result' possibly undefined -> optional chaining

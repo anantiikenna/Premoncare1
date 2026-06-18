@@ -1,0 +1,141 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class AdminService {
+  final SupabaseClient _client = Supabase.instance.client;
+
+  // Verification
+  Future<void> updateVerificationStatus(String userId, String status, {String? reason}) async {
+    final Map<String, dynamic> updates = {
+      'verification_status': status,
+      'verified_by': _client.auth.currentUser?.id,
+    };
+    if (reason != null) updates['rejection_reason'] = reason;
+
+    await _client.from('profiles').update(updates).eq('id', userId);
+  }
+
+  Future<void> resetVerification(String userId) async {
+    await _client.from('profiles').update({
+      'verification_status': 'unsubmitted',
+      'rejection_reason': null,
+      'verified_by': null,
+    }).eq('id', userId);
+  }
+
+  // Financials
+  Future<Map<String, dynamic>> getFinancialStats() async {
+    final response = await _client.rpc('get_admin_financial_stats');
+    return response as Map<String, dynamic>;
+  }
+
+  Future<void> approvePayout(String payoutId) async {
+    await _client.from('payouts').update({
+      'status': 'approved',
+      'processed_at': DateTime.now().toIso8601String(),
+      'processed_by': _client.auth.currentUser?.id,
+    }).eq('id', payoutId);
+  }
+
+  Future<void> processRefund(String refundId, String status) async {
+    await _client.from('refunds').update({
+      'status': status,
+      'processed_at': DateTime.now().toIso8601String(),
+      'processed_by': _client.auth.currentUser?.id,
+    }).eq('id', refundId);
+  }
+
+  // Monitoring & User Management
+  Future<void> blockUser(String userId, String reason) async {
+    await _client.from('blocked_users').insert({
+      'user_id': userId,
+      'reason': reason,
+      'blocked_by': _client.auth.currentUser?.id,
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getUsers({
+    String? role,
+    String? status,
+    String? searchQuery,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    var query = _client.from('profiles').select();
+
+    if (role != null && role != 'all') {
+      query = query.eq('role', role.toLowerCase());
+    }
+
+    if (status != null && status != 'all') {
+      query = query.eq('account_status', status.toLowerCase());
+    }
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      query = query.or('full_name.ilike.%$searchQuery%,email.ilike.%$searchQuery%');
+    }
+
+    final response = await query
+        .order('created_at', ascending: false)
+        .range(offset, offset + limit - 1);
+    
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  Future<Map<String, dynamic>> getUserManagementStats() async {
+    // In production, use a dedicated RPC or view. Here we query totals.
+    final total = await _client.from('profiles').count(CountOption.exact);
+    final doctors = await _client.from('profiles').select('id').eq('role', 'doctor').count(CountOption.exact);
+    final patients = await _client.from('profiles').select('id').eq('role', 'patient').count(CountOption.exact);
+    final suspended = await _client.from('profiles').select('id').eq('account_status', 'suspended').count(CountOption.exact);
+    
+    return {
+      'total': total,
+      'doctors': doctors,
+      'patients': patients,
+      'pending': 0, // Placeholder for pending verification
+      'suspended': suspended,
+    };
+  }
+
+  Future<void> updateUserAccountStatus(String userId, String status) async {
+    await _client.from('profiles').update({
+      'account_status': status,
+      'updated_at': DateTime.now().toIso8601String(),
+    }).eq('id', userId);
+  }
+
+  Future<void> updateUserProfileAdmin(String userId, Map<String, dynamic> updates) async {
+    await _client.from('profiles').update(updates).eq('id', userId);
+  }
+
+  // Notifications
+  Future<void> updateChannelConfig(String channelId, bool isEnabled) async {
+    await _client.from('notification_channels_config').update({
+      'is_enabled': isEnabled,
+      'updated_at': DateTime.now().toIso8601String(),
+    }).eq('id', channelId);
+  }
+
+  Future<void> sendSystemNotification({
+    required String title,
+    required String message,
+    required String targetRole, // 'all', 'patient', 'doctor'
+  }) async {
+    // This would typically trigger a background function via Supabase Edge Functions
+    // But we can insert into notifications table for a trigger to handle FCM
+    final query = _client.from('profiles').select('id');
+    if (targetRole != 'all') {
+      query.eq('role', targetRole);
+    }
+    
+    final users = await query;
+    final List<Map<String, dynamic>> notifications = users.map((u) => {
+      'user_id': u['id'],
+      'title': title,
+      'message': message,
+      'type': 'system',
+    }).toList();
+
+    await _client.from('notifications').insert(notifications);
+  }
+}
