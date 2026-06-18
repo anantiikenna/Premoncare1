@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 
 class ConsultationSummaryScreen extends ConsumerWidget {
   final String appointmentId;
-  const ConsultationSummaryScreen({super.key, required this.appointmentId});
+  final String? doctorName;
+  final String? doctorSpecialty;
+  const ConsultationSummaryScreen({super.key, required this.appointmentId, this.doctorName, this.doctorSpecialty});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +41,7 @@ class ConsultationSummaryScreen extends ConsumerWidget {
 
                   _buildSectionTitle('CONSULTING SPECIALIST'),
                   const SizedBox(height: 16),
-                  _SpecialistSummaryCard(primaryColor: primaryColor),
+                  _SpecialistSummaryCard(primaryColor: primaryColor, doctorName: doctorName, doctorSpecialty: doctorSpecialty),
                   const SizedBox(height: 40),
 
                   _buildSectionTitle('CLINICAL PRESCRIPTION'),
@@ -128,7 +130,9 @@ class _SuccessHub extends StatelessWidget {
 
 class _SpecialistSummaryCard extends StatelessWidget {
   final Color primaryColor;
-  const _SpecialistSummaryCard({required this.primaryColor});
+  final String? doctorName;
+  final String? doctorSpecialty;
+  const _SpecialistSummaryCard({required this.primaryColor, this.doctorName, this.doctorSpecialty});
 
   @override
   Widget build(BuildContext context) {
@@ -148,13 +152,13 @@ class _SpecialistSummaryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 20),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Dr. Adaeze Nwosu', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
-                SizedBox(height: 4),
-                Text('General Medical Physician • PC-9921', style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                Text(doctorName ?? '', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+                const SizedBox(height: 4),
+                Text(doctorSpecialty ?? 'General Medical Physician', style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
               ],
             ),
           ),

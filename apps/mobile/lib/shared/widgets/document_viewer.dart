@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/supabase_locator.dart';
@@ -41,7 +42,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
           .createSignedUrl(widget.path, 1800); // 30 minutes
       return response;
     } catch (e) {
-      debugPrint('Error generating signed URL: $e');
+      if (kDebugMode) debugPrint('Error generating signed URL: $e');
       return null;
     }
   }

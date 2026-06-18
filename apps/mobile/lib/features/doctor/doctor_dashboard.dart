@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -54,7 +55,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
         }
       }
     } catch (e) {
-      debugPrint('Error fetching doctor profile: $e');
+      if (kDebugMode) debugPrint('Error fetching doctor profile: $e');
     }
   }
 
@@ -79,7 +80,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           .update({'last_seen': DateTime.now().toUtc().toIso8601String()})
           .eq('id', userId);
     } catch (e) {
-      debugPrint('Heartbeat ping failed: $e');
+      if (kDebugMode) debugPrint('Heartbeat ping failed: $e');
     }
   }
 

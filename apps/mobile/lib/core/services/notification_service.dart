@@ -24,9 +24,9 @@ class NotificationService {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      debugPrint('User granted permission');
+      if (kDebugMode) debugPrint('User granted permission');
     } else {
-      debugPrint('User declined or has not accepted permission');
+      if (kDebugMode) debugPrint('User declined or has not accepted permission');
     }
 
     // 2. Initialize Local Notifications for Foreground display
@@ -43,7 +43,7 @@ class NotificationService {
 
     // 3. Handle Foreground Messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('Got a message whilst in the foreground!');
+      if (kDebugMode) debugPrint('Got a message whilst in the foreground!');
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
@@ -67,7 +67,7 @@ class NotificationService {
 
     // 4. Handle Background/Terminated state message click
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('A new onMessageOpenedApp event was published!');
+      if (kDebugMode) debugPrint('A new onMessageOpenedApp event was published!');
       _handleDeepLink(message.data['link']);
     });
 
@@ -89,7 +89,7 @@ class NotificationService {
   void _handleDeepLink(String? webLink) {
     if (webLink == null || webLink.isEmpty) return;
 
-    debugPrint('Handling Deep Link: $webLink');
+    if (kDebugMode) debugPrint('Handling Deep Link: $webLink');
     String flutterPath = '/';
 
     // Simplified Mapping logic
@@ -110,7 +110,7 @@ class NotificationService {
       flutterPath = '/messages';
     }
 
-    debugPrint('Navigating to: $flutterPath');
+    if (kDebugMode) debugPrint('Navigating to: $flutterPath');
     goRouter.push(flutterPath);
   }
 
@@ -122,19 +122,17 @@ class NotificationService {
       String? token = await _fcm.getToken();
       if (token == null) return;
 
-      debugPrint('FCM Token: $token');
-
       await supabase.from('profiles').update({
         'fcm_token': token,
       }).eq('id', user.id);
     } catch (e) {
-      debugPrint('Error syncing FCM token: $e');
+      if (kDebugMode) debugPrint('Error syncing FCM token: $e');
     }
   }
 
   static Future<void> onBackgroundMessage(RemoteMessage message) async {
     // Ensure Firebase is initialized for background tasks if needed
     // await Firebase.initializeApp();
-    debugPrint("Handling a background message: ${message.messageId}");
+    if (kDebugMode) debugPrint("Handling a background message: ${message.messageId}");
   }
 }

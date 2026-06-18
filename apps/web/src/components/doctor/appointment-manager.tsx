@@ -337,7 +337,7 @@ export function DoctorAppointmentManager({ appointments, docId }: { appointments
                             </div>
                         </CardContent>
                     </Card>
-                                )})}
+                                ))}
                             </div>
 
             {/* Sub Navigation Tabs */}
@@ -545,7 +545,8 @@ export function DoctorAppointmentManager({ appointments, docId }: { appointments
                                         user: apt.patient?.full_name || 'Patient',
                                         type: apt.reason || 'Consultation',
                                         status: apt.status === 'approved' ? 'confirmed' : apt.status === 'pending' ? 'upcoming' : apt.status,
-                                        current: false
+                                        current: false,
+                                        label: apt.reason || 'Consultation'
                                     }
                                     return (
                                     <div key={idx} className="flex gap-6 min-h-[80px]">
@@ -593,14 +594,15 @@ export function DoctorAppointmentManager({ appointments, docId }: { appointments
                                                     item.status === 'break' ? "bg-orange-50/30 border-orange-100 text-orange-600" : "bg-slate-50/30 border-slate-100 text-slate-400"
                                                 )}>
                                                     <div className="flex items-center gap-3">
-                                                        {item.icon && <item.icon className="h-4 w-4" />}
+                                                        <Clock className="h-4 w-4" />
                                                         <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
-                                ))}
+                                    )
+                                })}
                             </div>
                         </CardContent>
                     </Card>

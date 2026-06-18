@@ -58,13 +58,13 @@ export function UserManagement() {
             setUsers(data || [])
 
             // Fetch Stats
-            const { data: allUsers } = await supabase.from('profiles').select('role, account_status')
+            const { data: allUsers } = await supabase.from('profiles').select('role, account_status, verification_status')
             if (allUsers) {
                 setStats({
                     total: allUsers.length,
                     doctors: allUsers.filter(u => u.role === 'doctor').length,
                     patients: allUsers.filter(u => u.role === 'patient').length,
-                    pending: 0, // Placeholder
+                    pending: allUsers.filter(u => u.verification_status === 'pending').length,
                     suspended: allUsers.filter(u => u.account_status === 'suspended').length
                 })
             }

@@ -215,7 +215,7 @@ class PaymentFailedScreen extends StatelessWidget {
                     iconBg: const Color(0xFFEEF2FF),
                     iconColor: const Color(0xFF4F46E5),
                     label: 'Appointment',
-                    value: doctorName ?? 'Dr. Priya Sharma',
+                    value: doctorName ?? '',
                     subValue: 'Today, 10:30 AM',
                   ),
                   const Padding(
@@ -227,7 +227,7 @@ class PaymentFailedScreen extends StatelessWidget {
                     iconBg: const Color(0xFFEEF2FF),
                     iconColor: const Color(0xFF4F46E5),
                     label: 'Amount',
-                    value: '₦${amount ?? '699'}',
+                    value: '₦${amount ?? '0'}',
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),

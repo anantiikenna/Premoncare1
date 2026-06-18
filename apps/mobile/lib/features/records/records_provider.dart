@@ -150,7 +150,7 @@ class RecordsService {
       } catch (e) {
         // We don't want to fail the main transaction if notification fails, 
         // but we log it for debugging.
-        debugPrint('Failed to send sharing notification: $e');
+        if (kDebugMode) debugPrint('Failed to send sharing notification: $e');
       }
     }
   }

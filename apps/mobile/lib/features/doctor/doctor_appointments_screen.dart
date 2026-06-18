@@ -196,16 +196,31 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
   }
 
   Widget _buildTimeline(Color primaryColor) {
+    final appointments = [
+      {'time': '09:30 AM', 'name': 'Sarah Johnson', 'type': 'VIDEO CONSULTATION', 'status': 'COMPLETED', 'color': const Color(0xFF10B981)},
+      {'time': '10:45 AM', 'name': 'Emily Davis', 'type': 'CLINICAL REVIEW', 'status': 'UPCOMING', 'color': primaryColor},
+      {'time': '12:00 PM', 'name': 'CLINICAL BREAK', 'type': '', 'status': 'BREAK', 'color': const Color(0xFFF59E0B)},
+      {'time': '02:15 PM', 'name': 'Michael Brown', 'type': 'FOLLOW-UP', 'status': 'UPCOMING', 'color': primaryColor},
+      {'time': '04:30 PM', 'name': 'Jessica Lee', 'type': 'NEW CONSULTATION', 'status': 'UPCOMING', 'color': primaryColor},
+    ];
+
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
       child: Column(
         children: [
-          _buildTimelineItem('09:30 AM', 'Sarah Johnson', 'VIDEO CONSULTATION', 'COMPLETED', const Color(0xFF10B981), primaryColor, isFirst: true),
-          _buildTimelineItem('10:45 AM', 'Emily Davis', 'CLINICAL REVIEW', 'UPCOMING', primaryColor, primaryColor),
-          _buildTimelineItem('12:00 PM', 'CLINICAL BREAK', '', 'BREAK', const Color(0xFFF59E0B), primaryColor, isBreak: true),
-          _buildTimelineItem('02:15 PM', 'Michael Brown', 'FOLLOW-UP', 'UPCOMING', primaryColor, primaryColor),
-          _buildTimelineItem('04:30 PM', 'Jessica Lee', 'NEW CONSULTATION', 'UPCOMING', primaryColor, primaryColor, isLast: true),
+          for (int i = 0; i < appointments.length; i++)
+            _buildTimelineItem(
+              appointments[i]['time']!,
+              appointments[i]['name']!,
+              appointments[i]['type']!,
+              appointments[i]['status']!,
+              appointments[i]['color'] as Color,
+              primaryColor,
+              isFirst: i == 0,
+              isLast: i == appointments.length - 1,
+              isBreak: appointments[i]['status'] == 'BREAK',
+            ),
         ],
       ),
     );

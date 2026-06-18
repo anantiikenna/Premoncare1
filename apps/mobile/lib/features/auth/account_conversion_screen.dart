@@ -15,7 +15,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
   final List<TextEditingController> _otpControllers = List.generate(6, (index) => TextEditingController());
   final List<FocusNode> _otpFocusNodes = List.generate(6, (index) => FocusNode());
   
-  final _nameController = TextEditingController(text: "Sarah James");
+  final _nameController = TextEditingController();
   final _dobController = TextEditingController(text: "12 March 1992");
   String _selectedGender = "Female";
   final _emailController = TextEditingController(text: "sarah.james@email.com");

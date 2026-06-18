@@ -219,7 +219,12 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: '/booking-confirmed',
-      builder: (context, state) => const BookingConfirmedScreen(),
+      builder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>? ?? {};
+        return BookingConfirmedScreen(
+          consultationFee: (extras['consultationFee'] as num?)?.toDouble(),
+        );
+      },
     ),
     GoRoute(
       path: '/doctor_dashboard',

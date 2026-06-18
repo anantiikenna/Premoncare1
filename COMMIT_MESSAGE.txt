@@ -5,6 +5,7 @@ feat: comprehensive security, payment, UX, and data integrity overhaul
 - Disable /api/payments/webhook and /api/payments/paystack/webhook endpoints (return 501)
 - Remove fallback from service_role to anon key in supabase clients (fail-hard on missing credentials)
 - Update Supabase credentials across all env files
+- Remove FCM token debugPrint logging (security risk)
 
 ## Payment System (P2P Manual)
 - Rewrite /api/payments/checkout to create manual pending payment records
@@ -22,6 +23,9 @@ feat: comprehensive security, payment, UX, and data integrity overhaul
 - Fix keyboard dismissal on login/register screens
 - Fix doctor dashboard Switch touch target
 - Add SafeArea wrappers to consultation, forum, subscription screens
+- Fix payment_failed_screen fallback from '699' to '0'
+- Fix booking_confirmed_screen to accept dynamic consultationFee parameter
+- Fix router.dart to pass consultationFee through booking confirmation flow
 
 ## Mobile App - Dead Buttons Fixed (46 buttons across 24 files)
 - Auth: login social card, forgot password phone reset, password reset success, session expired contact support
@@ -44,6 +48,15 @@ feat: comprehensive security, payment, UX, and data integrity overhaul
 - Session expired shield icon -> home icon
 - Admin dashboard loading state with real Supabase data
 - Admin navigation consolidated (IndexedStack, removed 7 duplicate sheet items)
+
+## Mobile App - Code Quality
+- Remove 3 duplicate/unused providers from core/providers.dart (availableDoctorsProvider, patientAppointmentsProvider, PaymentService)
+- Remove 3 unused providers from admin_providers.dart (adminFinancialStatsProvider, pendingVerificationsProvider, notificationChannelsProvider)
+- Replace force-unwraps in router.dart with safe access (?? '')
+- Add debugPrint logging to empty catch blocks in forum_provider.dart
+- Gate 15 debugPrint calls behind kDebugMode across 6 files (splash, doctor_dashboard, doctor_details, document_viewer, records_provider, notification_service)
+- Replace hardcoded person names with dynamic data in 8 user-facing screens (settings, payment_failed, consultation_summary, booking_confirmed, booking_failed, account_conversion, doctor_appointments, notifications)
+- Replace hardcoded prices with dynamic data in booking_confirmed screen
 
 ## Mobile App - Plugin Updates
 - supabase_flutter 2.12.4 -> 2.15.0
@@ -75,5 +88,9 @@ feat: comprehensive security, payment, UX, and data integrity overhaul
 - Doctor appointment manager: View all, Full Calendar, View All Requests
 - Notification badge: hardcoded 8 -> 0
 
-## Web App - Pre-existing Bug Fix
+## Web App - Code Quality
 - Fix TypeScript error in doctor-actions.ts: 'result' possibly undefined -> optional chaining
+- Fix propose-followup-dialog: accept real patient ID and reason from appointment context
+- Fix user-management: compute pending count from actual verification_status instead of hardcoded 0
+- Fix appointment-manager: replace hardcoded static schedule array with dynamic todayAppointments
+- Fix appointment-manager JSX syntax errors (missing div close, invalid icon property)

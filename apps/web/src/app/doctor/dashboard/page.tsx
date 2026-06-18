@@ -329,4 +329,14 @@ export default async function DoctorDashboard() {
                     <Card className="rounded-[3.5rem] border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden">
                         <CardHeader className="p-10 pb-0">
                             <CardTitle className="text-3xl font-black tracking-tighter">Clinical Vault</CardTitle>
-                            <CardDescription className="text-xs font-bold uppercase tracking-widest text-slate-400 mt-1">Secure medical record decryption</CardDescrip
+                            <CardDescription className="text-xs font-bold uppercase tracking-widest text-slate-400 mt-1">Secure medical record decryption</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-10 pt-6">
+                            <DoctorMedicalRecords />
+                        </CardContent>
+                    </Card>
+                </div>
+            </DoctorStatusGuard>
+        </div>
+    )
+}

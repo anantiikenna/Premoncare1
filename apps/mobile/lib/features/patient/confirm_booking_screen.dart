@@ -83,7 +83,10 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
       }
 
       if (mounted) {
-        context.go(widget.isEmergency ? '/booking-confirmed?emergency=true' : '/booking-confirmed');
+        context.go(
+          widget.isEmergency ? '/booking-confirmed?emergency=true' : '/booking-confirmed',
+          extra: {'consultationFee': widget.totalAmount},
+        );
       }
     } catch (e, stackTrace) {
       logHandledError('Booking confirmation failed', e, stackTrace);

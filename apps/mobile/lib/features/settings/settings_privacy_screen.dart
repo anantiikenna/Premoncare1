@@ -194,7 +194,7 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profile?['full_name'] ?? 'Sarah Johnson',
+                  profile?['full_name'] ?? 'User',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,

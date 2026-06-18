@@ -82,7 +82,7 @@ export function ProposeFollowupDialog({ doctorProfile, patients = [], appointmen
                   {patients.length > 0 ? (
                     patients.map((p) => (
                       <SelectItem key={p.id} value={p.id} className="rounded-xl">
-                        {p.full_name}{p.lastVisit ? ` (${new Date(p.lastVisit).toLocaleDateString())}` : ''}
+                        {p.full_name}{p.lastVisit ? ` (${new Date(p.lastVisit).toLocaleDateString()})` : ''}
                       </SelectItem>
                     ))
                   ) : (
@@ -143,4 +143,11 @@ export function ProposeFollowupDialog({ doctorProfile, patients = [], appointmen
               Send Proposal to Patient
             </Button>
             <p className="text-[9px] font-bold text-slate-400 text-center uppercase tracking-wider italic leading-relaxed">
-              *The patient will receive a notification to confirm an
+              *The patient will receive a notification to confirm and <br />process the consultation fee for this slot.
+            </p>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}

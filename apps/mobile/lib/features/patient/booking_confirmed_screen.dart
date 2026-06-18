@@ -4,7 +4,11 @@ import '../../shared/widgets/generic_user_avatar.dart';
 
 
 class BookingConfirmedScreen extends StatelessWidget {
-  const BookingConfirmedScreen({super.key});
+  final double? consultationFee;
+  final String? doctorName;
+  final String? doctorSpecialty;
+
+  const BookingConfirmedScreen({super.key, this.consultationFee, this.doctorName, this.doctorSpecialty});
 
   @override
   Widget build(BuildContext context) {
@@ -104,8 +108,8 @@ class BookingConfirmedScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Dr. Adaeze Nwosu', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF1E293B))),
-                const Text('Cardiology Specialist', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w700)),
+                Text(doctorName ?? '', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF1E293B))),
+                Text(doctorSpecialty ?? 'Specialist', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -158,12 +162,14 @@ class BookingConfirmedScreen extends StatelessWidget {
   }
 
   Widget _buildPaymentCard(Color primaryColor) {
+    final fee = consultationFee ?? 0;
+    final feeStr = fee.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
       child: Column(
         children: [
-          _buildPriceRow('Consultation Fee', '₦15,000'),
+          _buildPriceRow('Consultation Fee', '₦$feeStr'),
           const SizedBox(height: 12),
           _buildPriceRow('Platform Service', '₦0.00', isSpecial: true),
           const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
@@ -171,7 +177,7 @@ class BookingConfirmedScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Total Paid', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E293B))),
-              Text('₦15,000', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: primaryColor)),
+              Text('₦$feeStr', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: primaryColor)),
             ],
           ),
         ],

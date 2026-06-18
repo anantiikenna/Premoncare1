@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         }
       }
     } catch (e) {
-      debugPrint('Splash navigation error: $e');
+      if (kDebugMode) debugPrint('Splash navigation error: $e');
       if (mounted) {
         context.go('/login');
       }

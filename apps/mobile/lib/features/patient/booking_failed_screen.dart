@@ -207,8 +207,8 @@ class BookingFailedScreen extends StatelessWidget {
                         radius: 28,
                         backgroundColor: const Color(0xFF4F46E5).withValues(alpha: 0.12),
                         child: Text(
-                          (doctorName ?? 'Dr. Priya Sharma').isNotEmpty
-                              ? (doctorName ?? 'Dr. Priya Sharma')[0].toUpperCase()
+                          (doctorName ?? '').isNotEmpty
+                              ? (doctorName ?? '')[0].toUpperCase()
                               : 'D',
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF4F46E5)),
                         ),
@@ -219,7 +219,7 @@ class BookingFailedScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              doctorName ?? 'Dr. Priya Sharma',
+                              doctorName ?? '',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
