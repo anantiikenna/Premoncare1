@@ -211,10 +211,10 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         children: [
           for (int i = 0; i < appointments.length; i++)
             _buildTimelineItem(
-              appointments[i]['time']!,
-              appointments[i]['name']!,
-              appointments[i]['type']!,
-              appointments[i]['status']!,
+              '${appointments[i]['time']}',
+              '${appointments[i]['name']}',
+              '${appointments[i]['type']}',
+              '${appointments[i]['status']}',
               appointments[i]['color'] as Color,
               primaryColor,
               isFirst: i == 0,

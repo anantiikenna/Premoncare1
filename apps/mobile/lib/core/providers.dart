@@ -140,9 +140,9 @@ final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   }
 
   return {
-    'totalUsers': usersCount.count ?? 0,
-    'verifiedDoctors': doctorsCount.count ?? 0,
-    'todayAppointments': appointmentsCount.count ?? 0,
+    'totalUsers': usersCount.count,
+    'verifiedDoctors': doctorsCount.count,
+    'todayAppointments': appointmentsCount.count,
     'totalRevenue': totalRevenue,
   };
 });
@@ -155,7 +155,7 @@ final pendingVerificationsProvider = FutureProvider<int>((ref) async {
       .eq('role', 'doctor')
       .eq('verification_status', 'pending')
       .count();
-  return result.count ?? 0;
+  return result.count;
 });
 
 /// Provider for pending payment disputes count
@@ -165,7 +165,7 @@ final pendingDisputesProvider = FutureProvider<int>((ref) async {
       .select('id')
       .eq('status', 'disputed')
       .count();
-  return result.count ?? 0;
+  return result.count;
 });
 
 /// Provider for recent doctor applications (pending verification)

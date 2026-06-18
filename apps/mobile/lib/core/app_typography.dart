@@ -6,8 +6,6 @@ import 'app_colors.dart';
 class AppTypography {
   AppTypography._();
 
-  static const String _fontFamily = '.SF Pro Display';
-
   // ─── Headings ────────────────────────────────────────────────────
   static const TextStyle h1 = TextStyle(
     fontSize: 32,

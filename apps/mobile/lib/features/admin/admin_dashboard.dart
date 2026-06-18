@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
-import '../../core/supabase_locator.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
@@ -470,13 +469,11 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
-  final String trend;
-  final bool trendPositive;
   final IconData icon;
   final Color iconBgColor;
   final Color iconColor;
 
-  const _StatCard({required this.title, required this.value, required this.trend, required this.trendPositive, required this.icon, required this.iconBgColor, required this.iconColor});
+  const _StatCard({required this.title, required this.value, required this.icon, required this.iconBgColor, required this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -503,15 +500,6 @@ class _StatCard extends StatelessWidget {
               Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
               const SizedBox(height: 2),
               Text(title, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w700)),
-            ],
-          ),
-          Row(
-            children: [
-              Icon(trendPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded, color: trendPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444), size: 12),
-              const SizedBox(width: 4),
-              Text(trend, style: TextStyle(color: trendPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.w700)),
-              const SizedBox(width: 4),
-              const Text('vs last week', style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10, fontWeight: FontWeight.w600)),
             ],
           ),
         ],

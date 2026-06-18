@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/providers.dart';
+import 'patient_providers.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/mode_switch_dialog.dart';
 import '../../shared/widgets/global_user_avatar.dart';

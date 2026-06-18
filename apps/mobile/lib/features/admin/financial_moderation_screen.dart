@@ -856,13 +856,12 @@ class _TabItem extends StatelessWidget {
 class _IconButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback? onTap;
-  const _IconButton({required this.icon, required this.label, this.onTap});
+  const _IconButton({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap ?? () {
+      onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$label coming soon')),
         );

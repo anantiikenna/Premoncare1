@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/providers.dart';
+import 'patient_providers.dart';
 
 class PatientDashboard extends ConsumerWidget {
   const PatientDashboard({super.key});
