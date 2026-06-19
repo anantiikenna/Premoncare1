@@ -141,7 +141,7 @@ export async function getAdminStats(supabase: SupabaseClient) {
 export async function getAllProfiles(supabase: SupabaseClient) {
     return await supabase
         .from('profiles')
-        .select('id, full_name, email, role, verification_status, requested_role, subscription_status, avatar_url, updated_at')
+        .select('id, full_name, email, role, verification_status, requested_role, subscription_status, avatar_url, verification_document_url, updated_at')
         .order('updated_at', { ascending: false })
 }
 
