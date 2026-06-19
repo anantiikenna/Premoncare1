@@ -26,7 +26,7 @@ class OTPVerificationScreen extends StatefulWidget {
 class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   final List<TextEditingController> _controllers = List.generate(8, (index) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(8, (index) => FocusNode());
-  int _secondsRemaining = 30;
+  int _secondsRemaining = 60;
   Timer? _timer;
   bool _isLoading = false;
 
@@ -53,7 +53,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   }
 
   void _startTimer() {
-    _secondsRemaining = 30;
+    _secondsRemaining = 60;
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -397,7 +397,7 @@ class _TimerModule extends StatelessWidget {
             children: [
               Icon(Icons.timer_rounded, size: 16, color: secondsRemaining < 10 ? const Color(0xFFEF4444) : const Color(0xFF64748B)),
               const SizedBox(width: 8),
-              Text('EXPIRES IN: 00:${secondsRemaining.toString().padLeft(2, '0')}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: secondsRemaining < 10 ? const Color(0xFFEF4444) : const Color(0xFF1E293B), letterSpacing: 0.5)),
+              Text('EXPIRES IN: ${'${secondsRemaining ~/ 60}'.padLeft(2, '0')}:${'${secondsRemaining % 60}'.padLeft(2, '0')}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: secondsRemaining < 10 ? const Color(0xFFEF4444) : const Color(0xFF1E293B), letterSpacing: 0.5)),
             ],
           ),
         ),

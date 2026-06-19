@@ -16,7 +16,7 @@ interface OTPFormProps {
 export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
     const [otp, setOtp] = useState(['', '', '', '', '', '', '', ''])
     const [loading, setLoading] = useState(false)
-    const [timer, setTimer] = useState(30)
+    const [timer, setTimer] = useState(60)
     const [error, setError] = useState<string | null>(null)
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
@@ -102,7 +102,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         setLoading(true)
         try {
             await onResend()
-            setTimer(30)
+            setTimer(60)
             setOtp(['', '', '', '', '', '', '', ''])
             inputRefs.current[0]?.focus()
         } catch (err: unknown) {
