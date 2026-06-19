@@ -13,6 +13,17 @@ final availableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref
   return List<Map<String, dynamic>>.from(data);
 });
 
+/// Provider for searchable doctor list with all profile fields
+final searchableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final data = await supabase
+      .from('profiles')
+      .select('id, full_name, specialty, consultation_fee, is_online, is_emergency')
+      .eq('role', 'doctor')
+      .order('full_name');
+  
+  return List<Map<String, dynamic>>.from(data);
+});
+
 /// Provider for patient's personal payment history
 final patientPaymentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;

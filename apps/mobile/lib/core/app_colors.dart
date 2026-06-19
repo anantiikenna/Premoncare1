@@ -37,6 +37,10 @@ class AppColors {
   static const Color surfaceAlt    = Color(0xFFF8FAFC);
   static const Color background    = Color(0xFFF8FAFC);
 
+  // ─── Shadows ────────────────────────────────────────────────────
+  static const Color shadowLight   = Color(0x0D000000);
+  static const Color shadowMedium  = Color(0x1A000000);
+
   // ─── Border / Divider ──────────────────────────────────────────
   static const Color border        = Color(0xFFE2E8F0);
   static const Color borderLight   = Color(0xFFF1F5F9);

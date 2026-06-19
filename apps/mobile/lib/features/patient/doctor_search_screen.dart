@@ -1,146 +1,256 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:premoncare/core/app_typography.dart';
+import 'package:premoncare/core/app_colors.dart';
+import 'package:premoncare/features/patient/patient_providers.dart';
 
-class DoctorSearchScreen extends ConsumerWidget {
+class DoctorSearchScreen extends ConsumerStatefulWidget {
   const DoctorSearchScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final canPop = Navigator.of(context).canPop();
-    final isEmergency = GoRouterState.of(context).uri.queryParameters['emergency'] == 'true';
+  ConsumerState<DoctorSearchScreen> createState() => _DoctorSearchScreenState();
+}
+
+class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  String _selectedCategory = 'All';
+  String _searchQuery = '';
+  double _priceMin = 0;
+  double _priceMax = 50000;
+  bool _emergencyOnly = false;
+  bool _isEmergencyMode = false;
+  Timer? _debounce;
+
+  static const _categories = [
+    'All',
+    'General\nPhysician',
+    'Pediatrician',
+    'Gynecologist',
+    'Dermatologist',
+    'Cardiologist',
+  ];
+
+  static const _specialtyKeywords = {
+    'General\nPhysician': 'general',
+    'Pediatrician': 'pediatr',
+    'Gynecologist': 'gynec',
+    'Dermatologist': 'dermat',
+    'Cardiologist': 'cardio',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  void _onCategoryTap(String category) {
+    setState(() {
+      _selectedCategory = category;
+      if (category != 'All') {
+        final keyword = _specialtyKeywords[category] ?? '';
+        _searchController.text = category.replaceAll('\n', ' ');
+        _searchQuery = keyword;
+      } else {
+        _searchController.clear();
+        _searchQuery = '';
+      }
+    });
+    _searchFocusNode.unfocus();
+  }
+
+  List<Map<String, dynamic>> _filterDoctors(List<Map<String, dynamic>> doctors) {
+    List<Map<String, dynamic>> filtered = List.from(doctors);
+
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered.where((doc) {
+        final name = (doc['full_name'] ?? '').toString().toLowerCase();
+        final specialty = (doc['specialty'] ?? '').toString().toLowerCase();
+        return name.contains(_searchQuery) || specialty.contains(_searchQuery);
+      }).toList();
+    }
+
+    if (_emergencyOnly) {
+      filtered = filtered.where((doc) => doc['is_emergency'] == true).toList();
+    }
+
+    filtered = filtered.where((doc) {
+      final fee = (doc['consultation_fee'] ?? 0).toDouble();
+      return fee >= _priceMin && fee <= _priceMax;
+    }).toList();
+
+    return filtered;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final doctorsAsync = ref.watch(searchableDoctorsProvider);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: canPop
-          ? AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              centerTitle: false,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B)),
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-              title: Row(
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Text('P', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 16)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('Premon', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Text('Care', style: TextStyle(color: Color(0xFF10B981), fontSize: 18, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            )
-          : null,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: doctorsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          error: (e, _) => Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(isEmergency ? 'Emergency Ready Doctors' : 'Search & Discover', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
-                      const SizedBox(height: 4),
-                      Text(isEmergency ? 'Choose a specialist for immediate priority care' : 'Find the right doctor for your needs', style: const TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w500)),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(child: _buildSearchInput()),
-                          const SizedBox(width: 12),
-                          _buildFilterButton(context),
-                        ],
-                      ),
-                    ],
-                  ),
+                Icon(Icons.error_outline, color: AppColors.error, size: 48),
+                const SizedBox(height: 12),
+                Text('Failed to load doctors', style: AppTypography.bodyLarge),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => ref.invalidate(searchableDoctorsProvider),
+                  child: const Text('Retry'),
                 ),
-                
-                // Category Strip
-                _buildCategoryStrip(),
-                const SizedBox(height: 24),
-
-                // Promo Banner
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: _buildPromoBanner(),
-                ),
-                const SizedBox(height: 32),
-
-                // Popular Specialties
-                _buildSectionHeader('Popular Specialties', 'View all', () => context.push('/doctor-search')),
-                const SizedBox(height: 16),
-                _buildPopularSpecialties(),
-                const SizedBox(height: 32),
-
-                // Top Rated Doctors
-                _buildSectionHeader('Top Rated Doctors', 'View all', () => context.push('/doctor-search')),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: _buildTopRatedDoctors(context, isEmergency: isEmergency),
-                ),
-                const SizedBox(height: 24),
-
-                // Bottom Verification Banner
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: _buildVerificationBanner(),
-                ),
-                const SizedBox(height: 40),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+          data: (doctors) {
+            final filtered = _filterDoctors(doctors);
 
-  Widget _buildSearchInput() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: const TextField(
-        decoration: InputDecoration(
-          icon: Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 20),
-          hintText: 'Search doctors, specialties, conditions...',
-          hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500),
-          border: InputBorder.none,
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader()),
+                SliverToBoxAdapter(child: _buildSearchRow()),
+                SliverToBoxAdapter(child: const SizedBox(height: 12)),
+                SliverToBoxAdapter(child: _buildEmergencyBanner()),
+                SliverToBoxAdapter(child: _buildCategoryStrip()),
+                SliverToBoxAdapter(child: const SizedBox(height: 16)),
+                if (_isEmergencyMode)
+                  SliverToBoxAdapter(child: _buildEmergencyDoctorsSection(filtered))
+                else ...[
+                  SliverToBoxAdapter(
+                    child: _buildSectionHeader(
+                      'Top Rated Doctors',
+                      '${filtered.length} found',
+                      () {},
+                    ),
+                  ),
+                  SliverToBoxAdapter(child: const SizedBox(height: 8)),
+                  if (filtered.isEmpty)
+                    SliverToBoxAdapter(child: _buildEmptyState())
+                  else
+                    SliverList.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) => _buildDoctorCard(
+                        context: context,
+                        doctor: filtered[index],
+                      ),
+                    ),
+                ],
+                SliverToBoxAdapter(child: _buildVerificationBanner()),
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildFilterButton(BuildContext context) {
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Row(
+        children: [
+          const Text(
+            'Search Doctors',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimary),
+          ),
+          const Spacer(),
+          if (_isEmergencyMode)
+            const Icon(Icons.emergency, color: AppColors.error, size: 28),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchRow() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Row(
+        children: [
+          Expanded(child: _buildSearchField()),
+          const SizedBox(width: 12),
+          _buildFilterButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _searchFocusNode.hasFocus ? AppColors.primary : AppColors.border,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        textInputAction: TextInputAction.search,
+        style: AppTypography.bodyMedium,
+        decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textTertiary, size: 20),
+          hintText: 'Search doctors, specialties...',
+          hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterButton() {
     return GestureDetector(
       onTap: () => _showFilterBottomSheet(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4)),
+          ],
         ),
         child: Row(
           children: [
-            const Icon(Icons.tune_rounded, color: Color(0xFF1E293B), size: 16),
+            const Icon(Icons.tune_rounded, color: AppColors.textPrimary, size: 16),
             const SizedBox(width: 8),
-            const Text('Filter', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF1E293B))),
+            Text('Filter', style: AppTypography.labelLarge.copyWith(color: AppColors.textPrimary)),
           ],
         ),
       ),
@@ -148,8 +258,10 @@ class DoctorSearchScreen extends ConsumerWidget {
   }
 
   void _showFilterBottomSheet(BuildContext context) {
-    RangeValues priceRange = const RangeValues(5000, 20000);
-    bool emergencyOnly = false;
+    double tempMin = _priceMin;
+    double tempMax = _priceMax;
+    bool tempEmergency = _emergencyOnly;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -169,9 +281,12 @@ class DoctorSearchScreen extends ConsumerWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Advanced Filters', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-                      IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
+                      children: [
+                        Text('Filters', style: AppTypography.h4),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(context),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -179,39 +294,33 @@ class DoctorSearchScreen extends ConsumerWidget {
                     child: ListView(
                       controller: controller,
                       children: [
-                        const Text('Specialties', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8, runSpacing: 8,
-                          children: ['Cardiology', 'Pediatrics', 'Dermatology', 'Neurology', 'Orthopedics'].map((s) => Chip(
-                            label: Text(s, style: const TextStyle(fontSize: 12)),
-                            backgroundColor: const Color(0xFFF1F5F9),
-                            side: BorderSide.none,
-                          )).toList(),
-                        ),
-                        const SizedBox(height: 24),
-                        const Text('Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 12),
-                        const TextField(decoration: InputDecoration(hintText: 'City, area or zip code', border: OutlineInputBorder(), isDense: true)),
-                        const SizedBox(height: 24),
-                        const Text('Price Range', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text('Price Range', style: AppTypography.titleMedium),
                         const SizedBox(height: 12),
                         RangeSlider(
-                          values: priceRange,
+                          values: RangeValues(tempMin, tempMax),
                           min: 0,
                           max: 50000,
-                          activeColor: const Color(0xFF0F62FE),
-                          onChanged: (v) => setModalState(() => priceRange = v),
+                          activeColor: AppColors.primary,
+                          onChanged: (v) => setModalState(() {
+                            tempMin = v.start;
+                            tempMax = v.end;
+                          }),
                         ),
-                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('₦${priceRange.start.round()}'), Text('₦${priceRange.end.round()}+')]),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('₦${tempMin.round()}', style: AppTypography.bodySmall),
+                            Text('₦${tempMax.round()}', style: AppTypography.bodySmall),
+                          ],
+                        ),
                         const SizedBox(height: 24),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('Emergency Ready Doctors', style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: const Text('Show doctors available for immediate priority care'),
-                          value: emergencyOnly,
-                          activeTrackColor: const Color(0xFFEF4444),
-                          onChanged: (v) => setModalState(() => emergencyOnly = v),
+                          title: Text('Emergency Only', style: AppTypography.titleMedium),
+                          subtitle: Text('Show only emergency-ready doctors', style: AppTypography.bodySmall),
+                          value: tempEmergency,
+                          activeTrackColor: AppColors.error,
+                          onChanged: (v) => setModalState(() => tempEmergency = v),
                         ),
                       ],
                     ),
@@ -220,13 +329,19 @@ class DoctorSearchScreen extends ConsumerWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
+                        setState(() {
+                          _priceMin = tempMin;
+                          _priceMax = tempMax;
+                          _emergencyOnly = tempEmergency;
+                        });
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Filters applied: ₦${priceRange.start.round()} – ₦${priceRange.end.round()}${emergencyOnly ? ', Emergency only' : ''}')),
-                        );
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F62FE), padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                      child: const Text('Apply Filters', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text('Apply Filters', style: AppTypography.labelLarge.copyWith(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -238,23 +353,112 @@ class DoctorSearchScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryStrip() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
+  Widget _buildEmergencyBanner() {
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCategoryItem('All', Icons.grid_view_rounded, const Color(0xFF0F62FE), isSelected: true),
-          _buildCategoryItem('General\nPhysician', Icons.medical_services_outlined, const Color(0xFF10B981)),
-          _buildCategoryItem('Pediatrician', Icons.child_care_rounded, const Color(0xFFA855F7)),
-          _buildCategoryItem('Gynecologist', Icons.female_rounded, const Color(0xFFEC4899)),
-          _buildCategoryItem('Dermatologist', Icons.clean_hands_rounded, const Color(0xFFF97316)),
-          _buildCategoryItem('Cardiologist', Icons.favorite_border_rounded, const Color(0xFFEF4444)),
-        ],
+      child: GestureDetector(
+        onTap: () => setState(() => _isEmergencyMode = !_isEmergencyMode),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _isEmergencyMode ? AppColors.error.withValues(alpha: 0.1) : AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _isEmergencyMode ? AppColors.error : AppColors.border,
+              width: _isEmergencyMode ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.emergency, color: AppColors.error, size: 20),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Emergency Care',
+                      style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _isEmergencyMode
+                          ? 'Showing emergency-ready doctors nearby'
+                          : 'Need immediate care? Find emergency doctors',
+                      style: AppTypography.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                _isEmergencyMode ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                color: AppColors.textTertiary,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  Widget _buildCategoryStrip() {
+    return SizedBox(
+      height: 100,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: _categories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isSelected = _selectedCategory == category;
+          return GestureDetector(
+            onTap: () => _onCategoryTap(category),
+            child: _buildCategoryItem(
+              category,
+              _getCategoryIcon(category),
+              _getCategoryColor(category),
+              isSelected: isSelected,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'All': return Icons.grid_view_rounded;
+      case 'General\nPhysician': return Icons.medical_services_outlined;
+      case 'Pediatrician': return Icons.child_care_rounded;
+      case 'Gynecologist': return Icons.female_rounded;
+      case 'Dermatologist': return Icons.clean_hands_rounded;
+      case 'Cardiologist': return Icons.favorite_border_rounded;
+      default: return Icons.person;
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'All': return AppColors.primary;
+      case 'General\nPhysician': return AppColors.success;
+      case 'Pediatrician': return const Color(0xFFA855F7);
+      case 'Gynecologist': return const Color(0xFFEC4899);
+      case 'Dermatologist': return AppColors.warning;
+      case 'Cardiologist': return AppColors.error;
+      default: return AppColors.textSecondary;
+    }
   }
 
   Widget _buildCategoryItem(String name, IconData icon, Color color, {bool isSelected = false}) {
@@ -262,13 +466,17 @@ class DoctorSearchScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(right: 16),
       child: Column(
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: isSelected ? Colors.white : color.withValues(alpha: 0.05),
+              color: isSelected ? color.withValues(alpha: 0.1) : color.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: isSelected ? color : Colors.transparent, width: 1.5),
+              border: Border.all(
+                color: isSelected ? color : Colors.transparent,
+                width: 1.5,
+              ),
               boxShadow: isSelected ? [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))] : [],
             ),
             child: Icon(icon, color: color, size: 28),
@@ -276,62 +484,14 @@ class DoctorSearchScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           if (isSelected) Container(width: 24, height: 2, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
           if (isSelected) const SizedBox(height: 4),
-          Text(name, textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: isSelected ? FontWeight.bold : FontWeight.w600, color: isSelected ? color : const Color(0xFF64748B), height: 1.2)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPromoBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Quality care, anywhere', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E3A8A))),
-                const SizedBox(height: 8),
-                const Text('Connect with verified doctors and get the care you deserve.', style: TextStyle(color: Color(0xFF3B82F6), fontSize: 12, height: 1.4)),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF3B82F6), shape: BoxShape.circle)),
-                    const SizedBox(width: 4),
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: const Color(0xFF3B82F6).withValues(alpha: 0.3), shape: BoxShape.circle)),
-                    const SizedBox(width: 4),
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: const Color(0xFF3B82F6).withValues(alpha: 0.3), shape: BoxShape.circle)),
-                    const SizedBox(width: 4),
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: const Color(0xFF3B82F6).withValues(alpha: 0.3), shape: BoxShape.circle)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 4,
-            child: Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                // Placeholder for doctor illustration
-                const Icon(Icons.person_pin_rounded, size: 80, color: Color(0xFF93C5FD)),
-                Positioned(
-                  left: 0,
-                  bottom: 10,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
-                    child: const Icon(Icons.check_rounded, color: Colors.white, size: 16),
-                  ),
-                ),
-              ],
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              color: isSelected ? color : AppColors.textSecondary,
+              height: 1.2,
             ),
           ),
         ],
@@ -345,113 +505,111 @@ class DoctorSearchScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+          Text(title, style: AppTypography.titleMedium),
           GestureDetector(
             onTap: onAction,
-            child: Text(actionLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F62FE))),
+            child: Text(actionLabel, style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPopularSpecialties() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          _buildSpecialtyCard('Internal\nMedicine', '1,248 doctors', Icons.monitor_heart_rounded, const Color(0xFF10B981)),
-          _buildSpecialtyCard('Pediatrics', '856 doctors', Icons.child_care_rounded, const Color(0xFFA855F7)),
-          _buildSpecialtyCard('Gynecology', '642 doctors', Icons.female_rounded, const Color(0xFFEC4899)),
-          _buildSpecialtyCard('Dermatology', '532 doctors', Icons.clean_hands_rounded, const Color(0xFFF97316)),
-        ],
-      ),
-    );
-  }
+  Widget _buildEmergencyDoctorsSection(List<Map<String, dynamic>> doctors) {
+    final emergencyDoctors = doctors.where((d) => d['is_emergency'] == true).toList();
 
-  Widget _buildSpecialtyCard(String name, String count, IconData icon, Color color) {
-    return Container(
-      width: 110,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(height: 12),
-          Text(name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E293B), height: 1.2)),
-          const SizedBox(height: 6),
-          Text(count, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-        ],
-      ),
-    );
-  }
+    if (emergencyDoctors.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Icon(Icons.emergency_off_rounded, color: AppColors.textTertiary, size: 48),
+            const SizedBox(height: 12),
+            Text('No emergency doctors available right now', style: AppTypography.bodyMedium),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                setState(() => _isEmergencyMode = false);
+              },
+              child: const Text('View All Doctors'),
+            ),
+          ],
+        ),
+      );
+    }
 
-  Widget _buildTopRatedDoctors(BuildContext context, {required bool isEmergency}) {
     return Column(
       children: [
-        _buildDoctorCard(
-          context: context,
-          name: 'Dr. Ibrahim Musa',
-          specialty: 'Internal Medicine Specialist',
-          degree: 'MBBS, MD (Internal Medicine)',
-          rating: '4.9', reviews: '128', consults: '1,248+',
-          availability: 'Available Today', isToday: true,
-          doctorId: 'd2222222-2222-2222-2222-222222222222',
-          isEmergency: isEmergency,
+        _buildSectionHeader(
+          'Emergency Doctors',
+          '${emergencyDoctors.length} available',
+          () {},
         ),
-        _buildDoctorCard(
-          context: context,
-          name: 'Dr. Adaeze Nwosu',
-          specialty: 'Cardiology Specialist',
-          degree: 'MBBS, FWACP (Cardiology)',
-          rating: '4.8', reviews: '120', consults: '450+',
-          availability: 'Available Tomorrow', isToday: false,
-          doctorId: 'd1111111-1111-1111-1111-111111111111',
-          isEmergency: isEmergency,
-        ),
-        _buildDoctorCard(
-          context: context,
-          name: 'Dr. Chinedu Okafor',
-          specialty: 'Neurology Expert',
-          degree: 'MBBS, FMCP (Neurology)',
-          rating: '4.9', reviews: '150', consults: '500+',
-          availability: 'Available Today', isToday: true,
-          doctorId: 'd3333333-3333-3333-3333-333333333333',
-          isEmergency: isEmergency,
-        ),
+        const SizedBox(height: 8),
+        ...emergencyDoctors.map((doc) => _buildDoctorCard(context: context, doctor: doc)),
       ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      child: Column(
+        children: [
+          Icon(Icons.search_off_rounded, color: AppColors.textTertiary, size: 56),
+          const SizedBox(height: 16),
+          Text('No doctors found', style: AppTypography.titleMedium),
+          const SizedBox(height: 8),
+          Text(
+            'Try adjusting your search or filters',
+            style: AppTypography.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(
+            onPressed: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+                _selectedCategory = 'All';
+                _priceMin = 0;
+                _priceMax = 50000;
+                _emergencyOnly = false;
+              });
+            },
+            child: const Text('Clear Filters'),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildDoctorCard({
     required BuildContext context,
-    required String name, required String specialty, required String degree,
-    required String rating, required String reviews, required String consults,
-    required String availability, required bool isToday, required String doctorId,
-    required bool isEmergency,
+    required Map<String, dynamic> doctor,
   }) {
+    final id = doctor['id'] ?? '';
+    final fullName = doctor['full_name'] ?? 'Unknown';
+    final specialty = doctor['specialty'] ?? 'General';
+    final fee = doctor['consultation_fee'] ?? 0;
+    final isOnline = doctor['is_online'] == true;
+    final isEmergency = doctor['is_emergency'] == true;
+
     return GestureDetector(
-      onTap: () => context.push('/doctor-details', extra: {'id': doctorId, 'name': name, 'specialty': specialty, 'isEmergency': isEmergency}),
+      onTap: () => context.push('/doctor-details', extra: {
+        'id': id,
+        'name': fullName,
+        'specialty': specialty,
+        'isEmergency': _isEmergencyMode,
+      }),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+          border: Border.all(color: AppColors.border),
+          boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,15 +619,20 @@ class DoctorSearchScreen extends ConsumerWidget {
               children: [
                 CircleAvatar(
                   radius: 32,
-                  backgroundColor: const Color(0xFFE2E8F0),
-                  child: Text(name.substring(4, 5), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF0F62FE))),
+                  backgroundColor: AppColors.primaryLight,
+                  child: Text(
+                    fullName.length > 4 ? fullName.substring(0, 1).toUpperCase() : '?',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppColors.primary),
+                  ),
                 ),
                 Positioned(
-                  bottom: 0, right: 0,
+                  bottom: 0,
+                  right: 0,
                   child: Container(
-                    width: 14, height: 14,
+                    width: 14,
+                    height: 14,
                     decoration: BoxDecoration(
-                      color: isToday ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                      color: isOnline ? AppColors.success : AppColors.textTertiary,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
@@ -484,27 +647,31 @@ class DoctorSearchScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis)),
+                      Expanded(
+                        child: Text(
+                          fullName,
+                          style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w900),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.verified_rounded, color: Color(0xFF3B82F6), size: 14),
+                      if (isEmergency)
+                        const Icon(Icons.emergency, color: AppColors.error, size: 14),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(specialty, style: const TextStyle(color: Color(0xFF10B981), fontSize: 11, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 2),
-                  Text(degree, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10)),
+                  Text(specialty, style: AppTypography.bodySmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 12),
-                      const SizedBox(width: 4),
-                      Text('$rating ($reviews)', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-                      const SizedBox(width: 8),
-                      Container(width: 1, height: 10, color: const Color(0xFFE2E8F0)),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.people_alt_outlined, color: Color(0xFF94A3B8), size: 12),
-                      const SizedBox(width: 4),
-                      Text('$consults Consultations', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+                      Icon(Icons.circle, size: 6, color: isOnline ? AppColors.success : AppColors.textTertiary),
+                      const SizedBox(width: 6),
+                      Text(
+                        isOnline ? 'Online' : 'Offline',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: isOnline ? AppColors.success : AppColors.textTertiary,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -513,17 +680,28 @@ class DoctorSearchScreen extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(availability, style: TextStyle(color: isToday ? const Color(0xFF10B981) : const Color(0xFFF59E0B), fontSize: 10, fontWeight: FontWeight.bold)),
+                Text(
+                  '₦$fee',
+                  style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w900, color: AppColors.primary),
+                ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: () => context.push('/doctor-details', extra: {'id': doctorId, 'name': name, 'specialty': specialty, 'isEmergency': isEmergency}),
+                  onPressed: () => context.push('/doctor-details', extra: {
+                    'id': id,
+                    'name': fullName,
+                    'specialty': specialty,
+                    'isEmergency': _isEmergencyMode,
+                  }),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isEmergency ? const Color(0xFFEF4444) : const Color(0xFF0F62FE),
+                    backgroundColor: (_isEmergencyMode && isEmergency) ? AppColors.error : AppColors.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     minimumSize: Size.zero,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text(isEmergency ? 'SOS' : 'Book', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    (_isEmergencyMode && isEmergency) ? 'SOS' : 'Book',
+                    style: AppTypography.labelSmall.copyWith(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -534,34 +712,39 @@ class DoctorSearchScreen extends ConsumerWidget {
   }
 
   Widget _buildVerificationBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(color: Color(0xFFEFF6FF), shape: BoxShape.circle),
-            child: const Icon(Icons.verified_user_outlined, color: Color(0xFF3B82F6), size: 20),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('All doctors are verified professionals', style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 12)),
-                SizedBox(height: 4),
-                Text('We verify licenses, qualifications and experience to ensure you receive safe and quality care.', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, height: 1.4)),
-              ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
+              child: const Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 20),
             ),
-          ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 20),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('All doctors are verified professionals', style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(
+                    'We verify licenses, qualifications and experience to ensure you receive safe and quality care.',
+                    style: AppTypography.labelSmall.copyWith(height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 20),
+          ],
+        ),
       ),
     );
   }

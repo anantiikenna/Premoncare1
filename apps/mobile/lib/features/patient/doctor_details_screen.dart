@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/supabase_locator.dart';
+import '../../core/app_colors.dart';
+import '../../core/app_typography.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 
 class DoctorDetailsScreen extends ConsumerStatefulWidget {
@@ -41,7 +43,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
     try {
       final data = await supabase
           .from('profiles')
-          .select('full_name, specialty, about, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url')
+          .select('full_name, specialty, about, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url, is_online')
           .eq('id', widget.doctorId)
           .single();
       if (mounted) setState(() { _profile = data; _loading = false; });
@@ -54,22 +56,24 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   String get _displayName => _profile?['full_name'] as String? ?? widget.doctorName;
   String get _displaySpecialty => _profile?['specialty'] as String? ?? widget.specialty;
   double get _hourlyRate => (_profile?['hourly_rate'] as num?)?.toDouble() ?? 5000.0;
+  double get _bookingRate => widget.isEmergency ? _hourlyRate * 5 : _hourlyRate;
   int get _experienceYears => _profile?['experience_years'] as int? ?? 0;
   String get _about => _profile?['about'] as String? ?? 'Dedicated and compassionate healthcare professional committed to delivering quality patient care.';
+  bool get _isOnline => _profile?['is_online'] == true;
+  String get _verificationStatus => _profile?['verification_status'] as String? ?? 'pending';
+  bool get _isVerified => _verificationStatus == 'approved';
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-
     if (_loading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF8FAFC),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF0F62FE))),
+        backgroundColor: AppColors.background,
+        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           SafeArea(
@@ -87,15 +91,15 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                         const SizedBox(height: 8),
                         _buildPageHeader(),
                         const SizedBox(height: 16),
-                        _buildHeroCard(primaryColor),
+                        _buildHeroCard(),
                         const SizedBox(height: 24),
                         _buildQuickInfoGrid(),
                         const SizedBox(height: 24),
-                        _buildVerifiedBanner(),
-                        const SizedBox(height: 24),
+                        if (_isVerified) _buildVerifiedBanner(),
+                        if (_isVerified) const SizedBox(height: 24),
                         _buildSectionTitle('About Dr. ${_displayName.replaceFirst('Dr. ', '')}'),
                         const SizedBox(height: 12),
-                        _buildAboutSection(primaryColor),
+                        _buildAboutSection(),
                         const SizedBox(height: 24),
                         _buildSectionTitle('Specializations'),
                         const SizedBox(height: 12),
@@ -110,7 +114,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               ],
             ),
           ),
-          _buildBottomActionBar(context, primaryColor),
+          _buildBottomActionBar(context),
         ],
       ),
     );
@@ -125,7 +129,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           children: [
             GestureDetector(
               onTap: () => context.pop(),
-              child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 24),
+              child: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary, size: 24),
             ),
             Row(
               children: [
@@ -133,16 +137,16 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
-                    child: Text('P', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: Text('P', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text('Premon', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 18, fontWeight: FontWeight.bold)),
-                const Text('Care', style: TextStyle(color: Color(0xFF10B981), fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Premon', style: TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Care', style: TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(width: 40),
@@ -162,41 +166,57 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           children: [
             Row(
               children: [
-                const Text('Doctor Public Profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+                const Text('Doctor Public Profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
                 const SizedBox(width: 8),
-                const Icon(Icons.verified_user_outlined, color: Color(0xFF64748B), size: 18),
+                const Icon(Icons.verified_user_outlined, color: AppColors.textSecondary, size: 18),
               ],
             ),
             const SizedBox(height: 4),
-            const Row(
-              children: [
-                Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 14),
-                SizedBox(width: 4),
-                Text('Verified Healthcare Professional', style: TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.w700)),
-              ],
-            ),
+            if (_isVerified)
+              const Row(
+                children: [
+                  Icon(Icons.verified_rounded, color: AppColors.success, size: 14),
+                  SizedBox(width: 4),
+                  Text('Verified Healthcare Professional', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
+                ],
+              )
+            else
+              const Row(
+                children: [
+                  Icon(Icons.pending_outlined, color: AppColors.warning, size: 14),
+                  SizedBox(width: 4),
+                  Text('Verification Pending', style: TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
+                ],
+              ),
           ],
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.share_outlined, color: Color(0xFF1E293B), size: 14),
-              SizedBox(width: 6),
-              Text('Share Profile', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
-            ],
+        GestureDetector(
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Profile sharing coming soon')),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.share_outlined, color: AppColors.textPrimary, size: 14),
+                SizedBox(width: 6),
+                Text('Share Profile', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildHeroCard(Color primaryColor) {
+  Widget _buildHeroCard() {
     final expLabel = _experienceYears > 0 ? '$_experienceYears+ Years' : 'Experienced';
     return Container(
       decoration: BoxDecoration(
@@ -250,11 +270,11 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            CircleAvatar(radius: 3, backgroundColor: Color(0xFF10B981)),
-                            SizedBox(width: 4),
-                            Text('Available', style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold)),
+                            CircleAvatar(radius: 3, backgroundColor: _isOnline ? AppColors.success : AppColors.textTertiary),
+                            const SizedBox(width: 4),
+                            Text(_isOnline ? 'Online' : 'Offline', style: TextStyle(color: _isOnline ? AppColors.success : AppColors.textTertiary, fontSize: 10, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -269,12 +289,14 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                       Row(
                         children: [
                           Flexible(child: Text('Dr. ${_displayName.replaceFirst('Dr. ', '')}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
-                          const SizedBox(width: 6),
-                          const Icon(Icons.verified_rounded, color: Color(0xFF3B82F6), size: 18),
+                          if (_isVerified) ...[
+                            const SizedBox(width: 6),
+                            const Icon(Icons.verified_rounded, color: Color(0xFF3B82F6), size: 18),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(_displaySpecialty, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.w600)),
+                      Text(_displaySpecialty, style: const TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -317,9 +339,9 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       clipBehavior: Clip.none,
       child: Row(
         children: [
-          _buildInfoCard(Icons.videocam_rounded, 'Video Consultation', 'Available', const Color(0xFF3B82F6)),
-          _buildInfoCard(Icons.chat_bubble_rounded, 'Chat Support', 'Available', const Color(0xFFA855F7)),
-          _buildInfoCard(Icons.access_time_rounded, 'Response Time', '~5 min', const Color(0xFFF59E0B)),
+          _buildInfoCard(Icons.videocam_rounded, 'Video Consultation', _isOnline ? 'Available' : 'Unavailable', AppColors.primary),
+          _buildInfoCard(Icons.chat_bubble_rounded, 'Chat Support', _isOnline ? 'Available' : 'Unavailable', const Color(0xFFA855F7)),
+          _buildInfoCard(Icons.access_time_rounded, 'Response Time', _isOnline ? '~5 min' : 'N/A', AppColors.warning),
         ],
       ),
     );
@@ -333,16 +355,16 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, color: color, size: 28),
           const SizedBox(height: 12),
-          Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF1E293B), height: 1.2)),
+          Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimary, height: 1.2)),
           const SizedBox(height: 4),
-          Text(status, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+          Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _isOnline ? AppColors.success : AppColors.textTertiary)),
         ],
       ),
     );
@@ -352,25 +374,25 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: AppColors.primaryLight.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
       ),
       child: const Row(
         children: [
           CircleAvatar(
             radius: 20,
             backgroundColor: Colors.white,
-            child: Icon(Icons.verified_user_outlined, color: Color(0xFF3B82F6), size: 20),
+            child: Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 20),
           ),
           SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Verified & Trusted', style: TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 14)),
+                Text('Verified & Trusted', style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.bold, fontSize: 14)),
                 SizedBox(height: 4),
-                Text("This doctor's license and qualifications have been verified by Premon Care.", style: TextStyle(color: Color(0xFF475569), fontSize: 11, height: 1.4)),
+                Text("This doctor's license and qualifications have been verified by Premon Care.", style: TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4)),
               ],
             ),
           ),
@@ -380,18 +402,13 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)));
+    return Text(title, style: AppTypography.h4);
   }
 
-  Widget _buildAboutSection(Color primaryColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _about,
-          style: const TextStyle(color: Color(0xFF475569), fontSize: 13, height: 1.5),
-        ),
-      ],
+  Widget _buildAboutSection() {
+    return Text(
+      _about,
+      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
     );
   }
 
@@ -403,15 +420,15 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       children: specs.map((s) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFF10B981).withValues(alpha: 0.1),
+          color: AppColors.success.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.health_and_safety_outlined, color: Color(0xFF10B981), size: 14),
+            const Icon(Icons.health_and_safety_outlined, color: AppColors.success, size: 14),
             const SizedBox(width: 6),
-            Text(s, style: const TextStyle(color: Color(0xFF059669), fontSize: 11, fontWeight: FontWeight.w600)),
+            Text(s, style: const TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w600)),
           ],
         ),
       )).toList(),
@@ -425,7 +442,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('4.9', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1)),
+            Text('4.9', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: AppColors.textPrimary, letterSpacing: -1)),
             Row(
               children: [
                 Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
@@ -436,15 +453,14 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               ],
             ),
             SizedBox(height: 8),
-            Text('Patient Rating', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+            Text('Patient Rating', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildBottomActionBar(BuildContext context, Color primaryColor) {
-    final hourlyRate = _hourlyRate;
+  Widget _buildBottomActionBar(BuildContext context) {
     return Positioned(
       bottom: 0,
       left: 0,
@@ -453,8 +469,8 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, -5))],
-          border: const Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+          boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: const Offset(0, -5))],
+          border: const Border(top: BorderSide(color: AppColors.borderLight)),
         ),
         child: Row(
           children: [
@@ -466,15 +482,15 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.border),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.chat_bubble_outline_rounded, color: primaryColor, size: 20),
+                    const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primary, size: 20),
                     const SizedBox(height: 4),
-                    Text('Chat', style: TextStyle(color: primaryColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text('Chat', style: AppTypography.labelSmall.copyWith(color: AppColors.primary)),
                   ],
                 ),
               ),
@@ -482,14 +498,17 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: () => context.push('/select-duration', extra: {
-                  'doctorId': widget.doctorId,
-                  'doctorName': _displayName,
-                  'hourlyRate': hourlyRate,
-                  'isEmergency': widget.isEmergency,
-                }),
+                onPressed: _isOnline
+                    ? () => context.push('/select-duration', extra: {
+                        'doctorId': widget.doctorId,
+                        'doctorName': _displayName,
+                        'hourlyRate': _hourlyRate,
+                        'isEmergency': widget.isEmergency,
+                      })
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.textTertiary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
@@ -504,7 +523,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('Book Video', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                        Text('₦${hourlyRate.toStringAsFixed(0)}/hr', style: const TextStyle(color: Colors.white, fontSize: 10)),
+                        Text('₦${_bookingRate.toStringAsFixed(0)}/hr', style: const TextStyle(color: Colors.white, fontSize: 10)),
                       ],
                     ),
                   ],
@@ -514,14 +533,17 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: () => context.push('/select-duration', extra: {
-                  'doctorId': widget.doctorId,
-                  'doctorName': _displayName,
-                  'hourlyRate': hourlyRate,
-                  'isEmergency': widget.isEmergency,
-                }),
+                onPressed: _isOnline
+                    ? () => context.push('/select-duration', extra: {
+                        'doctorId': widget.doctorId,
+                        'doctorName': _displayName,
+                        'hourlyRate': _hourlyRate,
+                        'isEmergency': widget.isEmergency,
+                      })
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF10B981),
+                  backgroundColor: widget.isEmergency ? AppColors.error : AppColors.success,
+                  disabledBackgroundColor: AppColors.textTertiary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
