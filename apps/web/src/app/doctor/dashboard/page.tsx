@@ -18,6 +18,7 @@ import { ProposeFollowupDialog } from '@/components/doctor/propose-followup-dial
 import { Badge } from '@/components/ui/badge'
 import { OnlineToggle } from '@/components/doctor/online-toggle'
 import { ExportButton } from '@/components/doctor/export-button'
+import { EmergencyRequestAlert } from '@/components/doctor/emergency-request-alert'
 
 export default async function DoctorDashboard() {
     const supabase = await createClient()
@@ -111,6 +112,9 @@ export default async function DoctorDashboard() {
                     </div>
                 </div>
             </div>
+
+            {/* Real-time Emergency Request Alerts */}
+            <EmergencyRequestAlert doctorId={user.id} />
 
             <DoctorStatusGuard profile={profile}>
                 <div className="grid gap-8 lg:grid-cols-12">

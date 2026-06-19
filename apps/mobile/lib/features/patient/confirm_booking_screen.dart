@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
@@ -52,12 +54,13 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
         await prefs.setString('premon_guest_token', guestToken);
       }
 
-      await supabase.from('appointments').insert({
+      // Insert the appointment record
+      final insertPayload = {
         'patient_id': userId,
         'doctor_id': widget.doctorId,
         'appointment_date': appointmentDate,
         'duration_minutes': widget.durationMinutes,
-        'status': widget.isEmergency ? 'emergency_pending' : 'pending',
+        'status': widget.isEmergency ? 'emergency_request' : 'pending',
         'is_emergency': widget.isEmergency,
         'total_amount': widget.totalAmount,
         'is_patient_approved': true,
@@ -67,30 +70,74 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
           'guest_token': guestToken,
           'pricing_multiplier': 5,
         },
-      });
+      };
 
-      // Send in-app notification to doctor
+      final insertResponse = await supabase.from('appointments').insert(insertPayload).select('id').single();
+      final appointmentId = insertResponse['id'] as String;
+
+      // Send in-app notification to doctor (direct DB insert for real-time)
       try {
         await supabase.from('notifications').insert({
           'user_id': widget.doctorId,
-          'title': widget.isEmergency ? '🚨 Emergency Consultation Request' : 'New Appointment Request',
+          'title': widget.isEmergency ? 'EMERGENCY Consultation Request' : 'New Appointment Request',
           'message': 'A patient has requested a ${widget.isEmergency ? "EMERGENCY " : ""}${widget.durationMinutes}-minute consultation.',
           'type': 'appointment',
           'is_read': false,
+          'metadata': {'appointment_id': appointmentId},
         });
       } catch (_) {
         // Non-fatal: notification failure shouldn't block booking
       }
 
-      if (mounted) {
-        context.go(
-          widget.isEmergency ? '/booking-confirmed?emergency=true' : '/booking-confirmed',
-          extra: {
-            'consultationFee': widget.totalAmount,
-            'doctorName': widget.doctorName,
-            'doctorId': widget.doctorId,
-          },
+      // Dispatch FCM push + email via web notification pipeline
+      try {
+        final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
+        await http.post(
+          Uri.parse('$siteUrl/api/notifications/dispatch'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'userId': widget.doctorId,
+            'title': widget.isEmergency ? 'EMERGENCY Consultation Request' : 'New Appointment Request',
+            'message': 'A patient has requested a ${widget.isEmergency ? "EMERGENCY " : ""}${widget.durationMinutes}-minute consultation. Fee: ₦${widget.totalAmount.toInt()}',
+            'type': 'appointment',
+            'sendEmail': widget.isEmergency,
+            'emailTemplate': 'doctorAppointment',
+            'emailData': {
+              'doctorId': widget.doctorId,
+              'duration': widget.durationMinutes,
+              'amount': widget.totalAmount,
+              'isEmergency': widget.isEmergency,
+            },
+          }),
         );
+      } catch (_) {
+        // Non-fatal: push/email failure shouldn't block booking
+      }
+
+      if (mounted) {
+        if (widget.isEmergency) {
+          // Emergency: redirect to waiting screen where patient waits for doctor acceptance
+          context.go(
+            '/emergency-waiting',
+            extra: {
+              'appointmentId': appointmentId,
+              'doctorId': widget.doctorId,
+              'doctorName': widget.doctorName,
+              'totalAmount': widget.totalAmount,
+              'durationMinutes': widget.durationMinutes,
+            },
+          );
+        } else {
+          // Regular: redirect to booking confirmed
+          context.go(
+            '/booking-confirmed',
+            extra: {
+              'consultationFee': widget.totalAmount,
+              'doctorName': widget.doctorName,
+              'doctorId': widget.doctorId,
+            },
+          );
+        }
       }
     } catch (e, stackTrace) {
       logHandledError('Booking confirmation failed', e, stackTrace);

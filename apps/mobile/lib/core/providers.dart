@@ -52,7 +52,7 @@ final patientCreditsProvider = StreamProvider.autoDispose<int>((ref) {
 
 // Removed: doctorMetricsProvider — use userProfileProvider instead
 
-/// Provider for the doctor's upcoming appointments
+/// Provider for the doctor's upcoming appointments (excludes emergency requests)
 final upcomingAppointmentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
@@ -62,8 +62,21 @@ final upcomingAppointmentsProvider = StreamProvider.autoDispose<List<Map<String,
       .stream(primaryKey: ['id'])
       .eq('doctor_id', user.id)
       .order('appointment_date', ascending: true)
-      .limit(5)
-      .map((data) => data);
+      .limit(10)
+      .map((data) => data.where((a) => a['status'] != 'emergency_request').toList());
+});
+
+/// Provider for the doctor's incoming emergency requests (status = emergency_request)
+final emergencyRequestsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  final user = supabase.auth.currentUser;
+  if (user == null) return Stream.value([]);
+
+  return supabase
+      .from('appointments')
+      .stream(primaryKey: ['id'])
+      .eq('doctor_id', user.id)
+      .order('created_at', ascending: false)
+      .map((data) => data.where((a) => a['status'] == 'emergency_request').toList());
 });
 
 /// Provider for the doctor's revenue

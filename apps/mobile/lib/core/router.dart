@@ -28,6 +28,8 @@ import '../features/patient/pricing_plans_screen.dart';
 import '../features/verification/widgets/upload_failed_screen.dart';
 import '../shared/widgets/no_internet_screen.dart';
 import '../features/appointments/emergency_failed_screen.dart';
+import '../features/patient/emergency_waiting_screen.dart';
+import '../features/doctor/doctor_emergency_request_screen.dart';
 import '../features/auth/session_expired_screen.dart';
 import '../features/messaging/chat_list_screen.dart';
 import '../features/messaging/chat_detail_screen.dart';
@@ -229,8 +231,34 @@ final goRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/emergency-waiting',
+      builder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>? ?? {};
+        return EmergencyWaitingScreen(
+          appointmentId: extras['appointmentId'] as String? ?? '',
+          doctorId: extras['doctorId'] as String? ?? '',
+          doctorName: extras['doctorName'] as String? ?? 'Doctor',
+          totalAmount: (extras['totalAmount'] as num?)?.toDouble() ?? 0.0,
+          durationMinutes: extras['durationMinutes'] as int? ?? 15,
+        );
+      },
+    ),
+    GoRoute(
       path: '/doctor_dashboard',
       builder: (context, state) => const DoctorMainLayout(),
+    ),
+    GoRoute(
+      path: '/doctor-emergency-request',
+      builder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>? ?? {};
+        return DoctorEmergencyRequestScreen(
+          appointmentId: extras['appointmentId'] as String? ?? '',
+          patientId: extras['patientId'] as String? ?? '',
+          patientName: extras['patientName'] as String? ?? 'Patient',
+          durationMinutes: extras['durationMinutes'] as int? ?? 15,
+          totalAmount: (extras['totalAmount'] as num?)?.toDouble() ?? 0.0,
+        );
+      },
     ),
     GoRoute(
       path: '/messages',

@@ -15,16 +15,27 @@ import {
   ChevronRight, 
   Lock,
   ArrowRight,
-  LogIn
+  LogIn,
+  Loader2,
+  AlertCircle
 } from 'lucide-react'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase'
 
 export default function AccountConversionPage() {
   const router = useRouter()
-  const [email] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null
-    return localStorage.getItem('premon_guest_email')
-  })
+  const supabase = createClient()
+  const [email, setEmail] = useState<string | null>(null)
+  const [appointmentId, setAppointmentId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('premon_guest_email')
+    const storedAppointmentId = localStorage.getItem('premon_emergency_appointment_id')
+    setEmail(storedEmail)
+    setAppointmentId(storedAppointmentId)
+    setLoading(false)
+  }, [])
 
   const benefits = [
     {
@@ -56,6 +67,22 @@ export default function AccountConversionPage() {
       subtitle: 'Get reminders for appointments, medications and updates.'
     }
   ]
+
+  const buildAuthUrl = (path: string) => {
+    const params = new URLSearchParams()
+    if (email) params.set('guest_email', email)
+    if (appointmentId) params.set('appointment_id', appointmentId)
+    const qs = params.toString()
+    return `${path}${qs ? `?${qs}` : ''}`
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
@@ -108,6 +135,15 @@ export default function AccountConversionPage() {
             <CardDescription className="text-slate-400 font-medium pt-2">Why you should create a permanent profile today.</CardDescription>
           </CardHeader>
           <CardContent className="p-10 space-y-6">
+            {appointmentId && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                <p className="text-xs font-bold text-emerald-800">
+                  Your emergency booking is saved. Creating an account will link it to your profile automatically.
+                </p>
+              </div>
+            )}
+
             <div className="space-y-6">
               {benefits.map((benefit, idx) => (
                 <div key={idx} className="flex items-center gap-5 group cursor-default">
@@ -127,14 +163,14 @@ export default function AccountConversionPage() {
 
             <div className="pt-6 space-y-4">
               <Button 
-                onClick={() => router.push('/register')} 
+                onClick={() => router.push(buildAuthUrl('/register'))} 
                 className="w-full h-16 rounded-2xl bg-primary text-white font-black hover:scale-[1.02] transition-transform shadow-2xl shadow-primary/20 text-lg uppercase tracking-widest"
               >
                 Create Account <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
               <Button 
                 variant="outline"
-                onClick={() => router.push('/login')} 
+                onClick={() => router.push(buildAuthUrl('/login'))} 
                 className="w-full h-16 rounded-2xl border-slate-200 text-slate-600 font-black hover:bg-slate-50 transition-colors uppercase tracking-widest text-xs"
               >
                 <LogIn className="mr-3 h-5 w-5" /> I already have an account

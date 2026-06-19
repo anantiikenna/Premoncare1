@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
@@ -24,6 +24,7 @@ import Image from 'next/image'
 import { OTPForm } from '@/components/auth/otp-form'
 import { toast } from 'sonner'
 import { getUserFacingError } from '@/lib/user-facing-errors'
+import { dispatchNotification } from '@/lib/notifications-dispatch'
 
 interface EmergencyDoctor {
   id: string
@@ -42,7 +43,6 @@ export default function EmergencyBookingPage() {
   const [doctors, setDoctors] = useState<EmergencyDoctor[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   const [selectedDoctor, setSelectedDoctor] = useState<EmergencyDoctor | null>(null)
@@ -91,17 +91,19 @@ export default function EmergencyBookingPage() {
       const now = new Date().toISOString()
       const { data } = await supabase
         .from('profiles')
-        .select('id, full_name, specialty, avatar_url, consultation_fee, experience_years, clinic_address, payment_instructions, reviews(rating)')
+        .select('id, full_name, specialty, avatar_url, consultation_fee, experience_years, clinic_address, payment_instructions, is_online, reviews(rating)')
         .eq('role', 'doctor')
         .eq('verification_status', 'approved')
         .eq('subscription_status', 'active')
         .gt('subscription_expires_at', now)
+        .eq('is_online', true)
 
       if (data) setDoctors(data)
       setLoading(false)
     }
     fetchDoctors()
-  }, [supabase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleNext = () => setStep(step + 1)
   const handleBack = () => setStep(step - 1)
@@ -116,27 +118,24 @@ export default function EmergencyBookingPage() {
     setError(null)
 
     try {
-      // 1. Create a "Shadow Profile" or link to guest_token
-      // For this demo, we'll store guest info in a dedicated table or use metadata
-      // In a real implementation, we'd trigger a Supabase function to create a guest record
-      
-      const guestToken = `guest_${Math.random().toString(36).substring(7)}`
+      const guestToken = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
       localStorage.setItem('premon_guest_token', guestToken)
       localStorage.setItem('premon_guest_email', email)
 
-      // 2. Insert the emergency appointment
-      const { error: bookingError } = await supabase
+      const totalAmount = ((selectedDoctor.consultation_fee || 50) * duration * 5 / 15)
+
+      const { data: appointmentData, error: bookingError } = await supabase
         .from('appointments')
         .insert({
-          patient_id: null, // Guest
+          patient_id: null,
           doctor_id: selectedDoctor.id,
           appointment_date: new Date().toISOString(),
           reason: 'EMERGENCY CONSULTATION (Guest)',
           duration_minutes: duration,
-          status: 'pending',
+          status: 'emergency_request',
           is_patient_approved: true,
           is_emergency: true,
-          total_amount: ((selectedDoctor.consultation_fee || 50) * duration * 5 / 15),
+          total_amount: totalAmount,
           metadata: {
             is_emergency: true,
             guest_email: email,
@@ -145,9 +144,42 @@ export default function EmergencyBookingPage() {
             pricing_multiplier: 5
           }
         })
+        .select('id')
+        .single()
 
       if (bookingError) throw bookingError
-      setSuccess(true)
+
+      // Store appointment data for the waiting page
+      if (appointmentData?.id) {
+        localStorage.setItem('premon_emergency_appointment_id', appointmentData.id)
+        localStorage.setItem('premon_emergency_doctor_name', selectedDoctor.full_name)
+        localStorage.setItem('premon_emergency_doctor_id', selectedDoctor.id)
+        localStorage.setItem('premon_emergency_amount', String(totalAmount))
+        localStorage.setItem('premon_emergency_duration', String(duration))
+      }
+
+      // Notify the doctor via full notification pipeline (DB + FCM push + email)
+      dispatchNotification({
+        userId: selectedDoctor.id,
+        title: 'EMERGENCY Consultation Request',
+        message: `A patient has requested an EMERGENCY ${duration}-minute consultation. Fee: ₦${totalAmount.toLocaleString()}`,
+        type: 'appointment',
+        link: '/doctor/appointments',
+        sendEmail: true,
+        emailTemplate: 'doctorAppointment',
+        emailData: {
+          doctorName: selectedDoctor.full_name,
+          patientEmail: email,
+          duration: duration,
+          amount: totalAmount,
+          isEmergency: true,
+        },
+      }).catch((err) => {
+        console.error('Failed to send doctor notification:', err)
+      })
+
+      // Redirect to waiting page (patient waits for doctor acceptance)
+      router.push('/emergency-waiting')
     } catch (err: unknown) {
       console.error('Emergency booking failed', err)
       setError(getUserFacingError(err, 'We could not start the emergency booking. Please try again or contact support.'))
@@ -156,52 +188,7 @@ export default function EmergencyBookingPage() {
     }
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <Card className="w-full max-w-xl border-red-200 shadow-2xl">
-          <CardHeader className="bg-red-50 text-center pb-8 border-b border-red-100">
-            <CheckCircle2 className="h-16 w-16 text-red-600 mx-auto mb-4" />
-            <CardTitle className="text-3xl font-black text-red-900">Emergency Initiated</CardTitle>
-            <CardDescription className="text-red-700 font-bold mt-2 uppercase tracking-widest text-xs">
-              Immediate Payment Required to Start
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-8 space-y-6">
-            <div className="bg-white border-2 border-red-500 rounded-3xl p-6 shadow-lg">
-              <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-red-600">
-                <Banknote className="h-6 w-6" /> P2P Payment Instructions
-              </h3>
-              <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                To start your consultation with <span className="font-bold text-slate-900">Dr. {selectedDoctor?.full_name}</span> immediately, please pay the emergency fee:
-              </p>
-              <div className="text-4xl font-black text-slate-900 mb-6 text-center">
-                ₦{((selectedDoctor?.consultation_fee || 50) * duration * 5 / 15).toLocaleString()}
-              </div>
-              <div className="p-5 bg-slate-900 text-white rounded-2xl font-mono text-sm shadow-inner">
-                {selectedDoctor?.payment_instructions || 'Transfer to: Premon Bank - 0123456789'}
-              </div>
-              <p className="text-[10px] text-red-500 mt-4 font-bold uppercase text-center italic">
-                Once paid, the doctor will be alerted for immediate session startup.
-              </p>
-            </div>
-
-            <div className="space-y-4 pt-4">
-              <Button 
-                onClick={() => router.push('/account-conversion')} 
-                className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black hover:scale-105 transition-transform shadow-xl shadow-slate-900/20"
-              >
-                Secure My Medical Records
-              </Button>
-              <p className="text-xs text-center text-slate-400 font-medium italic">
-                A copy of these instructions has been sent to {email}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  // Removed success screen — redirect to /emergency-waiting instead
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-red-100 selection:text-red-900">
@@ -296,7 +283,7 @@ export default function EmergencyBookingPage() {
                           <p className="text-sm text-slate-500 font-bold">{doctor.specialty || 'Emergency Care'}</p>
                           <div className="flex items-center gap-4 pt-1">
                             <div className="flex items-center gap-1 text-amber-500 font-black text-xs">
-                              <Star className="h-3 w-3 fill-current" /> 4.9
+                              <Star className="h-3 w-3 fill-current" /> {doctor.reviews?.length ? (doctor.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / doctor.reviews.length).toFixed(1) : 'N/A'}
                             </div>
                             <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
                               {doctor.experience_years || 5}+ Years Exp.

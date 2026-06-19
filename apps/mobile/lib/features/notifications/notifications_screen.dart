@@ -1,39 +1,107 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/supabase_locator.dart';
+import '../../core/app_colors.dart';
+import '../../core/app_typography.dart';
 
-class NotificationsScreen extends StatefulWidget {
+final notificationsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  final user = supabase.auth.currentUser;
+  if (user == null) return Stream.value([]);
+
+  return supabase
+      .from('notifications')
+      .stream(primaryKey: ['id'])
+      .eq('user_id', user.id)
+      .order('created_at', ascending: false)
+      .map((data) => List<Map<String, dynamic>>.from(data));
+});
+
+class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> with SingleTickerProviderStateMixin {
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final TextEditingController _searchController = TextEditingController();
-  String _selectedFilter = 'This Week';
+  String _selectedTab = 'All';
 
-  final List<String> _filters = ['Today', 'This Week', 'This Month', 'Unread only'];
+  static const _tabs = ['All', 'Clinical', 'Appointments', 'Payment', 'Emergency'];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() => _selectedTab = _tabs[_tabController.index]);
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _searchController.dispose();
     super.dispose();
+  }
+
+  List<Map<String, dynamic>> _filterNotifications(List<Map<String, dynamic>> notifications) {
+    if (_selectedTab == 'All') return notifications;
+
+    final typeMap = {
+      'Clinical': 'prescription',
+      'Appointments': 'appointment',
+      'Payment': 'payment',
+      'Emergency': 'system',
+    };
+
+    final type = typeMap[_selectedTab];
+    if (type == null) return notifications;
+    return notifications.where((n) => n['type'] == type).toList();
+  }
+
+  IconData _getIcon(String? type) {
+    switch (type) {
+      case 'appointment': return Icons.calendar_today_rounded;
+      case 'payment': return Icons.account_balance_wallet_rounded;
+      case 'prescription': return Icons.medical_services_rounded;
+      case 'message': return Icons.chat_bubble_rounded;
+      case 'system': return Icons.warning_amber_rounded;
+      default: return Icons.notifications_rounded;
+    }
+  }
+
+  Color _getColor(String? type) {
+    switch (type) {
+      case 'appointment': return AppColors.primary;
+      case 'payment': return AppColors.success;
+      case 'prescription': return const Color(0xFF8B5CF6);
+      case 'message': return const Color(0xFF06B6D4);
+      case 'system': return AppColors.error;
+      default: return AppColors.textSecondary;
+    }
+  }
+
+  String _timeAgo(String? createdAt) {
+    if (createdAt == null) return '';
+    final date = DateTime.tryParse(createdAt);
+    if (date == null) return '';
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
+    final notificationsAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -41,34 +109,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+              icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
               onPressed: () => context.pop(),
             ),
             const SizedBox(width: 4),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.notifications, color: primaryColor, size: 20),
+              child: const Icon(Icons.notifications, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 12),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Notifications',
-                  style: TextStyle(
-                    color: Color(0xFF1E293B),
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
-                    letterSpacing: -0.5,
+                Text('Notifications', style: AppTypography.titleLarge),
+                notificationsAsync.when(
+                  loading: () => const Text('Loading...', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                  error: (_, __) => const Text('Error', style: TextStyle(fontSize: 11, color: AppColors.error)),
+                  data: (notifs) => Text(
+                    '${notifs.where((n) => n['is_read'] == false).length} unread',
+                    style: const TextStyle(fontSize: 11, color: AppColors.textTertiary, fontWeight: FontWeight.w600),
                   ),
-                ),
-                Text(
-                  'Stay updated with your health journey',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -76,503 +140,158 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('All notifications marked as read'), backgroundColor: Color(0xFF10B981)),
-              );
+            onPressed: () async {
+              final user = supabase.auth.currentUser;
+              if (user == null) return;
+              await supabase
+                  .from('notifications')
+                  .update({'is_read': true})
+                  .eq('user_id', user.id)
+                  .eq('is_read', false);
             },
-            child: const Text(
-              'Mark all as read',
-              style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
-            ),
+            child: Text('Mark all read', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
           ),
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: Color(0xFF1E293B), size: 18),
-            onPressed: () {
-              setState(() {
-                _selectedFilter = _selectedFilter == 'Unread only' ? 'This Week' : 'Unread only';
-              });
-            },
-          ),
-          const SizedBox(width: 8),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.textTertiary,
+          labelStyle: AppTypography.labelMedium,
+          indicatorColor: AppColors.primary,
+          tabs: _tabs.map((t) => Tab(text: t)).toList(),
+        ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 12),
-          // Category Tabs
-          TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            indicatorColor: primaryColor,
-            indicatorWeight: 3,
-            labelColor: primaryColor,
-            unselectedLabelColor: const Color(0xFF94A3B8),
-            labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            dividerColor: Colors.transparent,
-            tabAlignment: TabAlignment.start,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            tabs: [
-              _buildTab('All', 28),
-              _buildTab('Unread', 8),
-              _buildTab('Appointments', 9),
-              _buildTab('Payments', 6),
-              _buildTab('Emergency', 3),
+      body: notificationsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        error: (e, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+              const SizedBox(height: 12),
+              Text('Failed to load notifications', style: AppTypography.bodyMedium),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(notificationsProvider),
+                child: const Text('Retry'),
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          
-          // Search + Filter Row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFF1F5F9)),
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search notifications...',
-                        hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                        prefixIcon: Icon(Icons.search, color: Color(0xFF94A3B8), size: 16),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
+        ),
+        data: (notifications) {
+          final filtered = _filterNotifications(notifications);
+
+          if (filtered.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.notifications_none_rounded, color: AppColors.textTertiary, size: 56),
+                  const SizedBox(height: 16),
+                  Text('No notifications yet', style: AppTypography.titleMedium),
+                  const SizedBox(height: 8),
+                  Text(
+                    'You\'ll see appointment, payment and clinical updates here.',
+                    style: AppTypography.bodySmall,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            itemCount: filtered.length,
+            itemBuilder: (context, index) {
+              final notif = filtered[index];
+              final isRead = notif['is_read'] == true;
+              final type = notif['type'] as String?;
+              final color = _getColor(type);
+              final icon = _getIcon(type);
+
+              return GestureDetector(
+                onTap: () async {
+                  if (!isRead) {
+                    await supabase
+                        .from('notifications')
+                        .update({'is_read': true})
+                        .eq('id', notif['id']);
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isRead ? Colors.white : color.withValues(alpha: 0.03),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _selectedFilter,
-                      icon: const Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Icon(Icons.expand_more, size: 14, color: Color(0xFF1E293B)),
-                      ),
-                      style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 12),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedFilter = newValue!;
-                        });
-                      },
-                      items: _filters.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Row(
-                            children: [
-                              const Icon(Icons.calendar_today, size: 14, color: Color(0xFF94A3B8)),
-                              const SizedBox(width: 8),
-                              Text(value),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                    border: Border.all(
+                      color: isRead ? AppColors.border : color.withValues(alpha: 0.2),
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // Notifications List
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              children: [
-                const Text(
-                  'Priority',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
-                ),
-                const SizedBox(height: 12),
-                
-                // Emergency Alert Card
-                _buildEmergencyCard(),
-                
-                const SizedBox(height: 24),
-                const Text(
-                  'Today',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
-                ),
-                const SizedBox(height: 12),
-                
-                _buildNotificationCard(
-                  icon: Icons.calendar_today,
-                  iconBg: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                  iconColor: const Color(0xFF0F62FE),
-                  title: 'Appointment Confirmed',
-                  message: 'Your consultation with Dr. Adaora Nwosu is scheduled for 3:00 PM today.',
-                  time: '2m ago',
-                  badge: 'Unread',
-                  badgeColor: const Color(0xFF0F62FE),
-                  footer: Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 12, color: Color(0xFF94A3B8)),
-                      const SizedBox(width: 4),
-                      const Text('Today, 10:15 AM', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ),
-                
-                _buildNotificationCard(
-                  icon: Icons.account_balance_wallet,
-                  iconBg: const Color(0xFF10B981).withValues(alpha: 0.1),
-                  iconColor: const Color(0xFF10B981),
-                  title: 'Payment Verified',
-                  message: 'Your payment of ₦8,000 has been successfully verified.',
-                  time: '15m ago',
-                  badge: 'Success',
-                  badgeColor: const Color(0xFF10B981),
-                  action: _buildActionBtn('View Receipt', () => context.push('/appointments')),
-                  footer: const Row(
-                    children: [
-                      Icon(Icons.tag, size: 12, color: Color(0xFF94A3B8)),
-                      SizedBox(width: 4),
-                      Text('Transaction ID: TXN-8394721', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ),
-                
-                _buildNotificationCard(
-                  icon: Icons.person_add,
-                  iconBg: const Color(0xFFF59E0B).withValues(alpha: 0.1),
-                  iconColor: const Color(0xFFF59E0B),
-                  title: 'Verification Approved',
-                  message: 'Your doctor profile has been verified successfully. You can now start receiving patients.',
-                  time: '1h ago',
-                  badge: 'Success',
-                  badgeColor: const Color(0xFF10B981),
-                ),
-                
-                _buildNotificationCard(
-                  icon: Icons.warning_amber,
-                  iconBg: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                  iconColor: const Color(0xFFEF4444),
-                  title: 'Missed Consultation',
-                  message: 'You missed your consultation with Dr. David Paul scheduled at 9:00 AM.',
-                  time: '2h ago',
-                  badge: 'Attention',
-                  badgeColor: const Color(0xFFF59E0B),
-                  action: _buildActionBtn('Reschedule', () => context.push('/appointments'), isOutline: true, color: const Color(0xFFEF4444)),
-                  footer: const Row(
-                    children: [
-                      Icon(Icons.calendar_today, size: 12, color: Color(0xFFEF4444)),
-                      SizedBox(width: 4),
-                      Text('Today, 9:00 AM', style: TextStyle(fontSize: 11, color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-
-                _buildNotificationCard(
-                  icon: Icons.description,
-                  iconBg: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-                  iconColor: const Color(0xFF8B5CF6),
-                  title: 'Lab Report Available',
-                  message: 'Your lab report from 12 May 2025 is now available.',
-                  time: '3h ago',
-                  badge: 'New',
-                  badgeColor: const Color(0xFF8B5CF6),
-                  action: _buildActionBtn('View Report', () => context.push('/vault'), isOutline: true, color: const Color(0xFF8B5CF6)),
-                ),
-
-                _buildNotificationCard(
-                  icon: Icons.notifications,
-                  iconBg: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                  iconColor: const Color(0xFF3B82F6),
-                  title: 'Appointment Reminder',
-                  message: 'Reminder: Your consultation with Dr. Chinedu Okeke is tomorrow at 11:30 AM.',
-                  time: '1d ago',
-                  badge: 'Reminder',
-                  badgeColor: const Color(0xFF3B82F6),
-                ),
-
-                const SizedBox(height: 32),
-                // Privacy Footer
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F62FE).withValues(alpha: 0.03),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF0F62FE).withValues(alpha: 0.1)),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.verified, color: Color(0xFF10B981), size: 24),
-                      const SizedBox(width: 16),
-                      const Expanded(
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(icon, color: color, size: 20),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    notif['title'] ?? 'Notification',
+                                    style: TextStyle(
+                                      fontWeight: isRead ? FontWeight.w600 : FontWeight.w900,
+                                      fontSize: 14,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                                if (!isRead)
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
                             Text(
-                              'Your notifications are securely encrypted and only visible to you.',
-                              style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                              notif['message'] ?? '',
+                              style: AppTypography.bodySmall.copyWith(height: 1.4),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _timeAgo(notif['created_at']),
+                              style: AppTypography.labelSmall.copyWith(color: AppColors.textTertiary),
                             ),
                           ],
                         ),
                       ),
-                      TextButton(
-                        onPressed: () => context.push('/settings-privacy'),
-                        child: const Row(
-                          children: [
-                            Text('Learn more', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 11, fontWeight: FontWeight.bold)),
-                            Icon(Icons.chevron_right, size: 12, color: Color(0xFF0F62FE)),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-        ],
+              );
+            },
+          );
+        },
       ),
-    );
-  }
-
-  Widget _buildTab(String label, int count) {
-    return Tab(
-      child: Row(
-        children: [
-          Text(label),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              count.toString(),
-              style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmergencyCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFFEE2E2)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(Icons.warning, color: Color(0xFFEF4444), size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'Emergency Consultation Available',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFFB91C1C)),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEF4444),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'URGENT',
-                            style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Dr. Ibrahim Umar is now available for emergency consultation.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF7F1D1D), fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text('2m ago', style: TextStyle(fontSize: 10, color: Color(0xFF991B1B))),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              OutlinedButton(
-                onPressed: () => Navigator.of(context).maybePop(),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFFFEE2E2)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-                child: const Text('Dismiss', style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () => context.push('/doctor-search'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEF4444),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-                child: const Text('Join Now', style: TextStyle(fontWeight: FontWeight.w900)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationCard({
-    required IconData icon,
-    required Color iconBg,
-    required Color iconColor,
-    required String title,
-    required String message,
-    required String time,
-    required String badge,
-    required Color badgeColor,
-    Widget? action,
-    Widget? footer,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: iconColor, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: badgeColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        badge,
-                        style: TextStyle(color: badgeColor, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  message,
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500, height: 1.4),
-                ),
-                if (footer != null) ...[
-                  const SizedBox(height: 8),
-                  footer,
-                ],
-                if (action != null) ...[
-                  const SizedBox(height: 12),
-                  action,
-                ],
-                const SizedBox(height: 4),
-                Text(time, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionBtn(String label, VoidCallback onPressed, {bool isOutline = true, Color color = const Color(0xFF0F62FE)}) {
-    return SizedBox(
-      width: double.infinity,
-      height: 44,
-      child: isOutline
-          ? OutlinedButton(
-              onPressed: onPressed,
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: color.withValues(alpha: 0.2)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13)),
-            )
-          : ElevatedButton(
-              onPressed: onPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
-            ),
     );
   }
 }

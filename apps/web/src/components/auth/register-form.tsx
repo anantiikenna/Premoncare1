@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,7 +24,12 @@ export function RegisterForm() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const router = useRouter()
+    const searchParams = useSearchParams()
     const supabase = createClient()
+
+    // Guest-to-user migration params
+    const guestAppointmentId = searchParams.get('appointment_id')
+    const guestEmail = searchParams.get('guest_email')
 
     const validatePassword = (pass: string) => {
         const minLength = 8
@@ -135,7 +140,27 @@ export function RegisterForm() {
                     </CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-10">
-                    <Button className="w-full h-16 rounded-[2rem] text-lg font-black shadow-xl shadow-primary/30" onClick={() => router.push('/patient/dashboard')}>
+                    <Button className="w-full h-16 rounded-[2rem] text-lg font-black shadow-xl shadow-primary/30" onClick={async () => {
+                        // Link emergency appointment to new user if coming from guest flow
+                        if (guestAppointmentId) {
+                            try {
+                                const { data: { user } } = await supabase.auth.getUser()
+                                if (user) {
+                                    await supabase
+                                        .from('appointments')
+                                        .update({ patient_id: user.id })
+                                        .eq('id', guestAppointmentId)
+                                        .is('patient_id', null)
+                                    localStorage.removeItem('premon_emergency_appointment_id')
+                                    localStorage.removeItem('premon_guest_token')
+                                    localStorage.removeItem('premon_guest_email')
+                                }
+                            } catch (err) {
+                                console.error('Failed to link emergency appointment:', err)
+                            }
+                        }
+                        router.push('/patient/dashboard')
+                    }}>
                         Enter Dashboard
                     </Button>
                 </CardFooter>

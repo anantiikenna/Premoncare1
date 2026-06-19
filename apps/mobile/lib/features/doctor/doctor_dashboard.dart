@@ -165,7 +165,9 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                 children: [
                   const SizedBox(height: 24),
                   _buildHeader(),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
+                  _buildEmergencyRequestsBanner(ref),
+                  const SizedBox(height: 8),
                   _buildRevenueCard(context, ref, primaryColor),
                   const SizedBox(height: 32),
                   _buildSectionTitle('PERFORMANCE METRICS'),
@@ -216,6 +218,110 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
         _buildPresenceSwitch(),
       ],
     );
+  }
+
+  Widget _buildEmergencyRequestsBanner(WidgetRef ref) {
+    final emergencyAsync = ref.watch(emergencyRequestsProvider);
+    return emergencyAsync.when(
+      data: (requests) {
+        if (requests.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...requests.map((req) {
+              final patientName = req['metadata']?['guest_token'] != null
+                  ? 'Emergency Guest'
+                  : 'Patient ···${(req['patient_id'] ?? '').toString().substring(((req['patient_id'] ?? '').toString().length - 4).clamp(0, 99))}';
+              final duration = req['duration_minutes'] ?? 15;
+              final amount = (req['total_amount'] as num?)?.toInt() ?? 0;
+              final createdAt = req['created_at'] != null
+                  ? DateTime.tryParse(req['created_at'])?.toLocal()
+                  : null;
+              final timeAgo = createdAt != null ? _timeAgo(createdAt) : '';
+
+              return GestureDetector(
+                onTap: () => context.push('/doctor-emergency-request', extra: {
+                  'appointmentId': req['id'],
+                  'patientId': req['patient_id'] ?? '',
+                  'patientName': patientName,
+                  'durationMinutes': duration,
+                  'totalAmount': amount.toDouble(),
+                }),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFFEF4444).withValues(alpha: 0.08),
+                        const Color(0xFFFEE2E2).withValues(alpha: 0.3),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'EMERGENCY REQUEST',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFEF4444), letterSpacing: 1),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '$patientName • ${duration}min • ₦$amount',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+                            ),
+                            if (timeAgo.isNotEmpty)
+                              Text(
+                                timeAgo,
+                                style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'VIEW',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+
+  String _timeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
   }
 
   Widget _buildPresenceSwitch() {

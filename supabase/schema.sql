@@ -140,7 +140,7 @@ create table appointments (
   patient_id uuid references profiles(id), 
   doctor_id uuid references profiles(id) not null,
   appointment_date timestamp with time zone not null,
-  status text default 'pending' check (status in ('pending', 'emergency_pending', 'confirmed', 'cancelled', 'completed', 'ongoing')),
+  status text default 'pending' check (status in ('pending', 'emergency_pending', 'emergency_request', 'emergency_accepted', 'emergency_declined', 'confirmed', 'cancelled', 'completed', 'ongoing')),
   reason text,
   consultation_mode text check (consultation_mode in ('video', 'audio', 'text', 'in_person')),
   duration_minutes integer default 15,
