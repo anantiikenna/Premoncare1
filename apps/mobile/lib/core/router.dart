@@ -223,6 +223,8 @@ final goRouter = GoRouter(
         final extras = state.extra as Map<String, dynamic>? ?? {};
         return BookingConfirmedScreen(
           consultationFee: (extras['consultationFee'] as num?)?.toDouble(),
+          doctorName: extras['doctorName'] as String?,
+          doctorId: extras['doctorId'] as String?,
         );
       },
     ),

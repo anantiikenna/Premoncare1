@@ -85,7 +85,11 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
       if (mounted) {
         context.go(
           widget.isEmergency ? '/booking-confirmed?emergency=true' : '/booking-confirmed',
-          extra: {'consultationFee': widget.totalAmount},
+          extra: {
+            'consultationFee': widget.totalAmount,
+            'doctorName': widget.doctorName,
+            'doctorId': widget.doctorId,
+          },
         );
       }
     } catch (e, stackTrace) {

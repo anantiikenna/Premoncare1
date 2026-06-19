@@ -234,7 +234,7 @@ export function LoginForm() {
             </div>
           ) : (
             <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4 text-xs font-bold leading-relaxed text-muted-foreground">
-              We will send a eight digit verification code to sign in to your
+              We will send an eight digit verification code to sign in to your
               existing Premon Care account.
             </div>
           )}

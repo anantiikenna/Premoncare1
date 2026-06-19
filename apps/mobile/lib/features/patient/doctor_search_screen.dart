@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:premoncare/core/app_typography.dart';
-import 'package:premoncare/core/app_colors.dart';
-import 'package:premoncare/features/patient/patient_providers.dart';
+import '../../core/app_typography.dart';
+import '../../core/app_colors.dart';
+import 'patient_providers.dart';
 
 class DoctorSearchScreen extends ConsumerStatefulWidget {
   const DoctorSearchScreen({super.key});
@@ -523,7 +523,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Icon(Icons.emergency_off_rounded, color: AppColors.textTertiary, size: 48),
+            Icon(Icons.warning_amber_rounded, color: AppColors.textTertiary, size: 48),
             const SizedBox(height: 12),
             Text('No emergency doctors available right now', style: AppTypography.bodyMedium),
             const SizedBox(height: 8),

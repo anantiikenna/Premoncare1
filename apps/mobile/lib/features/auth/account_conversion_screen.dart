@@ -1,5 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/supabase_locator.dart';
+import '../../core/user_facing_errors.dart';
 
 class AccountConversionScreen extends StatefulWidget {
   const AccountConversionScreen({super.key});
@@ -9,21 +14,32 @@ class AccountConversionScreen extends StatefulWidget {
 }
 
 class _AccountConversionScreenState extends State<AccountConversionScreen> {
-  int _currentStep = 1; // Default to step 1 so the flow starts from the beginning.
+  int _currentStep = 1;
+  bool _isSendingOtp = false;
+  bool _isVerifyingOtp = false;
+  int _resendSeconds = 60;
+  String? _conversionEmail;
+  Timer? _resendTimer;
 
-  // Controllers & Form States initialized with mockup values for high fidelity
-  final List<TextEditingController> _otpControllers = List.generate(6, (index) => TextEditingController());
-  final List<FocusNode> _otpFocusNodes = List.generate(6, (index) => FocusNode());
+  // Controllers & Form States
+  final List<TextEditingController> _otpControllers = List.generate(8, (index) => TextEditingController());
+  final List<FocusNode> _otpFocusNodes = List.generate(8, (index) => FocusNode());
   
   final _nameController = TextEditingController();
-  final _dobController = TextEditingController(text: "12 March 1992");
-  String _selectedGender = "Female";
-  final _emailController = TextEditingController(text: "sarah.james@email.com");
-  final _cityController = TextEditingController(text: "Lagos, Nigeria");
-  final _emergencyPhoneController = TextEditingController(text: "801 234 5678");
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _emergencyPhoneController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _startResendTimer();
+  }
 
   @override
   void dispose() {
+    _resendTimer?.cancel();
     for (var controller in _otpControllers) {
       controller.dispose();
     }
@@ -31,15 +47,106 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
       node.dispose();
     }
     _nameController.dispose();
-    _dobController.dispose();
     _emailController.dispose();
-    _cityController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
     _emergencyPhoneController.dispose();
     super.dispose();
   }
 
+  void _startResendTimer() {
+    _resendSeconds = 60;
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          if (_resendSeconds > 0) {
+            _resendSeconds--;
+          } else {
+            _resendTimer?.cancel();
+          }
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  Future<void> _sendOtp() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    setState(() => _isSendingOtp = true);
+    try {
+      await supabase.auth.signInWithOtp(email: email);
+      _conversionEmail = email;
+      if (mounted) {
+        setState(() => _currentStep = 3);
+        _startResendTimer();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('OTP sent to $email'), backgroundColor: const Color(0xFF10B981)),
+        );
+      }
+    } catch (e, st) {
+      logHandledError('Send OTP failed', e, st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingError(e, fallback: 'Failed to send OTP. Please try again.')), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSendingOtp = false);
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    final otp = _controllers.map((c) => c.text).join();
+    if (otp.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter the complete 8-digit code')),
+      );
+      return;
+    }
+    setState(() => _isVerifyingOtp = true);
+    try {
+      await supabase.auth.verifyOTP(
+        email: _conversionEmail ?? _emailController.text.trim(),
+        token: otp,
+        type: OtpType.email,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email verified successfully'), backgroundColor: Color(0xFF10B981)),
+        );
+        _nextStep();
+      }
+    } on AuthException catch (e, st) {
+      logHandledError('OTP verify failed', e, st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingError(e, fallback: 'Invalid code. Please try again.')), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e, st) {
+      logHandledError('OTP verify failed', e, st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Verification failed. Please try again.'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isVerifyingOtp = false);
+    }
+  }
+
+  List<TextEditingController> get _controllers => _otpControllers;
+
   void _onOtpChanged(int index, String value) {
-    if (value.isNotEmpty && index < 5) {
+    if (value.isNotEmpty && index < 7) {
       _otpFocusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _otpFocusNodes[index - 1].requestFocus();
@@ -543,8 +650,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               const SizedBox(width: 12),
               const Expanded(
                 child: Text(
-                  '801 234 5678',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                  'Check your email for the verification code',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                 ),
               ),
               Container(
@@ -564,21 +671,15 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         ),
         const SizedBox(height: 12),
 
-        // 6 OTP Box Inputs
+        // 8 OTP Box Inputs
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(6, (index) {
-            // Pre-fill digits from mockup to show high-fidelity layout
-            final mockDigits = ['2', '8', '5', '4', '', ''];
-            if (_otpControllers[index].text.isEmpty && mockDigits[index].isNotEmpty) {
-              _otpControllers[index].text = mockDigits[index];
-            }
-
-            final isActive = index == 4;
+          children: List.generate(8, (index) {
+            final isActive = _otpFocusNodes[index].hasFocus;
 
             return Container(
-              width: 46,
-              height: 60,
+              width: 38,
+              height: 54,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -612,18 +713,27 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         Center(
           child: Column(
             children: [
-              const Text(
-                'Resend code in 00:42',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600),
+              Text(
+                _resendSeconds > 0
+                    ? 'Resend code in ${(_resendSeconds ~/ 60).toString().padLeft(2, '0')}:${(_resendSeconds % 60).toString().padLeft(2, '0')}'
+                    : 'Code expired',
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Text('Didn\'t receive code? ', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
-                  Text(
-                    'Resend Code',
-                    style: TextStyle(color: Color(0xFF0F62FE), fontSize: 12, fontWeight: FontWeight.bold),
+                children: [
+                  const Text('Didn\'t receive code? ', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+                  GestureDetector(
+                    onTap: _resendSeconds > 0 ? null : _sendOtp,
+                    child: Text(
+                      'Resend Code',
+                      style: TextStyle(
+                        color: _resendSeconds > 0 ? const Color(0xFF94A3B8) : const Color(0xFF0F62FE),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -676,7 +786,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _nextStep,
+            onPressed: _isSendingOtp || _isVerifyingOtp ? null : (_currentStep == 2 ? _sendOtp : _verifyOtp),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0D9488),
               foregroundColor: Colors.white,
@@ -684,17 +794,19 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Verify & Continue',
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-                ),
-                SizedBox(width: 8),
-                Icon(Icons.arrow_forward_rounded, size: 18),
-              ],
-            ),
+            child: _isSendingOtp || _isVerifyingOtp
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _currentStep == 2 ? 'Send Verification Code' : 'Verify & Continue',
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward_rounded, size: 18),
+                    ],
+                  ),
           ),
         ),
         const SizedBox(height: 12),
@@ -1107,7 +1219,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     _buildAccountSummaryItem(
                       icon: Icons.phone_outlined,
                       label: 'Phone Number',
-                      value: '+234 801 234 5678',
+                      value: _phoneController.text.isNotEmpty ? _phoneController.text : 'Not provided',
                       tagText: 'Verified',
                     ),
                     const SizedBox(height: 16),
@@ -1116,7 +1228,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     _buildAccountSummaryItem(
                       icon: Icons.mail_outline_rounded,
                       label: 'Email Address',
-                      value: 'sarah.james@email.com',
+                      value: _emailController.text.isNotEmpty ? _emailController.text : 'Not provided',
                       tagText: 'Added',
                     ),
                     const SizedBox(height: 16),
@@ -1124,8 +1236,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     // Location row
                     _buildAccountSummaryItem(
                       icon: Icons.location_on_outlined,
-                      label: 'Location',
-                      value: 'Lagos, Nigeria',
+                      label: 'Full Name',
+                      value: _nameController.text.isNotEmpty ? _nameController.text : 'Not provided',
                       tagText: 'Saved',
                     ),
                   ],
