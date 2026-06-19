@@ -166,7 +166,8 @@ create table payments (
   transaction_id text,
   processed_by uuid references profiles(id),
   recipient_id uuid references profiles(id),
-  duration_minutes integer
+  duration_minutes integer,
+  rejection_reason text
 );
 
 alter table appointments add foreign key (payment_id) references payments(id);

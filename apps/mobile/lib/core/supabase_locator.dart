@@ -10,9 +10,18 @@ Future<void> initSupabase() async {
 
 final supabase = Supabase.instance.client;
 
+// In-memory cache for user role to avoid querying on every navigation
+String? _cachedRole;
+String? _cachedUserId;
+
 Future<String> getUserRole() async {
   final user = supabase.auth.currentUser;
   if (user == null) return 'patient';
+  
+  // Return cached role if same user
+  if (_cachedUserId == user.id && _cachedRole != null) {
+    return _cachedRole!;
+  }
   
   try {
     final response = await supabase
@@ -20,9 +29,18 @@ Future<String> getUserRole() async {
         .select('role')
         .eq('id', user.id)
         .single();
-    return response['role'] as String? ?? 'patient';
+    final role = response['role'] as String? ?? 'patient';
+    _cachedUserId = user.id;
+    _cachedRole = role;
+    return role;
   } catch (e) {
     return 'patient';
   }
+}
+
+/// Clear cached role (call on logout)
+void clearRoleCache() {
+  _cachedRole = null;
+  _cachedUserId = null;
 }
 

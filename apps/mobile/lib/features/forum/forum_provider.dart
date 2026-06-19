@@ -173,7 +173,7 @@ class ForumReply {
 // ─────────────────────────────────────────────
 
 /// Stream all active forum categories
-final forumCategoriesProvider = StreamProvider<List<ForumCategory>>((ref) {
+final forumCategoriesProvider = StreamProvider.autoDispose<List<ForumCategory>>((ref) {
   return supabase
       .from('forum_categories')
       .stream(primaryKey: ['id'])
@@ -185,81 +185,86 @@ final forumCategoriesProvider = StreamProvider<List<ForumCategory>>((ref) {
 });
 
 /// Stream approved forum posts with author + category hydration
-final forumPostsProvider = StreamProvider<List<ForumPost>>((ref) {
+final forumPostsProvider = StreamProvider.autoDispose<List<ForumPost>>((ref) {
   return supabase
       .from('forum_posts')
       .stream(primaryKey: ['id'])
       .order('created_at', ascending: false)
       .asyncMap((data) async {
-    final posts = <ForumPost>[];
-    for (final item in data) {
-      if (item['status'] != 'approved') continue;
-      // Hydrate author profile
-      Map<String, dynamic>? authorData;
-      try {
-        authorData = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url, role')
-            .eq('id', item['author_id'])
-            .single();
-      } catch (e) {
-        debugPrint('Error fetching post author: $e');
-      }
-      // Hydrate category
-      Map<String, dynamic>? categoryData;
-      if (item['category_id'] != null) {
-        try {
-          categoryData = await supabase
-              .from('forum_categories')
-              .select('name')
-              .eq('id', item['category_id'])
-              .single();
-        } catch (e) {
-          debugPrint('Error fetching post category: $e');
-        }
-      }
-      posts.add(ForumPost.fromJson({
+    final approved = data.where((item) => item['status'] == 'approved').toList();
+    if (approved.isEmpty) return [];
+
+    // Collect unique author IDs and category IDs for batch fetch
+    final authorIds = approved.map((e) => e['author_id'] as String).toSet().toList();
+    final categoryIds = approved
+        .map((e) => e['category_id'] as String?)
+        .where((id) => id != null)
+        .toSet()
+        .toList();
+
+    // Batch fetch authors and categories in parallel
+    final [authorsResult, categoriesResult] = await Future.wait([
+      supabase.from('profiles').select('id, full_name, avatar_url, role').inFilter('id', authorIds),
+      if (categoryIds.isNotEmpty)
+        supabase.from('forum_categories').select('id, name, icon_name').inFilter('id', categoryIds)
+      else
+        Future.value([]),
+    ]);
+
+    // Build lookup maps
+    final authorMap = {
+      for (final a in authorsResult) a['id'] as String: a,
+    };
+    final categoryMap = {
+      for (final c in categoriesResult) c['id'] as String: c,
+    };
+
+    return approved.map((item) {
+      final authorData = authorMap[item['author_id'] as String];
+      final categoryData = item['category_id'] != null ? categoryMap[item['category_id'] as String] : null;
+      return ForumPost.fromJson({
         ...item,
         'profiles': authorData,
         'forum_categories': categoryData,
-      }));
-    }
-    return posts;
+      });
+    }).toList();
   });
 });
 
 /// Stream replies for a specific post with author hydration
 final forumRepliesProvider =
-    StreamProvider.family<List<ForumReply>, String>((ref, postId) {
+    StreamProvider.autoDispose.family<List<ForumReply>, String>((ref, postId) {
   return supabase
       .from('forum_replies')
       .stream(primaryKey: ['id'])
       .eq('post_id', postId)
       .order('created_at', ascending: true)
       .asyncMap((data) async {
-    final replies = <ForumReply>[];
-    for (final item in data) {
-      Map<String, dynamic>? authorData;
-      try {
-        authorData = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url, role')
-            .eq('id', item['author_id'])
-            .single();
-      } catch (e) {
-        debugPrint('Error fetching reply author: $e');
-      }
-      replies.add(ForumReply.fromJson({
+    if (data.isEmpty) return [];
+
+    final authorIds = data.map((e) => e['author_id'] as String).toSet().toList();
+
+    final authorsResult = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, role')
+        .inFilter('id', authorIds);
+
+    final authorMap = {
+      for (final a in authorsResult as List) a['id'] as String: a,
+    };
+
+    return data.map((item) {
+      final authorData = authorMap[item['author_id'] as String];
+      return ForumReply.fromJson({
         ...item,
         'profiles': authorData,
-      }));
-    }
-    return replies;
+      });
+    }).toList();
   });
 });
 
 /// Stream user's saved posts
-final forumSavedPostsProvider = StreamProvider<List<String>>((ref) {
+final forumSavedPostsProvider = StreamProvider.autoDispose<List<String>>((ref) {
   final userId = supabase.auth.currentUser?.id;
   if (userId == null) return Stream.value([]);
   return supabase
@@ -270,7 +275,7 @@ final forumSavedPostsProvider = StreamProvider<List<String>>((ref) {
 });
 
 /// Stream user's followed post/category IDs
-final forumFollowedProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+final forumFollowedProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final userId = supabase.auth.currentUser?.id;
   if (userId == null) return Stream.value([]);
   return supabase

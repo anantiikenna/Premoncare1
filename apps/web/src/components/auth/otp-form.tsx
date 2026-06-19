@@ -14,7 +14,7 @@ interface OTPFormProps {
 }
 
 export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
-    const [otp, setOtp] = useState(['', '', '', '', '', ''])
+    const [otp, setOtp] = useState(['', '', '', '', '', '', '', ''])
     const [loading, setLoading] = useState(false)
     const [timer, setTimer] = useState(30)
     const [error, setError] = useState<string | null>(null)
@@ -27,6 +27,11 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         return () => clearInterval(countdown)
     }, [])
 
+    // Auto-focus first input on mount
+    useEffect(() => {
+        inputRefs.current[0]?.focus()
+    }, [])
+
     const handleChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return
         
@@ -35,8 +40,32 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         setOtp(newOtp)
 
         // Move to next input
-        if (value && index < 5) {
+        if (value && index < 7) {
             inputRefs.current[index + 1]?.focus()
+        }
+
+        // Auto-submit when all 8 digits filled
+        const code = [...newOtp.slice(0, index), value.slice(-1), ...newOtp.slice(index + 1)].join('')
+        if (code.length === 8) {
+            handleSubmitWithCode(code)
+        }
+    }
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+        e.preventDefault()
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 8)
+        if (!pasted) return
+
+        const newOtp = pasted.split('').concat(Array(8).fill('')).slice(0, 8)
+        setOtp(newOtp)
+
+        // Focus last filled input
+        const lastIdx = Math.min(pasted.length, 7)
+        inputRefs.current[lastIdx]?.focus()
+
+        // Auto-submit if full code pasted
+        if (pasted.length === 8) {
+            handleSubmitWithCode(pasted)
         }
     }
 
@@ -46,13 +75,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         }
     }
 
-    const handleSubmit = async () => {
-        const code = otp.join('')
-        if (code.length < 6) {
-            setError('Please enter the full 6-digit code')
-            return
-        }
-
+    const handleSubmitWithCode = async (code: string) => {
         setLoading(true)
         setError(null)
         try {
@@ -65,13 +88,22 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         }
     }
 
+    const handleSubmit = async () => {
+        const code = otp.join('')
+        if (code.length < 8) {
+            setError('Please enter the full 8-digit code')
+            return
+        }
+        await handleSubmitWithCode(code)
+    }
+
     const handleResend = async () => {
         if (timer > 0) return
         setLoading(true)
         try {
             await onResend()
             setTimer(30)
-            setOtp(['', '', '', '', '', ''])
+            setOtp(['', '', '', '', '', '', '', ''])
             inputRefs.current[0]?.focus()
         } catch (err: unknown) {
             console.error('OTP resend failed', err)
@@ -93,7 +125,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                     Verify Identity
                 </CardTitle>
                 <CardDescription className="font-bold text-muted-foreground/60 uppercase tracking-widest text-[10px]">
-                    Enter the 6-digit code sent to your email {email && <><br /><strong className="text-foreground">{email}</strong></>}
+                    Enter the 8-digit code sent to your email {email && <><br /><strong className="text-foreground">{email}</strong></>}
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8 pt-4">
@@ -115,6 +147,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                             value={digit}
                             onChange={(e) => handleChange(idx, e.target.value)}
                             onKeyDown={(e) => handleKeyDown(idx, e)}
+                            onPaste={idx === 0 ? handlePaste : undefined}
                         />
                     ))}
                 </div>

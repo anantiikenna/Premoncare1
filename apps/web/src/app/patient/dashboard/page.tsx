@@ -22,15 +22,15 @@ export default async function PatientDashboard() {
     const { data: profile } = await getProfile(user.id)
     const isVerified = profile?.verification_status === 'approved'
 
-    const { data: appointments } = await getAppointments(user.id, 'patient')
-    const { data: records } = await getHealthRecords(user.id)
-
-    // Real unread notification count
-    const { count: unreadCount } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false)
+    const [{ data: appointments }, { data: records }, { count: unreadCount }] = await Promise.all([
+        getAppointments(user.id, 'patient'),
+        getHealthRecords(user.id),
+        supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('is_read', false),
+    ])
 
     const upcomingAppointments = appointments?.filter(a => a.status === 'pending' || a.status === 'confirmed') || []
 

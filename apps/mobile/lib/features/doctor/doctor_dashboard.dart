@@ -350,10 +350,11 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
   }
 
   Widget _buildMetricsGrid(WidgetRef ref, Color primaryColor) {
-    final metricsAsync = ref.watch(doctorMetricsProvider);
+    final metricsAsync = ref.watch(userProfileProvider);
 
     return metricsAsync.when(
       data: (metrics) {
+        if (metrics == null) return const SizedBox.shrink();
         final patientsHelped = metrics['patients_helped']?.toString() ?? '0';
         final todaySessions = '0'; // Real count needs appointments query for today, leaving dummy/0 for now or compute later
         final pendingInvites = '0';

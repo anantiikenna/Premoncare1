@@ -1,7 +1,7 @@
 -- ============================================================
 -- PREMON CARE: COMPREHENSIVE MOCK DATA SEED SCRIPT
 -- Covers EVERY table in the schema with realistic data
--- Uses past (2026-04), present (2026-06), and future (2026-07/08) timestamps
+-- Uses past (~2026-03), present (2026-06), and future (2026-07/08) timestamps
 -- RUN THIS IN YOUR SUPABASE SQL EDITOR
 -- ============================================================
 
@@ -133,7 +133,7 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES
     ('avatars',               'avatars',               true),
     ('patient-medical-vault', 'patient-medical-vault', false),
-    ('health-records',        'health-records',        false),
+    ('medical-documents',     'medical-documents',     false),
     ('patient-verifications', 'patient-verifications', false),
     ('doctor-verifications',  'doctor-verifications',  false),
     ('doctor-identities',     'doctor-identities',     false),
@@ -176,7 +176,7 @@ ON CONFLICT (id) DO NOTHING;
 -- 2. PROFILES
 -- ============================================================
 INSERT INTO public.profiles (
-    id, username, full_name, avatar_url, role, verification_status,
+    id, email, username, full_name, avatar_url, role, verification_status,
     account_status, specialty, experience_years, clinic_address,
     consultation_fee, video_fee, in_person_fee, rating, review_count,
     consultation_counts, verified_medical_answers, helpful_votes,
@@ -190,13 +190,13 @@ INSERT INTO public.profiles (
     fee_status
 ) VALUES
 -- Admin
-(adm, 'premoncare_admin', 'Platform Admin', null, 'admin', 'approved', 'active',
+(adm, 'admin@premoncare.com', 'premoncare_admin', 'Platform Admin', null, 'admin', 'approved', 'active',
  null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false,
  'Platform administrator account', '{}', '[]', null, null, null, null, null, '{}',
  null, null, null, null, null, null, null, null, 'inactive', null, null, 'none'),
 
 -- Doctors
-(d1, 'dr_adaeze', 'Dr. Adaeze Nwosu', null, 'doctor', 'approved', 'active',
+(d1, 'dr.adaeze@premoncare.com', 'dr_adaeze', 'Dr. Adaeze Nwosu', null, 'doctor', 'approved', 'active',
  'Cardiology', 10, 'Heartcare Clinic, Lagos Island', 15000, 12000, 20000, 4.8, 120,
  450, 34, 210, 450, true,
  'Board-certified cardiologist with 10+ years managing hypertension, heart failure, and arrhythmias. I believe every patient deserves a personalised care plan.',
@@ -208,7 +208,7 @@ INSERT INTO public.profiles (
  15000, '1988-03-14', 'female', 'O+', null, null, null, null,
  'active', now()+interval '6 months', now()-interval '5 days', 'active'),
 
-(d2, 'dr_ibrahim', 'Dr. Ibrahim Musa', null, 'doctor', 'approved', 'active',
+(d2, 'dr.ibrahim@premoncare.com', 'dr_ibrahim', 'Dr. Ibrahim Musa', null, 'doctor', 'approved', 'active',
  'Pediatrics', 8, 'Children''s Med Centre, Abuja', 12000, 10000, 16000, 4.9, 95,
  300, 28, 165, 300, true,
  'Dedicated pediatrician passionate about child health and vaccination. I speak plainly with parents and put kids at ease.',
@@ -220,7 +220,7 @@ INSERT INTO public.profiles (
  12000, '1990-07-22', 'male', 'A+', null, null, null, null,
  'active', now()+interval '4 months', now()-interval '20 days', 'active'),
 
-(d3, 'dr_chinedu', 'Dr. Chinedu Okafor', null, 'doctor', 'approved', 'active',
+(d3, 'dr.chinedu@premoncare.com', 'dr_chinedu', 'Dr. Chinedu Okafor', null, 'doctor', 'approved', 'active',
  'Neurology', 12, 'Brain Health Institute, Lagos', 20000, 18000, 25000, 4.9, 150,
  500, 52, 295, 500, false,
  'Senior neurologist specialising in migraines, epilepsy, and stroke recovery. I use evidence-based protocols to deliver the best patient outcomes.',
@@ -232,7 +232,7 @@ INSERT INTO public.profiles (
  20000, '1985-11-05', 'male', 'B+', null, null, null, null,
  'active', now()+interval '8 months', now()-interval '10 days', 'active'),
 
-(d4, 'dr_fatima', 'Dr. Fatima Al-Hassan', null, 'doctor', 'approved', 'active',
+(d4, 'dr.fatima@premoncare.com', 'dr_fatima', 'Dr. Fatima Al-Hassan', null, 'doctor', 'approved', 'active',
  'Dermatology', 7, 'Glow Skin Clinic, Kano', 15000, 12000, 18000, 4.6, 75,
  180, 19, 98, 180, true,
  'Dermatologist helping patients achieve healthy, radiant skin through personalised treatment plans. Specialising in acne, eczema, and pigmentation disorders.',
@@ -244,7 +244,7 @@ INSERT INTO public.profiles (
  15000, '1992-06-18', 'female', 'AB+', null, null, null, null,
  'active', now()+interval '3 months', now()-interval '30 days', 'active'),
 
-(d5, 'dr_emeka', 'Dr. Emeka Eze', null, 'doctor', 'approved', 'active',
+(d5, 'dr.emeka@premoncare.com', 'dr_emeka', 'Dr. Emeka Eze', null, 'doctor', 'approved', 'active',
  'General Practice', 5, 'City Wellness Centre, Enugu', 8000, 7000, 10000, 4.7, 88,
  200, 15, 75, 200, true,
  'Compassionate GP providing holistic, preventative care for the whole family. Your first port of call for any health concern.',
@@ -257,16 +257,16 @@ INSERT INTO public.profiles (
  'active', now()+interval '2 months', now()-interval '45 days', 'active'),
 
 -- Patients
-(p1,  'johndoe',    'John Doe',       null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 15000, '1990-04-12', 'male',   'O+',  'Mary Doe',        '+2348011111101', 'Mary Doe',        '+2348011111101', 'inactive', null, null, 'none'),
-(p2,  'janesmith',  'Jane Smith',     null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 12000, '1993-08-25', 'female', 'A+',  'James Smith',     '+2348011111102', 'James Smith',     '+2348011111102', 'inactive', null, null, 'none'),
-(p3,  'michaelj',   'Michael Johnson',null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, null, '{}', '[]', null, null, null, null, null, '{}',  8000, '1985-11-30', 'male',   'B+',  'Linda Johnson',   '+2348011111103', 'Linda Johnson',   '+2348011111103', 'inactive', null, null, 'none'),
-(p4,  'emilydavis', 'Emily Davis',    null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}',  6000, '1998-01-07', 'female', 'AB-', 'Robert Davis',    '+2348011111104', 'Robert Davis',    '+2348011111104', 'inactive', null, null, 'none'),
-(p5,  'chrisolat',  'Chris Olatunji', null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}',  8000, '1988-06-14', 'male',   'O-',  'Grace Olatunji',  '+2348011111105', 'Grace Olatunji',  '+2348011111105', 'inactive', null, null, 'none'),
-(p6,  'amandaw',    'Amanda White',   null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, null, '{}', '[]', null, null, null, null, null, '{}', 15000, '1995-03-19', 'female', 'A-',  'Frank White',     '+2348011111106', 'Frank White',     '+2348011111106', 'inactive', null, null, 'none'),
-(p7,  'emekannamdi','Emeka Nnamdi',   null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 10000, '1991-09-09', 'male',   'B-',  'Ngozi Nnamdi',    '+2348011111107', 'Ngozi Nnamdi',    '+2348011111107', 'inactive', null, null, 'none'),
-(p8,  'sarahlee',   'Sarah Lee',      null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 12000, '1997-12-03', 'female', 'O+',  'Tom Lee',         '+2348011111108', 'Tom Lee',         '+2348011111108', 'inactive', null, null, 'none'),
-(p9,  'samuelj',    'Samuel Jackson', null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, null, '{}', '[]', null, null, null, null, null, '{}',  8000, '1982-07-17', 'male',   'AB+', 'Priscilla Jackson','+2348011111109', 'Priscilla Jackson','+2348011111109', 'inactive', null, null, 'none'),
-(p10, 'blessingo',  'Blessing Okafor',null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}',  6000, '2000-05-22', 'female', 'A+',  'Charles Okafor',  '+2348011111110', 'Charles Okafor',  '+2348011111110', 'inactive', null, null, 'none')
+(p1, 'john.doe@mail.com',  'johndoe',    'John Doe',       null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 15000, '1990-04-12', 'male',   'O+',  'Mary Doe',        '+2348011111101', 'Mary Doe',        '+2348011111101', 'inactive', null, null, 'none'),
+(p2, 'jane.smith@mail.com', 'janesmith',  'Jane Smith',     null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 12000, '1993-08-25', 'female', 'A+',  'James Smith',     '+2348011111102', 'James Smith',     '+2348011111102', 'inactive', null, null, 'none'),
+(p3, 'michael.j@mail.com', 'michaelj',   'Michael Johnson',null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, null, '{}', '[]', null, null, null, null, null, '{}',  8000, '1985-11-30', 'male',   'B+',  'Linda Johnson',   '+2348011111103', 'Linda Johnson',   '+2348011111103', 'inactive', null, null, 'none'),
+(p4, 'emily.davis@mail.com', 'emilydavis', 'Emily Davis',    null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}',  6000, '1998-01-07', 'female', 'AB-', 'Robert Davis',    '+2348011111104', 'Robert Davis',    '+2348011111104', 'inactive', null, null, 'none'),
+(p5, 'chris.olat@mail.com', 'chrisolat',  'Chris Olatunji', null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}',  8000, '1988-06-14', 'male',   'O-',  'Grace Olatunji',  '+2348011111105', 'Grace Olatunji',  '+2348011111105', 'inactive', null, null, 'none'),
+(p6, 'amanda.w@mail.com', 'amandaw',    'Amanda White',   null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, null, '{}', '[]', null, null, null, null, null, '{}', 15000, '1995-03-19', 'female', 'A-',  'Frank White',     '+2348011111106', 'Frank White',     '+2348011111106', 'inactive', null, null, 'none'),
+(p7, 'emeka.nn@mail.com', 'emekannamdi','Emeka Nnamdi',   null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 10000, '1991-09-09', 'male',   'B-',  'Ngozi Nnamdi',    '+2348011111107', 'Ngozi Nnamdi',    '+2348011111107', 'inactive', null, null, 'none'),
+(p8, 'sarah.lee@mail.com', 'sarahlee',   'Sarah Lee',      null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}', 12000, '1997-12-03', 'female', 'O+',  'Tom Lee',         '+2348011111108', 'Tom Lee',         '+2348011111108', 'inactive', null, null, 'none'),
+(p9, 'samuel.j@mail.com', 'samuelj',    'Samuel Jackson', null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, null, '{}', '[]', null, null, null, null, null, '{}',  8000, '1982-07-17', 'male',   'AB+', 'Priscilla Jackson','+2348011111109', 'Priscilla Jackson','+2348011111109', 'inactive', null, null, 'none'),
+(p10, 'blessing.ok@mail.com', 'blessingo',  'Blessing Okafor',null, 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  null, '{}', '[]', null, null, null, null, null, '{}',  6000, '2000-05-22', 'female', 'A+',  'Charles Okafor',  '+2348011111110', 'Charles Okafor',  '+2348011111110', 'inactive', null, null, 'none')
 ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name, role = EXCLUDED.role,
     specialty = EXCLUDED.specialty, rating = EXCLUDED.rating,
@@ -301,7 +301,7 @@ INSERT INTO public.system_settings (
     payment_methods_allowed, digital_gateway,
     allow_doctor_pricing, base_consultation_fee, manual_payment_instructions
 ) VALUES (
-    'default', false, 0, 'both', 'paystack', true, 8000,
+    'default', false, 0, 'both', 'dodo', true, 8000,
     'Bank Transfer: Premon Care / Naira Merchant Bank / Account: 0123456789. Please upload your payment receipt after transfer.'
 ) ON CONFLICT (id) DO NOTHING;
 
@@ -323,19 +323,19 @@ ON CONFLICT (id) DO NOTHING;
 -- ============================================================
 -- 6. PAYMENTS
 -- ============================================================
-INSERT INTO public.payments (id, created_at, user_id, amount, status, method, receipt_url, transaction_id, recipient_id, duration_minutes, risk_score, risk_level)
+INSERT INTO public.payments (id, created_at, user_id, amount, status, method, receipt_url, transaction_id, recipient_id, duration_minutes, rejection_reason)
 VALUES
--- Completed consultation payments (past)
-(pay1,  now()-interval '45 days', p1,  15000, 'approved', 'digital', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-001', d1,  30, 0, 'low'),
-(pay2,  now()-interval '40 days', p2,  12000, 'approved', 'digital', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-002', d2,  30, 0, 'low'),
-(pay3,  now()-interval '35 days', p3,  20000, 'approved', 'manual',  'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-003', d3,  60, 0, 'low'),
-(pay4,  now()-interval '30 days', p4,  15000, 'approved', 'digital', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-004', d4,  30, 0, 'low'),
-(pay5,  now()-interval '25 days', p5,   8000, 'approved', 'digital', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-005', d5,  30, 0, 'low'),
-(pay6,  now()-interval '20 days', p6,  15000, 'approved', 'manual',  'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-006', d1,  30, 0, 'low'),
-(pay7,  now()-interval '15 days', p7,  12000, 'approved', 'digital', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-007', d2,  30, 0, 'low'),
-(pay8,  now()-interval '10 days', p8,  40000, 'pending',  'manual',  'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-008', null, null, 0, 'low'),
-(pay9,  now()-interval '5 days',  p9,  15000, 'pending',  'digital', null,                                                                       'TXN-PAY-009', d3,  30, 5, 'medium'),
-(pay10, now()-interval '2 days',  p10, 40000, 'rejected', 'manual',  'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-010', null, null, 0, 'low')
+-- Completed consultation payments (past) — all manual (P2P receipt upload)
+(pay1,  now()-interval '45 days', p1,  15000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-001', d1,  30, null),
+(pay2,  now()-interval '40 days', p2,  12000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-002', d2,  30, null),
+(pay3,  now()-interval '35 days', p3,  20000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-003', d3,  60, null),
+(pay4,  now()-interval '30 days', p4,  15000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-004', d4,  30, null),
+(pay5,  now()-interval '25 days', p5,   8000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-005', d5,  30, null),
+(pay6,  now()-interval '20 days', p6,  15000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-006', d1,  30, null),
+(pay7,  now()-interval '15 days', p7,  12000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-007', d2,  30, null),
+(pay8,  now()-interval '10 days', p8,  40000, 'pending',  'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-008', null, null, null),
+(pay9,  now()-interval '5 days',  p9,  15000, 'pending',  'manual', null,                                                                       'TXN-PAY-009', d3,  30, null),
+(pay10, now()-interval '2 days',  p10, 40000, 'rejected', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-010', null, null, 'Insufficient documentation')
 ON CONFLICT (id) DO NOTHING;
 
 

@@ -7,7 +7,7 @@ final userRoleProvider = FutureProvider<String>((ref) async {
 });
 
 /// Provider for pending payments streaming for doctors
-final pendingPaymentsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+final pendingPaymentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
   
@@ -31,7 +31,7 @@ final userProfileProvider = StreamProvider<Map<String, dynamic>?>((ref) {
 });
 
 /// Provider for the current patient's consultation credits (time balance)
-final patientCreditsProvider = StreamProvider<int>((ref) {
+final patientCreditsProvider = StreamProvider.autoDispose<int>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value(0);
 
@@ -50,20 +50,10 @@ final patientCreditsProvider = StreamProvider<int>((ref) {
 
 // Removed: use availableDoctorsProvider in features/patient/patient_providers.dart instead
 
-/// Provider for the doctor's performance metrics
-final doctorMetricsProvider = StreamProvider<Map<String, dynamic>>((ref) {
-  final user = supabase.auth.currentUser;
-  if (user == null) return Stream.value({});
-
-  return supabase
-      .from('profiles')
-      .stream(primaryKey: ['id'])
-      .eq('id', user.id)
-      .map((data) => data.isNotEmpty ? data.first : {});
-});
+// Removed: doctorMetricsProvider — use userProfileProvider instead
 
 /// Provider for the doctor's upcoming appointments
-final upcomingAppointmentsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+final upcomingAppointmentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
@@ -77,7 +67,7 @@ final upcomingAppointmentsProvider = StreamProvider<List<Map<String, dynamic>>>(
 });
 
 /// Provider for the doctor's revenue
-final doctorRevenueProvider = StreamProvider<num>((ref) {
+final doctorRevenueProvider = StreamProvider.autoDispose<num>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value(0);
 
@@ -99,7 +89,7 @@ final doctorRevenueProvider = StreamProvider<num>((ref) {
 // Removed: use patientAppointmentsProvider in features/patient/patient_providers.dart instead
 
 /// Provider for the patient's medical records
-final patientMedicalRecordsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+final patientMedicalRecordsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
@@ -114,25 +104,10 @@ final patientMedicalRecordsProvider = StreamProvider<List<Map<String, dynamic>>>
 
 /// Provider for admin dashboard stats (total users, doctors, appointments, revenue)
 final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final usersCount = await supabase
-      .from('profiles')
-      .select('id')
-      .count();
-  final doctorsCount = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('role', 'doctor')
-      .eq('verification_status', 'approved')
-      .count();
-  final appointmentsCount = await supabase
-      .from('appointments')
-      .select('id')
-      .gte('appointment_date', DateTime.now().toIso8601String())
-      .count();
-  final payments = await supabase
-      .from('payments')
-      .select('amount')
-      .eq('status', 'approved');
+  final usersResult = await supabase.from('profiles').select('id').count();
+  final doctorsResult = await supabase.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'approved').count();
+  final appointmentsResult = await supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count();
+  final payments = await supabase.from('payments').select('amount').eq('status', 'approved');
 
   num totalRevenue = 0;
   for (var p in payments) {
@@ -140,9 +115,9 @@ final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   }
 
   return {
-    'totalUsers': usersCount.count,
-    'verifiedDoctors': doctorsCount.count,
-    'todayAppointments': appointmentsCount.count,
+    'totalUsers': usersResult.count,
+    'verifiedDoctors': doctorsResult.count,
+    'todayAppointments': appointmentsResult.count,
     'totalRevenue': totalRevenue,
   };
 });

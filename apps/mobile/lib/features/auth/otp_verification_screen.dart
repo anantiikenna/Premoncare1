@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/supabase_locator.dart';
@@ -23,8 +24,8 @@ class OTPVerificationScreen extends StatefulWidget {
 }
 
 class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController());
-  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+  final List<TextEditingController> _controllers = List.generate(8, (index) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(8, (index) => FocusNode());
   int _secondsRemaining = 30;
   Timer? _timer;
   bool _isLoading = false;
@@ -33,6 +34,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   void initState() {
     super.initState();
     _startTimer();
+    // Auto-focus first box after frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNodes[0].requestFocus();
+    });
   }
 
   @override
@@ -62,18 +67,38 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   }
 
   void _onOtpChanged(int index, String value) {
-    if (value.isNotEmpty && index < 5) {
+    if (value.isNotEmpty && index < 7) {
       _focusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
+    }
+
+    // Auto-submit when all 8 digits are filled
+    final otp = _controllers.map((c) => c.text).join();
+    if (otp.length == 8) {
+      _verifyOtp();
+    }
+  }
+
+  void _onPaste(String pasted) {
+    final digits = pasted.replaceAll(RegExp(r'[^0-9]'), '').split('');
+    for (var i = 0; i < 8 && i < digits.length; i++) {
+      _controllers[i].text = digits[i];
+    }
+    // Focus last filled box or last box
+    final lastFilled = digits.length.clamp(0, 7);
+    _focusNodes[lastFilled].requestFocus();
+    // Auto-submit if all 8 pasted
+    if (digits.length >= 8) {
+      _verifyOtp();
     }
   }
 
   Future<void> _verifyOtp() async {
     final otp = _controllers.map((c) => c.text).join();
-    if (otp.length < 6) {
+    if (otp.length < 8) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the complete 6-digit code')),
+        const SnackBar(content: Text('Please enter the complete 8-digit code')),
       );
       return;
     }
@@ -142,7 +167,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         const SizedBox(height: 12),
                         const Text('Verify Your Email', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
                         const SizedBox(height: 8),
-                        const Text('A 6-digit clinical access code has been dispatched to your registered email address.', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
+                        const Text('An 8-digit clinical access code has been dispatched to your registered email address.', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
                         const SizedBox(height: 32),
 
                         _EmailInfoCard(email: widget.email, primaryColor: primaryColor),
@@ -154,7 +179,14 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         // OTP Input Hub
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(6, (index) => _OTPBox(index: index, controller: _controllers[index], focusNode: _focusNodes[index], onChanged: (v) => _onOtpChanged(index, v), primaryColor: primaryColor)),
+                          children: List.generate(8, (index) => _OTPBox(
+                            index: index,
+                            controller: _controllers[index],
+                            focusNode: _focusNodes[index],
+                            onChanged: (v) => _onOtpChanged(index, v),
+                            onPaste: index == 0 ? _onPaste : null,
+                            primaryColor: primaryColor,
+                          )),
                         ),
                         const SizedBox(height: 48),
 
@@ -305,31 +337,42 @@ class _OTPBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final Function(String) onChanged;
+  final Function(String)? onPaste;
   final Color primaryColor;
 
-  const _OTPBox({required this.index, required this.controller, required this.focusNode, required this.onChanged, required this.primaryColor});
+  const _OTPBox({required this.index, required this.controller, required this.focusNode, required this.onChanged, required this.primaryColor, this.onPaste});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 50,
-      height: 72,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: focusNode.hasFocus ? primaryColor : const Color(0xFFE2E8F0), width: 2),
-        boxShadow: focusNode.hasFocus ? [BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))] : [],
-      ),
-      child: Center(
-        child: TextField(
-          controller: controller,
-          focusNode: focusNode,
-          textAlign: TextAlign.center,
-          keyboardType: TextInputType.number,
-          maxLength: 1,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
-          decoration: const InputDecoration(counterText: '', border: InputBorder.none, hintText: '•', hintStyle: TextStyle(color: Color(0xFFCBD5E1))),
-          onChanged: onChanged,
+    return GestureDetector(
+      onLongPress: index == 0 && onPaste != null
+          ? () async {
+              final data = await Clipboard.getData(Clipboard.kTextPlain);
+              if (data?.text != null && data!.text!.isNotEmpty) {
+                onPaste!(data.text!);
+              }
+            }
+          : null,
+      child: Container(
+        width: 50,
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: focusNode.hasFocus ? primaryColor : const Color(0xFFE2E8F0), width: 2),
+          boxShadow: focusNode.hasFocus ? [BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))] : [],
+        ),
+        child: Center(
+          child: TextField(
+            controller: controller,
+            focusNode: focusNode,
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            maxLength: 1,
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
+            decoration: const InputDecoration(counterText: '', border: InputBorder.none, hintText: '•', hintStyle: TextStyle(color: Color(0xFFCBD5E1))),
+            onChanged: onChanged,
+          ),
         ),
       ),
     );

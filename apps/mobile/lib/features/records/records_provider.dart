@@ -47,7 +47,7 @@ class MedicalRecord {
 }
 
 /// Provider for patient's personal medical records vault
-final patientRecordsProvider = StreamProvider<List<MedicalRecord>>((ref) {
+final patientRecordsProvider = StreamProvider.autoDispose<List<MedicalRecord>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
@@ -60,15 +60,16 @@ final patientRecordsProvider = StreamProvider<List<MedicalRecord>>((ref) {
 });
 
 /// Provider for records shared WITH a doctor
-final authorizedRecordsProvider = StreamProvider<List<MedicalRecord>>((ref) {
+final authorizedRecordsProvider = StreamProvider.autoDispose<List<MedicalRecord>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
-  // RLS handles the authorized_doctors array check automatically
   return supabase
       .from('medical_records')
       .stream(primaryKey: ['id'])
+      .eq('doctor_id', user.id)
       .order('created_at', ascending: false)
+      .limit(100)
       .map((data) => data.map((json) => MedicalRecord.fromJson(json)).toList());
 });
 

@@ -66,7 +66,7 @@ class ChatContact {
 }
 
 /// Provider for real-time messages in a specific conversation
-final chatMessagesProvider = StreamProvider.family<List<Message>, String>((ref, partnerId) {
+final chatMessagesProvider = StreamProvider.autoDispose.family<List<Message>, String>((ref, partnerId) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
@@ -83,7 +83,7 @@ final chatMessagesProvider = StreamProvider.family<List<Message>, String>((ref, 
 });
 
 /// Provider for the list of unique conversations (Inbox)
-final conversationsProvider = StreamProvider<List<ChatContact>>((ref) async* {
+final conversationsProvider = StreamProvider.autoDispose<List<ChatContact>>((ref) async* {
   final user = supabase.auth.currentUser;
   if (user == null) {
       yield [];

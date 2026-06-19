@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,25 +11,19 @@ class AdminDashboard extends ConsumerStatefulWidget {
 }
 
 class _AdminDashboardState extends ConsumerState<AdminDashboard> {
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    Timer(const Duration(milliseconds: 1500), () {
-      if (mounted) setState(() => _isLoading = false);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFF0F62FE);
+    final statsAsync = ref.watch(adminStatsProvider);
 
-    return _isLoading
-        ? const Center(
-            child: CircularProgressIndicator(color: Color(0xFF0F62FE)),
-          )
-        : SingleChildScrollView(
+    return statsAsync.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF0F62FE)),
+      ),
+      error: (e, _) => Center(
+        child: Text('Failed to load dashboard: $e'),
+      ),
+      data: (stats) => SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,7 +55,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 const SizedBox(height: 40),
               ],
             ),
-          );
+          ),
+    );
   }
 
   Widget _buildWelcomeHeader() {

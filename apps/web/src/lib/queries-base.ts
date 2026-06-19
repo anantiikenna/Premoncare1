@@ -52,7 +52,7 @@ export async function getForumPosts(supabase: SupabaseClient, category?: string,
         .order('created_at', { ascending: false })
 
     if (category && category !== 'All') {
-        // Look up the category ID by name, then filter
+        // Parallel: fetch category ID and apply filter
         const { data: cat } = await supabase
             .from('forum_categories')
             .select('id')
@@ -96,30 +96,32 @@ export async function getCommentsByPostId(supabase: SupabaseClient, postId: stri
 export async function getAdminStats(supabase: SupabaseClient) {
     const now = new Date().toISOString()
     
-    const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
-    const { count: totalAppointments } = await supabase.from('appointments').select('*', { count: 'exact', head: true })
-    const { count: totalPosts } = await supabase.from('forum_posts').select('*', { count: 'exact', head: true })
-    const { count: totalRecords } = await supabase.from('medical_records').select('*', { count: 'exact', head: true })
-    
-    // New stats for doctor lifecycle
-    const { count: pendingVerifications } = await supabase.from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .or('role.eq.doctor,requested_role.eq.doctor')
-        .eq('verification_status', 'pending')
-
-    const { count: expiredSubscriptions } = await supabase.from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'doctor')
-        .eq('subscription_status', 'active')
-        .lt('subscription_expires_at', now)
-
-    const { data: approvedPayments } = await supabase.from('payments')
-        .select('amount')
-        .eq('status', 'approved')
-
-    const { data: pendingPayments } = await supabase.from('payments')
-        .select('amount')
-        .eq('status', 'pending')
+    const [
+        { count: totalUsers },
+        { count: totalAppointments },
+        { count: totalPosts },
+        { count: totalRecords },
+        { count: pendingVerifications },
+        { count: expiredSubscriptions },
+        { data: approvedPayments },
+        { data: pendingPayments }
+    ] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('appointments').select('*', { count: 'exact', head: true }),
+        supabase.from('forum_posts').select('*', { count: 'exact', head: true }),
+        supabase.from('medical_records').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .or('role.eq.doctor,requested_role.eq.doctor')
+            .eq('verification_status', 'pending'),
+        supabase.from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('role', 'doctor')
+            .eq('subscription_status', 'active')
+            .lt('subscription_expires_at', now),
+        supabase.from('payments').select('amount').eq('status', 'approved'),
+        supabase.from('payments').select('amount').eq('status', 'pending'),
+    ])
 
     const totalRevenue = approvedPayments?.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) || 0
     const pendingRevenue = pendingPayments?.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) || 0
@@ -139,7 +141,7 @@ export async function getAdminStats(supabase: SupabaseClient) {
 export async function getAllProfiles(supabase: SupabaseClient) {
     return await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, email, role, verification_status, requested_role, subscription_status, avatar_url, updated_at')
         .order('updated_at', { ascending: false })
 }
 

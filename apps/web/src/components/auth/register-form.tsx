@@ -71,7 +71,7 @@ export function RegisterForm() {
         setError(null)
 
         try {
-            const { error: authError } = await supabase.auth.signUp({
+            const { data, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -83,7 +83,14 @@ export function RegisterForm() {
             })
 
             if (authError) throw authError
-            setStep('otp')
+
+            // If Supabase auto-confirmed (email confirmation disabled or OTP already verified),
+            // user is signed in immediately — skip OTP step
+            if (data.session) {
+                setStep('success')
+            } else {
+                setStep('otp')
+            }
         } catch (err: unknown) {
             console.error('Registration failed', err)
             setError(getUserFacingError(err, 'We could not complete registration. Please review your details and try again.'))

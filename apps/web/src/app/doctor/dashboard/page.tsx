@@ -26,32 +26,18 @@ export default async function DoctorDashboard() {
     if (!user) return null
 
     const { data: profile } = await getProfile(user.id)
-    const { data: appointments } = await getAppointments(user.id, 'doctor')
-    const { data: reviews } = await supabase.from('reviews').select('rating').eq('doctor_id', user.id)
-    
+
+    const [{ data: appointments }, { data: reviews }, { count: unreadCount }, { count: pendingPaymentsCount }, { data: payments }] = await Promise.all([
+        getAppointments(user.id, 'doctor'),
+        supabase.from('reviews').select('rating').eq('doctor_id', user.id),
+        supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
+        supabase.from('payments').select('*', { count: 'exact', head: true }).eq('recipient_id', user.id).eq('status', 'pending'),
+        supabase.from('payments').select('amount, status, created_at').eq('recipient_id', user.id),
+    ])
+
     const averageRating = reviews && reviews.length > 0 
         ? (reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length).toFixed(1)
         : '—'
-
-    // Real unread notification count
-    const { count: unreadCount } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false)
-
-    // Real pending payment count
-    const { count: pendingPaymentsCount } = await supabase
-        .from('payments')
-        .select('*', { count: 'exact', head: true })
-        .eq('recipient_id', user.id)
-        .eq('status', 'pending')
-
-    // Fetch all payments for this doctor to compute revenue
-    const { data: payments } = await supabase
-        .from('payments')
-        .select('amount, status, created_at')
-        .eq('recipient_id', user.id)
 
     const approvedPayments = payments?.filter(p => p.status === 'approved' || p.status === 'completed') || []
 

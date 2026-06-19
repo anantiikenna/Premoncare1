@@ -14,7 +14,7 @@ final availableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref
 });
 
 /// Provider for patient's personal payment history
-final patientPaymentsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+final patientPaymentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
@@ -27,7 +27,7 @@ final patientPaymentsProvider = StreamProvider<List<Map<String, dynamic>>>((ref)
 });
 
 /// Provider for patient's appointments (for review purposes)
-final patientAppointmentsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+final patientAppointmentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
@@ -37,16 +37,23 @@ final patientAppointmentsProvider = StreamProvider<List<Map<String, dynamic>>>((
       .eq('patient_id', user.id)
       .order('appointment_date', ascending: false)
       .asyncMap((data) async {
-        final appointments = <Map<String, dynamic>>[];
-        for (final item in data) {
-          final doctorData = await supabase
-              .from('profiles')
-              .select('full_name')
-              .eq('id', item['doctor_id'])
-              .single();
-          appointments.add({...item, 'doctor_name': doctorData['full_name']});
-        }
-        return appointments;
+        if (data.isEmpty) return [];
+
+        // Batch fetch all doctor profiles in one query
+        final doctorIds = data.map((e) => e['doctor_id'] as String).toSet().toList();
+        final doctorsResult = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .inFilter('id', doctorIds);
+
+        final doctorMap = {
+          for (final d in doctorsResult as List) d['id'] as String: d,
+        };
+
+        return data.map((item) {
+          final doctorData = doctorMap[item['doctor_id'] as String];
+          return {...item, 'doctor_name': doctorData?['full_name'] ?? 'Unknown'};
+        }).toList();
       });
 });
 
@@ -54,7 +61,7 @@ final patientAppointmentsProvider = StreamProvider<List<Map<String, dynamic>>>((
 /// NOTE: Use core/providers.dart patientCreditsProvider for the total int balance
 /// shown on the dashboard. This provider is used by credits_screen.dart for
 /// per-doctor breakdowns.
-final patientDetailedCreditsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+final patientDetailedCreditsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
   if (user == null) return Stream.value([]);
 
@@ -63,40 +70,32 @@ final patientDetailedCreditsProvider = StreamProvider<List<Map<String, dynamic>>
       .stream(primaryKey: ['patient_id', 'doctor_id'])
       .eq('patient_id', user.id)
       .asyncMap((balances) async {
-        final List<Map<String, dynamic>> results = [];
-        for (final balance in balances) {
-          final doctorId = balance['doctor_id'];
-          final minutes = balance['minutes_remaining'];
-          
-          try {
-            final docProfile = await supabase
-                .from('profiles')
-                .select('full_name, specialty, hourly_rate, verification_status, avatar_url')
-                .eq('id', doctorId)
-                .single();
-                
-            results.add({
-              'doctor_id': doctorId,
-              'minutes_remaining': minutes,
-              'doctor_name': docProfile['full_name'],
-              'specialty': docProfile['specialty'] ?? 'Specialist',
-              'hourly_rate': docProfile['hourly_rate'] ?? 200,
-              'verification_status': docProfile['verification_status'],
-              'avatar_url': docProfile['avatar_url'],
-            });
-          } catch (e) {
-            results.add({
-              'doctor_id': doctorId,
-              'minutes_remaining': minutes,
-              'doctor_name': 'Unknown Doctor',
-              'specialty': 'Specialist',
-              'hourly_rate': 200,
-              'verification_status': 'approved',
-              'avatar_url': null,
-            });
-          }
-        }
-        return results;
+        if (balances.isEmpty) return [];
+
+        // Batch fetch all doctor profiles in one query
+        final doctorIds = balances.map((b) => b['doctor_id'] as String).toSet().toList();
+        final doctorsResult = await supabase
+            .from('profiles')
+            .select('id, full_name, specialty, hourly_rate, verification_status, avatar_url')
+            .inFilter('id', doctorIds);
+
+        final doctorMap = {
+          for (final d in doctorsResult as List) d['id'] as String: d,
+        };
+
+        return balances.map((balance) {
+          final doctorId = balance['doctor_id'] as String;
+          final docProfile = doctorMap[doctorId];
+          return {
+            'doctor_id': doctorId,
+            'minutes_remaining': balance['minutes_remaining'],
+            'doctor_name': docProfile?['full_name'] ?? 'Unknown Doctor',
+            'specialty': docProfile?['specialty'] ?? 'Specialist',
+            'hourly_rate': docProfile?['hourly_rate'] ?? 200,
+            'verification_status': docProfile?['verification_status'] ?? 'approved',
+            'avatar_url': docProfile?['avatar_url'],
+          };
+        }).toList();
       });
 });
 
