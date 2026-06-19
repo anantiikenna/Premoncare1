@@ -21,12 +21,10 @@ import Image from 'next/image'
 
 export default function AccountConversionPage() {
   const router = useRouter()
-  const [email, setEmail] = useState<string | null>(null)
-
-  useEffect(() => {
-    const storedEmail = localStorage.getItem('premon_guest_email')
-    if (storedEmail) setEmail(storedEmail)
-  }, [])
+  const [email] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    return localStorage.getItem('premon_guest_email')
+  })
 
   const benefits = [
     {
