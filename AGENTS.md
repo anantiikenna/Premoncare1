@@ -7,7 +7,7 @@ This project is structured as a **Monorepo (npm workspaces)** with frontend clie
 - **Web App (`apps/web`)**: Next.js 16.2.1 (App Router + Proxy).
 - **Mobile App (`apps/mobile`)**: Flutter.
 - **Database/Auth**: Supabase (via `@supabase/ssr`), shared backend logic.
-- **Payments**: Dodo Payments & Paystack (P2P Handlers).
+- **Payments**: Manual P2P receipt upload only. All digital payment gateways (Dodo, Paystack) are **disabled**.
 - **Styling**: Vanilla CSS (TailwindCSS 4 fallback).
 
 ## Network Bound Proxy (Boundary) - Web App
@@ -19,10 +19,15 @@ The core Next.js project uses `apps/web/src/proxy.ts` (formerly `middleware.ts`)
 - **Input Validation**: Use `zod` and `isomorphic-dompurify` integrated in `security.ts` to guarantee payload sanitization against server-side XSS.
 - **Data Fetching**: Prefer Server Components in the web app with `createServerClient` from `apps/web/src/lib/supabase-server.ts`.
 - **Payment Verification**: Manual P2P verification is handled in the Admin/Doctor dashboards.
-- **Emergency Guest Booking**: Mobile app supports an "Emergency" flow that bypasses standard registration. 
-    - Price multiplier: **5x** doctor's base rate.
-    - Identification: Use `is_guest` flag in `profiles` and local `guest_token`.
-    - Workflow: Find Doctor -> Pricing (5x) -> Immediate Payment -> Consult.
+- **Emergency Guest Booking**: Both Web and Mobile support an "Emergency" flow with an **Uber-style doctor acceptance handshake**.
+    - Price multiplier: **5x** doctor's base hourly rate.
+    - Identification: Guest users tracked via `guest_token` in appointment `metadata`. `patient_id` is nullable for guest bookings.
+    - Status flow: `emergency_request` → Doctor accepts → `emergency_accepted` → Patient pays → `ongoing`.
+    - **Handshake**: After the patient submits an emergency request, the doctor has **3 minutes** to Accept or Decline via real-time alerts (FCM push + in-app Realtime subscription). If the doctor declines or times out, the status becomes `emergency_declined` and the patient is prompted to find another doctor.
+    - **Real-Time Subscriptions**: Both platforms use Supabase Realtime (`postgres_changes`) to listen for status updates on the appointment row.
+    - **Doctor-Side UI**: Mobile shows an emergency banner on the dashboard with tap-to-accept flow (`doctor_emergency_request_screen.dart`). Web shows a real-time `EmergencyRequestAlert` component with countdown rings and Accept/Decline buttons.
+    - **Patient-Side UI**: Mobile uses `emergency_waiting_screen.dart` (animated countdown + status). Web uses `/emergency-waiting` page (SVG ring + Realtime redirect to checkout).
+    - **Guest Retention**: After the consultation, guest users are prompted to create a permanent account to retain their consultation history.
 - **Practitioner Registration**: There is NO direct "Doctor" registration. ALL users (including practitioners) MUST register as a **Patient** first.
     - Path to Professional Status: Register as Patient -> Log In -> Access "Verification Wizard" in Profile -> Submit Credentials -> Wait for Admin Approval.
     - This flow prevents platform abuse and ensures rigorous auditing.

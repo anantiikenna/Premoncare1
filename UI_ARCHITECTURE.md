@@ -12,7 +12,8 @@ This document serves as the absolute inventory of all visual interfaces, process
 | **Page** | `Registration (/register)` | **Step 1:** Identity -> **Step 2:** Terms Consent -> **Step 3:** OTP Sync. [STATUS: IMPLEMENTED] |
 | **Page** | `Forgot Password` | 1. Account Identity (Email) -> 2. Dispatch Success View -> 3. Check Mail CTA. |
 | **Page** | `Reset Password` | 1. Link Validation -> 2. Password Strength Check -> 3. Secure Reset -> 4. Auto-Login. |
-| **Page** | `Emergency (/emergency)` | 1. Quick Match Filters -> 2. Doctor Inventory -> 3. 5x Surge Payment -> 4. Instant Video Link. |
+| **Page** | `Emergency (/emergency)` | 1. Quick Match Filters -> 2. Doctor Inventory -> 3. Guest Details -> 4. 5x Booking -> 5. Redirect to Waiting. |
+| **Page** | `Emergency Waiting (/emergency-waiting)` | 1. SVG Countdown Ring (3 min) -> 2. Real-Time Status via Supabase Realtime -> 3. On Accept: Redirect to Checkout -> 4. On Decline/Timeout: Find Another Doctor. |
 | **Page** | `Account Conversion` | 1. Session Token Auth -> 2. Benefit Visualization -> 3. Final Profile Upgrade -> 4. Record Migration. |
 | **Overlay**| `OTP Verification` | 1. Code Input -> 2. Backend Validation -> 3. Resend Logic (60s) -> 4. Success Animation. |
 
@@ -53,6 +54,7 @@ This document serves as the absolute inventory of all visual interfaces, process
 ### B. Dynamic Sections & Overlays
 | Type | View / Element | Workflow / Logic |
 | :--- | :--- | :--- |
+| **Section** | `Emergency Request Alert` (Web) | Real-time card with SVG countdown ring (3 min), Accept/Decline buttons, toast notifications. Listens to Supabase Realtime on `appointments` table. Auto-declines on timeout. |
 | **Section** | `Practitioner Induction`| **1.** Specialty Setup -> **2.** MDCN License -> **3.** ID/Selfie Audit -> **4.** Fee Negotiation. [REJECTION HANDLED] |
 
 | **Overlay** | `Prescription Builder` | 1. Patient Selection -> 2. Medication/Dosage Entry -> 3. Instruction Mapping -> 4. Digital Sign-off. |
@@ -106,4 +108,4 @@ This document serves as the absolute inventory of all visual interfaces, process
 4. **Parity**: Mobile and Web platforms must match these route targets and screen segmentation.
 
 ---
-*Last Updated: May 2026 (Finalized Registration Pipeline)*
+*Last Updated: June 2026 (Emergency Handshake Flow, P2P-Only Payments)*

@@ -13,7 +13,7 @@ Premoncare is built on three core principles:
 ### 🌈 Color System
 | Role | Color | Usage |
 | :--- | :--- | :--- |
-| **Primary** | #5B6CFF | Buttons, links, active states (Electric Indigo) |
+| **Primary** | #0F62FE | Buttons, links, active states (Premon Indigo) |
 | **Secondary** | #00C2A8 | Success, highlights |
 | **Danger** | #FF4D4F | Errors, critical alerts |
 | **Warning** | #FFA940 | Pending states |
@@ -54,7 +54,7 @@ Premoncare is built on three core principles:
 - **Step 2**: Role Selection (Default: Patient). *Note: Doctors must register as patients first.*
 - **Step 3**: Terms & Privacy Consent (Toggle switches).
 - **Step 4**: OTP Verification (Email/SMS).
-  - **Logic**: 6-digit code entry, resend timer (60s), success animation.
+  - **Logic**: 8-digit code entry, resend timer (60s), success animation.
 
 ### 2. Login & Security
 - **View**: Minimalist login with "Vibrant Indigo" accents.
@@ -134,9 +134,11 @@ Premoncare is built on three core principles:
 
 ---
 
-🚨 **Emergency Guest Flow**
+🚨 **Emergency Guest Flow (Uber-Style Handshake)**
 - **Trigger**: "Emergency" button on landing/splash.
-- **Flow**: One-click Search -> Instant Match -> 5x Base Rate (₦) -> Direct Call.
+- **Flow**: Guest Search -> Doctor Selection -> Confirm Booking (5x Base Rate) -> Wait for Doctor Acceptance (3 min countdown).
+- **Doctor Acceptance**: Doctor receives real-time alert (FCM + in-app). Has 3 minutes to Accept or Decline. If accepted, patient proceeds to P2P payment. If declined or timeout, patient is prompted to find another doctor.
+- **Patient Waiting Screen**: Animated countdown pulse with real-time status updates via Supabase Realtime. On acceptance, redirects to payment/checkout.
 - **Post-Call**: Account creation prompt to sync emergency history to a permanent profile.
 
 ---

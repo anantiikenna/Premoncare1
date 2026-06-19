@@ -20,7 +20,7 @@ The system is built on a **"Security First"** principle, leveraging Supabase Row
 The platform enforces a mandatory **3-Step Registration Pipeline** for all users:
 1.  **Step 1: Identity**: Legal Name, Email, and a complex Password.
 2.  **Step 2: Terms Consent**: Interactive review and explicit agreement to the Terms of Service and Privacy Policy.
-3.  **Step 3: OTP Sync**: Real-time email verification. The user account is not activated until the 6-digit secure code is verified against the backend.
+3.  **Step 3: OTP Sync**: Real-time email verification. The user account is not activated until the 8-digit secure code is verified against the backend.
 
 **Note**: All users (including practitioners) register as Patients initially.
 
@@ -45,7 +45,7 @@ To prevent unauthorized privilege escalation, the platform uses a **4-Step Verif
 ## 📅 2. Patient Experience (P2P Financial Model)
 
 ### Consultation Credits Booking & UI
-- **Direct P2P Payments**: Patients pay doctors directly for consultations. There is no middleman fee for the platform on these transactions.
+- **Direct P2P Payments**: Patients pay doctors directly for consultations via manual receipt upload. All digital payment gateways (Dodo, Paystack) are **disabled**.
 - **Session Durations**: Patients choose between **15, 30, 45, or 60 minute** consultations.
 - **Consultation Credits**: Consultation minutes are tracked as "Consultation Credits". Upon verifying a patient's payment, the doctor credits the patient's balance with the purchased minutes.
 - **Dynamic Pricing**: Fees are calculated in **Naira (₦)** based on the doctor's negotiated hourly rate (e.g., `₦Rate * (Duration/60)`).
@@ -55,12 +55,33 @@ To prevent unauthorized privilege escalation, the platform uses a **4-Step Verif
 - **Medical Profile**: A secure, encrypted space for allergies, medications, and health history. Access is restricted to the patient and their assigned practitioners.
 - **Clinical Records**: Patients can view notes and prescriptions issued by their doctors immediately after a consultation.
 
-### 🚨 Emergency Guest Booking (Rapid Access)
+### 🚨 Emergency Guest Booking (Rapid Access — Uber-Style Handshake)
 The platform supports a high-urgency flow for critical health situations:
 - **Registration Bypass**: Users can browse and book doctors without a standard account.
 - **Dynamic 5x Pricing**: Emergency consultations carry a **500% premium** (5x the doctor's base rate) to ensure immediate attention and immediate practitioner payouts.
-- **Guest Retention**: Guest users are tracked via a local `guest_token`. Post-consultation, they are prompted to convert their temporary "Shadow Profile" into a permanent account to retain their consultation history.
-- **Immediate P2P Verification**: Emergency bookings bypass the "Consultation Credits" validation, requiring a one-time direct payment of the full emergency amount before the session begins.
+- **Guest Tracking**: Guest users are tracked via `guest_token` in appointment `metadata`. `patient_id` is nullable for guest bookings.
+
+#### 🤝 Doctor Acceptance Handshake (3-Minute Window)
+1. **Patient Submits Request**: The patient selects a doctor and confirms the emergency booking. The appointment is created with status `emergency_request`.
+2. **Doctor Receives Alert**: The doctor receives a real-time notification (FCM push + in-app Realtime subscription) with a countdown timer.
+3. **Doctor Responds** (within 3 minutes):
+   - **Accept**: Status changes to `emergency_accepted`. The patient sees payment instructions and proceeds with P2P payment.
+   - **Decline**: Status changes to `emergency_declined`. The patient is prompted to find another doctor.
+   - **Timeout**: If no response within 3 minutes, the request auto-declines and the patient is prompted to find another doctor.
+4. **Patient Pays**: After acceptance, the patient sees the 5x fee and doctor's P2P payment instructions.
+5. **Consultation Begins**: Once payment is confirmed, the status changes to `ongoing` and the video session starts.
+
+#### Platform Implementations
+- **Mobile Doctor UI**: `doctor_emergency_request_screen.dart` — urgent red theme, countdown ring, Accept/Decline buttons.
+- **Mobile Doctor Dashboard**: `doctor_dashboard.dart` — live emergency request banner with tap-to-accept flow.
+- **Web Doctor UI**: `EmergencyRequestAlert` component — real-time card with SVG timer, Accept/Decline, toast notifications.
+- **Mobile Patient UI**: `emergency_waiting_screen.dart` — animated countdown pulse, status updates via Realtime.
+- **Web Patient UI**: `/emergency-waiting` page — SVG ring timer, Realtime redirect to checkout on accept.
+
+#### Database Schema
+- `appointments.status` supports: `emergency_request`, `emergency_accepted`, `emergency_declined`, `pending`, `confirmed`, `cancelled`, `completed`, `ongoing`.
+- `appointments.patient_id` is nullable for guest emergency bookings.
+- `appointments.metadata` stores `guest_token`, `is_guest`, `pricing_multiplier` for guest tracking.
 
 ---
 
