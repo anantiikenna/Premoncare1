@@ -183,7 +183,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                             <span>
                                 Resend in{' '}
                                 <span className={`font-bold tabular-nums ${timer <= 10 ? 'text-destructive' : 'text-foreground'}`}>
-                                    {Math.floor(timer / 60)}:{(timer % 60).toString().padLeft(2, '0')}
+                                    {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
                                 </span>
                             </span>
                         ) : (

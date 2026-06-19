@@ -448,7 +448,7 @@ export function DashboardLayout({
                 </header>
 
                 {/* Mobile Header */}
-                <header className="md:hidden flex items-center justify-between p-4 glass-panel border-none relative z-[60] m-2 rounded-2xl shadow-xl">
+                <header className="md:hidden flex items-center justify-between p-4 glass-panel border-none relative z-60 m-2 rounded-2xl shadow-xl">
                     <div className="flex items-center gap-3">
                         <div className="bg-primary p-2 rounded-xl">
                             <HeartPulse className="h-5 w-5 text-white" />
@@ -504,8 +504,8 @@ export function DashboardLayout({
                 {/* Main Content Area */}
                 <main className="flex-1 overflow-y-auto p-4 lg:p-0 relative no-scrollbar">
                     {/* Background Decorative Mesh for Main Area */}
-                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10" />
-                    <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10" />
+                    <div className="absolute top-0 right-0 w-150 h-150 bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+                    <div className="absolute bottom-0 left-0 w-100 h-100 bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10" />
                     
                     <div className="relative animate-in-fade lg:pr-4 pb-20 lg:pb-8 h-max min-h-full">
                         {children}
