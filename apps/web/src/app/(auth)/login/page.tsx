@@ -50,7 +50,7 @@ export default function LoginPage() {
                     fill 
                     className="object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-1000 scale-105 hover:scale-100"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-transparent" />
                 <div className="absolute bottom-20 left-20 right-20 space-y-6">
                     <h2 className="text-5xl font-black text-white leading-tight tracking-tighter">
                         The Edge of <br />

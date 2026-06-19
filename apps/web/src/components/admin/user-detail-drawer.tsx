@@ -66,7 +66,7 @@ export function UserDetailDrawer({ userId, userName, userRole, requestedRole, is
             {/* Drawer Panel */}
             <div className="relative z-10 w-full max-w-2xl bg-card shadow-2xl flex flex-col h-full border-l animate-in slide-in-from-right">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-primary/10 to-background">
+                <div className="flex items-center justify-between p-6 border-b bg-linear-to-r from-primary/10 to-background">
                     <div className="flex items-center gap-3">
                         <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center">
                             {userRole === 'doctor' ? (

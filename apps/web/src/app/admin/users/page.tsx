@@ -17,7 +17,7 @@ export default async function AdminUsersPage() {
     return (
         <div className="space-y-8 animate-in-fade">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary opacity-50" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary via-accent to-primary opacity-50" />
                 <div className="space-y-2 relative z-10">
                     <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
                         <Users className="h-4 w-4" />

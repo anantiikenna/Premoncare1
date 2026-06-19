@@ -70,7 +70,7 @@ export default async function Home() {
               </div>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tighter py-4 flex flex-col gap-1">
                 <span className="text-slate-900 dark:text-slate-100">Premium</span>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-500 to-accent inline-block">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-indigo-500 to-accent inline-block">
                   Care.
                 </span>
               </h1>
@@ -80,7 +80,7 @@ export default async function Home() {
               <div className="flex flex-wrap justify-center lg:justify-start gap-5 pt-4">
                 <Link href="/register">
                   <Button size="lg" className="group relative h-14 md:h-16 w-52 md:w-56 rounded-[2rem] bg-slate-900 text-white font-black overflow-hidden shadow-2xl hover:scale-105 transition-all duration-300 dark:bg-white dark:text-slate-900">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <span className="relative z-10 flex items-center justify-center gap-2 tracking-widest uppercase text-sm">
                       Get Started <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </span>
@@ -167,7 +167,7 @@ export default async function Home() {
               ].map((service, i) => (
                 <div key={i} className="group relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-card border border-border/50 hover:shadow-2xl transition-all duration-500 h-[400px] md:h-[500px]">
                   <Image src={service.image} alt={service.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10 space-y-4">
                     <h3 className="text-2xl md:text-3xl font-black text-white">{service.title}</h3>
                     <p className="text-white/70 text-sm md:text-base font-medium leading-relaxed italic">{service.desc}</p>
@@ -230,7 +230,7 @@ export default async function Home() {
         <section className="px-6 lg:px-20 py-12 md:py-20">
           <div className="max-w-7xl mx-auto py-16 md:py-24 px-8 md:px-20 rounded-[3rem] md:rounded-[4rem] bg-slate-900 overflow-hidden relative text-center">
             <div className="absolute inset-0 bg-primary/20 pointer-events-none" />
-            <div className="absolute top-0 right-0 w-full lg:w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent" />
+            <div className="absolute top-0 right-0 w-full lg:w-1/2 h-full bg-linear-to-l from-primary/10 to-transparent" />
             
             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
               <div className="max-w-2xl space-y-6 md:space-y-8">

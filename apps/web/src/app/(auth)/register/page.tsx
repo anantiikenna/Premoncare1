@@ -14,7 +14,7 @@ export default function RegisterPage() {
                     fill 
                     className="object-cover opacity-70 scale-110 hover:scale-100 transition-all duration-1000"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-r from-slate-950/40 via-transparent to-transparent" />
                 <div className="absolute bottom-20 left-20 right-20 space-y-6">
                     <div className="h-1 bg-primary w-20" />
                     <h2 className="text-6xl font-black text-white leading-tight tracking-tighter">

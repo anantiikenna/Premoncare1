@@ -85,7 +85,7 @@ export default function AccountConversionPage() {
             </Badge>
             <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[0.95]">
               Secure your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-500">Care History.</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-indigo-500">Care History.</span>
             </h1>
             <p className="text-slate-500 text-lg font-medium max-w-md mx-auto lg:mx-0">
               Your emergency consultation is complete. Convert your guest session into a permanent account to preserve your medical records.

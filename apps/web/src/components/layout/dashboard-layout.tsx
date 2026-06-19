@@ -362,7 +362,7 @@ export function DashboardLayout({
         <div className="flex h-screen bg-background font-sans overflow-hidden">
             {/* Sidebar for Desktop */}
             <aside className="hidden md:flex w-72 flex-col glass-panel border-r border-border/50 bg-card/30 m-4 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary opacity-50" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary via-accent to-primary opacity-50" />
                 <div className="p-8 pb-10 flex items-center gap-3 group cursor-pointer">
                     <div className="bg-primary p-2 rounded-2xl shadow-lg shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                         <HeartPulse className="h-5 w-5 text-white" />
