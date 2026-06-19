@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, ArrowRight, ShieldCheck, Timer } from 'lucide-react'
 import { getUserFacingError } from '@/lib/user-facing-errors'
@@ -14,10 +13,11 @@ interface OTPFormProps {
 }
 
 export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
-    const [otp, setOtp] = useState(['', '', '', '', '', '', '', ''])
+    const [otp, setOtp] = useState<string[]>(Array(8).fill(''))
     const [loading, setLoading] = useState(false)
     const [timer, setTimer] = useState(60)
     const [error, setError] = useState<string | null>(null)
+    const [focusedIndex, setFocusedIndex] = useState<number>(0)
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
     useEffect(() => {
@@ -29,19 +29,27 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
 
     // Auto-focus first input on mount
     useEffect(() => {
-        inputRefs.current[0]?.focus()
+        const timer = setTimeout(() => {
+            inputRefs.current[0]?.focus()
+        }, 100)
+        return () => clearTimeout(timer)
     }, [])
+
+    const focusInput = (index: number) => {
+        const clamped = Math.max(0, Math.min(7, index))
+        inputRefs.current[clamped]?.focus()
+        setFocusedIndex(clamped)
+    }
 
     const handleChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return
-        
+
         const newOtp = [...otp]
         newOtp[index] = value.slice(-1)
         setOtp(newOtp)
 
-        // Move to next input
         if (value && index < 7) {
-            inputRefs.current[index + 1]?.focus()
+            focusInput(index + 1)
         }
 
         // Auto-submit when all 8 digits filled
@@ -59,11 +67,9 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         const newOtp = pasted.split('').concat(Array(8).fill('')).slice(0, 8)
         setOtp(newOtp)
 
-        // Focus last filled input
         const lastIdx = Math.min(pasted.length, 7)
-        inputRefs.current[lastIdx]?.focus()
+        focusInput(lastIdx)
 
-        // Auto-submit if full code pasted
         if (pasted.length === 8) {
             handleSubmitWithCode(pasted)
         }
@@ -71,7 +77,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Backspace' && !otp[index] && index > 0) {
-            inputRefs.current[index - 1]?.focus()
+            focusInput(index - 1)
         }
     }
 
@@ -103,8 +109,8 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         try {
             await onResend()
             setTimer(60)
-            setOtp(['', '', '', '', '', '', '', ''])
-            inputRefs.current[0]?.focus()
+            setOtp(Array(8).fill(''))
+            focusInput(0)
         } catch (err: unknown) {
             console.error('OTP resend failed', err)
             setError(getUserFacingError(err, 'We could not resend the code. Please wait a moment and try again.'))
@@ -114,75 +120,100 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
     }
 
     return (
-        <Card className="w-full max-w-lg glass-panel border-none shadow-2xl rounded-[3rem] overflow-hidden p-6 animate-in-fade">
-            <CardHeader className="space-y-4 text-center">
-                <div className="flex justify-center">
-                    <div className="bg-primary/10 p-4 rounded-3xl text-primary">
-                        <ShieldCheck className="h-10 w-10" />
+        <div className="w-full max-w-md mx-auto">
+            <Card className="glass-panel border-none shadow-2xl rounded-3xl overflow-hidden animate-in-fade">
+                <CardHeader className="space-y-4 text-center pb-2">
+                    <div className="flex justify-center">
+                        <div className="bg-primary/10 p-4 rounded-2xl text-primary">
+                            <ShieldCheck className="h-10 w-10" />
+                        </div>
                     </div>
-                </div>
-                <CardTitle className="text-4xl font-black tracking-tighter text-gradient pb-2">
-                    Verify Identity
-                </CardTitle>
-                <CardDescription className="font-bold text-muted-foreground/60 uppercase tracking-widest text-[10px]">
-                    Enter the 8-digit code sent to your email {email && <><br /><strong className="text-foreground">{email}</strong></>}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8 pt-4">
-                {error && (
-                    <div className="p-4 text-[13px] bg-destructive/5 text-destructive rounded-2xl border border-destructive/10 font-bold animate-shake text-center">
-                        {error}
+                    <CardTitle className="text-3xl font-black tracking-tight text-gradient">
+                        Verify Identity
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground/70 leading-relaxed">
+                        Enter the 8-digit code sent to your email
+                        {email && (
+                            <span className="block mt-1 font-semibold text-foreground">{email}</span>
+                        )}
+                    </CardDescription>
+                </CardHeader>
+
+                <CardContent className="space-y-6 px-6">
+                    {error && (
+                        <div className="p-3 text-sm bg-destructive/10 text-destructive rounded-xl border border-destructive/20 font-semibold text-center animate-shake">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* OTP Input Grid */}
+                    <div className="flex justify-center gap-2">
+                        {otp.map((digit, idx) => (
+                            <input
+                                key={idx}
+                                ref={(el) => { inputRefs.current[idx] = el; }}
+                                type="text"
+                                inputMode="numeric"
+                                autoComplete="one-time-code"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleChange(idx, e.target.value)}
+                                onKeyDown={(e) => handleKeyDown(idx, e)}
+                                onPaste={idx === 0 ? handlePaste : undefined}
+                                onFocus={() => setFocusedIndex(idx)}
+                                className={`
+                                    w-11 h-14 text-center text-xl font-bold
+                                    rounded-xl border-2 transition-all duration-200
+                                    outline-none
+                                    ${digit
+                                        ? 'border-primary bg-primary/5 text-foreground'
+                                        : focusedIndex === idx
+                                            ? 'border-primary bg-primary/5 shadow-[0_0_0_3px_rgba(15,98,254,0.1)]'
+                                            : 'border-slate-200 bg-white hover:border-slate-300'
+                                    }
+                                `}
+                            />
+                        ))}
                     </div>
-                )}
 
-                <div className="flex justify-center gap-2 sm:gap-4">
-                    {otp.map((digit, idx) => (
-                        <Input
-                            key={idx}
-                            ref={(el) => { inputRefs.current[idx] = el; }}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={1}
-                            className="w-10 h-14 sm:w-14 sm:h-20 text-center text-2xl font-black rounded-2xl bg-background/50 border-border/50 focus:ring-primary/20 transition-all p-0"
-                            value={digit}
-                            onChange={(e) => handleChange(idx, e.target.value)}
-                            onKeyDown={(e) => handleKeyDown(idx, e)}
-                            onPaste={idx === 0 ? handlePaste : undefined}
-                        />
-                    ))}
-                </div>
-
-                <div className="flex flex-col items-center gap-4">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+                    {/* Timer / Resend */}
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                         <Timer className="h-4 w-4" />
                         {timer > 0 ? (
-                            <span>Resend in {timer}s</span>
+                            <span>
+                                Resend in{' '}
+                                <span className={`font-bold tabular-nums ${timer <= 10 ? 'text-destructive' : 'text-foreground'}`}>
+                                    {Math.floor(timer / 60)}:{(timer % 60).toString().padLeft(2, '0')}
+                                </span>
+                            </span>
                         ) : (
-                            <Button 
-                                variant="link" 
-                                className="h-auto p-0 text-primary text-xs font-black uppercase tracking-widest"
+                            <button
                                 onClick={handleResend}
+                                className="text-primary font-bold hover:underline"
                             >
                                 Resend Code
-                            </Button>
+                            </button>
                         )}
                     </div>
-                </div>
-            </CardContent>
-            <CardFooter className="pt-6 pb-6">
-                <Button
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    className="w-full rounded-[2rem] h-16 bg-primary hover:bg-primary/90 font-black uppercase tracking-[0.2em] text-sm shadow-xl shadow-primary/30"
-                >
-                    {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
-                        <>
-                            Verify & Continue
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                        </>
-                    )}
-                </Button>
-            </CardFooter>
-        </Card>
+                </CardContent>
+
+                <CardFooter className="px-6 pb-6 pt-2">
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className="w-full h-13 rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-primary/20"
+                    >
+                        {loading ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                            <>
+                                Verify & Continue
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </>
+                        )}
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
     )
 }

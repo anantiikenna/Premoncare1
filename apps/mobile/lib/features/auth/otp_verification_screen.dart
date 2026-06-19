@@ -158,47 +158,48 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
                         const Text('IDENTITY VERIFICATION', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-                        const SizedBox(height: 12),
-                        const Text('Verify Your Email', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
-                        const SizedBox(height: 8),
-                        const Text('An 8-digit clinical access code has been dispatched to your registered email address.', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 10),
+                        const Text('Verify Your Email', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+                        const SizedBox(height: 6),
+                        Text('Enter the 8-digit code sent to', style: TextStyle(color: const Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w600, height: 1.4)),
+                        const SizedBox(height: 24),
+
+                        // OTP Input Hub — moved up, larger touch targets
+                        Center(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 12,
+                            alignment: WrapAlignment.center,
+                            children: List.generate(8, (index) => _OTPBox(
+                              index: index,
+                              controller: _controllers[index],
+                              focusNode: _focusNodes[index],
+                              onChanged: (v) => _onOtpChanged(index, v),
+                              onPaste: index == 0 ? _onPaste : null,
+                              primaryColor: primaryColor,
+                            )),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
                         _EmailInfoCard(email: widget.email, primaryColor: primaryColor),
-                        const SizedBox(height: 32),
-
-                        _SecurityNotice(),
-                        const SizedBox(height: 48),
-
-                        // OTP Input Hub
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(8, (index) => _OTPBox(
-                            index: index,
-                            controller: _controllers[index],
-                            focusNode: _focusNodes[index],
-                            onChanged: (v) => _onOtpChanged(index, v),
-                            onPaste: index == 0 ? _onPaste : null,
-                            primaryColor: primaryColor,
-                          )),
-                        ),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 20),
 
                         _TimerModule(secondsRemaining: _secondsRemaining, onResend: _resendOtp),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 20),
 
-                        _HelpModule(email: widget.email),
-                        const SizedBox(height: 40),
+                        _SecurityNotice(),
+                        const SizedBox(height: 24),
 
                         SizedBox(
                           width: double.infinity,
-                          height: 64,
+                          height: 56,
                           child: ElevatedButton.icon(
                             onPressed: _isLoading ? null : _verifyOtp,
                             icon: _isLoading
@@ -344,6 +345,8 @@ class _OTPBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasFocus = focusNode.hasFocus;
+    final hasValue = controller.text.isNotEmpty;
     return GestureDetector(
       onLongPress: index == 0 && onPaste != null
           ? () async {
@@ -353,14 +356,20 @@ class _OTPBox extends StatelessWidget {
               }
             }
           : null,
-      child: Container(
-        width: 50,
-        height: 72,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 40,
+        height: 52,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: focusNode.hasFocus ? primaryColor : const Color(0xFFE2E8F0), width: 2),
-          boxShadow: focusNode.hasFocus ? [BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))] : [],
+          color: hasValue ? primaryColor.withValues(alpha: 0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: hasFocus ? primaryColor : hasValue ? primaryColor.withValues(alpha: 0.4) : const Color(0xFFD0D5DD),
+            width: hasFocus ? 2.5 : 2,
+          ),
+          boxShadow: hasFocus
+              ? [BoxShadow(color: primaryColor.withValues(alpha: 0.15), blurRadius: 8, offset: const Offset(0, 2))]
+              : [],
         ),
         child: Center(
           child: TextField(
