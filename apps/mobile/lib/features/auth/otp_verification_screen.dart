@@ -427,35 +427,6 @@ class _TimerModule extends StatelessWidget {
   }
 }
 
-class _HelpModule extends StatelessWidget {
-  final String email;
-  const _HelpModule({required this.email});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFFF1F5F9))),
-      child: Row(
-        children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), shape: BoxShape.circle), child: const Icon(Icons.support_agent_rounded, color: Color(0xFF64748B), size: 24)),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('NEED ASSISTANCE?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF1E293B))),
-                const SizedBox(height: 4),
-                Text('Ensure $email is correct or contact our clinical support infrastructure.', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.5, fontWeight: FontWeight.w600)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _EmergencyBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
