@@ -201,6 +201,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                         return;
                       }
                       setDialogState(() => isLoading = true);
+                      final messenger = ScaffoldMessenger.of(context);
                       try {
                         final adminService = ref.read(adminServiceProvider);
                         await adminService.sendSystemNotification(
@@ -212,7 +213,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                         ref.invalidate(_recentNotificationsProvider);
                         ref.invalidate(_notificationStatsProvider);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             const SnackBar(
                               content: Text('Notification sent successfully'),
                               backgroundColor: Color(0xFF10B981),
@@ -222,7 +223,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       } catch (e) {
                         setDialogState(() => isLoading = false);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text('Failed to send: $e'),
                               backgroundColor: const Color(0xFFEF4444),

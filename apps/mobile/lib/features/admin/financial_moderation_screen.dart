@@ -944,13 +944,14 @@ class _FinancialModerationScreenState
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
+              final messenger = ScaffoldMessenger.of(context);
               try {
                 await supabase
                     .from('payments')
                     .update({'status': 'approved'})
                     .eq('status', 'pending');
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(
                       content: Text('Payouts approved successfully!'),
                       backgroundColor: AppColors.success,
@@ -960,7 +961,7 @@ class _FinancialModerationScreenState
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text('Error: $e'),
                       backgroundColor: AppColors.error,
