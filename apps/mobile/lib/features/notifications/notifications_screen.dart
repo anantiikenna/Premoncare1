@@ -125,10 +125,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Notifications', style: AppTypography.titleLarge),
+                Text('Notifications', style: AppTypography.h3),
                 notificationsAsync.when(
                   loading: () => const Text('Loading...', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-                  error: (_, __) => const Text('Error', style: TextStyle(fontSize: 11, color: AppColors.error)),
+                  error: (_, _) => const Text('Error', style: TextStyle(fontSize: 11, color: AppColors.error)),
                   data: (notifs) => Text(
                     '${notifs.where((n) => n['is_read'] == false).length} unread',
                     style: const TextStyle(fontSize: 11, color: AppColors.textTertiary, fontWeight: FontWeight.w600),
@@ -189,7 +189,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
                 children: [
                   const Icon(Icons.notifications_none_rounded, color: AppColors.textTertiary, size: 56),
                   const SizedBox(height: 16),
-                  Text('No notifications yet', style: AppTypography.titleMedium),
+                  Text('No notifications yet', style: AppTypography.h4),
                   const SizedBox(height: 8),
                   Text(
                     'You\'ll see appointment, payment and clinical updates here.',

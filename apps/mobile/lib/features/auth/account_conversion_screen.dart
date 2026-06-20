@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/supabase_locator.dart';
@@ -30,6 +29,9 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emergencyPhoneController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _cityController = TextEditingController();
+  String _selectedGender = '';
 
   @override
   void initState() {
@@ -51,6 +53,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     _phoneController.dispose();
     _passwordController.dispose();
     _emergencyPhoneController.dispose();
+    _dobController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -986,7 +990,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                         const Text('Gender', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          initialValue: _selectedGender,
+                          initialValue: _selectedGender.isEmpty ? null : _selectedGender,
                           items: const [
                             DropdownMenuItem(value: 'Female', child: Text('Female')),
                             DropdownMenuItem(value: 'Male', child: Text('Male')),

@@ -18,7 +18,6 @@ class BookingConfirmedScreen extends StatefulWidget {
 
 class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   String? _paymentInstructions;
-  bool _loadingPayment = false;
 
   @override
   void initState() {
@@ -28,7 +27,6 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
 
   Future<void> _fetchPaymentInstructions() async {
     if (widget.doctorId == null) return;
-    setState(() => _loadingPayment = true);
     try {
       final data = await supabase
           .from('profiles')
@@ -38,12 +36,9 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
       if (mounted) {
         setState(() {
           _paymentInstructions = data['payment_instructions'] as String?;
-          _loadingPayment = false;
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _loadingPayment = false);
-    }
+    } catch (_) {}
   }
 
   @override

@@ -198,7 +198,7 @@ export function EmergencyRequestAlert({ doctorId }: { doctorId: string }) {
         return (
           <div
             key={req.id}
-            className="relative overflow-hidden rounded-3xl border-2 border-red-200 bg-gradient-to-br from-red-50 to-orange-50 p-6 shadow-xl"
+            className="relative overflow-hidden rounded-3xl border-2 border-red-200 bg-linear-to-br from-red-50 to-orange-50 p-6 shadow-xl"
           >
             {/* Animated pulse background */}
             {!isExpired && (

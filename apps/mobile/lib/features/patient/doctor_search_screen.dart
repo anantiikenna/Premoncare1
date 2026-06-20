@@ -294,7 +294,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     child: ListView(
                       controller: controller,
                       children: [
-                        Text('Price Range', style: AppTypography.titleMedium),
+                        Text('Price Range', style: AppTypography.h4),
                         const SizedBox(height: 12),
                         RangeSlider(
                           values: RangeValues(tempMin, tempMax),
@@ -316,7 +316,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                         const SizedBox(height: 24),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text('Emergency Only', style: AppTypography.titleMedium),
+                          title: Text('Emergency Only', style: AppTypography.h4),
                           subtitle: Text('Show only emergency-ready doctors', style: AppTypography.bodySmall),
                           value: tempEmergency,
                           activeTrackColor: AppColors.error,
@@ -387,7 +387,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                   children: [
                     Text(
                       'Emergency Care',
-                      style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w900),
+                      style: AppTypography.h4.copyWith(fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -419,7 +419,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: _categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final category = _categories[index];
           final isSelected = _selectedCategory == category;
@@ -505,7 +505,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: AppTypography.titleMedium),
+          Text(title, style: AppTypography.h4),
           GestureDetector(
             onTap: onAction,
             child: Text(actionLabel, style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
@@ -558,7 +558,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         children: [
           Icon(Icons.search_off_rounded, color: AppColors.textTertiary, size: 56),
           const SizedBox(height: 16),
-          Text('No doctors found', style: AppTypography.titleMedium),
+          Text('No doctors found', style: AppTypography.h4),
           const SizedBox(height: 8),
           Text(
             'Try adjusting your search or filters',

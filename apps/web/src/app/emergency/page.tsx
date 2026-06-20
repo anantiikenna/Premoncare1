@@ -233,7 +233,7 @@ export default function EmergencyBookingPage() {
             )}
             {step === 1 && (
               <div className="space-y-6">
-                <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="grid gap-4 max-h-125 overflow-y-auto pr-2 custom-scrollbar">
                   {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-4">
                       <Loader2 className="h-10 w-10 animate-spin text-red-600" />

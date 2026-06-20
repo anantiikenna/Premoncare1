@@ -76,7 +76,7 @@ export default async function DoctorDashboard() {
     return (
         <div className="space-y-12 pb-24 animate-in-fade relative overflow-hidden">
             {/* Background Decorative Mesh */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-125 h-125 bg-primary/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
 
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">

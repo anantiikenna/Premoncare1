@@ -134,7 +134,7 @@ export function RegisterForm() {
                         </div>
                     </div>
                     <CardTitle className="text-4xl font-black tracking-tighter text-gradient">Welcome Aboard</CardTitle>
-                    <CardDescription className="text-sm font-bold text-muted-foreground/70 leading-relaxed uppercase tracking-widest leading-loose">
+                    <CardDescription className="text-sm font-bold text-muted-foreground/70 leading-relaxed uppercase tracking-widest">
                         Your identity has been verified successfully. <br />
                         Welcome to the future of healthcare.
                     </CardDescription>
@@ -200,7 +200,7 @@ export function RegisterForm() {
                 </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-8 pt-4 min-h-[300px] flex flex-col">
+            <CardContent className="space-y-8 pt-4 min-h-75 flex flex-col">
                 {error && (
                     <div className="p-4 text-[13px] bg-destructive/5 text-destructive rounded-2xl border border-destructive/10 font-bold animate-shake text-center">
                         {error}
@@ -252,7 +252,7 @@ export function RegisterForm() {
 
                 {step === 'terms' && (
                     <div className="space-y-6">
-                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 max-h-[250px] overflow-y-auto text-xs font-medium text-slate-600 leading-relaxed custom-scrollbar" tabIndex={0} aria-label="Terms of Service, Privacy Policy, and Non-Disclosure Agreement details">
+                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 max-h-62.5 overflow-y-auto text-xs font-medium text-slate-600 leading-relaxed custom-scrollbar" tabIndex={0} aria-label="Terms of Service, Privacy Policy, and Non-Disclosure Agreement details">
                             <p className="font-black text-slate-900 mb-2 uppercase tracking-widest">1. Commitment to Quality & Terms</p>
                             <p className="mb-4">Premoncare connects you with top-tier healthcare professionals. By using our platform, you agree to provide accurate medical information, treat practitioners with respect, and adhere to our payment policies.</p>
                             <p className="font-black text-slate-900 mb-2 uppercase tracking-widest">2. HIPAA Privacy Policy & Data Sovereignty</p>
