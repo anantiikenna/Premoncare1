@@ -44,7 +44,7 @@ This project uses a custom schema with automated triggers and strict RLS policie
 1. Go to your **Supabase SQL Editor**.
 2. Copy and paste the contents of `supabase/schema.sql`.
 3. Run the script. This will initialize `profiles`, `appointments`, `medical_profiles`, `health_records`, and the `notifications` engine.
-4. If updating an existing instance, run `supabase/update_live.sql` to apply the latest security patches (Audit Logs & Device Sessions).
+4. If updating an existing instance, run `supabase/update_live.sql` to apply the emergency handshake flow, RLS policies, and latest schema patches.
 
 ### 5. Storage Setup
 Create the following buckets in the **Supabase Storage** tab to enable the identity vault and financial engine:
