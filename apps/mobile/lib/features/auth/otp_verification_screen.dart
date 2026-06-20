@@ -170,20 +170,30 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         Text('Enter the 8-digit code sent to', style: TextStyle(color: const Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w600, height: 1.4)),
                         const SizedBox(height: 24),
 
-                        // OTP Input Hub — moved up, larger touch targets
+                        // OTP Input Hub — responsive sizing for 8 boxes
                         Center(
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 12,
-                            alignment: WrapAlignment.center,
-                            children: List.generate(8, (index) => _OTPBox(
-                              index: index,
-                              controller: _controllers[index],
-                              focusNode: _focusNodes[index],
-                              onChanged: (v) => _onOtpChanged(index, v),
-                              onPaste: index == 0 ? _onPaste : null,
-                              primaryColor: primaryColor,
-                            )),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final availableWidth = constraints.maxWidth;
+                              final spacing = 6.0;
+                              final boxWidth = ((availableWidth - (spacing * 7)) / 8).floorToDouble().clamp(28.0, 40.0);
+                              final boxHeight = (boxWidth * 1.35).floorToDouble();
+                              return Wrap(
+                                spacing: spacing,
+                                runSpacing: 12,
+                                alignment: WrapAlignment.center,
+                                children: List.generate(8, (index) => _OTPBox(
+                                  index: index,
+                                  controller: _controllers[index],
+                                  focusNode: _focusNodes[index],
+                                  onChanged: (v) => _onOtpChanged(index, v),
+                                  onPaste: index == 0 ? _onPaste : null,
+                                  primaryColor: primaryColor,
+                                  boxWidth: boxWidth,
+                                  boxHeight: boxHeight,
+                                )),
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -340,8 +350,10 @@ class _OTPBox extends StatelessWidget {
   final Function(String) onChanged;
   final Function(String)? onPaste;
   final Color primaryColor;
+  final double boxWidth;
+  final double boxHeight;
 
-  const _OTPBox({required this.index, required this.controller, required this.focusNode, required this.onChanged, required this.primaryColor, this.onPaste});
+  const _OTPBox({required this.index, required this.controller, required this.focusNode, required this.onChanged, required this.primaryColor, this.onPaste, this.boxWidth = 36, this.boxHeight = 48});
 
   @override
   Widget build(BuildContext context) {
@@ -358,8 +370,8 @@ class _OTPBox extends StatelessWidget {
           : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 40,
-        height: 52,
+        width: boxWidth,
+        height: boxHeight,
         decoration: BoxDecoration(
           color: hasValue ? primaryColor.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -378,7 +390,7 @@ class _OTPBox extends StatelessWidget {
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             maxLength: 1,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
+            style: TextStyle(fontSize: boxWidth * 0.67, fontWeight: FontWeight.w900, color: const Color(0xFF1E293B)),
             decoration: const InputDecoration(counterText: '', border: InputBorder.none, hintText: '•', hintStyle: TextStyle(color: Color(0xFFCBD5E1))),
             onChanged: onChanged,
           ),

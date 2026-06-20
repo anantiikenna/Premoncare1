@@ -31,7 +31,7 @@ export default function RegisterPage() {
             <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-12 relative overflow-y-auto">
                 <Link 
                     href="/" 
-                    className="absolute top-8 right-8 flex items-center gap-2 font-black text-muted-foreground/60 hover:text-primary transition-all text-xs uppercase tracking-widest glass-panel px-6 py-3 rounded-2xl border-none shadow-sm"
+                    className="absolute top-8 right-8 flex items-center gap-2 font-black text-muted-foreground/60 hover:text-primary transition-colors duration-150 text-xs uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-primary/5"
                 >
                     <ArrowLeft className="h-4 w-4" />
                     Return to Homepage

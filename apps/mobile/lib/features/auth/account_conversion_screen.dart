@@ -676,40 +676,51 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         const SizedBox(height: 12),
 
         // 8 OTP Box Inputs
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(8, (index) {
-            final isActive = _otpFocusNodes[index].hasFocus;
-
-            return Container(
-              width: 38,
-              height: 54,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isActive ? const Color(0xFF0F62FE) : const Color(0xFFE2E8F0),
-                  width: isActive ? 2 : 1,
-                ),
-              ),
-              child: Center(
-                child: TextField(
-                  controller: _otpControllers[index],
-                  focusNode: _otpFocusNodes[index],
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  maxLength: 1,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                  decoration: const InputDecoration(
-                    counterText: '',
-                    border: InputBorder.none,
-                    hintText: '',
-                  ),
-                  onChanged: (v) => _onOtpChanged(index, v),
-                ),
-              ),
-            );
-          }),
+        Center(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final availableWidth = constraints.maxWidth;
+              final spacing = 6.0;
+              final boxWidth = ((availableWidth - (spacing * 7)) / 8).floorToDouble().clamp(28.0, 38.0);
+              final boxHeight = (boxWidth * 1.42).floorToDouble();
+              return Wrap(
+                spacing: spacing,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
+                children: List.generate(8, (index) {
+                  final isActive = _otpFocusNodes[index].hasFocus;
+                  return Container(
+                    width: boxWidth,
+                    height: boxHeight,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isActive ? const Color(0xFF0F62FE) : const Color(0xFFE2E8F0),
+                        width: isActive ? 2 : 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: TextField(
+                        controller: _otpControllers[index],
+                        focusNode: _otpFocusNodes[index],
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        maxLength: 1,
+                        style: TextStyle(fontSize: boxWidth * 0.53, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B)),
+                        decoration: const InputDecoration(
+                          counterText: '',
+                          border: InputBorder.none,
+                          hintText: '',
+                        ),
+                        onChanged: (v) => _onOtpChanged(index, v),
+                      ),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
         ),
         const SizedBox(height: 16),
 

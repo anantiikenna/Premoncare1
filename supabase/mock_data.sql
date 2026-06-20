@@ -44,6 +44,9 @@ DECLARE
     ap10 UUID := uuid_generate_v4();
     ap11 UUID := uuid_generate_v4();
     ap12 UUID := uuid_generate_v4();
+    ap13 UUID := uuid_generate_v4();
+    ap14 UUID := uuid_generate_v4();
+    ap15 UUID := uuid_generate_v4();
 
     -- ── Payment UUIDs ─────────────────────────────────────────
     pay1  UUID := uuid_generate_v4();
@@ -56,6 +59,7 @@ DECLARE
     pay8  UUID := uuid_generate_v4();
     pay9  UUID := uuid_generate_v4();
     pay10 UUID := uuid_generate_v4();
+    pay11 UUID := uuid_generate_v4();
 
     -- ── Subscription Plan UUIDs ───────────────────────────────
     plan1 UUID := uuid_generate_v4();
@@ -335,31 +339,41 @@ VALUES
 (pay7,  now()-interval '15 days', p7,  12000, 'approved', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-007', d2,  30, null),
 (pay8,  now()-interval '10 days', p8,  40000, 'pending',  'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-008', null, null, null),
 (pay9,  now()-interval '5 days',  p9,  15000, 'pending',  'manual', null,                                                                       'TXN-PAY-009', d3,  30, null),
-(pay10, now()-interval '2 days',  p10, 40000, 'rejected', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-010', null, null, 'Insufficient documentation')
+(pay10, now()-interval '2 days',  p10, 40000, 'rejected', 'manual', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'TXN-PAY-010', null, null, 'Insufficient documentation'),
+-- Emergency payment (pending — awaiting doctor verification)
+(pay11, now()-interval '7 min',   p5,  100000, 'pending', 'manual', null, 'TXN-PAY-EMG-001', d2, 30, null)
 ON CONFLICT (id) DO NOTHING;
 
 
 -- ============================================================
 -- 7. APPOINTMENTS (past completed, today pending, future confirmed)
 -- ============================================================
-INSERT INTO public.appointments (id, created_at, patient_id, doctor_id, appointment_date, status, reason, consultation_mode, duration_minutes, payment_id, is_doctor_approved, is_patient_approved, meeting_link, reminder_sent)
+INSERT INTO public.appointments (id, created_at, patient_id, doctor_id, appointment_date, status, reason, consultation_mode, duration_minutes, is_emergency, total_amount, payment_id, is_doctor_approved, is_patient_approved, meeting_link, reminder_sent, metadata)
 VALUES
 -- Past completed
-(ap1,  now()-interval '44 days', p1,  d1, now()-interval '44 days'+interval '10 hours', 'completed', 'Chest pain and shortness of breath during exercise',      'video',      30, pay1, true,  true,  'https://meet.premoncare.com/room/ap1',  true),
-(ap2,  now()-interval '39 days', p2,  d2, now()-interval '39 days'+interval '14 hours', 'completed', 'Child''s recurring fever and loss of appetite',            'video',      30, pay2, true,  true,  'https://meet.premoncare.com/room/ap2',  true),
-(ap3,  now()-interval '34 days', p3,  d3, now()-interval '34 days'+interval '11 hours', 'completed', 'Severe migraine for 3 days unresponsive to paracetamol',   'video',      60, pay3, true,  true,  'https://meet.premoncare.com/room/ap3',  true),
-(ap4,  now()-interval '29 days', p4,  d4, now()-interval '29 days'+interval '15 hours', 'completed', 'Persistent acne flare-up and skin discolouration',          'video',      30, pay4, true,  true,  'https://meet.premoncare.com/room/ap4',  true),
-(ap5,  now()-interval '24 days', p5,  d5, now()-interval '24 days'+interval '9 hours',  'completed', 'Annual general health checkup',                             'video',      30, pay5, true,  true,  'https://meet.premoncare.com/room/ap5',  true),
-(ap6,  now()-interval '19 days', p6,  d1, now()-interval '19 days'+interval '16 hours', 'completed', 'High blood pressure follow-up after 3 weeks on medication', 'video',      30, pay6, true,  true,  'https://meet.premoncare.com/room/ap6',  true),
-(ap7,  now()-interval '14 days', p7,  d2, now()-interval '14 days'+interval '13 hours', 'completed', 'Child vaccination schedule review',                         'audio',      30, pay7, true,  true,  'https://meet.premoncare.com/room/ap7',  true),
+(ap1,  now()-interval '44 days', p1,  d1, now()-interval '44 days'+interval '10 hours', 'completed', 'Chest pain and shortness of breath during exercise',      'video',      30, false, 45000,  pay1, true,  true,  'https://meet.premoncare.com/room/ap1',  true,  '{}'),
+(ap2,  now()-interval '39 days', p2,  d2, now()-interval '39 days'+interval '14 hours', 'completed', 'Child''s recurring fever and loss of appetite',            'video',      30, false, 37500,  pay2, true,  true,  'https://meet.premoncare.com/room/ap2',  true,  '{}'),
+(ap3,  now()-interval '34 days', p3,  d3, now()-interval '34 days'+interval '11 hours', 'completed', 'Severe migraine for 3 days unresponsive to paracetamol',   'video',      60, false, 100000, pay3, true,  true,  'https://meet.premoncare.com/room/ap3',  true,  '{}'),
+(ap4,  now()-interval '29 days', p4,  d4, now()-interval '29 days'+interval '15 hours', 'completed', 'Persistent acne flare-up and skin discolouration',          'video',      30, false, 30000,  pay4, true,  true,  'https://meet.premoncare.com/room/ap4',  true,  '{}'),
+(ap5,  now()-interval '24 days', p5,  d5, now()-interval '24 days'+interval '9 hours',  'completed', 'Annual general health checkup',                             'video',      30, false, 40000,  pay5, true,  true,  'https://meet.premoncare.com/room/ap5',  true,  '{}'),
+(ap6,  now()-interval '19 days', p6,  d1, now()-interval '19 days'+interval '16 hours', 'completed', 'High blood pressure follow-up after 3 weeks on medication', 'video',      30, false, 45000,  pay6, true,  true,  'https://meet.premoncare.com/room/ap6',  true,  '{}'),
+(ap7,  now()-interval '14 days', p7,  d2, now()-interval '14 days'+interval '13 hours', 'completed', 'Child vaccination schedule review',                         'audio',      30, false, 37500,  pay7, true,  true,  'https://meet.premoncare.com/room/ap7',  true,  '{}'),
 -- Past cancelled
-(ap8,  now()-interval '12 days', p8,  d3, now()-interval '11 days'+interval '10 hours', 'cancelled', 'Numbness and tingling in left arm',                         'video',      30, null, false, true,  null,                                   false),
+(ap8,  now()-interval '12 days', p8,  d3, now()-interval '11 days'+interval '10 hours', 'cancelled', 'Numbness and tingling in left arm',                         'video',      30, false, 0,     null, false, true,  null,                                   false, '{}'),
 -- Ongoing/today
-(ap9,  now()-interval '1 hour',  p9,  d1, now()+interval '1 hour',                      'pending',   'Follow-up on hypertension medication side effects',         'video',      30, pay9, false, true,  'https://meet.premoncare.com/room/ap9',  false),
-(ap10, now()-interval '30 min',  p10, d5, now()+interval '2 hours',                     'pending',   'Fatigue, dizziness and low energy for 2 weeks',             'video',      30, null, false, true,  null,                                   false),
+(ap9,  now()-interval '1 hour',  p9,  d1, now()+interval '1 hour',                      'pending',   'Follow-up on hypertension medication side effects',         'video',      30, false, 45000,  pay9, false, true,  'https://meet.premoncare.com/room/ap9',  false, '{}'),
+(ap10, now()-interval '30 min',  p10, d5, now()+interval '2 hours',                     'pending',   'Fatigue, dizziness and low energy for 2 weeks',             'video',      30, false, 40000,  null, false, true,  null,                                   false, '{}'),
 -- Future confirmed
-(ap11, now()-interval '2 days',  p1,  d3, now()+interval '7 days'+interval '10 hours',  'confirmed', 'Neurological review — recurring severe headaches',          'video',      30, null, true,  true,  'https://meet.premoncare.com/room/ap11', false),
-(ap12, now()-interval '1 day',   p3,  d4, now()+interval '14 days'+interval '14 hours', 'confirmed', 'Eczema management and new topical treatment plan',          'in_person',  30, null, true,  true,  null,                                   false)
+(ap11, now()-interval '2 days',  p1,  d3, now()+interval '7 days'+interval '10 hours',  'confirmed', 'Neurological review — recurring severe headaches',          'video',      30, false, 0,     null, true,  true,  'https://meet.premoncare.com/room/ap11', false, '{}'),
+(ap12, now()-interval '1 day',   p3,  d4, now()+interval '14 days'+interval '14 hours', 'confirmed', 'Eczema management and new topical treatment plan',          'in_person',  30, false, 0,     null, true,  true,  null,                                   false, '{}'),
+-- Emergency: active request (guest, doctor hasn't responded yet — 2 min old)
+(ap13, now()-interval '2 min',   null, d1, now()-interval '2 min',                         'emergency_request', 'EMERGENCY CONSULTATION (Guest)', 'video', 15, true, 25000, null, false, true, null, false,
+ '{"is_guest": true, "guest_token": "guest_1750000000000", "guest_email": "guest@example.com", "pricing_multiplier": 5}'),
+-- Emergency: doctor accepted, awaiting patient payment
+(ap14, now()-interval '8 min',   p5,  d2, now()-interval '8 min',                          'emergency_accepted', 'EMERGENCY: Severe chest pain radiating to left arm', 'video', 30, true, 100000, pay11, true, true, 'https://meet.premoncare.com/room/ap14', false, '{}'),
+-- Emergency: doctor declined (guest booking)
+(ap15, now()-interval '20 min',  null, d3, now()-interval '20 min',                         'emergency_declined', 'EMERGENCY CONSULTATION (Guest)', 'video', 15, true, 25000, null, false, true, null, false,
+ '{"is_guest": true, "guest_token": "guest_1750000000001", "guest_email": "patient0@example.com", "pricing_multiplier": 5}')
 ON CONFLICT (id) DO NOTHING;
 
 
@@ -507,6 +521,12 @@ VALUES
 (d2,  'New Appointment Request',     'Jane Smith has requested a 30-minute video consultation.',                'appointment', true,  '/doctor/appointments',  now()-interval '39 days'),
 (d3,  'New Message',                 'Michael Johnson sent you a message about his recent migraine episode.',   'message',     false, '/messages',             now()-interval '3 days'),
 (d5,  'New Appointment Request',     'Blessing Okafor has requested a 30-minute video consultation.',          'appointment', false, '/doctor/appointments',  now()-interval '30 min'),
+
+-- Emergency notifications
+(d1,  'EMERGENCY Consultation Request', 'A patient has requested an EMERGENCY 15-minute consultation. Fee: ₦25,000', 'appointment', false, '/doctor/appointments', now()-interval '2 min'),
+(d2,  'Emergency Request Accepted',   'Your emergency consultation with Blessing Okafor has been accepted. Awaiting payment.', 'appointment', false, '/doctor/appointments', now()-interval '8 min'),
+(p5,  'Emergency Request Accepted',   'Dr. Ibrahim Musa has accepted your emergency consultation. Please proceed with payment.', 'appointment', false, '/patient/appointments', now()-interval '8 min'),
+(d3,  'Emergency Request Declined',   'An emergency consultation request has been declined.', 'appointment', false, '/doctor/appointments', now()-interval '20 min'),
 
 -- Admin notifications
 (adm, 'New Doctor Application',      'Dr. Emeka Eze has submitted their verification documents for review.',   'system',      true,  '/admin/verifications',  now()-interval '60 days'),
