@@ -1,33 +1,104 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'forum_provider.dart';
+import 'forum_utils.dart';
 
-class CreatePostScreen extends StatefulWidget {
+class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
 
   @override
-  State<CreatePostScreen> createState() => _CreatePostScreenState();
+  ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
-class _CreatePostScreenState extends State<CreatePostScreen> {
-  int _selectedCategoryIndex = 0;
+class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
+  String? _selectedCategoryId;
   bool _postAnonymously = false;
+  bool _isSubmitting = false;
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();
 
-  final List<Map<String, dynamic>> _categories = [
-    {'name': 'General Health', 'icon': Icons.monitor_heart_outlined, 'color': const Color(0xFF10B981)},
-    {'name': 'Nutrition', 'icon': Icons.apple_outlined, 'color': const Color(0xFFF59E0B)},
-    {'name': 'Mental Health', 'icon': Icons.psychology_outlined, 'color': const Color(0xFFA855F7)},
-    {'name': 'Fitness', 'icon': Icons.fitness_center_outlined, 'color': const Color(0xFF3B82F6)},
-    {'name': 'Pregnancy', 'icon': Icons.pregnant_woman_outlined, 'color': const Color(0xFFEC4899)},
-    {'name': 'Ask Doctors', 'icon': Icons.medical_services_outlined, 'color': const Color(0xFF14B8A6)},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _titleController.addListener(() => setState(() {}));
+    _bodyController.addListener(() => setState(() {}));
+    _loadDraft();
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _bodyController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    final title = prefs.getString('forum_draft_title') ?? '';
+    final body = prefs.getString('forum_draft_body') ?? '';
+    if (title.isNotEmpty) _titleController.text = title;
+    if (body.isNotEmpty) _bodyController.text = body;
+  }
+
+  Future<void> _saveDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('forum_draft_title', _titleController.text);
+    await prefs.setString('forum_draft_body', _bodyController.text);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Draft saved'), backgroundColor: Color(0xFF10B981)),
+      );
+    }
+  }
+
+  Future<void> _submitPost() async {
+    final title = _titleController.text.trim();
+    final body = _bodyController.text.trim();
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a title'), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+    if (body.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please describe your question'), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      await ForumService.createPost(
+        title: title,
+        content: body,
+        categoryId: _selectedCategoryId,
+        isAnonymous: _postAnonymously,
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('forum_draft_title');
+      await prefs.remove('forum_draft_body');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post submitted for review'), backgroundColor: Color(0xFF10B981)),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to post: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -41,22 +112,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2042)),
           onPressed: () => context.pop(),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.monitor_heart_outlined, color: Color(0xFF0F62FE)),
-            const SizedBox(width: 8),
-            const Text('Premon', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold)),
-            Text('Care', style: TextStyle(color: Colors.cyan[600], fontWeight: FontWeight.bold)),
-          ],
-        ),
+        title: const Text('Create Post', style: TextStyle(color: Color(0xFF0F2042), fontWeight: FontWeight.bold)),
         actions: [
           TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Draft saved'), backgroundColor: Color(0xFF10B981)),
-              );
-            },
+            onPressed: _saveDraft,
             child: const Text('Save Draft', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 13)),
           ),
           const SizedBox(width: 8),
@@ -71,61 +130,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             const SizedBox(height: 4),
             Text('Ask a question, share your experience or start a discussion.', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
             const SizedBox(height: 32),
-            
+
             // 1. Select Category
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text.rich(TextSpan(children: [
-                  TextSpan(text: '1. Select Category ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
-                  TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
-                ])),
-                Text('View all', style: TextStyle(color: const Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 12)),
-              ],
-            ),
+            const Text.rich(TextSpan(children: [
+              TextSpan(text: '1. Select Category ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
+              TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+            ])),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 100,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _categories.length,
-                itemBuilder: (context, index) {
-                  final cat = _categories[index];
-                  final isSelected = index == _selectedCategoryIndex;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedCategoryIndex = index),
-                    child: Container(
-                      width: 80,
-                      margin: const EdgeInsets.only(right: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF0F62FE).withValues(alpha: 0.05) : Colors.white,
-                        border: Border.all(
-                          color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[200]!,
-                          width: isSelected ? 2 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(cat['icon'], color: cat['color'], size: 28),
-                          const SizedBox(height: 8),
-                          Text(
-                            cat['name'],
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                              color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            _buildCategoryPicker(),
             const SizedBox(height: 32),
 
             // 2. Post Title
@@ -149,13 +161,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   border: InputBorder.none,
                   counterText: '',
-                  suffix: Text('0/100', style: TextStyle(color: Colors.grey[400], fontSize: 11)),
+                  suffix: Text('${_titleController.text.length}/100', style: TextStyle(color: Colors.grey[400], fontSize: 11)),
                 ),
               ),
             ),
             const SizedBox(height: 32),
 
-            // 3. Describe Your Question or Topic
+            // 3. Describe
             const Text.rich(TextSpan(children: [
               TextSpan(text: '3. Describe Your Question or Topic ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
               TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
@@ -175,13 +187,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     controller: _bodyController,
                     maxLines: 6,
                     decoration: InputDecoration(
-                      hintText: 'Provide more details about your question or topic. Include symptoms, background, or anything relevant.',
+                      hintText: 'Provide more details about your question or topic.',
                       hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14, height: 1.5),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
-                  Text('0/2000', style: TextStyle(color: Colors.grey[400], fontSize: 11)),
+                  Text('${_bodyController.text.length}/2000', style: TextStyle(color: Colors.grey[400], fontSize: 11)),
                 ],
               ),
             ),
@@ -201,7 +213,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
             const SizedBox(height: 32),
 
-            // 4. Add Attachments
+            // 4. Attachments
             const Text.rich(TextSpan(children: [
               TextSpan(text: '4. Add Attachments ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
               TextSpan(text: '(Optional)', style: TextStyle(color: Colors.grey, fontSize: 15)),
@@ -224,14 +236,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             Text('Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file', style: TextStyle(color: Colors.grey[500], fontSize: 10)),
             const SizedBox(height: 32),
 
-            // Post Anonymously Toggle
+            // Anonymous Toggle
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: Colors.grey[100]!),
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
               ),
               child: Row(
                 children: [
@@ -259,46 +270,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Community Guidelines
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC), // Very light slate
-                border: Border.all(color: Colors.blue[50]!),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: Colors.blue[50], shape: BoxShape.circle),
-                    child: const Icon(Icons.verified_user_outlined, color: Color(0xFF0F62FE), size: 20),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Community Guidelines', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F2042))),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Please be respectful and follow our community guidelines. Do not share any personal or sensitive information.',
-                          style: TextStyle(fontSize: 11, color: Colors.grey[600], height: 1.4),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text('View Guidelines', style: TextStyle(color: const Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 11)),
-                ],
-              ),
-            ),
             const SizedBox(height: 32),
 
-            // Bottom Actions
+            // Submit
             Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
@@ -310,75 +284,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 boxShadow: [BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5))],
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Post submitted for review'), backgroundColor: Color(0xFF10B981)),
-                  );
-                  context.pop();
-                },
+                onPressed: _isSubmitting ? null : _submitPost,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
+                  disabledBackgroundColor: Colors.transparent,
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.send, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text('Post Question', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: () {
-                final title = _titleController.text.trim();
-                final body = _bodyController.text.trim();
-                if (title.isEmpty && body.isEmpty) {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Post Preview'),
-                      content: const Text('Write something to preview'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: Text(title.isNotEmpty ? title : 'Untitled Post'),
-                      content: Text(body.isNotEmpty ? body : 'No description provided.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-                side: BorderSide(color: Colors.grey[200]!, width: 2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.visibility_outlined, color: Color(0xFF0F62FE), size: 20),
-                  SizedBox(width: 8),
-                  Text('Preview Post', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
+                child: _isSubmitting
+                    ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.send, color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text('Post Question', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
               ),
             ),
             const SizedBox(height: 40),
@@ -388,21 +311,84 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
+  Widget _buildCategoryPicker() {
+    final categoriesAsync = ref.watch(forumCategoriesProvider);
+
+    return categoriesAsync.when(
+      data: (categories) {
+        return SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final cat = categories[index];
+              final isSelected = _selectedCategoryId == cat.id;
+              final iconData = ForumUtils.getCategoryIcon(cat.iconName);
+              final color = ForumUtils.getCategoryColor(cat.iconName);
+
+              return GestureDetector(
+                onTap: () => setState(() => _selectedCategoryId = cat.id),
+                child: Container(
+                  width: 80,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF0F62FE).withValues(alpha: 0.05) : Colors.white,
+                    border: Border.all(
+                      color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[200]!,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(iconData, color: color, size: 28),
+                      const SizedBox(height: 8),
+                      Text(
+                        cat.name,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                          color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+      loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
+      error: (e, _) => SizedBox(height: 100, child: Center(child: Text('Error: $e'))),
+    );
+  }
+
   Widget _buildAttachmentButton(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey[100]!),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color), textAlign: TextAlign.center),
-        ],
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$label: Coming soon'), backgroundColor: Colors.blue),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey[100]!),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 8),
+            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color), textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }

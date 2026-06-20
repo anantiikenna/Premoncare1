@@ -36,6 +36,7 @@ import '../features/messaging/chat_detail_screen.dart';
 import '../features/records/medical_vault_screen.dart';
 import '../features/records/doctor_shared_records_screen.dart';
 import '../features/forum/forum_list_screen.dart';
+import '../features/forum/forum_provider.dart';
 import '../features/forum/post_detail_screen.dart';
 import '../features/forum/create_post_screen.dart';
 import '../features/forum/my_activity_screen.dart';
@@ -312,7 +313,8 @@ final goRouter = GoRouter(
       path: '/forum/post/:postId',
       builder: (context, state) {
         final postId = state.pathParameters['postId'] ?? '';
-        return PostDetailScreen(postId: postId);
+        final post = state.extra as ForumPost?;
+        return PostDetailScreen(postId: postId, post: post);
       },
     ),
     GoRoute(
