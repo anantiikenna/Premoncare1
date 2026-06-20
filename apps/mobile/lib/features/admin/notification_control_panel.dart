@@ -1,347 +1,684 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'admin_scaffold.dart';
+import 'admin_providers.dart';
 
-class NotificationControlPanel extends ConsumerWidget {
+const primaryColor = Color(0xFF0F62FE);
+
+final _channelConfigsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final response = await Supabase.instance.client
+      .from('notification_channels_config')
+      .select()
+      .order('id');
+  return List<Map<String, dynamic>>.from(response);
+});
+
+final _recentNotificationsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final response = await Supabase.instance.client
+      .from('notifications')
+      .select()
+      .order('created_at', ascending: false)
+      .limit(10);
+  return List<Map<String, dynamic>>.from(response);
+});
+
+final _notificationStatsProvider = FutureProvider<Map<String, int>>((ref) async {
+  final client = Supabase.instance.client;
+
+  final totalResponse = await client.from('notifications').count(CountOption.exact);
+
+  final now = DateTime.now();
+  final todayStart = DateTime(now.year, now.month, now.day);
+  final todayResponse = await client
+      .from('notifications')
+      .count(CountOption.exact)
+      .gte('created_at', todayStart.toIso8601String());
+
+  final readResponse = await client
+      .from('notifications')
+      .count(CountOption.exact)
+      .eq('is_read', true);
+
+  return {
+    'total': totalResponse,
+    'today': todayResponse,
+    'read': readResponse,
+    'unread': totalResponse - readResponse,
+  };
+});
+
+class NotificationControlPanel extends ConsumerStatefulWidget {
   const NotificationControlPanel({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    const primaryColor = Color(0xFF0F62FE);
+  ConsumerState<NotificationControlPanel> createState() => _NotificationControlPanelState();
+}
 
+class _NotificationControlPanelState extends ConsumerState<NotificationControlPanel> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(_channelConfigsProvider);
+      ref.invalidate(_recentNotificationsProvider);
+      ref.invalidate(_notificationStatsProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AdminScaffold(
       selectedIndex: 4,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 24),
-            _buildStatsGrid(),
-            const SizedBox(height: 32),
-            _buildNavigationTabs(primaryColor),
-            const SizedBox(height: 32),
-            _buildSectionHeader(
-              'Notification Channels',
-              subtitle: 'Enable or disable notification channels',
+      body: Scaffold(
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showSendNotificationDialog(),
+          backgroundColor: const Color(0xFF0F62FE),
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.send_rounded, size: 20),
+          label: const Text(
+            'Send Notification',
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+          ),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 24),
+              _buildStatsGrid(),
+              const SizedBox(height: 32),
+              _buildNavigationTabs(),
+              const SizedBox(height: 32),
+              _buildSectionHeader(
+                'Notification Channels',
+                subtitle: 'Enable or disable notification channels',
+              ),
+              const SizedBox(height: 16),
+              _buildChannelsList(),
+              const SizedBox(height: 32),
+              _buildSectionHeader('Recent Notifications'),
+              const SizedBox(height: 16),
+              _buildRecentNotifications(),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSendNotificationDialog() {
+    final titleController = TextEditingController();
+    final messageController = TextEditingController();
+    String targetRole = 'all';
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: const Text(
+            'Send Notification',
+            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    hintText: 'Notification title',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: messageController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Message',
+                    hintText: 'Notification message',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: targetRole,
+                  decoration: InputDecoration(
+                    labelText: 'Target Audience',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'all', child: Text('All Users')),
+                    DropdownMenuItem(value: 'patient', child: Text('Patients Only')),
+                    DropdownMenuItem(value: 'doctor', child: Text('Doctors Only')),
+                  ],
+                  onChanged: (v) {
+                    if (v != null) {
+                      setDialogState(() => targetRole = v);
+                    }
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            _buildChannelsList(primaryColor),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Recent Notifications', onSeeAll: () {}),
-            const SizedBox(height: 16),
-            _buildRecentNotifications(),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Send New Notification'),
-            const SizedBox(height: 16),
-            _buildAudienceSelectors(primaryColor),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Quick Templates', onSeeAll: () {}),
-            const SizedBox(height: 16),
-            _buildQuickTemplates(),
-            const SizedBox(height: 40),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (titleController.text.isEmpty || messageController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please fill in all fields')),
+                        );
+                        return;
+                      }
+                      setDialogState(() => isLoading = true);
+                      try {
+                        final adminService = ref.read(adminServiceProvider);
+                        await adminService.sendSystemNotification(
+                          title: titleController.text.trim(),
+                          message: messageController.text.trim(),
+                          targetRole: targetRole,
+                        );
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        ref.invalidate(_recentNotificationsProvider);
+                        ref.invalidate(_notificationStatsProvider);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Notification sent successfully'),
+                              backgroundColor: Color(0xFF10B981),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        setDialogState(() => isLoading = false);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to send: $e'),
+                              backgroundColor: const Color(0xFFEF4444),
+                            ),
+                          );
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F62FE),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'Send',
+                      style: TextStyle(fontWeight: FontWeight.w800),
+                    ),
+            ),
           ],
         ),
       ),
     );
   }
 
-
-
   Widget _buildStatsGrid() {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: 1.4,
-      children: const [
-        _NotifyStatCard(
-          title: 'Notifications Sent',
-          value: '12,845',
-          trend: '+ 18.6%',
-          trendPositive: true,
-          color: Color(0xFF3B82F6),
-          icon: Icons.send_rounded,
+    final statsAsync = ref.watch(_notificationStatsProvider);
+
+    return statsAsync.when(
+      data: (stats) => GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        childAspectRatio: 1.4,
+        children: [
+          _NotifyStatCard(
+            title: 'Total Sent',
+            value: '${stats['total'] ?? 0}',
+            color: const Color(0xFF3B82F6),
+            icon: Icons.send_rounded,
+          ),
+          _NotifyStatCard(
+            title: 'Today',
+            value: '${stats['today'] ?? 0}',
+            color: const Color(0xFF10B981),
+            icon: Icons.today_rounded,
+          ),
+          _NotifyStatCard(
+            title: 'Read',
+            value: '${stats['read'] ?? 0}',
+            color: const Color(0xFF8B5CF6),
+            icon: Icons.mark_email_read_rounded,
+          ),
+          _NotifyStatCard(
+            title: 'Unread',
+            value: '${stats['unread'] ?? 0}',
+            color: const Color(0xFFEF4444),
+            icon: Icons.mark_email_unread_rounded,
+          ),
+        ],
+      ),
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(),
         ),
-        _NotifyStatCard(
-          title: 'Users Reached',
-          value: '98,560',
-          trend: '+ 22.4%',
-          trendPositive: true,
-          color: Color(0xFF10B981),
-          icon: Icons.people_rounded,
+      ),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text('Failed to load stats: $e'),
         ),
-        _NotifyStatCard(
-          title: 'Delivery Rate',
-          value: '99.2%',
-          trend: '+ 2.1%',
-          trendPositive: true,
-          color: Color(0xFF8B5CF6),
-          icon: Icons.notifications_active_rounded,
-        ),
-        _NotifyStatCard(
-          title: 'Failed / Bounced',
-          value: '124',
-          trend: '- 8.7%',
-          trendPositive: false,
-          color: Color(0xFFEF4444),
-          icon: Icons.cancel_rounded,
-          isNegative: true,
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildNavigationTabs(Color primaryColor) {
+  Widget _buildNavigationTabs() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _TabItem(
-            label: 'Channels',
-            isSelected: true,
-            primaryColor: primaryColor,
-          ),
+          _TabItem(label: 'Channels', isSelected: true, primaryColor: primaryColor),
           const SizedBox(width: 12),
-          _TabItem(
-            label: 'Templates',
-            isSelected: false,
-            primaryColor: primaryColor,
-          ),
+          _TabItem(label: 'Templates', isSelected: false, primaryColor: primaryColor),
           const SizedBox(width: 12),
-          _TabItem(
-            label: 'Scheduled',
-            isSelected: false,
-            primaryColor: primaryColor,
-          ),
+          _TabItem(label: 'Scheduled', isSelected: false, primaryColor: primaryColor),
           const SizedBox(width: 12),
-          _TabItem(
-            label: 'History',
-            isSelected: false,
-            primaryColor: primaryColor,
-          ),
-          const SizedBox(width: 12),
-          _TabItem(
-            label: 'Settings',
-            isSelected: false,
-            primaryColor: primaryColor,
-          ),
+          _TabItem(label: 'History', isSelected: false, primaryColor: primaryColor),
         ],
       ),
     );
   }
 
-  Widget _buildChannelsList(Color primaryColor) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+  Widget _buildChannelsList() {
+    final channelsAsync = ref.watch(_channelConfigsProvider);
+
+    return channelsAsync.when(
+      data: (channels) {
+        if (channels.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
+            ),
+            child: const Center(
+              child: Text(
+                'No notification channels configured',
+                style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w700),
+              ),
+            ),
+          );
+        }
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: const Color(0xFFF1F5F9)),
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < channels.length; i++) ...[
+                _ChannelTile(
+                  channelId: channels[i]['id'] as String,
+                  label: _formatChannelLabel(channels[i]['id'] as String),
+                  sub: _getChannelDescription(channels[i]['id'] as String),
+                  color: _getChannelColor(channels[i]['id'] as String),
+                  icon: _getChannelIcon(channels[i]['id'] as String),
+                  isEnabled: channels[i]['is_enabled'] as bool? ?? false,
+                  onToggle: (value) => _toggleChannel(channels[i]['id'] as String, value),
+                ),
+                if (i < channels.length - 1)
+                  const Divider(height: 32, color: Color(0xFFF1F5F9)),
+              ],
+            ],
+          ),
+        );
+      },
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(),
+        ),
       ),
-      child: Column(
-        children: [
-          _ChannelTile(
-            icon: Icons.notifications_none_rounded,
-            label: 'In-App Notifications',
-            sub: 'Send notifications within the app',
-            color: const Color(0xFF3B82F6),
-            isActive: true,
-          ),
-          const Divider(height: 32, color: Color(0xFFF1F5F9)),
-          _ChannelTile(
-            icon: Icons.email_outlined,
-            label: 'Email Notifications',
-            sub: 'Send notifications via email',
-            color: const Color(0xFF10B981),
-            isActive: true,
-          ),
-          const Divider(height: 32, color: Color(0xFFF1F5F9)),
-          _ChannelTile(
-            icon: Icons.chat_bubble_outline_rounded,
-            label: 'SMS Notifications',
-            sub: 'Send notifications via SMS',
-            color: const Color(0xFF8B5CF6),
-            isActive: true,
-          ),
-          const Divider(height: 32, color: Color(0xFFF1F5F9)),
-          _ChannelTile(
-            icon: Icons.phone_android_rounded,
-            label: 'Push Notifications',
-            sub: 'Send push notifications to mobile devices',
-            color: const Color(0xFFF59E0B),
-            isActive: true,
-          ),
-          const Divider(height: 32, color: Color(0xFFF1F5F9)),
-          _ChannelTile(
-            icon: Icons.send_rounded,
-            label: 'Telegram Notifications',
-            sub: 'Send notifications to Telegram channel',
-            color: const Color(0xFFEF4444),
-            isActive: false,
-          ),
-          const Divider(height: 32, color: Color(0xFFF1F5F9)),
-          _ChannelTile(
-            icon: Icons.chat_rounded,
-            label: 'WhatsApp Notifications',
-            sub: 'Send notifications via WhatsApp',
-            color: const Color(0xFF10B981),
-            isActive: false,
-          ),
-        ],
+      error: (e, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text('Failed to load channels: $e'),
+        ),
       ),
     );
+  }
+
+  Future<void> _toggleChannel(String channelId, bool value) async {
+    try {
+      final adminService = ref.read(adminServiceProvider);
+      await adminService.updateChannelConfig(channelId, value);
+      ref.invalidate(_channelConfigsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Channel ${_formatChannelLabel(channelId)} ${value ? "enabled" : "disabled"}'),
+            backgroundColor: const Color(0xFF10B981),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      ref.invalidate(_channelConfigsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update channel: $e'),
+            backgroundColor: const Color(0xFFEF4444),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildRecentNotifications() {
-    return Column(
-      children: const [
-        _RecentNotifyTile(
-          icon: Icons.notifications_active_rounded,
-          title: 'Emergency Alert: System Maintenance',
-          sub: 'System maintenance scheduled for 12:00 AM',
-          audience: 'All Users',
-          date: '14 Jun, 10:30 AM',
-          status: 'Sent',
-          statusColor: Color(0xFF10B981),
-          iconBg: Color(0xFFEFF6FF),
-          iconColor: Color(0xFF3B82F6),
+    final notificationsAsync = ref.watch(_recentNotificationsProvider);
+
+    return notificationsAsync.when(
+      data: (notifications) {
+        if (notifications.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
+            ),
+            child: const Center(
+              child: Text(
+                'No recent notifications',
+                style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w700),
+              ),
+            ),
+          );
+        }
+        return Column(
+          children: [
+            for (int i = 0; i < notifications.length; i++) ...[
+              _buildNotificationTile(notifications[i]),
+              if (i < notifications.length - 1) const SizedBox(height: 12),
+            ],
+          ],
+        );
+      },
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(),
         ),
-        SizedBox(height: 12),
-        _RecentNotifyTile(
-          icon: Icons.campaign_rounded,
-          title: 'New Feature Announcement',
-          sub: 'Check out our new Tele-consultation feature',
-          audience: 'Doctors',
-          date: '14 Jun, 09:15 AM',
-          status: 'Sent',
-          statusColor: Color(0xFF10B981),
-          iconBg: Color(0xFFECFDF5),
-          iconColor: Color(0xFF10B981),
+      ),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text('Failed to load notifications: $e'),
         ),
-        SizedBox(height: 12),
-        _RecentNotifyTile(
-          icon: Icons.calendar_today_rounded,
-          title: 'Appointment Reminder',
-          sub: 'Reminder for upcoming appointment',
-          audience: 'Patients',
-          date: '14 Jun, 08:45 AM',
-          status: 'Scheduled',
-          statusColor: Color(0xFF3B82F6),
-          iconBg: Color(0xFFF5F3FF),
-          iconColor: Color(0xFF8B5CF6),
-        ),
-        SizedBox(height: 12),
-        _RecentNotifyTile(
-          icon: Icons.payments_outlined,
-          title: 'Payment Successful',
-          sub: 'Your payment of ₦25,000 was successful',
-          audience: 'Patients',
-          date: '14 Jun, 08:22 AM',
-          status: 'Sent',
-          statusColor: Color(0xFF10B981),
-          iconBg: Color(0xFFFFF7ED),
-          iconColor: Color(0xFFF59E0B),
-        ),
-        SizedBox(height: 12),
-        _RecentNotifyTile(
-          icon: Icons.warning_amber_rounded,
-          title: 'Security Alert',
-          sub: 'Unusual login detected on your account',
-          audience: 'Specific Users',
-          date: '13 Jun, 11:50 PM',
-          status: 'Failed',
-          statusColor: Color(0xFFEF4444),
-          iconBg: Color(0xFFFEF2F2),
-          iconColor: Color(0xFFEF4444),
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildAudienceSelectors(Color primaryColor) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+  Widget _buildNotificationTile(Map<String, dynamic> notification) {
+    final createdAt = DateTime.tryParse(notification['created_at'] as String? ?? '');
+    final dateStr = createdAt != null
+        ? '${createdAt.day.toString().padLeft(2, '0')} ${_monthAbbr(createdAt.month)}, ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}'
+        : '';
+    final type = notification['type'] as String? ?? 'system';
+    final isRead = notification['is_read'] as bool? ?? false;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
       child: Row(
         children: [
-          _AudienceItem(
-            icon: Icons.groups_rounded,
-            label: 'Send to All Users',
-            sub: 'Broadcast to everyone',
-            color: const Color(0xFF3B82F6),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _getNotificationTypeColor(type).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              _getNotificationTypeIcon(type),
+              color: _getNotificationTypeColor(type),
+              size: 24,
+            ),
           ),
           const SizedBox(width: 16),
-          _AudienceItem(
-            icon: Icons.medical_services_rounded,
-            label: 'Send to Doctors',
-            sub: 'Notify all doctors',
-            color: const Color(0xFF10B981),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  notification['title'] as String? ?? 'Untitled',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  notification['message'] as String? ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 16),
-          _AudienceItem(
-            icon: Icons.person_rounded,
-            label: 'Send to Patients',
-            sub: 'Notify all patients',
-            color: const Color(0xFF8B5CF6),
-          ),
-          const SizedBox(width: 16),
-          _AudienceItem(
-            icon: Icons.track_changes_rounded,
-            label: 'Custom Audience',
-            sub: 'Select specific users',
-            color: const Color(0xFFF59E0B),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                type.toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  color: Color(0xFF94A3B8),
+                ),
+              ),
+              Text(
+                dateStr,
+                style: const TextStyle(
+                  color: Color(0xFFCBD5E1),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: (isRead ? const Color(0xFF10B981) : const Color(0xFF3B82F6)).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  isRead ? 'Read' : 'Sent',
+                  style: TextStyle(
+                    color: isRead ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickTemplates() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: const [
-          _TemplateItem(
-            icon: Icons.build_rounded,
-            label: 'Maintenance Alert',
-            color: Color(0xFF3B82F6),
-          ),
-          SizedBox(width: 12),
-          _TemplateItem(
-            icon: Icons.star_rounded,
-            label: 'New Feature',
-            color: Color(0xFF10B981),
-          ),
-          SizedBox(width: 12),
-          _TemplateItem(
-            icon: Icons.payments_rounded,
-            label: 'Payment Reminder',
-            color: Color(0xFFF59E0B),
-          ),
-          SizedBox(width: 12),
-          _TemplateItem(
-            icon: Icons.calendar_month_rounded,
-            label: 'Appointment Reminder',
-            color: Color(0xFF8B5CF6),
-          ),
-          SizedBox(width: 12),
-          _TemplateItem(
-            icon: Icons.security_rounded,
-            label: 'Security Alert',
-            color: Color(0xFFEF4444),
-          ),
-        ],
-      ),
-    );
+  String _monthAbbr(int month) {
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return months[month];
   }
 
-  Widget _buildSectionHeader(
-    String title, {
-    String? subtitle,
-    VoidCallback? onSeeAll,
-  }) {
+  String _formatChannelLabel(String id) {
+    switch (id) {
+      case 'in_app':
+        return 'In-App Notifications';
+      case 'email':
+        return 'Email Notifications';
+      case 'sms':
+        return 'SMS Notifications';
+      case 'push':
+        return 'Push Notifications';
+      case 'telegram':
+        return 'Telegram Notifications';
+      case 'whatsapp':
+        return 'WhatsApp Notifications';
+      default:
+        return id.replaceFirst('_', ' ').toUpperCase();
+    }
+  }
+
+  String _getChannelDescription(String id) {
+    switch (id) {
+      case 'in_app':
+        return 'Send notifications within the app';
+      case 'email':
+        return 'Send notifications via email';
+      case 'sms':
+        return 'Send notifications via SMS';
+      case 'push':
+        return 'Send push notifications to mobile devices';
+      case 'telegram':
+        return 'Send notifications to Telegram channel';
+      case 'whatsapp':
+        return 'Send notifications via WhatsApp';
+      default:
+        return 'Notification channel configuration';
+    }
+  }
+
+  Color _getChannelColor(String id) {
+    switch (id) {
+      case 'in_app':
+        return const Color(0xFF3B82F6);
+      case 'email':
+        return const Color(0xFF10B981);
+      case 'sms':
+        return const Color(0xFF8B5CF6);
+      case 'push':
+        return const Color(0xFFF59E0B);
+      case 'telegram':
+        return const Color(0xFFEF4444);
+      case 'whatsapp':
+        return const Color(0xFF10B981);
+      default:
+        return const Color(0xFF64748B);
+    }
+  }
+
+  IconData _getChannelIcon(String id) {
+    switch (id) {
+      case 'in_app':
+        return Icons.notifications_none_rounded;
+      case 'email':
+        return Icons.email_outlined;
+      case 'sms':
+        return Icons.chat_bubble_outline_rounded;
+      case 'push':
+        return Icons.phone_android_rounded;
+      case 'telegram':
+        return Icons.send_rounded;
+      case 'whatsapp':
+        return Icons.chat_rounded;
+      default:
+        return Icons.notifications_none_rounded;
+    }
+  }
+
+  Color _getNotificationTypeColor(String type) {
+    switch (type) {
+      case 'appointment':
+        return const Color(0xFF8B5CF6);
+      case 'payment':
+        return const Color(0xFFF59E0B);
+      case 'message':
+        return const Color(0xFF3B82F6);
+      case 'emergency':
+        return const Color(0xFFEF4444);
+      default:
+        return const Color(0xFF3B82F6);
+    }
+  }
+
+  IconData _getNotificationTypeIcon(String type) {
+    switch (type) {
+      case 'appointment':
+        return Icons.calendar_today_rounded;
+      case 'payment':
+        return Icons.payments_outlined;
+      case 'message':
+        return Icons.chat_bubble_outline_rounded;
+      case 'emergency':
+        return Icons.warning_amber_rounded;
+      default:
+        return Icons.notifications_active_rounded;
+    }
+  }
+
+  Widget _buildSectionHeader(String title, {String? subtitle, VoidCallback? onSeeAll}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -385,27 +722,19 @@ class NotificationControlPanel extends ConsumerWidget {
       ],
     );
   }
-
-
 }
 
 class _NotifyStatCard extends StatelessWidget {
   final String title;
   final String value;
-  final String trend;
-  final bool trendPositive;
   final IconData icon;
   final Color color;
-  final bool isNegative;
 
   const _NotifyStatCard({
     required this.title,
     required this.value,
-    required this.trend,
-    required this.trendPositive,
     required this.icon,
     required this.color,
-    this.isNegative = false,
   });
 
   @override
@@ -452,39 +781,6 @@ class _NotifyStatCard extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            children: [
-              Icon(
-                isNegative
-                    ? Icons.arrow_downward_rounded
-                    : Icons.arrow_upward_rounded,
-                color: isNegative
-                    ? const Color(0xFFEF4444)
-                    : const Color(0xFF10B981),
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                trend,
-                style: TextStyle(
-                  color: isNegative
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF10B981),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Text(
-                'vs last month',
-                style: TextStyle(
-                  color: Color(0xFFCBD5E1),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -509,9 +805,7 @@ class _TabItem extends StatelessWidget {
         color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isSelected
-              ? primaryColor.withValues(alpha: 0.5)
-              : const Color(0xFFF1F5F9),
+          color: isSelected ? primaryColor.withValues(alpha: 0.5) : const Color(0xFFF1F5F9),
         ),
       ),
       child: Text(
@@ -527,18 +821,22 @@ class _TabItem extends StatelessWidget {
 }
 
 class _ChannelTile extends StatelessWidget {
-  final IconData icon;
+  final String channelId;
   final String label;
   final String sub;
   final Color color;
-  final bool isActive;
+  final IconData icon;
+  final bool isEnabled;
+  final ValueChanged<bool> onToggle;
 
   const _ChannelTile({
-    required this.icon,
+    required this.channelId,
     required this.label,
     required this.sub,
     required this.color,
-    required this.isActive,
+    required this.icon,
+    required this.isEnabled,
+    required this.onToggle,
   });
 
   @override
@@ -579,250 +877,12 @@ class _ChannelTile extends StatelessWidget {
           ),
         ),
         Switch(
-          value: isActive,
-          onChanged: (v) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Preference updated')),
-            );
-          },
+          value: isEnabled,
+          onChanged: onToggle,
           activeThumbColor: const Color(0xFF10B981),
           activeTrackColor: const Color(0xFF10B981).withValues(alpha: 0.2),
         ),
-        const SizedBox(width: 8),
-        TextButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Notification configuration is being developed. Default notifications are active and functional.')),
-            );
-          },
-          style: TextButton.styleFrom(
-            backgroundColor: const Color(0xFFF1F5F9),
-            foregroundColor: const Color(0xFF64748B),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: const Text(
-            'Configure',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
-          ),
-        ),
       ],
-    );
-  }
-}
-
-class _RecentNotifyTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String sub;
-  final String audience;
-  final String date;
-  final String status;
-  final Color statusColor;
-  final Color iconBg;
-  final Color iconColor;
-
-  const _RecentNotifyTile({
-    required this.icon,
-    required this.title,
-    required this.sub,
-    required this.audience,
-    required this.date,
-    required this.status,
-    required this.statusColor,
-    required this.iconBg,
-    required this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(icon, color: iconColor, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 14,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  sub,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                audience,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 11,
-                  color: Color(0xFF94A3B8),
-                ),
-              ),
-              Text(
-                date,
-                style: const TextStyle(
-                  color: Color(0xFFCBD5E1),
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  status,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AudienceItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String sub;
-  final Color color;
-
-  const _AudienceItem({
-    required this.icon,
-    required this.label,
-    required this.sub,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 180,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: 13,
-              color: Color(0xFF1E293B),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            sub,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF94A3B8),
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TemplateItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _TemplateItem({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

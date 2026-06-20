@@ -112,7 +112,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               onTap: () async {
                 Navigator.pop(context);
                 await supabase.auth.signOut();
-                if (context.mounted) context.go('/login');
+                if (context.mounted) context.go('/admin-login');
               },
             ),
             const SizedBox(height: 24),

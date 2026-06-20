@@ -1,49 +1,428 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 import 'admin_scaffold.dart';
 
-class P2PMonitoringPanel extends ConsumerWidget {
+class P2PMonitoringPanel extends ConsumerStatefulWidget {
   const P2PMonitoringPanel({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    const primaryColor = Color(0xFF0F62FE);
+  ConsumerState<P2PMonitoringPanel> createState() => _P2PMonitoringPanelState();
+}
 
+class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
+  bool _isLoading = true;
+  String? _error;
+  int _selectedTab = 0;
+
+  List<Map<String, dynamic>> _transactions = [];
+  int _totalVolume = 0;
+  int _completedCount = 0;
+  int _pendingCount = 0;
+  int _disputedCount = 0;
+  int _flaggedCount = 0;
+
+  int _highRiskCount = 0;
+  int _mediumRiskCount = 0;
+  int _lowRiskCount = 0;
+
+  List<Map<String, dynamic>> _topUsers = [];
+
+  static const _tabLabels = [
+    'All Transactions',
+    'Pending Review',
+    'Disputes',
+    'Resolved',
+  ];
+
+  static const _tabStatuses = <String?>[
+    null,
+    'pending',
+    'disputed',
+    'approved',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    await Future.wait([
+      _loadStats(),
+      _loadTransactions(),
+      _loadRiskOverview(),
+      _loadTopUsers(),
+    ]);
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final payments = await supabase
+          .from('payments')
+          .select('amount, status')
+          .eq('method', 'manual');
+
+      int total = 0;
+      int completed = 0;
+      int pending = 0;
+      int disputed = 0;
+      int flagged = 0;
+
+      for (final p in payments) {
+        final amount = (p['amount'] as num?)?.toInt() ?? 0;
+        final status = p['status'] as String? ?? '';
+        total += amount;
+        switch (status) {
+          case 'approved':
+            completed += amount;
+            break;
+          case 'pending':
+            pending++;
+            break;
+          case 'disputed':
+            disputed++;
+            break;
+          case 'rejected':
+            flagged++;
+            break;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _totalVolume = total;
+          _completedCount = completed;
+          _pendingCount = pending;
+          _disputedCount = disputed;
+          _flaggedCount = flagged;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _error = 'Failed to load stats: $e');
+    }
+  }
+
+  Future<void> _loadTransactions() async {
+    try {
+      final status = _tabStatuses[_selectedTab];
+      var query = supabase
+          .from('payments')
+          .select('''
+            id, amount, status, created_at, method, receipt_url,
+            sender_id, recipient_id
+          ''')
+          .eq('method', 'manual');
+
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+
+      final data = await query.order('created_at', ascending: false).limit(20);
+
+      final senderIds = <String>{};
+      final recipientIds = <String>{};
+      for (final t in data) {
+        final s = t['sender_id'] as String?;
+        final r = t['recipient_id'] as String?;
+        if (s != null) senderIds.add(s);
+        if (r != null) recipientIds.add(r);
+      }
+
+      final allIds = {...senderIds, ...recipientIds};
+      final profileMap = <String, Map<String, dynamic>>{};
+      if (allIds.isNotEmpty) {
+        final profiles = await supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .inFilter('id', allIds.toList());
+        for (final p in profiles) {
+          profileMap[p['id'] as String] = p;
+        }
+      }
+
+      final enriched = data.map((t) {
+        final sender = profileMap[t['sender_id']];
+        final recipient = profileMap[t['recipient_id']];
+        return {
+          ...t,
+          'sender_name': sender?['full_name'] ?? 'Unknown',
+          'recipient_name': recipient?['full_name'] ?? 'Unknown',
+        };
+      }).toList();
+
+      if (mounted) setState(() => _transactions = enriched);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Failed to load transactions: $e');
+      }
+    }
+  }
+
+  Future<void> _loadRiskOverview() async {
+    try {
+      final disputes = await supabase
+          .from('disputes')
+          .select('id, risk_level, status');
+
+      int high = 0;
+      int medium = 0;
+      int low = 0;
+
+      for (final d in disputes) {
+        final level = d['risk_level'] as String? ?? 'low';
+        switch (level) {
+          case 'high':
+            high++;
+            break;
+          case 'medium':
+            medium++;
+            break;
+          default:
+            low++;
+            break;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _highRiskCount = high;
+          _mediumRiskCount = medium;
+          _lowRiskCount = low;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Failed to load risk overview: $e');
+      }
+    }
+  }
+
+  Future<void> _loadTopUsers() async {
+    try {
+      final payments = await supabase
+          .from('payments')
+          .select('sender_id, recipient_id, amount')
+          .eq('method', 'manual')
+          .eq('status', 'approved');
+
+      final userVolume = <String, int>{};
+      final userCount = <String, int>{};
+
+      for (final p in payments) {
+        final recipientId = p['recipient_id'] as String?;
+        final amount = (p['amount'] as num?)?.toInt() ?? 0;
+        if (recipientId != null) {
+          userVolume[recipientId] = (userVolume[recipientId] ?? 0) + amount;
+          userCount[recipientId] = (userCount[recipientId] ?? 0) + 1;
+        }
+      }
+
+      final sortedIds = userVolume.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      final topIds = sortedIds.take(5).map((e) => e.key).toList();
+      final profileMap = <String, Map<String, dynamic>>{};
+
+      if (topIds.isNotEmpty) {
+        final profiles = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .inFilter('id', topIds);
+        for (final p in profiles) {
+          profileMap[p['id'] as String] = p;
+        }
+      }
+
+      final topUsers = <Map<String, dynamic>>[];
+      for (var i = 0; i < sortedIds.length && i < 5; i++) {
+        final entry = sortedIds[i];
+        final profile = profileMap[entry.key];
+        topUsers.add({
+          'name': profile?['full_name'] ?? 'Unknown',
+          'volume': entry.value,
+          'count': userCount[entry.key] ?? 0,
+        });
+      }
+
+      if (mounted) setState(() => _topUsers = topUsers);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Failed to load top users: $e');
+      }
+    }
+  }
+
+  String _formatAmount(int amount) {
+    final s = amount.toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
+      buf.write(s[i]);
+    }
+    return '₦$buf';
+  }
+
+  String _formatDate(String? isoDate) {
+    if (isoDate == null) return '';
+    try {
+      final dt = DateTime.parse(isoDate).toLocal();
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      final h = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+      final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+      final mm = dt.minute.toString().padLeft(2, '0');
+      return '${dt.day} ${months[dt.month - 1]}, $h:$mm $ampm';
+    } catch (_) {
+      return isoDate;
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'approved':
+        return AppColors.success;
+      case 'pending':
+        return AppColors.warning;
+      case 'rejected':
+      case 'disputed':
+        return AppColors.error;
+      default:
+        return AppColors.slate400;
+    }
+  }
+
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'approved':
+        return 'Completed';
+      case 'pending':
+        return 'Pending Review';
+      case 'rejected':
+        return 'Flagged';
+      case 'disputed':
+        return 'Dispute';
+      default:
+        return status[0].toUpperCase() + status.substring(1);
+    }
+  }
+
+  String _initial(String name) => name.isNotEmpty ? name[0].toUpperCase() : '?';
+
+  @override
+  Widget build(BuildContext context) {
     return AdminScaffold(
       selectedIndex: 4,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 24),
-            _buildTopStats(),
-            const SizedBox(height: 32),
-            _buildFilterTabs(),
-            const SizedBox(height: 20),
-            _buildSearchAndFilters(),
-            const SizedBox(height: 32),
-            _buildRiskAndReasonsSection(primaryColor),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Recent P2P Transactions', onSeeAll: () {}),
-            const SizedBox(height: 16),
-            _buildRecentP2PTransactions(),
-            const SizedBox(height: 32),
-            _buildUsersAndMonitorSection(primaryColor),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Quick Actions'),
-            const SizedBox(height: 16),
-            _buildQuickActions(primaryColor),
-            const SizedBox(height: 40),
-          ],
-        ),
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        color: AppColors.primary,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
+            : _error != null && _transactions.isEmpty
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        color: AppColors.error,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _error!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _loadData,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Retry',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildTopStats(),
+                    const SizedBox(height: 32),
+                    _buildFilterTabs(),
+                    const SizedBox(height: 20),
+                    _buildSearchAndFilters(),
+                    const SizedBox(height: 32),
+                    _buildRiskAndReasonsSection(),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader(
+                      'Recent P2P Transactions',
+                      onSeeAll: () {},
+                    ),
+                    const SizedBox(height: 16),
+                    _buildRecentP2PTransactions(),
+                    const SizedBox(height: 32),
+                    _buildTopUsersSection(),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('Quick Actions'),
+                    const SizedBox(height: 16),
+                    _buildQuickActions(),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
       ),
     );
   }
 
-
-
   Widget _buildTopStats() {
+    final totalCount =
+        _pendingCount +
+        _disputedCount +
+        _flaggedCount +
+        _transactions.where((t) => t['status'] == 'approved').length;
+
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -51,39 +430,38 @@ class P2PMonitoringPanel extends ConsumerWidget {
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
       childAspectRatio: 1.4,
-      children: const [
+      children: [
         _P2PStatCard(
-          title: 'Total P2P Transactions',
-          value: '4,632',
-          trend: '+ 12.6%',
+          title: 'Total P2P Volume',
+          value: _formatAmount(_totalVolume),
+          trend: '$totalCount transactions',
           trendPositive: true,
-          color: Color(0xFF3B82F6),
+          color: AppColors.primary,
           icon: Icons.groups_rounded,
         ),
         _P2PStatCard(
           title: 'Successful Transactions',
-          value: '4,128',
-          trend: '+ 11.3%',
+          value: _formatAmount(_completedCount),
+          trend: 'approved',
           trendPositive: true,
-          color: Color(0xFF10B981),
+          color: AppColors.success,
           icon: Icons.check_circle_outline_rounded,
         ),
         _P2PStatCard(
-          title: 'Flagged Transactions',
-          value: '128',
-          trend: '+ 8.7%',
+          title: 'Pending Verifications',
+          value: _pendingCount.toString(),
+          trend: 'awaiting review',
           trendPositive: false,
-          color: Color(0xFFF59E0B),
-          icon: Icons.warning_amber_rounded,
-          isNegative: true,
+          color: AppColors.warning,
+          icon: Icons.pending_actions_rounded,
         ),
         _P2PStatCard(
-          title: 'Disputes',
-          value: '36',
-          trend: '- 5.2%',
+          title: 'Disputes & Flagged',
+          value: (_disputedCount + _flaggedCount).toString(),
+          trend: '$_disputedCount disputes, $_flaggedCount flagged',
           trendPositive: false,
-          color: Color(0xFFEF4444),
-          icon: Icons.error_outline_rounded,
+          color: AppColors.error,
+          icon: Icons.warning_amber_rounded,
           isNegative: true,
         ),
       ],
@@ -94,17 +472,26 @@ class P2PMonitoringPanel extends ConsumerWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: [
-          _TabItem(label: 'All Transactions', isSelected: true),
-          const SizedBox(width: 12),
-          _TabItem(label: 'Pending Review', count: '128', isSelected: false),
-          const SizedBox(width: 12),
-          _TabItem(label: 'Disputes', count: '36', isSelected: false),
-          const SizedBox(width: 12),
-          _TabItem(label: 'Resolved', isSelected: false),
-          const SizedBox(width: 12),
-          _TabItem(label: 'Blocked Users', isSelected: false),
-        ],
+        children: List.generate(_tabLabels.length, (i) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _selectedTab = i);
+                _loadTransactions();
+              },
+              child: _TabItem(
+                label: _tabLabels[i],
+                count: i == 1
+                    ? _pendingCount.toString()
+                    : i == 2
+                    ? _disputedCount.toString()
+                    : null,
+                isSelected: _selectedTab == i,
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -116,18 +503,22 @@ class P2PMonitoringPanel extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: const Row(
               children: [
-                Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 20),
+                Icon(
+                  Icons.search_rounded,
+                  color: AppColors.textTertiary,
+                  size: 20,
+                ),
                 SizedBox(width: 12),
                 Text(
-                  'Search by transaction ID, sender, receiver or reference...',
+                  'Search by transaction ID, sender, receiver...',
                   style: TextStyle(
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.textTertiary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -144,7 +535,20 @@ class P2PMonitoringPanel extends ConsumerWidget {
     );
   }
 
-  Widget _buildRiskAndReasonsSection(Color primaryColor) {
+  Widget _buildRiskAndReasonsSection() {
+    final totalRisk = _highRiskCount + _mediumRiskCount + _lowRiskCount;
+    final riskFraction = totalRisk > 0 ? _highRiskCount / totalRisk : 0.0;
+
+    final highPct = totalRisk > 0
+        ? ((_highRiskCount / totalRisk) * 100).toStringAsFixed(1)
+        : '0.0';
+    final medPct = totalRisk > 0
+        ? ((_mediumRiskCount / totalRisk) * 100).toStringAsFixed(1)
+        : '0.0';
+    final lowPct = totalRisk > 0
+        ? ((_lowRiskCount / totalRisk) * 100).toStringAsFixed(1)
+        : '0.0';
+
     return Row(
       children: [
         Expanded(
@@ -152,13 +556,13 @@ class P2PMonitoringPanel extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: Column(
               children: [
-                const _CardHeader(title: 'Risk Overview (This Week)'),
+                const _CardHeader(title: 'Risk Overview'),
                 const SizedBox(height: 24),
                 Stack(
                   alignment: Alignment.center,
@@ -167,30 +571,32 @@ class P2PMonitoringPanel extends ConsumerWidget {
                       height: 120,
                       width: 120,
                       child: CircularProgressIndicator(
-                        value: 0.6,
+                        value: riskFraction,
                         strokeWidth: 12,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          const Color(0xFFEF4444),
+                        backgroundColor: AppColors.slate200.withValues(
+                          alpha: 0.3,
+                        ),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.error,
                         ),
                       ),
                     ),
-                    const Column(
+                    Column(
                       children: [
                         Text(
-                          '128',
-                          style: TextStyle(
+                          _highRiskCount.toString(),
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        Text(
-                          'Flagged',
+                        const Text(
+                          'High Risk',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textTertiary,
                           ),
                         ),
                       ],
@@ -200,21 +606,21 @@ class P2PMonitoringPanel extends ConsumerWidget {
                 const SizedBox(height: 24),
                 _RiskLegend(
                   label: 'High Risk',
-                  count: '28',
-                  percentage: '21.9%',
-                  color: const Color(0xFFEF4444),
+                  count: _highRiskCount.toString(),
+                  percentage: '$highPct%',
+                  color: AppColors.error,
                 ),
                 _RiskLegend(
                   label: 'Medium Risk',
-                  count: '66',
-                  percentage: '51.6%',
-                  color: const Color(0xFFF59E0B),
+                  count: _mediumRiskCount.toString(),
+                  percentage: '$medPct%',
+                  color: AppColors.warning,
                 ),
                 _RiskLegend(
                   label: 'Low Risk',
-                  count: '34',
-                  percentage: '26.5%',
-                  color: const Color(0xFF10B981),
+                  count: _lowRiskCount.toString(),
+                  percentage: '$lowPct%',
+                  color: AppColors.success,
                 ),
               ],
             ),
@@ -226,41 +632,37 @@ class P2PMonitoringPanel extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
-            child: const Column(
+            child: Column(
               children: [
-                _CardHeader(title: 'Flagged Reasons', hasSeeAll: true),
-                SizedBox(height: 24),
-                _FlaggedReasonItem(
+                const _CardHeader(title: 'Dispute Breakdown'),
+                const SizedBox(height: 24),
+                _DisputeBreakdownItem(
                   icon: Icons.replay_circle_filled_rounded,
-                  label: 'Suspicious Amount',
-                  count: '52',
-                  percentage: '40.6%',
-                  color: Color(0xFFEF4444),
+                  label: 'Pending Review',
+                  count: _pendingCount.toString(),
+                  color: AppColors.warning,
                 ),
-                _FlaggedReasonItem(
-                  icon: Icons.credit_card_off_rounded,
-                  label: 'Multiple Failed Payments',
-                  count: '28',
-                  percentage: '21.9%',
-                  color: Color(0xFFF59E0B),
+                _DisputeBreakdownItem(
+                  icon: Icons.error_outline_rounded,
+                  label: 'Disputed',
+                  count: _disputedCount.toString(),
+                  color: AppColors.error,
                 ),
-                _FlaggedReasonItem(
-                  icon: Icons.monitor_heart_rounded,
-                  label: 'Unusual Activity',
-                  count: '20',
-                  percentage: '15.6%',
-                  color: Color(0xFF8B5CF6),
+                _DisputeBreakdownItem(
+                  icon: Icons.flag_rounded,
+                  label: 'Flagged / Rejected',
+                  count: _flaggedCount.toString(),
+                  color: AppColors.slate500,
                 ),
-                _FlaggedReasonItem(
-                  icon: Icons.info_outline_rounded,
-                  label: 'User Reported',
-                  count: '28',
-                  percentage: '21.9%',
-                  color: Color(0xFF3B82F6),
+                _DisputeBreakdownItem(
+                  icon: Icons.check_circle_outline_rounded,
+                  label: 'Approved',
+                  count: _completedCount.toString(),
+                  color: AppColors.success,
                 ),
               ],
             ),
@@ -271,129 +673,99 @@ class P2PMonitoringPanel extends ConsumerWidget {
   }
 
   Widget _buildRecentP2PTransactions() {
+    if (_transactions.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: const Center(
+          child: Text(
+            'No P2P transactions found',
+            style: TextStyle(
+              color: AppColors.textTertiary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
-      children: [
-        _P2PTransactionItem(
-          senderName: 'Mary Johnson',
-          senderInitial: 'M',
-          receiverName: 'John Michael',
-          receiverInitial: 'J',
-          amount: '₦25,000',
-          date: '14 Jun, 10:30 AM',
-          id: 'TXN-785412',
-          status: 'Completed',
-          statusColor: const Color(0xFF10B981),
-        ),
-        const SizedBox(height: 12),
-        _P2PTransactionItem(
-          senderName: 'Ibrahim Umar',
-          senderInitial: 'I',
-          receiverName: 'Adaora Nwosu',
-          receiverInitial: 'A',
-          amount: '₦18,500',
-          date: '14 Jun, 09:15 AM',
-          id: 'TXN-785411',
-          status: 'Completed',
-          statusColor: const Color(0xFF10B981),
-        ),
-        const SizedBox(height: 12),
-        _P2PTransactionItem(
-          senderName: 'Chinelo Okeke',
-          senderInitial: 'C',
-          receiverName: 'Femi Adebayo',
-          receiverInitial: 'F',
-          amount: '₦47,000',
-          date: '14 Jun, 08:45 AM',
-          id: 'TXN-785410',
-          status: 'Flagged',
-          statusColor: const Color(0xFFF59E0B),
-        ),
-        const SizedBox(height: 12),
-        _P2PTransactionItem(
-          senderName: 'Tunde Bello',
-          senderInitial: 'T',
-          receiverName: 'Mary Johnson',
-          receiverInitial: 'M',
-          amount: '₦12,000',
-          date: '14 Jun, 07:30 AM',
-          id: 'TXN-785409',
-          status: 'Pending Review',
-          statusColor: const Color(0xFFF59E0B),
-        ),
-        const SizedBox(height: 12),
-        _P2PTransactionItem(
-          senderName: 'Blessing Udo',
-          senderInitial: 'B',
-          receiverName: 'Ibrahim Umar',
-          receiverInitial: 'I',
-          amount: '₦30,000',
-          date: '13 Jun, 11:20 PM',
-          id: 'TXN-785408',
-          status: 'Dispute',
-          statusColor: const Color(0xFFEF4444),
-        ),
-      ],
+      children: _transactions.map((t) {
+        final senderName = t['sender_name'] as String? ?? 'Unknown';
+        final recipientName = t['recipient_name'] as String? ?? 'Unknown';
+        final amount = (t['amount'] as num?)?.toInt() ?? 0;
+        final status = t['status'] as String? ?? 'unknown';
+        final createdAt = t['created_at'] as String?;
+        final id = t['id'] as String? ?? '';
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _P2PTransactionItem(
+            senderName: senderName,
+            senderInitial: _initial(senderName),
+            receiverName: recipientName,
+            receiverInitial: _initial(recipientName),
+            amount: _formatAmount(amount),
+            date: _formatDate(createdAt),
+            id: id.length >= 8 ? id.substring(0, 8) : id,
+            status: _statusLabel(status),
+            statusColor: _statusColor(status),
+          ),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildUsersAndMonitorSection(Color primaryColor) {
+  Widget _buildTopUsersSection() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 5,
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
-            child: const Column(
+            child: Column(
               children: [
-                _CardHeader(
-                  title: 'Top P2P Users (By Volume)',
-                  hasDropdown: true,
-                ),
-                SizedBox(height: 24),
-                _TopUserItem(
-                  rank: 1,
-                  name: 'Mary Johnson',
-                  amount: '₦450,000',
-                  txnCount: '24 Transactions',
-                  initial: 'M',
-                ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
-                _TopUserItem(
-                  rank: 2,
-                  name: 'Ibrahim Umar',
-                  amount: '₦380,500',
-                  txnCount: '21 Transactions',
-                  initial: 'I',
-                ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
-                _TopUserItem(
-                  rank: 3,
-                  name: 'Adaora Nwosu',
-                  amount: '₦312,000',
-                  txnCount: '18 Transactions',
-                  initial: 'A',
-                ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
-                _TopUserItem(
-                  rank: 4,
-                  name: 'John Michael',
-                  amount: '₦275,000',
-                  txnCount: '16 Transactions',
-                  initial: 'J',
-                ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
-                _TopUserItem(
-                  rank: 5,
-                  name: 'Chinelo Okeke',
-                  amount: '₦240,000',
-                  txnCount: '14 Transactions',
-                  initial: 'C',
-                ),
+                const _CardHeader(title: 'Top P2P Users (By Volume)'),
+                const SizedBox(height: 24),
+                if (_topUsers.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'No data yet',
+                      style: TextStyle(
+                        color: AppColors.textTertiary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  )
+                else
+                  ..._topUsers.asMap().entries.expand((entry) {
+                    final i = entry.key;
+                    final u = entry.value;
+                    final name = u['name'] as String? ?? 'Unknown';
+                    return [
+                      _TopUserItem(
+                        rank: i + 1,
+                        name: name,
+                        amount: _formatAmount(u['volume'] as int),
+                        txnCount: '${u['count']} Transactions',
+                        initial: _initial(name),
+                      ),
+                      if (i < _topUsers.length - 1)
+                        const Divider(height: 32, color: AppColors.divider),
+                    ];
+                  }),
               ],
             ),
           ),
@@ -404,50 +776,47 @@ class P2PMonitoringPanel extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
-            child: const Column(
+            child: Column(
               children: [
-                _CardHeader(
-                  title: 'Suspicious Activity Monitor',
-                  hasSeeAll: true,
-                ),
-                SizedBox(height: 24),
+                const _CardHeader(title: 'Suspicious Activity Monitor'),
+                const SizedBox(height: 24),
                 _MonitorItem(
                   icon: Icons.person_add_disabled_rounded,
                   label: 'Multiple accounts activity',
-                  count: '18',
-                  color: Color(0xFFEF4444),
+                  count: _flaggedCount.toString(),
+                  color: AppColors.error,
                 ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
+                const Divider(height: 32, color: AppColors.divider),
                 _MonitorItem(
                   icon: Icons.compare_arrows_rounded,
                   label: 'Rapid in & out transfers',
-                  count: '22',
-                  color: Color(0xFFF59E0B),
+                  count: _mediumRiskCount.toString(),
+                  color: AppColors.warning,
                 ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
+                const Divider(height: 32, color: AppColors.divider),
                 _MonitorItem(
                   icon: Icons.money_off_rounded,
                   label: 'Unusual transaction amount',
-                  count: '16',
-                  color: Color(0xFF8B5CF6),
+                  count: _highRiskCount.toString(),
+                  color: AppColors.info,
                 ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
+                const Divider(height: 32, color: AppColors.divider),
                 _MonitorItem(
-                  icon: Icons.devices_rounded,
-                  label: 'New device login & transfer',
-                  count: '12',
-                  color: Color(0xFF3B82F6),
+                  icon: Icons.balance_rounded,
+                  label: 'Open disputes',
+                  count: _disputedCount.toString(),
+                  color: AppColors.primary,
                 ),
-                Divider(height: 32, color: Color(0xFFF1F5F9)),
+                const Divider(height: 32, color: AppColors.divider),
                 _MonitorItem(
-                  icon: Icons.location_off_rounded,
-                  label: 'IP location mismatch',
-                  count: '8',
-                  color: Color(0xFF10B981),
+                  icon: Icons.pending_actions_rounded,
+                  label: 'Awaiting verification',
+                  count: _pendingCount.toString(),
+                  color: AppColors.success,
                 ),
               ],
             ),
@@ -457,7 +826,7 @@ class P2PMonitoringPanel extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(Color primaryColor) {
+  Widget _buildQuickActions() {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -469,27 +838,27 @@ class P2PMonitoringPanel extends ConsumerWidget {
         _QuickAction(
           icon: Icons.remove_red_eye_outlined,
           label: 'Review Queue',
-          color: primaryColor,
+          color: AppColors.primary,
         ),
         _QuickAction(
           icon: Icons.balance_rounded,
           label: 'Resolve Disputes',
-          color: const Color(0xFFEF4444),
+          color: AppColors.error,
         ),
         _QuickAction(
           icon: Icons.person_off_outlined,
           label: 'Block User',
-          color: const Color(0xFFF59E0B),
+          color: AppColors.warning,
         ),
         _QuickAction(
           icon: Icons.bar_chart_rounded,
           label: 'Transaction Report',
-          color: const Color(0xFF8B5CF6),
+          color: AppColors.info,
         ),
         _QuickAction(
           icon: Icons.security_rounded,
           label: 'Risk Settings',
-          color: const Color(0xFF10B981),
+          color: AppColors.success,
         ),
       ],
     );
@@ -504,7 +873,7 @@ class P2PMonitoringPanel extends ConsumerWidget {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
@@ -514,7 +883,7 @@ class P2PMonitoringPanel extends ConsumerWidget {
             child: const Text(
               'View All',
               style: TextStyle(
-                color: Color(0xFF0F62FE),
+                color: AppColors.primary,
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
@@ -523,9 +892,9 @@ class P2PMonitoringPanel extends ConsumerWidget {
       ],
     );
   }
-
-
 }
+
+// ─── Private sub-widgets ─────
 
 class _P2PStatCard extends StatelessWidget {
   final String title;
@@ -551,9 +920,9 @@ class _P2PStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,7 +944,7 @@ class _P2PStatCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -584,44 +953,19 @@ class _P2PStatCard extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 10,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          Row(
-            children: [
-              Icon(
-                isNegative
-                    ? Icons.arrow_downward_rounded
-                    : Icons.arrow_upward_rounded,
-                color: isNegative
-                    ? const Color(0xFFEF4444)
-                    : const Color(0xFF10B981),
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                trend,
-                style: TextStyle(
-                  color: isNegative
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF10B981),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Text(
-                'vs last week',
-                style: TextStyle(
-                  color: Color(0xFFCBD5E1),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+          Text(
+            trend,
+            style: TextStyle(
+              color: isNegative ? AppColors.error : AppColors.textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -640,12 +984,12 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+        color: isSelected ? const Color(0xFFEFF6FF) : AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isSelected
-              ? const Color(0xFF3B82F6).withValues(alpha: 0.5)
-              : const Color(0xFFF1F5F9),
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : AppColors.borderLight,
         ),
       ),
       child: Row(
@@ -653,9 +997,7 @@ class _TabItem extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isSelected
-                  ? const Color(0xFF0F62FE)
-                  : const Color(0xFF64748B),
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
               fontSize: 13,
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
             ),
@@ -665,7 +1007,7 @@ class _TabItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFFF59E0B),
+                color: AppColors.warning,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -690,18 +1032,18 @@ class _FilterButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: const Row(
         children: [
-          Icon(Icons.tune_rounded, color: Color(0xFF64748B), size: 20),
+          Icon(Icons.tune_rounded, color: AppColors.textSecondary, size: 20),
           SizedBox(width: 8),
           Text(
             'Filter',
             style: TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -715,31 +1057,53 @@ class _FilterButton extends StatelessWidget {
 class _DateRangePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final start = now.subtract(const Duration(days: 7));
+    final dateLabel =
+        '${months[start.month - 1]} ${start.day} - ${months[now.month - 1]} ${now.day}, ${now.year}';
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLight),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.calendar_today_rounded,
-            color: Color(0xFF64748B),
+            color: AppColors.textSecondary,
             size: 18,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Text(
-            'Jun 8 - Jun 14, 2025',
-            style: TextStyle(
-              color: Color(0xFF1E293B),
+            dateLabel,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(width: 8),
-          Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF94A3B8)),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: AppColors.textTertiary,
+          ),
         ],
       ),
     );
@@ -748,13 +1112,7 @@ class _DateRangePicker extends StatelessWidget {
 
 class _CardHeader extends StatelessWidget {
   final String title;
-  final bool hasSeeAll;
-  final bool hasDropdown;
-  const _CardHeader({
-    required this.title,
-    this.hasSeeAll = false,
-    this.hasDropdown = false,
-  });
+  const _CardHeader({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -766,36 +1124,9 @@ class _CardHeader extends StatelessWidget {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
-        if (hasSeeAll)
-          const Text(
-            'View All',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF0F62FE),
-            ),
-          ),
-        if (hasDropdown)
-          Row(
-            children: [
-              const Text(
-                'This Week',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF64748B),
-                ),
-              ),
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: const Color(0xFF64748B).withValues(alpha: 0.5),
-                size: 16,
-              ),
-            ],
-          ),
       ],
     );
   }
@@ -832,7 +1163,7 @@ class _RiskLegend extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
           ),
@@ -841,7 +1172,7 @@ class _RiskLegend extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(width: 8),
@@ -849,7 +1180,7 @@ class _RiskLegend extends StatelessWidget {
             '($percentage)',
             style: const TextStyle(
               fontSize: 10,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textTertiary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -859,18 +1190,16 @@ class _RiskLegend extends StatelessWidget {
   }
 }
 
-class _FlaggedReasonItem extends StatelessWidget {
+class _DisputeBreakdownItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final String count;
-  final String percentage;
   final Color color;
 
-  const _FlaggedReasonItem({
+  const _DisputeBreakdownItem({
     required this.icon,
     required this.label,
     required this.count,
-    required this.percentage,
     required this.color,
   });
 
@@ -895,30 +1224,17 @@ class _FlaggedReasonItem extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                count,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              Text(
-                '($percentage)',
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: Color(0xFF94A3B8),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+          Text(
+            count,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),
@@ -954,9 +1270,9 @@ class _P2PTransactionItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
         children: [
@@ -965,11 +1281,15 @@ class _P2PTransactionItem extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Icon(
               Icons.arrow_forward_rounded,
-              color: Color(0xFFCBD5E1),
+              color: AppColors.slate300,
               size: 18,
             ),
           ),
-          _UserStack(initial: receiverInitial, label: 'Receiver', name: receiverName),
+          _UserStack(
+            initial: receiverInitial,
+            label: 'Receiver',
+            name: receiverName,
+          ),
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -979,13 +1299,13 @@ class _P2PTransactionItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 14,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 '$date • $id',
                 style: const TextStyle(
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiary,
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1009,7 +1329,7 @@ class _P2PTransactionItem extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.slate300),
         ],
       ),
     );
@@ -1032,8 +1352,15 @@ class _UserStack extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 18,
-          backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-          child: Text(initial, style: const TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 13)),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+          child: Text(
+            initial,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
         ),
         const SizedBox(width: 10),
         Column(
@@ -1044,13 +1371,13 @@ class _UserStack extends StatelessWidget {
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 13,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF94A3B8),
+                color: AppColors.textTertiary,
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
@@ -1084,8 +1411,8 @@ class _TopUserItem extends StatelessWidget {
         Container(
           width: 24,
           height: 24,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+          decoration: const BoxDecoration(
+            color: AppColors.slate100,
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -1094,7 +1421,7 @@ class _TopUserItem extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
           ),
@@ -1102,8 +1429,15 @@ class _TopUserItem extends StatelessWidget {
         const SizedBox(width: 12),
         CircleAvatar(
           radius: 18,
-          backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-          child: Text(initial, style: const TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 13)),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+          child: Text(
+            initial,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -1115,7 +1449,7 @@ class _TopUserItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
@@ -1129,13 +1463,13 @@ class _TopUserItem extends StatelessWidget {
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 13,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             Text(
               txnCount,
               style: const TextStyle(
-                color: Color(0xFF94A3B8),
+                color: AppColors.textTertiary,
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
@@ -1179,7 +1513,7 @@ class _MonitorItem extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
         ),
@@ -1188,13 +1522,13 @@ class _MonitorItem extends StatelessWidget {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(width: 8),
         const Icon(
           Icons.chevron_right_rounded,
-          color: Color(0xFFCBD5E1),
+          color: AppColors.slate300,
           size: 18,
         ),
       ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:math' as math;
+import '../../core/supabase_locator.dart';
 import 'admin_scaffold.dart';
 
 class AdminReportsScreen extends ConsumerStatefulWidget {
@@ -12,9 +12,316 @@ class AdminReportsScreen extends ConsumerStatefulWidget {
 
 class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
   String _selectedRange = 'This Month';
-  final List<String> _ranges = ['Today', 'This Week', 'This Month', 'This Quarter', 'This Year'];
+  final List<String> _ranges = [
+    'Today',
+    'This Week',
+    'This Month',
+    'This Quarter',
+    'This Year',
+  ];
 
-  double? _chartHoverX;
+  bool _isLoading = true;
+  String? _error;
+
+  int _totalUsers = 0;
+  int _totalDoctors = 0;
+  int _totalAppointments = 0;
+  double _totalRevenue = 0;
+
+  double _usersGrowthPct = 0;
+  double _doctorsGrowthPct = 0;
+  double _appointmentsGrowthPct = 0;
+  double _revenueGrowthPct = 0;
+
+  int _completedAppointments = 0;
+  int _cancelledAppointments = 0;
+  int _rescheduledAppointments = 0;
+
+  List<_DoctorStat> _topDoctors = [];
+
+  int _forumPostsCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  ({DateTime start, DateTime end, DateTime prevStart, DateTime prevEnd})
+  _getDateRange() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    switch (_selectedRange) {
+      case 'Today':
+        return (
+          start: today,
+          end: today.add(const Duration(days: 1)),
+          prevStart: today.subtract(const Duration(days: 1)),
+          prevEnd: today,
+        );
+      case 'This Week':
+        final weekStart = today.subtract(Duration(days: today.weekday - 1));
+        return (
+          start: weekStart,
+          end: weekStart.add(const Duration(days: 7)),
+          prevStart: weekStart.subtract(const Duration(days: 7)),
+          prevEnd: weekStart,
+        );
+      case 'This Quarter':
+        final quarter = ((now.month - 1) ~/ 3);
+        final quarterStart = DateTime(now.year, quarter * 3 + 1, 1);
+        final quarterEnd = DateTime(now.year, quarter * 3 + 4, 1);
+        final prevQuarterStart = DateTime(now.year, quarter * 3 - 2, 1);
+        return (
+          start: quarterStart,
+          end: quarterEnd,
+          prevStart: prevQuarterStart,
+          prevEnd: quarterStart,
+        );
+      case 'This Year':
+        return (
+          start: DateTime(now.year, 1, 1),
+          end: DateTime(now.year + 1, 1, 1),
+          prevStart: DateTime(now.year - 1, 1, 1),
+          prevEnd: DateTime(now.year, 1, 1),
+        );
+      case 'This Month':
+      default:
+        final monthStart = DateTime(now.year, now.month, 1);
+        final nextMonth = DateTime(now.year, now.month + 1, 1);
+        final prevMonthStart = DateTime(now.year, now.month - 1, 1);
+        return (
+          start: monthStart,
+          end: nextMonth,
+          prevStart: prevMonthStart,
+          prevEnd: monthStart,
+        );
+    }
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final range = _getDateRange();
+
+      final results = await Future.wait([
+        supabase
+            .from('profiles')
+            .select('id')
+            .gte('created_at', range.start.toIso8601String())
+            .lt('created_at', range.end.toIso8601String()),
+        supabase
+            .from('profiles')
+            .select('id')
+            .gte('created_at', range.prevStart.toIso8601String())
+            .lt('created_at', range.prevEnd.toIso8601String()),
+        supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'doctor')
+            .gte('created_at', range.start.toIso8601String())
+            .lt('created_at', range.end.toIso8601String()),
+        supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'doctor')
+            .gte('created_at', range.prevStart.toIso8601String())
+            .lt('created_at', range.prevEnd.toIso8601String()),
+        supabase
+            .from('appointments')
+            .select('id, status, total_amount')
+            .gte('created_at', range.start.toIso8601String())
+            .lt('created_at', range.end.toIso8601String()),
+        supabase
+            .from('appointments')
+            .select('id, total_amount')
+            .gte('created_at', range.prevStart.toIso8601String())
+            .lt('created_at', range.prevEnd.toIso8601String()),
+        supabase
+            .from('payments')
+            .select('amount')
+            .eq('status', 'completed')
+            .gte('created_at', range.start.toIso8601String())
+            .lt('created_at', range.end.toIso8601String()),
+        supabase
+            .from('payments')
+            .select('amount')
+            .eq('status', 'completed')
+            .gte('created_at', range.prevStart.toIso8601String())
+            .lt('created_at', range.prevEnd.toIso8601String()),
+        supabase
+            .from('appointments')
+            .select('id, doctor_id')
+            .gte('created_at', range.start.toIso8601String())
+            .lt('created_at', range.end.toIso8601String()),
+        supabase
+            .from('forum_posts')
+            .select('id')
+            .gte('created_at', range.start.toIso8601String())
+            .lt('created_at', range.end.toIso8601String()),
+      ]);
+
+      final currentUsers = (results[0] as List).length;
+      final prevUsers = (results[1] as List).length;
+      final currentDoctors = (results[2] as List).length;
+      final prevDoctors = (results[3] as List).length;
+      final appointments = results[4] as List;
+      final prevAppointments = results[5] as List;
+      final payments = results[6] as List;
+      final prevPayments = results[7] as List;
+      final doctorAppointments = results[8] as List;
+      final forumPosts = (results[9] as List).length;
+
+      final totalCurrentAppointments = appointments.length;
+      final totalPrevAppointments = prevAppointments.length;
+      final completed = appointments
+          .where((a) => a['status'] == 'completed')
+          .length;
+      final cancelled = appointments
+          .where((a) => a['status'] == 'cancelled')
+          .length;
+      final rescheduled = appointments
+          .where((a) => a['status'] == 'rescheduled')
+          .length;
+
+      final currentRevenue = payments.fold<double>(
+        0,
+        (sum, p) => sum + ((p['amount'] as num?)?.toDouble() ?? 0),
+      );
+      final prevRevenue = prevPayments.fold<double>(
+        0,
+        (sum, p) => sum + ((p['amount'] as num?)?.toDouble() ?? 0),
+      );
+
+      // Top doctors by appointment count
+      final Map<String, int> doctorCountMap = {};
+      for (final appt in doctorAppointments) {
+        final docId = appt['doctor_id'] as String?;
+        if (docId != null) {
+          doctorCountMap[docId] = (doctorCountMap[docId] ?? 0) + 1;
+        }
+      }
+
+      final sortedDoctorIds = doctorCountMap.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      final topIds = sortedDoctorIds.take(10).map((e) => e.key).toList();
+
+      List<_DoctorStat> topDoctors = [];
+      if (topIds.isNotEmpty) {
+        final profilesData = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url, role')
+            .inFilter('id', topIds);
+
+        final profileMap = <String, Map<String, dynamic>>{};
+        for (final p in profilesData) {
+          profileMap[p['id']] = p;
+        }
+
+        topDoctors = topIds.map((id) {
+          final count = doctorCountMap[id]!;
+          final profile = profileMap[id];
+          final name = profile?['full_name'] as String? ?? 'Unknown Doctor';
+          return _DoctorStat(id: id, name: name, appointmentCount: count);
+        }).toList();
+      }
+
+      // Growth calculations
+      _usersGrowthPct = _calcGrowth(currentUsers, prevUsers);
+      _doctorsGrowthPct = _calcGrowth(currentDoctors, prevDoctors);
+      _appointmentsGrowthPct = _calcGrowth(
+        totalCurrentAppointments,
+        totalPrevAppointments,
+      );
+      _revenueGrowthPct = _calcGrowth(currentRevenue, prevRevenue);
+
+      setState(() {
+        _totalUsers = currentUsers;
+        _totalDoctors = currentDoctors;
+        _totalAppointments = totalCurrentAppointments;
+        _totalRevenue = currentRevenue;
+        _completedAppointments = completed;
+        _cancelledAppointments = cancelled;
+        _rescheduledAppointments = rescheduled;
+        _topDoctors = topDoctors;
+        _forumPostsCount = forumPosts;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  double _calcGrowth(num current, num previous) {
+    if (previous == 0) return current > 0 ? 100.0 : 0.0;
+    return ((current - previous) / previous * 100);
+  }
+
+  String _formatCurrency(double value) {
+    if (value >= 1000000000) {
+      return '₦${(value / 1000000000).toStringAsFixed(1)}B';
+    } else if (value >= 1000000) {
+      return '₦${(value / 1000000).toStringAsFixed(1)}M';
+    } else if (value >= 1000) {
+      return '₦${(value / 1000).toStringAsFixed(1)}K';
+    }
+    return '₦${value.toStringAsFixed(0)}';
+  }
+
+  String _formatNumber(int value) {
+    if (value >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)}M';
+    } else if (value >= 1000) {
+      final str = value.toString();
+      final buffer = StringBuffer();
+      for (int i = 0; i < str.length; i++) {
+        if (i > 0 && (str.length - i) % 3 == 0) buffer.write(',');
+        buffer.write(str[i]);
+      }
+      return buffer.toString();
+    }
+    return value.toString();
+  }
+
+  String _previousPeriodLabel() {
+    const months = [
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    switch (_selectedRange) {
+      case 'Today':
+        return 'Yesterday';
+      case 'This Week':
+        return 'Last Week';
+      case 'This Quarter':
+        return 'Last Quarter';
+      case 'This Year':
+        return 'Last Year';
+      case 'This Month':
+      default:
+        final month = DateTime.now().month;
+        final prev = month == 1 ? 12 : month - 1;
+        return months[prev];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +341,24 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   const SizedBox(height: 24),
                   _buildFilterRow(),
                   const SizedBox(height: 24),
-                  _buildKpiGrid(),
-                  const SizedBox(height: 32),
-                  _buildAppointmentsOverviewChart(),
-                  const SizedBox(height: 32),
-                  _buildSecondaryCharts(),
-                  const SizedBox(height: 32),
-                  _buildTopDoctors(),
-                  const SizedBox(height: 32),
-                  _buildReportsShortcuts(),
-                  const SizedBox(height: 32),
-                  _buildFooterAlert(),
-                  const SizedBox(height: 40),
+                  if (_isLoading)
+                    _buildLoadingState()
+                  else if (_error != null)
+                    _buildErrorState()
+                  else ...[
+                    _buildKpiGrid(),
+                    const SizedBox(height: 32),
+                    _buildAppointmentsOverviewChart(),
+                    const SizedBox(height: 32),
+                    _buildTopDoctors(),
+                    const SizedBox(height: 32),
+                    _buildActivitySummary(),
+                    const SizedBox(height: 32),
+                    _buildReportsShortcuts(),
+                    const SizedBox(height: 32),
+                    _buildFooterAlert(),
+                    const SizedBox(height: 40),
+                  ],
                 ],
               ),
             ),
@@ -55,7 +368,90 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     );
   }
 
+  Widget _buildLoadingState() {
+    return const SizedBox(
+      height: 400,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              color: Color(0xFF0F62FE),
+              strokeWidth: 2.5,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Loading reports...',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF94A3B8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
+  Widget _buildErrorState() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFECDD3)),
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(
+              Icons.error_outline_rounded,
+              color: Color(0xFFEF4444),
+              size: 40,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Failed to load data',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _error ?? 'Unknown error',
+              style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: _loadData,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F62FE),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildHeaderRow() {
     return Row(
@@ -64,21 +460,51 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Reports & Insights Center', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+            Text(
+              'Reports & Insights Center',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF1E293B),
+                letterSpacing: -0.5,
+              ),
+            ),
             SizedBox(height: 4),
-            Text('Track performance, usage and key metrics in real-time', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+            Text(
+              'Track performance, usage and key metrics in real-time',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+              ),
+            ),
           ],
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
           child: Row(
             children: const [
               Icon(Icons.ios_share_rounded, size: 16, color: Color(0xFF64748B)),
               SizedBox(width: 6),
-              Text('Export Report', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+              Text(
+                'Export Report',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
               SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF64748B)),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 16,
+                color: Color(0xFF64748B),
+              ),
             ],
           ),
         ),
@@ -95,15 +521,35 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           ..._ranges.map((range) {
             final isSelected = _selectedRange == range;
             return GestureDetector(
-              onTap: () => setState(() => _selectedRange = range),
+              onTap: () {
+                setState(() => _selectedRange = range);
+                _loadData();
+              },
               child: Container(
                 margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFF0F62FE) : Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: isSelected ? const Color(0xFF0F62FE) : const Color(0xFFF1F5F9)),
-                  boxShadow: isSelected ? [BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))] : [],
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFF0F62FE)
+                        : const Color(0xFFF1F5F9),
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF0F62FE,
+                            ).withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : [],
                 ),
                 child: Text(
                   range,
@@ -118,12 +564,27 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           }),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFF1F5F9))),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
+            ),
             child: Row(
               children: const [
-                Icon(Icons.calendar_today_outlined, size: 14, color: Color(0xFF64748B)),
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 14,
+                  color: Color(0xFF64748B),
+                ),
                 SizedBox(width: 6),
-                Text('Custom Range', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(
+                  'Custom Range',
+                  style: TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
@@ -141,22 +602,59 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       mainAxisSpacing: 16,
       childAspectRatio: 1.25,
       children: [
-        _buildKpiCard('Total Users', '24,563', '18.6%', Icons.group_outlined, const Color(0xFF10B981)),
-        _buildKpiCard('Active Doctors', '1,248', '14.2%', Icons.medical_services_outlined, const Color(0xFF3B82F6)),
-        _buildKpiCard('Total Appointments', '6,782', '21.3%', Icons.calendar_month_outlined, const Color(0xFF8B5CF6)),
-        _buildKpiCard('Total Revenue', '₦24.8M', '16.7%', Icons.account_balance_wallet_outlined, const Color(0xFFF59E0B)),
+        _buildKpiCard(
+          'Total Users',
+          _formatNumber(_totalUsers),
+          _usersGrowthPct,
+          Icons.group_outlined,
+          const Color(0xFF10B981),
+        ),
+        _buildKpiCard(
+          'Active Doctors',
+          _formatNumber(_totalDoctors),
+          _doctorsGrowthPct,
+          Icons.medical_services_outlined,
+          const Color(0xFF3B82F6),
+        ),
+        _buildKpiCard(
+          'Total Appointments',
+          _formatNumber(_totalAppointments),
+          _appointmentsGrowthPct,
+          Icons.calendar_month_outlined,
+          const Color(0xFF8B5CF6),
+        ),
+        _buildKpiCard(
+          'Total Revenue',
+          _formatCurrency(_totalRevenue),
+          _revenueGrowthPct,
+          Icons.account_balance_wallet_outlined,
+          const Color(0xFFF59E0B),
+        ),
       ],
     );
   }
 
-  Widget _buildKpiCard(String title, String value, String trend, IconData icon, Color color) {
+  Widget _buildKpiCard(
+    String title,
+    String value,
+    double growthPct,
+    IconData icon,
+    Color color,
+  ) {
+    final isPositive = growthPct >= 0;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,19 +662,60 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF1E293B))),
-          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF1E293B),
+            ),
+          ),
           Row(
             children: [
-              const Icon(Icons.arrow_upward_rounded, color: Color(0xFF10B981), size: 12),
+              Icon(
+                isPositive
+                    ? Icons.arrow_upward_rounded
+                    : Icons.arrow_downward_rounded,
+                color: isPositive
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFEF4444),
+                size: 12,
+              ),
               const SizedBox(width: 2),
-              Text(trend, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF10B981))),
+              Text(
+                '${growthPct.abs().toStringAsFixed(1)}%',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: isPositive
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFFEF4444),
+                ),
+              ),
               const SizedBox(width: 4),
-              const Text('vs Apr', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
+              Text(
+                'vs ${_previousPeriodLabel()}',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF94A3B8),
+                ),
+              ),
             ],
           ),
         ],
@@ -185,13 +724,33 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
   }
 
   Widget _buildAppointmentsOverviewChart() {
+    final total =
+        _completedAppointments +
+        _cancelledAppointments +
+        _rescheduledAppointments;
+    final completedPct = total > 0
+        ? (_completedAppointments / total * 100)
+        : 0.0;
+    final cancelledPct = total > 0
+        ? (_cancelledAppointments / total * 100)
+        : 0.0;
+    final rescheduledPct = total > 0
+        ? (_rescheduledAppointments / total * 100)
+        : 0.0;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,188 +760,145 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             children: [
               Row(
                 children: const [
-                  Text('Appointments Overview', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+                  Text(
+                    'Appointments Overview',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
                   SizedBox(width: 6),
-                  Icon(Icons.info_outline_rounded, color: Color(0xFFCBD5E1), size: 16),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    color: Color(0xFFCBD5E1),
+                    size: 16,
+                  ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(8)),
-                child: Row(
-                  children: const [
-                    Text('Line Chart', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
-                    SizedBox(width: 4),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Color(0xFF64748B)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildLegendDot(const Color(0xFF3B82F6), 'Completed'),
-              const SizedBox(width: 16),
-              _buildLegendDot(const Color(0xFFEF4444), 'Cancelled'),
-              const SizedBox(width: 16),
-              _buildLegendDot(const Color(0xFF10B981), 'Rescheduled'),
             ],
           ),
           const SizedBox(height: 24),
-          // Interactive Chart Area
-          SizedBox(
-            height: 220,
-            width: double.infinity,
-            child: GestureDetector(
-              onPanDown: (details) => setState(() => _chartHoverX = details.localPosition.dx),
-              onPanUpdate: (details) => setState(() => _chartHoverX = details.localPosition.dx),
-              onPanEnd: (_) => setState(() => _chartHoverX = null),
-              onPanCancel: () => setState(() => _chartHoverX = null),
-              child: CustomPaint(
-                painter: _InteractiveLineChartPainter(hoverX: _chartHoverX),
+          if (total == 0)
+            const SizedBox(
+              height: 160,
+              child: Center(
+                child: Text(
+                  'No appointments in this period',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                ),
+              ),
+            )
+          else ...[
+            Row(
+              children: [
+                _buildLegendDot(
+                  const Color(0xFF3B82F6),
+                  'Completed ($_completedAppointments)',
+                ),
+                const SizedBox(width: 16),
+                _buildLegendDot(
+                  const Color(0xFFEF4444),
+                  'Cancelled ($_cancelledAppointments)',
+                ),
+                const SizedBox(width: 16),
+                _buildLegendDot(
+                  const Color(0xFF10B981),
+                  'Rescheduled ($_rescheduledAppointments)',
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 160,
+              child: Column(
+                children: [
+                  _buildBarSegment(
+                    'Completed',
+                    completedPct,
+                    _completedAppointments,
+                    const Color(0xFF3B82F6),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildBarSegment(
+                    'Cancelled',
+                    cancelledPct,
+                    _cancelledAppointments,
+                    const Color(0xFFEF4444),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildBarSegment(
+                    'Rescheduled',
+                    rescheduledPct,
+                    _rescheduledAppointments,
+                    const Color(0xFF10B981),
+                  ),
+                ],
               ),
             ),
-          ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildBarSegment(String label, double pct, int count, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF64748B),
+              ),
+            ),
+            Text(
+              '$count (${pct.toStringAsFixed(1)}%)',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: pct / 100,
+            backgroundColor: color.withValues(alpha: 0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 8,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildLegendDot(Color color, String label) {
     return Row(
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
-      ],
-    );
-  }
-
-  Widget _buildSecondaryCharts() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 1,
-          child: Container(
-            height: 280,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Appointments by Type', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CustomPaint(
-                        size: const Size(double.infinity, double.infinity),
-                        painter: _DonutChartPainter(),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text('6,782', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-                          Text('Total', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildDonutLegend(const Color(0xFF3B82F6), 'Consultation', '55%', '3,730'),
-                _buildDonutLegend(const Color(0xFF10B981), 'Follow-up', '25%', '1,695'),
-                _buildDonutLegend(const Color(0xFF8B5CF6), 'Lab Test', '12%', '814'),
-                _buildDonutLegend(const Color(0xFFF59E0B), 'Emergency', '8%', '543'),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 1,
-          child: Container(
-            height: 280,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Users Growth', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(6)),
-                      child: const Text('This Month', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text('24,563', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-                const Text('Total Users', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-                Row(
-                  children: const [
-                    Icon(Icons.arrow_upward_rounded, color: Color(0xFF10B981), size: 10),
-                    SizedBox(width: 2),
-                    Text('18.6%', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF10B981))),
-                    SizedBox(width: 4),
-                    Text('vs Apr', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8))),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: CustomPaint(
-                    size: const Size(double.infinity, double.infinity),
-                    painter: _BarChartPainter(),
-                  ),
-                ),
-              ],
-            ),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF64748B),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDonutLegend(Color color, String label, String pct, String val) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(width: 8, height: 8, margin: const EdgeInsets.only(top: 2), decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
-                Row(
-                  children: [
-                    Text(pct, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF64748B))),
-                    const Text(' (', style: TextStyle(fontSize: 9, color: Color(0xFF94A3B8))),
-                    Text(val, style: const TextStyle(fontSize: 9, color: Color(0xFF94A3B8))),
-                    const Text(')', style: TextStyle(fontSize: 9, color: Color(0xFF94A3B8))),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -400,85 +916,258 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('Top Performing Doctors', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-              Text('View All', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F62FE))),
+              Text(
+                'Top Performing Doctors',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: const [
-              Expanded(flex: 3, child: Text('Doctor', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)))),
-              Expanded(flex: 2, child: Text('Appointments', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)))),
-              Expanded(flex: 2, child: Text('Completed', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)))),
-              Expanded(flex: 2, child: Text('Rating', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)))),
-              Expanded(flex: 2, child: Text('Revenue', textAlign: TextAlign.right, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)))),
-              SizedBox(width: 24),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildDoctorRow('Dr. Adaora Nwosu', 'Cardiologist', 'A', '450', '428', '96%', '4.9', '₦3.6M'),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
-          _buildDoctorRow('Dr. Ibrahim Umar', 'General Physician', 'I', '382', '362', '95%', '4.8', '₦2.8M'),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
-          _buildDoctorRow('Dr. David Paul', 'Orthopedic Surgeon', 'D', '312', '298', '96%', '4.7', '₦2.2M'),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
-          _buildDoctorRow('Dr. Chinelo Okeke', 'Dermatologist', 'C', '289', '276', '96%', '4.9', '₦1.9M'),
+          if (_topDoctors.isEmpty)
+            const SizedBox(
+              height: 120,
+              child: Center(
+                child: Text(
+                  'No doctor appointments in this period',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                ),
+              ),
+            )
+          else ...[
+            Row(
+              children: const [
+                Expanded(
+                  flex: 4,
+                  child: Text(
+                    'Doctor',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'Appointments',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 24),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...List.generate(_topDoctors.length, (index) {
+              final doctor = _topDoctors[index];
+              final initial = doctor.name.isNotEmpty
+                  ? doctor.name[0].toUpperCase()
+                  : '?';
+              return Column(
+                children: [
+                  _buildDoctorRow(
+                    doctor.name,
+                    initial,
+                    doctor.appointmentCount,
+                    index,
+                  ),
+                  if (index < _topDoctors.length - 1)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    ),
+                ],
+              );
+            }),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildDoctorRow(String name, String specialty, String initial, String total, String completed, String pct, String rating, String revenue) {
+  Widget _buildDoctorRow(
+    String name,
+    String initial,
+    int appointments,
+    int rank,
+  ) {
     return Row(
       children: [
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Row(
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.15),
-                child: Text(initial, style: const TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 11)),
+                backgroundColor: const Color(
+                  0xFF0F62FE,
+                ).withValues(alpha: 0.15),
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    color: Color(0xFF0F62FE),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis),
-                    Text(specialty, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)), overflow: TextOverflow.ellipsis),
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1E293B),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Rank #${rank + 1}',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
         ),
-        Expanded(flex: 2, child: Text(total, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)))),
         Expanded(
           flex: 2,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(completed, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF1E293B))),
-              Text(pct, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF10B981))),
+              Text(
+                appointments.toString(),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const Text(
+                'appointments',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF94A3B8),
+                ),
+              ),
             ],
           ),
         ),
-        Expanded(
-          flex: 2,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(rating, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF1E293B))),
-              const SizedBox(width: 2),
-              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 12),
-            ],
-          ),
-        ),
-        Expanded(flex: 2, child: Text(revenue, textAlign: TextAlign.right, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)))),
-        const SizedBox(width: 8),
-        const Icon(Icons.more_horiz_rounded, color: Color(0xFF94A3B8), size: 16),
+        const SizedBox(width: 24),
       ],
+    );
+  }
+
+  Widget _buildActivitySummary() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Platform Activity',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActivityCard(
+                  'Forum Posts',
+                  _formatNumber(_forumPostsCount),
+                  Icons.forum_outlined,
+                  const Color(0xFF8B5CF6),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActivityCard(
+                  'Active Doctors',
+                  _formatNumber(_totalDoctors),
+                  Icons.medical_services_outlined,
+                  const Color(0xFF3B82F6),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActivityCard(
+                  'Completed',
+                  '${_totalAppointments > 0 ? (_completedAppointments / _totalAppointments * 100).toStringAsFixed(0) : 0}%',
+                  Icons.check_circle_outline,
+                  const Color(0xFF10B981),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -486,18 +1175,50 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Reports Shortcuts', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+        const Text(
+          'Reports Shortcuts',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF1E293B),
+          ),
+        ),
         const SizedBox(height: 16),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           clipBehavior: Clip.none,
           child: Row(
             children: [
-              _buildShortcutCard('User Analytics', 'Detailed user insights', Icons.bar_chart_rounded, const Color(0xFF10B981)),
-              _buildShortcutCard('Doctor Performance', 'Track doctor metrics', Icons.group_outlined, const Color(0xFF3B82F6)),
-              _buildShortcutCard('Financial Reports', 'Revenue & transactions', Icons.account_balance_wallet_outlined, const Color(0xFFF59E0B)),
-              _buildShortcutCard('Appointment Reports', 'Booking & trends', Icons.calendar_today_outlined, const Color(0xFF8B5CF6)),
-              _buildShortcutCard('System Reports', 'System & audit logs', Icons.settings_system_daydream_outlined, const Color(0xFF6366F1)),
+              _buildShortcutCard(
+                'User Analytics',
+                'Detailed user insights',
+                Icons.bar_chart_rounded,
+                const Color(0xFF10B981),
+              ),
+              _buildShortcutCard(
+                'Doctor Performance',
+                'Track doctor metrics',
+                Icons.group_outlined,
+                const Color(0xFF3B82F6),
+              ),
+              _buildShortcutCard(
+                'Financial Reports',
+                'Revenue & transactions',
+                Icons.account_balance_wallet_outlined,
+                const Color(0xFFF59E0B),
+              ),
+              _buildShortcutCard(
+                'Appointment Reports',
+                'Booking & trends',
+                Icons.calendar_today_outlined,
+                const Color(0xFF8B5CF6),
+              ),
+              _buildShortcutCard(
+                'System Reports',
+                'System & audit logs',
+                Icons.settings_system_daydream_outlined,
+                const Color(0xFF6366F1),
+              ),
             ],
           ),
         ),
@@ -505,7 +1226,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     );
   }
 
-  Widget _buildShortcutCard(String title, String subtitle, IconData icon, Color color) {
+  Widget _buildShortcutCard(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       width: 140,
       margin: const EdgeInsets.only(right: 12),
@@ -520,13 +1246,30 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 16),
-          Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF1E293B))),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1E293B),
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(subtitle, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF64748B),
+            ),
+          ),
         ],
       ),
     );
@@ -535,17 +1278,46 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
   Widget _buildFooterAlert() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFDBEAFE))),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFDBEAFE)),
+      ),
       child: Row(
         children: [
-          const Icon(Icons.security_rounded, color: Color(0xFF3B82F6), size: 24),
+          const Icon(
+            Icons.security_rounded,
+            color: Color(0xFF3B82F6),
+            size: 24,
+          ),
           const SizedBox(width: 12),
-          const Expanded(child: Text('All reports are updated in real-time and data is securely encrypted.', style: TextStyle(color: Color(0xFF1E3A8A), fontSize: 11, fontWeight: FontWeight.w600, height: 1.4))),
+          const Expanded(
+            child: Text(
+              'All reports are updated in real-time and data is securely encrypted.',
+              style: TextStyle(
+                color: Color(0xFF1E3A8A),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+              ),
+            ),
+          ),
           Row(
             children: const [
-              Text('Learn more', style: TextStyle(color: Color(0xFF2563EB), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text(
+                'Learn more',
+                style: TextStyle(
+                  color: Color(0xFF2563EB),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded, color: Color(0xFF2563EB), size: 16),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Color(0xFF2563EB),
+                size: 16,
+              ),
             ],
           ),
         ],
@@ -554,229 +1326,14 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
   }
 }
 
-class _InteractiveLineChartPainter extends CustomPainter {
-  final double? hoverX;
-  
-  // Dummy data arrays representing the peaks and valleys
-  final List<double> completedData = [0.4, 0.6, 0.5, 0.7, 0.8, 0.6, 0.5, 0.5, 0.4, 0.5, 0.7, 0.9, 0.8, 0.6, 0.7, 0.6, 0.7, 0.6, 0.4, 0.6, 0.5];
-  final List<double> rescheduledData = [0.2, 0.25, 0.2, 0.3, 0.25, 0.2, 0.2, 0.25, 0.28, 0.2, 0.25, 0.3, 0.28, 0.25, 0.28, 0.25, 0.28, 0.25, 0.2, 0.3, 0.25];
-  final List<double> cancelledData = [0.05, 0.08, 0.06, 0.1, 0.08, 0.06, 0.08, 0.1, 0.08, 0.06, 0.12, 0.1, 0.05, 0.08, 0.12, 0.1, 0.1, 0.05, 0.08, 0.1, 0.08];
+class _DoctorStat {
+  final String id;
+  final String name;
+  final int appointmentCount;
 
-  _InteractiveLineChartPainter({this.hoverX});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    _drawGridLines(canvas, size);
-    _drawLabels(canvas, size);
-
-    // Draw the 3 lines
-    _drawLine(canvas, size, cancelledData, const Color(0xFFEF4444));
-    _drawLine(canvas, size, rescheduledData, const Color(0xFF10B981));
-    _drawLine(canvas, size, completedData, const Color(0xFF3B82F6));
-
-    if (hoverX != null && hoverX! >= 0 && hoverX! <= size.width) {
-      _drawTooltip(canvas, size, hoverX!);
-    }
-  }
-
-  void _drawGridLines(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFFF1F5F9)..strokeWidth = 1;
-    for (int i = 0; i <= 5; i++) {
-      final y = size.height - (i * (size.height / 5));
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  void _drawLabels(Canvas canvas, Size size) {
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-    
-    // Y-Axis
-    final yLabels = ['0', '500', '1K', '1.5K', '2K', '2.5K'];
-    for (int i = 0; i < yLabels.length; i++) {
-      textPainter.text = TextSpan(text: yLabels[i], style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.w700));
-      textPainter.layout();
-      textPainter.paint(canvas, Offset(0, size.height - (i * (size.height / 5)) - 12));
-    }
-
-    // X-Axis
-    final xLabels = ['1 May', '6 May', '11 May', '16 May', '21 May', '26 May', '31 May'];
-    final stepX = size.width / (xLabels.length - 1);
-    for (int i = 0; i < xLabels.length; i++) {
-      textPainter.text = TextSpan(text: xLabels[i], style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.w700));
-      textPainter.layout();
-      textPainter.paint(canvas, Offset((i * stepX) - (textPainter.width / 2), size.height + 8));
-    }
-  }
-
-  void _drawLine(Canvas canvas, Size size, List<double> data, Color color) {
-    final paint = Paint()..color = color..strokeWidth = 2..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
-    final path = Path();
-    final stepX = size.width / (data.length - 1);
-
-    for (int i = 0; i < data.length; i++) {
-      final x = i * stepX;
-      final y = size.height - (data[i] * size.height);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        final prevX = (i - 1) * stepX;
-        final prevY = size.height - (data[i - 1] * size.height);
-        // smooth curve
-        path.quadraticBezierTo(prevX + (stepX / 2), prevY, x, y);
-      }
-    }
-    canvas.drawPath(path, paint);
-  }
-
-  void _drawTooltip(Canvas canvas, Size size, double x) {
-    // Find closest index
-    final stepX = size.width / (completedData.length - 1);
-    final index = (x / stepX).round().clamp(0, completedData.length - 1);
-    final snappedX = index * stepX;
-
-    // Draw vertical line
-    final linePaint = Paint()..color = const Color(0xFFCBD5E1)..strokeWidth = 1..style = PaintingStyle.stroke;
-    canvas.drawLine(Offset(snappedX, 0), Offset(snappedX, size.height), linePaint);
-
-    // Draw dots
-    _drawDot(canvas, snappedX, size.height - (completedData[index] * size.height), const Color(0xFF3B82F6));
-    _drawDot(canvas, snappedX, size.height - (rescheduledData[index] * size.height), const Color(0xFF10B981));
-    _drawDot(canvas, snappedX, size.height - (cancelledData[index] * size.height), const Color(0xFFEF4444));
-
-    // Draw Tooltip Box
-    const boxWidth = 120.0;
-    const boxHeight = 85.0;
-    double boxX = snappedX + 10;
-    if (boxX + boxWidth > size.width) {
-      boxX = snappedX - boxWidth - 10;
-    }
-    double boxY = 20.0;
-
-    final boxRect = RRect.fromRectAndRadius(Rect.fromLTWH(boxX, boxY, boxWidth, boxHeight), const Radius.circular(8));
-    // Draw shadow
-    final shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.1)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
-    canvas.drawRRect(boxRect.shift(const Offset(0, 4)), shadowPaint);
-    
-    final boxPaint = Paint()..color = Colors.white;
-    canvas.drawRRect(boxRect, boxPaint);
-    
-    // Tooltip border
-    canvas.drawRRect(boxRect, Paint()..color = const Color(0xFFF1F5F9)..style = PaintingStyle.stroke..strokeWidth = 1);
-
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-
-    // Date Header
-    textPainter.text = const TextSpan(text: '16 May 2025', style: TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.w700));
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(boxX + 12, boxY + 12));
-
-    // Completed
-    _drawTooltipRow(canvas, textPainter, 'Completed', '1,842', const Color(0xFF3B82F6), boxX + 12, boxY + 30);
-    _drawTooltipRow(canvas, textPainter, 'Cancelled', '245', const Color(0xFFEF4444), boxX + 12, boxY + 46);
-    _drawTooltipRow(canvas, textPainter, 'Rescheduled', '312', const Color(0xFF10B981), boxX + 12, boxY + 62);
-  }
-
-  void _drawTooltipRow(Canvas canvas, TextPainter textPainter, String label, String value, Color color, double x, double y) {
-    canvas.drawCircle(Offset(x + 3, y + 5), 3, Paint()..color = color);
-    textPainter.text = TextSpan(text: label, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 9, fontWeight: FontWeight.w700));
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(x + 10, y));
-
-    textPainter.text = TextSpan(text: value, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 9, fontWeight: FontWeight.w900));
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(x + 75, y));
-  }
-
-  void _drawDot(Canvas canvas, double x, double y, Color color) {
-    canvas.drawCircle(Offset(x, y), 5, Paint()..color = Colors.white);
-    canvas.drawCircle(Offset(x, y), 3, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(covariant _InteractiveLineChartPainter oldDelegate) {
-    return oldDelegate.hoverX != hoverX;
-  }
-}
-
-class _DonutChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-    const strokeWidth = 35.0;
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-
-    // Consultation 55%
-    paint.color = const Color(0xFF3B82F6);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), -math.pi / 2, math.pi * 1.1, false, paint);
-
-    // Follow-up 25%
-    paint.color = const Color(0xFF10B981);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), math.pi * 0.6, math.pi * 0.5, false, paint);
-
-    // Lab Test 12%
-    paint.color = const Color(0xFF8B5CF6);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), math.pi * 1.1, math.pi * 0.24, false, paint);
-
-    // Emergency 8%
-    paint.color = const Color(0xFFF59E0B);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), math.pi * 1.34, math.pi * 0.16, false, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _BarChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFF10B981)..style = PaintingStyle.fill;
-    final secondaryPaint = Paint()..color = const Color(0xFF10B981).withValues(alpha: 0.4)..style = PaintingStyle.fill;
-
-    // 5 groups of 2 bars
-    final groups = 5;
-    final stepX = size.width / groups;
-    final barWidth = 8.0;
-
-    final heights1 = [0.4, 0.6, 0.7, 0.8, 0.9];
-    final heights2 = [0.3, 0.5, 0.6, 0.8, 0.85];
-
-    for (int i = 0; i < groups; i++) {
-      final x = (i * stepX) + (stepX / 2) - barWidth;
-      
-      final h1 = size.height * heights1[i];
-      final r1 = RRect.fromRectAndRadius(Rect.fromLTWH(x, size.height - h1, barWidth, h1), const Radius.circular(4));
-      canvas.drawRRect(r1, secondaryPaint);
-
-      final h2 = size.height * heights2[i];
-      final r2 = RRect.fromRectAndRadius(Rect.fromLTWH(x + barWidth + 4, size.height - h2, barWidth, h2), const Radius.circular(4));
-      canvas.drawRRect(r2, paint);
-    }
-    
-    // Labels
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-    final labels = ['1 May', '8 May', '15 May', '22 May', '29 May'];
-    for (int i = 0; i < groups; i++) {
-      textPainter.text = TextSpan(text: labels[i], style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.w700));
-      textPainter.layout();
-      final x = (i * stepX) + (stepX / 2) - (textPainter.width / 2);
-      textPainter.paint(canvas, Offset(x, size.height + 8));
-    }
-
-    // Y labels
-    final yLabels = ['0', '10K', '20K', '30K'];
-    for (int i = 0; i < yLabels.length; i++) {
-      textPainter.text = TextSpan(text: yLabels[i], style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.w700));
-      textPainter.layout();
-      textPainter.paint(canvas, Offset(-20, size.height - (i * (size.height / 3)) - 10));
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  const _DoctorStat({
+    required this.id,
+    required this.name,
+    required this.appointmentCount,
+  });
 }

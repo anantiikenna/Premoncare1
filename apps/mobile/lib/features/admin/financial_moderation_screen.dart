@@ -1,46 +1,343 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 import 'admin_scaffold.dart';
 
-class FinancialModerationScreen extends ConsumerWidget {
+class FinancialModerationScreen extends ConsumerStatefulWidget {
   const FinancialModerationScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    const primaryColor = Color(0xFF0F62FE);
+  ConsumerState<FinancialModerationScreen> createState() =>
+      _FinancialModerationScreenState();
+}
 
+class _FinancialModerationScreenState
+    extends ConsumerState<FinancialModerationScreen> {
+  int _selectedTab = 0;
+  bool _isLoading = true;
+  String? _error;
+
+  List<Map<String, dynamic>> _transactions = [];
+  List<Map<String, dynamic>> _disputes = [];
+  int _totalRevenue = 0;
+  int _totalPayouts = 0;
+  int _pendingPayouts = 0;
+  int _pendingPayoutCount = 0;
+  int _refunds = 0;
+  int _disputedCount = 0;
+  int _refundRequestCount = 0;
+
+  static const _tabLabels = [
+    'All Transactions',
+    'Pending',
+    'Approved',
+    'Refunded',
+    'Disputed',
+  ];
+
+  static const _tabStatuses = <String?>[
+    null,
+    'pending',
+    'approved',
+    'refunded',
+    'disputed',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    await Future.wait([_loadStats(), _loadTransactions(), _loadDisputes()]);
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final payments = await supabase.from('payments').select('amount, status');
+
+      int revenue = 0;
+      int payouts = 0;
+      int pending = 0;
+      int pendingCount = 0;
+      int refunds = 0;
+      int refundCount = 0;
+
+      for (final p in payments) {
+        final amount = (p['amount'] as num?)?.toInt() ?? 0;
+        final status = p['status'] as String? ?? '';
+        switch (status) {
+          case 'approved':
+            revenue += amount;
+            payouts += amount;
+            break;
+          case 'pending':
+            pending += amount;
+            pendingCount++;
+            break;
+          case 'refunded':
+            refunds += amount;
+            refundCount++;
+            break;
+        }
+      }
+
+      final disputes =
+          await supabase.from('disputes').select('id, status');
+      final openDisputes = disputes
+          .where((d) =>
+              (d['status'] == 'open') || (d['status'] == 'in_review'))
+          .length;
+
+      if (mounted) {
+        setState(() {
+          _totalRevenue = revenue;
+          _totalPayouts = payouts;
+          _pendingPayouts = pending;
+          _pendingPayoutCount = pendingCount;
+          _refunds = refunds;
+          _disputedCount = openDisputes;
+          _refundRequestCount = refundCount;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Failed to load stats: $e');
+      }
+    }
+  }
+
+  Future<void> _loadTransactions() async {
+    try {
+      final status = _tabStatuses[_selectedTab];
+      var query = supabase.from('payments').select('''
+            id, amount, status, created_at, method, receipt_url,
+            sender_id, recipient_id
+          ''');
+
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+
+      final data = await query.order('created_at', ascending: false).limit(20);
+
+      final senderIds = <String>{};
+      final recipientIds = <String>{};
+      for (final t in data) {
+        final s = t['sender_id'] as String?;
+        final r = t['recipient_id'] as String?;
+        if (s != null) senderIds.add(s);
+        if (r != null) recipientIds.add(r);
+      }
+
+      final allIds = {...senderIds, ...recipientIds};
+      final profileMap = <String, Map<String, dynamic>>{};
+      if (allIds.isNotEmpty) {
+        final profiles = await supabase
+            .from('profiles')
+            .select('id, full_name, email, role')
+            .inFilter('id', allIds.toList());
+        for (final p in profiles) {
+          profileMap[p['id'] as String] = p;
+        }
+      }
+
+      final enriched = data.map((t) {
+        final sender = profileMap[t['sender_id']];
+        final recipient = profileMap[t['recipient_id']];
+        return {
+          ...t,
+          'sender_name': sender?['full_name'] ?? 'Unknown',
+          'recipient_name': recipient?['full_name'] ?? 'Unknown',
+        };
+      }).toList();
+
+      if (mounted) setState(() => _transactions = enriched);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Failed to load transactions: $e');
+      }
+    }
+  }
+
+  Future<void> _loadDisputes() async {
+    try {
+      final data = await supabase
+          .from('disputes')
+          .select('''
+            id, transaction_id, title, description, status,
+            risk_level, category, amount, created_at,
+            user_id, patient_id, doctor_id
+          ''')
+          .order('created_at', ascending: false)
+          .limit(10);
+
+      final userIds = <String>{};
+      for (final d in data) {
+        final uid = d['user_id'] as String?;
+        if (uid != null) userIds.add(uid);
+      }
+
+      final profileMap = <String, String>{};
+      if (userIds.isNotEmpty) {
+        final profiles = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .inFilter('id', userIds.toList());
+        for (final p in profiles) {
+          profileMap[p['id'] as String] = p['full_name'] ?? 'Unknown';
+        }
+      }
+
+      final enriched = data.map((d) {
+        return {
+          ...d,
+          'user_name': profileMap[d['user_id']] ?? 'Unknown',
+        };
+      }).toList();
+
+      if (mounted) setState(() => _disputes = enriched);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Failed to load disputes: $e');
+      }
+    }
+  }
+
+  String _formatAmount(num amount) {
+    final s = amount.toInt().toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
+      buf.write(s[i]);
+    }
+    return '₦$buf';
+  }
+
+  String _formatDate(String? isoDate) {
+    if (isoDate == null) return '';
+    try {
+      final dt = DateTime.parse(isoDate).toLocal();
+      const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      final h = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+      final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+      final mm = dt.minute.toString().padLeft(2, '0');
+      return '${dt.day} ${months[dt.month - 1]}, $h:$mm $ampm';
+    } catch (_) {
+      return isoDate;
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'approved':
+        return AppColors.success;
+      case 'pending':
+        return AppColors.warning;
+      case 'refunded':
+      case 'rejected':
+        return AppColors.error;
+      case 'disputed':
+        return AppColors.warning;
+      case 'open':
+        return AppColors.warning;
+      case 'in_review':
+        return AppColors.info;
+      case 'resolved':
+      case 'closed':
+        return AppColors.success;
+      default:
+        return AppColors.slate400;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AdminScaffold(
       selectedIndex: 4,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 24),
-            _buildFinancialStats(),
-            const SizedBox(height: 32),
-            _buildFilterTabs(),
-            const SizedBox(height: 20),
-            _buildSearchAndFilters(),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Financial Alerts', onSeeAll: () {}),
-            const SizedBox(height: 16),
-            _buildFinancialAlerts(primaryColor),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Recent Transactions', onSeeAll: () {}),
-            const SizedBox(height: 16),
-            _buildTransactionsList(),
-            const SizedBox(height: 32),
-            _buildRevenueAnalysis(primaryColor),
-            const SizedBox(height: 32),
-            _buildDisputesAndPayouts(),
-            const SizedBox(height: 32),
-            _buildSectionHeader('Quick Actions'),
-            const SizedBox(height: 16),
-            _buildQuickActions(context, primaryColor),
-            const SizedBox(height: 40),
-          ],
-        ),
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        color: AppColors.primary,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primary))
+            : _error != null && _transactions.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline_rounded,
+                              color: AppColors.error, size: 48),
+                          const SizedBox(height: 16),
+                          Text(
+                            _error!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _loadData,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Retry',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        _buildFinancialStats(),
+                        const SizedBox(height: 32),
+                        _buildFilterTabs(),
+                        const SizedBox(height: 20),
+                        _buildSearchAndFilters(),
+                        const SizedBox(height: 32),
+                        _buildSectionHeader('Financial Alerts', onSeeAll: () {}),
+                        const SizedBox(height: 16),
+                        _buildFinancialAlerts(),
+                        const SizedBox(height: 32),
+                        _buildSectionHeader('Recent Transactions', onSeeAll: () {}),
+                        const SizedBox(height: 16),
+                        _buildTransactionsList(),
+                        const SizedBox(height: 32),
+                        _buildRevenueAnalysis(),
+                        const SizedBox(height: 32),
+                        _buildDisputesAndPayouts(),
+                        const SizedBox(height: 32),
+                        _buildSectionHeader('Quick Actions'),
+                        const SizedBox(height: 16),
+                        _buildQuickActions(context),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
       ),
     );
   }
@@ -53,39 +350,39 @@ class FinancialModerationScreen extends ConsumerWidget {
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
       childAspectRatio: 1.4,
-      children: const [
+      children: [
         _FinanceStatCard(
-          title: 'Total Revenue (This Month)',
-          value: '₦28,540,600',
-          trend: '+ 18.7%',
+          title: 'Total Revenue',
+          value: _formatAmount(_totalRevenue),
+          trend: '${_transactions.length} txns',
           trendPositive: true,
           icon: Icons.medical_services_outlined,
-          color: Color(0xFF10B981),
+          color: AppColors.success,
         ),
         _FinanceStatCard(
-          title: 'Total Payouts (This Month)',
-          value: '₦16,320,450',
-          trend: '+ 12.4%',
+          title: 'Total Payouts',
+          value: _formatAmount(_totalPayouts),
+          trend: '${_transactions.where((t) => t['status'] == 'approved').length} txns',
           trendPositive: true,
           icon: Icons.account_balance_wallet_outlined,
-          color: Color(0xFF3B82F6),
+          color: AppColors.primary,
         ),
         _FinanceStatCard(
           title: 'Pending Payouts',
-          value: '₦3,245,000',
-          trend: '32 transactions',
+          value: _formatAmount(_pendingPayouts),
+          trend: '$_pendingPayoutCount transactions',
           trendPositive: true,
           icon: Icons.hourglass_empty_rounded,
-          color: Color(0xFFF59E0B),
+          color: AppColors.warning,
           isTransactionCount: true,
         ),
         _FinanceStatCard(
-          title: 'Refunds (This Month)',
-          value: '₦950,300',
-          trend: '- 8.6%',
+          title: 'Refunds',
+          value: _formatAmount(_refunds),
+          trend: '$_refundRequestCount requests',
           trendPositive: false,
           icon: Icons.replay_rounded,
-          color: Color(0xFFEF4444),
+          color: AppColors.error,
         ),
       ],
     );
@@ -95,15 +392,21 @@ class FinancialModerationScreen extends ConsumerWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: [
-          _TabItem(label: 'All Transactions', isSelected: true),
-          const SizedBox(width: 12),
-          _TabItem(label: 'Payouts', isSelected: false),
-          const SizedBox(width: 12),
-          _TabItem(label: 'Refunds', isSelected: false),
-          const SizedBox(width: 12),
-          _TabItem(label: 'Disputes', isSelected: false),
-        ],
+        children: List.generate(_tabLabels.length, (i) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _selectedTab = i);
+                _loadTransactions();
+              },
+              child: _TabItem(
+                label: _tabLabels[i],
+                isSelected: _selectedTab == i,
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -115,27 +418,22 @@ class FinancialModerationScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFF1F5F9)),
+                  border: Border.all(color: AppColors.borderLight),
                 ),
                 child: const Row(
                   children: [
-                    Icon(
-                      Icons.search_rounded,
-                      color: Color(0xFF94A3B8),
-                      size: 20,
-                    ),
+                    Icon(Icons.search_rounded,
+                        color: AppColors.textTertiary, size: 20),
                     SizedBox(width: 12),
                     Text(
-                      'Search by name, transaction ID, or reference...',
+                      'Search by name, transaction ID...',
                       style: TextStyle(
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textTertiary,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -150,68 +448,39 @@ class FinancialModerationScreen extends ConsumerWidget {
             _IconButton(icon: Icons.file_download_outlined, label: 'Export'),
           ],
         ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-          ),
-          child: const Row(
-            children: [
-              Icon(
-                Icons.calendar_today_rounded,
-                color: Color(0xFF64748B),
-                size: 18,
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Jun 8 - Jun 14, 2025',
-                style: TextStyle(
-                  color: Color(0xFF1E293B),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Spacer(),
-              Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF94A3B8)),
-            ],
-          ),
-        ),
       ],
     );
   }
 
-  Widget _buildFinancialAlerts(Color primaryColor) {
+  Widget _buildFinancialAlerts() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
           _AlertCard(
-            count: '3',
+            count: '$_disputedCount',
             title: 'Payment Disputes',
             sub: 'Require attention',
             btnLabel: 'Review Now',
-            color: const Color(0xFFF59E0B),
+            color: AppColors.warning,
             icon: Icons.warning_amber_rounded,
           ),
           const SizedBox(width: 16),
           _AlertCard(
-            count: '7',
-            title: 'Failed Payouts',
-            sub: 'Need resolution',
+            count: '$_pendingPayoutCount',
+            title: 'Pending Payouts',
+            sub: 'Awaiting approval',
             btnLabel: 'View Now',
-            color: const Color(0xFFEF4444),
+            color: AppColors.error,
             icon: Icons.error_outline_rounded,
           ),
           const SizedBox(width: 16),
           _AlertCard(
-            count: '12',
+            count: '$_refundRequestCount',
             title: 'Refund Requests',
             sub: 'Pending review',
             btnLabel: 'View Now',
-            color: const Color(0xFF3B82F6),
+            color: AppColors.primary,
             icon: Icons.info_outline_rounded,
           ),
         ],
@@ -220,68 +489,93 @@ class FinancialModerationScreen extends ConsumerWidget {
   }
 
   Widget _buildTransactionsList() {
+    if (_transactions.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: const Center(
+          child: Text(
+            'No transactions found',
+            style: TextStyle(
+              color: AppColors.textTertiary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
-      children: [
-        _TransactionItem(
-          name: 'Dr. Femi Adebayo',
-          type: 'Consultation Payout',
-          id: 'TXN-784512',
-          date: '14 Jun, 10:30 AM',
-          amount: '₦45,000',
-          status: 'Completed',
-          statusColor: const Color(0xFF10B981),
-          initial: 'F',
-        ),
-        const SizedBox(height: 12),
-        _TransactionItem(
-          name: 'Mary Johnson',
-          type: 'Consultation Payment',
-          id: 'TXN-784511',
-          date: '14 Jun, 09:15 AM',
-          amount: '₦15,000',
-          status: 'Completed',
-          statusColor: const Color(0xFF10B981),
-          initial: 'M',
-        ),
-        const SizedBox(height: 12),
-        _TransactionItem(
-          name: 'Ibrahim Umar',
-          type: 'Consultation Payout',
-          id: 'TXN-784510',
-          date: '14 Jun, 08:45 AM',
-          amount: '₦32,000',
-          status: 'Pending',
-          statusColor: const Color(0xFFF59E0B),
-          initial: 'I',
-        ),
-        const SizedBox(height: 12),
-        _TransactionItem(
-          name: 'Adaora Nwosu',
-          type: 'Refund to Patient',
-          id: 'TXN-784509',
-          date: '13 Jun, 04:20 PM',
-          amount: '- ₦12,000',
-          amountColor: const Color(0xFFEF4444),
-          status: 'Refunded',
-          statusColor: const Color(0xFFEF4444),
-          initial: 'A',
-        ),
-        const SizedBox(height: 12),
-        _TransactionItem(
-          name: 'John Michael',
-          type: 'Subscription Payment',
-          id: 'TXN-784508',
-          date: '13 Jun, 03:10 PM',
-          amount: '₦25,000',
-          status: 'Completed',
-          statusColor: const Color(0xFF10B981),
-          initial: 'J',
-        ),
-      ],
+      children: _transactions.map((t) {
+        final amount = (t['amount'] as num?)?.toInt() ?? 0;
+        final status = t['status'] as String? ?? 'unknown';
+        final isRefund = status == 'refunded';
+        final name = isRefund
+            ? (t['sender_name'] as String? ?? 'Unknown')
+            : (t['recipient_name'] as String? ?? 'Unknown');
+        final initial =
+            name.isNotEmpty ? name[0].toUpperCase() : '?';
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _TransactionItem(
+            name: name,
+            type: _transactionType(status, t['method'] as String?),
+            id: (t['id'] as String? ?? '').substring(0, 8),
+            date: _formatDate(t['created_at'] as String?),
+            amount: '${isRefund ? "- " : ""}${_formatAmount(amount)}',
+            amountColor: isRefund ? AppColors.error : AppColors.textPrimary,
+            status: _capitalizeStatus(status),
+            statusColor: _statusColor(status),
+            initial: initial,
+          ),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildRevenueAnalysis(Color primaryColor) {
+  String _transactionType(String status, String? method) {
+    switch (status) {
+      case 'refunded':
+        return 'Refund';
+      case 'pending':
+        return 'Awaiting Approval';
+      case 'disputed':
+        return 'Disputed Payment';
+      default:
+        return method != null
+            ? '${_capitalizeStatus(method)} Payment'
+            : 'Consultation Payment';
+    }
+  }
+
+  String _capitalizeStatus(String s) =>
+      s[0].toUpperCase() + s.substring(1).replaceAll('_', ' ');
+
+  Widget _buildRevenueAnalysis() {
+    final total = _totalRevenue > 0 ? _totalRevenue : 1;
+
+    final approved = _transactions
+        .where((t) => t['status'] == 'approved')
+        .fold<int>(0, (sum, t) => sum + ((t['amount'] as num?)?.toInt() ?? 0));
+    final pending = _transactions
+        .where((t) => t['status'] == 'pending')
+        .fold<int>(0, (sum, t) => sum + ((t['amount'] as num?)?.toInt() ?? 0));
+    final other = total - approved - pending;
+    final otherPositive = other > 0 ? other : 0;
+
+    final approvedPct =
+        total > 0 ? ((approved / total) * 100).toStringAsFixed(1) : '0.0';
+    final pendingPct =
+        total > 0 ? ((pending / total) * 100).toStringAsFixed(1) : '0.0';
+    final otherPct =
+        total > 0 ? ((otherPositive / total) * 100).toStringAsFixed(1) : '0.0';
+
     return Row(
       children: [
         Expanded(
@@ -289,88 +583,32 @@ class FinancialModerationScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildAnalyticsHeader('Revenue Overview'),
                 const SizedBox(height: 16),
-                const Text(
-                  '₦28,540,600',
-                  style: TextStyle(
+                Text(
+                  _formatAmount(_totalRevenue),
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const Row(
-                  children: [
-                    Icon(
-                      Icons.arrow_upward_rounded,
-                      color: Color(0xFF10B981),
-                      size: 12,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      '18.7%',
-                      style: TextStyle(
-                        color: Color(0xFF10B981),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'vs last week',
-                      style: TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
                 SizedBox(
                   height: 120,
-                  child: CustomPaint(painter: _LineChartPainter(primaryColor)),
+                  child: CustomPaint(
+                      painter: _LineChartPainter(AppColors.primary)),
                 ),
                 const SizedBox(height: 12),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Jun 8',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                    ),
-                    Text(
-                      'Jun 9',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                    ),
-                    Text(
-                      'Jun 10',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                    ),
-                    Text(
-                      'Jun 11',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                    ),
-                    Text(
-                      'Jun 12',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                    ),
-                    Text(
-                      'Jun 13',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                    ),
-                    Text(
-                      'Jun 14',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
-                    ),
-                  ],
+                  children: _weekLabels(),
                 ),
               ],
             ),
@@ -382,9 +620,9 @@ class FinancialModerationScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: Column(
               children: [
@@ -397,28 +635,30 @@ class FinancialModerationScreen extends ConsumerWidget {
                       height: 100,
                       width: 100,
                       child: CircularProgressIndicator(
-                        value: 0.7,
+                        value: approved / (total > 0 ? total : 1),
                         strokeWidth: 10,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                        backgroundColor:
+                            Colors.grey.withValues(alpha: 0.1),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.primary),
                       ),
                     ),
-                    const Column(
+                    Column(
                       children: [
                         Text(
-                          '₦28.5M',
-                          style: TextStyle(
+                          _formatAmount(_totalRevenue),
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        Text(
+                        const Text(
                           'Total',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.textTertiary,
                           ),
                         ),
                       ],
@@ -427,28 +667,22 @@ class FinancialModerationScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 _BreakdownItem(
-                  label: 'Consultations',
-                  value: '₦18.2M',
-                  percentage: '63.8%',
-                  color: primaryColor,
+                  label: 'Approved',
+                  value: _formatAmount(approved),
+                  percentage: '$approvedPct%',
+                  color: AppColors.primary,
                 ),
                 _BreakdownItem(
-                  label: 'Subscriptions',
-                  value: '₦6.4M',
-                  percentage: '22.4%',
-                  color: const Color(0xFF10B981),
-                ),
-                _BreakdownItem(
-                  label: 'Time Credit Sales',
-                  value: '₦2.8M',
-                  percentage: '9.8%',
-                  color: const Color(0xFF8B5CF6),
+                  label: 'Pending',
+                  value: _formatAmount(pending),
+                  percentage: '$pendingPct%',
+                  color: AppColors.warning,
                 ),
                 _BreakdownItem(
                   label: 'Other',
-                  value: '₦1.1M',
-                  percentage: '4.0%',
-                  color: const Color(0xFFF59E0B),
+                  value: _formatAmount(otherPositive),
+                  percentage: '$otherPct%',
+                  color: AppColors.slate500,
                 ),
               ],
             ),
@@ -456,6 +690,22 @@ class FinancialModerationScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  List<Widget> _weekLabels() {
+    final now = DateTime.now();
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return List.generate(7, (i) {
+      final d = now.subtract(Duration(days: 6 - i));
+      return Text(
+        '${months[d.month - 1]} ${d.day}',
+        style: const TextStyle(
+            fontSize: 10, color: AppColors.textTertiary),
+      );
+    });
   }
 
   Widget _buildAnalyticsHeader(String title) {
@@ -467,7 +717,7 @@ class FinancialModerationScreen extends ConsumerWidget {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         Row(
@@ -476,14 +726,14 @@ class FinancialModerationScreen extends ConsumerWidget {
               'This Week',
               style: TextStyle(
                 fontSize: 11,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
                 fontWeight: FontWeight.w700,
               ),
             ),
             Icon(
               Icons.keyboard_arrow_down_rounded,
               size: 16,
-              color: const Color(0xFF64748B).withValues(alpha: 0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
           ],
         ),
@@ -492,47 +742,54 @@ class FinancialModerationScreen extends ConsumerWidget {
   }
 
   Widget _buildDisputesAndPayouts() {
+    final pendingPayments = _transactions
+        .where((t) => t['status'] == 'pending')
+        .toList();
+
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildListHeader('Recent Disputes'),
                 const SizedBox(height: 20),
-                _DisputeItem(
-                  name: 'Mary Johnson',
-                  sub: 'Payment not received',
-                  id: 'DISP-2456',
-                  time: '14 Jun, 11:30 AM',
-                  status: 'Open',
-                  color: const Color(0xFFF59E0B),
-                ),
-                const Divider(height: 24, color: Color(0xFFF1F5F9)),
-                _DisputeItem(
-                  name: 'Emeka Patrick',
-                  sub: 'Consultation issue',
-                  id: 'DISP-2455',
-                  time: '13 Jun, 03:45 PM',
-                  status: 'Open',
-                  color: const Color(0xFFF59E0B),
-                ),
-                const Divider(height: 24, color: Color(0xFFF1F5F9)),
-                _DisputeItem(
-                  name: 'Chinedu Okeke',
-                  sub: 'Incorrect charge',
-                  id: 'DISP-2454',
-                  time: '12 Jun, 02:10 PM',
-                  status: 'Resolved',
-                  color: const Color(0xFF10B981),
-                ),
+                if (_disputes.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'No disputes found',
+                      style: TextStyle(
+                        color: AppColors.textTertiary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  )
+                else
+                  ..._disputes.take(3).expand((d) => [
+                        _DisputeItem(
+                          name: d['user_name'] as String? ?? 'Unknown',
+                          sub: d['title'] as String? ??
+                              d['description'] as String? ??
+                              'No description',
+                          id: (d['id'] as String? ?? '').substring(0, 8),
+                          time: _formatDate(d['created_at'] as String?),
+                          status: _capitalizeStatus(
+                              d['status'] as String? ?? 'open'),
+                          color: _statusColor(d['status'] as String? ?? 'open'),
+                        ),
+                        if (d != _disputes.last)
+                          const Divider(
+                              height: 24, color: AppColors.divider),
+                      ]),
               ],
             ),
           ),
@@ -542,38 +799,46 @@ class FinancialModerationScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildListHeader('Upcoming Payouts'),
+                _buildListHeader('Pending Payouts'),
                 const SizedBox(height: 20),
-                const _PayoutItem(
-                  name: 'Dr. Femi Adebayo',
-                  txnCount: '2 Transactions',
-                  date: 'Due: 15 Jun, 2025',
-                  amount: '₦95,000',
-                  initial: 'F',
-                ),
-                const Divider(height: 24, color: Color(0xFFF1F5F9)),
-                const _PayoutItem(
-                  name: 'Dr. Adaora Nwosu',
-                  txnCount: '3 Transactions',
-                  date: 'Due: 15 Jun, 2025',
-                  amount: '₦68,000',
-                  initial: 'A',
-                ),
-                const Divider(height: 24, color: Color(0xFFF1F5F9)),
-                const _PayoutItem(
-                  name: 'Dr. Ibrahim Umar',
-                  txnCount: '2 Transactions',
-                  date: 'Due: 15 Jun, 2025',
-                  amount: '₦45,000',
-                  initial: 'I',
-                ),
+                if (pendingPayments.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'No pending payouts',
+                      style: TextStyle(
+                        color: AppColors.textTertiary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  )
+                else
+                  ...pendingPayments.take(3).expand((p) {
+                    final amount = (p['amount'] as num?)?.toInt() ?? 0;
+                    final name =
+                        p['recipient_name'] as String? ?? 'Unknown';
+                    final initial =
+                        name.isNotEmpty ? name[0].toUpperCase() : '?';
+                    return [
+                      _PayoutItem(
+                        name: name,
+                        txnCount: p['method'] as String? ?? 'Payment',
+                        date: _formatDate(p['created_at'] as String?),
+                        amount: _formatAmount(amount),
+                        initial: initial,
+                      ),
+                      if (p != pendingPayments.last)
+                        const Divider(
+                            height: 24, color: AppColors.divider),
+                    ];
+                  }),
               ],
             ),
           ),
@@ -591,7 +856,7 @@ class FinancialModerationScreen extends ConsumerWidget {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const Text(
@@ -599,14 +864,14 @@ class FinancialModerationScreen extends ConsumerWidget {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF0F62FE),
+            color: AppColors.primary,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildQuickActions(BuildContext context, Color primaryColor) {
+  Widget _buildQuickActions(BuildContext context) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -618,28 +883,28 @@ class FinancialModerationScreen extends ConsumerWidget {
         _QuickAction(
           icon: Icons.check_circle_outline_rounded,
           label: 'Approve Payouts',
-          color: const Color(0xFF10B981),
+          color: AppColors.success,
           onTap: () => _showApprovePayoutsDialog(context),
         ),
-        _QuickAction(
+        const _QuickAction(
           icon: Icons.replay_rounded,
           label: 'Review Refunds',
-          color: const Color(0xFFEF4444),
+          color: AppColors.error,
         ),
-        _QuickAction(
+        const _QuickAction(
           icon: Icons.warning_amber_rounded,
           label: 'Resolve Disputes',
-          color: const Color(0xFFF59E0B),
+          color: AppColors.warning,
         ),
-        _QuickAction(
+        const _QuickAction(
           icon: Icons.bar_chart_rounded,
           label: 'Transaction Reports',
-          color: primaryColor,
+          color: AppColors.primary,
         ),
-        _QuickAction(
+        const _QuickAction(
           icon: Icons.settings_outlined,
           label: 'Payout Settings',
-          color: const Color(0xFF8B5CF6),
+          color: AppColors.info,
         ),
       ],
     );
@@ -649,36 +914,69 @@ class FinancialModerationScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Row(
           children: [
-            Icon(Icons.check_circle_rounded, color: Color(0xFF10B981)),
+            Icon(Icons.check_circle_rounded, color: AppColors.success),
             SizedBox(width: 12),
-            Text('Approve Payouts?', style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1E293B), fontSize: 18)),
+            Text('Approve Payouts?',
+                style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimary,
+                    fontSize: 18)),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to approve all pending payouts? This action will process ₦3,245,000 across 32 transactions.',
-          style: TextStyle(color: Color(0xFF64748B), height: 1.5, fontSize: 13),
+        content: Text(
+          'Are you sure you want to approve all pending payouts? This will process ${_formatAmount(_pendingPayouts)} across $_pendingPayoutCount transactions.',
+          style: const TextStyle(
+              color: AppColors.textSecondary, height: 1.5, fontSize: 13),
         ),
         actionsPadding: const EdgeInsets.all(16),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+            child: const Text('Cancel',
+                style: TextStyle(
+                    color: AppColors.textTertiary,
+                    fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Payouts approved successfully!'), backgroundColor: Color(0xFF10B981)),
-              );
+              try {
+                await supabase
+                    .from('payments')
+                    .update({'status': 'approved'})
+                    .eq('status', 'pending');
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Payouts approved successfully!'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                  _loadData();
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: $e'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              backgroundColor: AppColors.success,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Approve All', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Approve All',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -694,7 +992,7 @@ class FinancialModerationScreen extends ConsumerWidget {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
@@ -704,7 +1002,7 @@ class FinancialModerationScreen extends ConsumerWidget {
             child: const Text(
               'View All',
               style: TextStyle(
-                color: Color(0xFF0F62FE),
+                color: AppColors.primary,
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
@@ -713,9 +1011,9 @@ class FinancialModerationScreen extends ConsumerWidget {
       ],
     );
   }
-
-
 }
+
+// ─── Private sub-widgets ─────
 
 class _FinanceStatCard extends StatelessWidget {
   final String title;
@@ -741,9 +1039,9 @@ class _FinanceStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -765,7 +1063,7 @@ class _FinanceStatCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -774,7 +1072,7 @@ class _FinanceStatCard extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 10,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -787,9 +1085,8 @@ class _FinanceStatCard extends StatelessWidget {
                   trendPositive
                       ? Icons.arrow_upward_rounded
                       : Icons.arrow_downward_rounded,
-                  color: trendPositive
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFEF4444),
+                  color:
+                      trendPositive ? AppColors.success : AppColors.error,
                   size: 12,
                 ),
               if (!isTransactionCount) const SizedBox(width: 4),
@@ -797,10 +1094,10 @@ class _FinanceStatCard extends StatelessWidget {
                 trend,
                 style: TextStyle(
                   color: isTransactionCount
-                      ? const Color(0xFF64748B)
+                      ? AppColors.textSecondary
                       : (trendPositive
-                            ? const Color(0xFF10B981)
-                            : const Color(0xFFEF4444)),
+                          ? AppColors.success
+                          : AppColors.error),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -810,7 +1107,7 @@ class _FinanceStatCard extends StatelessWidget {
                 const Text(
                   'vs last month',
                   style: TextStyle(
-                    color: Color(0xFFCBD5E1),
+                    color: AppColors.slate300,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -833,18 +1130,18 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+        color: isSelected ? const Color(0xFFEFF6FF) : AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected
-              ? const Color(0xFF3B82F6).withValues(alpha: 0.5)
-              : const Color(0xFFF1F5F9),
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : AppColors.borderLight,
         ),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? const Color(0xFF0F62FE) : const Color(0xFF64748B),
+          color: isSelected ? AppColors.primary : AppColors.textSecondary,
           fontSize: 13,
           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
         ),
@@ -863,24 +1160,25 @@ class _IconButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label is being developed. Financial moderation features are rolling out gradually.')),
+          SnackBar(content: Text('$label is being developed.')),
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: AppColors.borderLight),
         ),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFF64748B), size: 20),
+            Icon(icon, color: AppColors.textSecondary, size: 20),
             const SizedBox(width: 8),
             Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -915,9 +1213,9 @@ class _AlertCard extends StatelessWidget {
       width: 260,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -950,7 +1248,7 @@ class _AlertCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],
@@ -963,7 +1261,7 @@ class _AlertCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textTertiary,
             ),
           ),
           const SizedBox(height: 20),
@@ -973,11 +1271,11 @@ class _AlertCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$btnLabel is being developed. Financial moderation features are rolling out gradually.')),
+                  SnackBar(content: Text('$btnLabel coming soon.')),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.surface,
                 foregroundColor: color,
                 elevation: 0,
                 side: BorderSide(color: color.withValues(alpha: 0.2)),
@@ -1017,7 +1315,7 @@ class _TransactionItem extends StatelessWidget {
     required this.id,
     required this.date,
     required this.amount,
-    this.amountColor = const Color(0xFF1E293B),
+    this.amountColor = AppColors.textPrimary,
     required this.status,
     required this.statusColor,
     required this.initial,
@@ -1028,16 +1326,20 @@ class _TransactionItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.12),
-            child: Text(initial, style: const TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 16)),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+            child: Text(initial,
+                style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1049,14 +1351,14 @@ class _TransactionItem extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   type,
                   style: const TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1073,14 +1375,14 @@ class _TransactionItem extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.textTertiary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   date,
                   style: const TextStyle(
-                    color: Color(0xFFCBD5E1),
+                    color: AppColors.slate300,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1101,7 +1403,8 @@ class _TransactionItem extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
@@ -1118,7 +1421,8 @@ class _TransactionItem extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+          const Icon(Icons.chevron_right_rounded,
+              color: AppColors.slate300),
         ],
       ),
     );
@@ -1151,18 +1455,13 @@ class _BreakdownItem extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-              ],
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
           Column(
@@ -1173,14 +1472,14 @@ class _BreakdownItem extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 '($percentage)',
                 style: const TextStyle(
                   fontSize: 10,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1217,14 +1516,11 @@ class _DisputeItem extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: const Color(0xFFFEF2F2),
+            color: AppColors.errorLight,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(
-            Icons.error_outline_rounded,
-            color: Color(0xFFEF4444),
-            size: 20,
-          ),
+          child: const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -1236,21 +1532,21 @@ class _DisputeItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 sub,
                 style: const TextStyle(
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                '$id • $time',
+                '$id \u2022 $time',
                 style: const TextStyle(
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiary,
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
                 ),
@@ -1259,7 +1555,8 @@ class _DisputeItem extends StatelessWidget {
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
@@ -1299,8 +1596,12 @@ class _PayoutItem extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.15),
-          child: Text(initial, style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 13)),
+          backgroundColor: AppColors.success.withValues(alpha: 0.15),
+          child: Text(initial,
+              style: const TextStyle(
+                  color: AppColors.success,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13)),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -1312,13 +1613,13 @@ class _PayoutItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 txnCount,
                 style: const TextStyle(
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1326,7 +1627,7 @@ class _PayoutItem extends StatelessWidget {
               Text(
                 date,
                 style: const TextStyle(
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiary,
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
                 ),
@@ -1339,7 +1640,7 @@ class _PayoutItem extends StatelessWidget {
           style: const TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 14,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
       ],
@@ -1406,29 +1707,13 @@ class _LineChartPainter extends CustomPainter {
     final path = Path();
     path.moveTo(0, size.height * 0.8);
     path.quadraticBezierTo(
-      size.width * 0.15,
-      size.height * 0.7,
-      size.width * 0.25,
-      size.height * 0.75,
-    );
+        size.width * 0.15, size.height * 0.7, size.width * 0.25, size.height * 0.75);
     path.quadraticBezierTo(
-      size.width * 0.4,
-      size.height * 0.85,
-      size.width * 0.5,
-      size.height * 0.4,
-    );
+        size.width * 0.4, size.height * 0.85, size.width * 0.5, size.height * 0.4);
     path.quadraticBezierTo(
-      size.width * 0.65,
-      size.height * 0.3,
-      size.width * 0.8,
-      size.height * 0.35,
-    );
+        size.width * 0.65, size.height * 0.3, size.width * 0.8, size.height * 0.35);
     path.quadraticBezierTo(
-      size.width * 0.9,
-      size.height * 0.2,
-      size.width,
-      size.height * 0.1,
-    );
+        size.width * 0.9, size.height * 0.2, size.width, size.height * 0.1);
 
     canvas.drawPath(path, paint);
 
@@ -1439,16 +1724,8 @@ class _LineChartPainter extends CustomPainter {
       ..color = Colors.white
       ..style = PaintingStyle.fill;
 
-    for (double i = 0; i <= 1; i += 0.2) {
-      // simplified dots
-    }
-
     canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);
-    canvas.drawCircle(
-      Offset(size.width * 0.5, size.height * 0.4),
-      2,
-      dotPaintInner,
-    );
+    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 2, dotPaintInner);
     canvas.drawCircle(Offset(size.width, size.height * 0.1), 4, dotPaint);
     canvas.drawCircle(Offset(size.width, size.height * 0.1), 2, dotPaintInner);
   }

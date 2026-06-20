@@ -48,6 +48,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     setState(() => _isLoading = true);
     try {
       await supabase.auth.signInWithPassword(email: _emailController.text.trim(), password: _passwordController.text.trim());
+
+      final role = await getUserRole();
+      if (!mounted) return;
+
+      if (role == 'admin') {
+        await supabase.auth.signOut();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Admin accounts cannot access the patient/doctor app. Please use the Admin app.'), backgroundColor: Colors.red),
+          );
+        }
+        return;
+      }
+
       await NotificationService().syncToken();
       if (mounted) context.go('/');
     } catch (e, stackTrace) {

@@ -66,10 +66,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         final hasSeenPermissions = prefs.getBool('has_seen_permissions') ?? false;
 
         if (mounted) {
-          if (!hasSeenPermissions && role == 'patient') {
+          if (role == 'admin') {
+            await supabase.auth.signOut();
+            context.go('/login');
+          } else if (!hasSeenPermissions && role == 'patient') {
             context.go('/permissions');
           } else {
-            context.go(role == 'doctor' || role == 'admin' ? '/doctor_dashboard' : '/patient_dashboard');
+            context.go(role == 'doctor' ? '/doctor_dashboard' : '/patient_dashboard');
           }
         }
       } else {
