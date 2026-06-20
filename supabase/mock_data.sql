@@ -7,6 +7,44 @@
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- ── Ensure live DB has all required columns ─────────────────
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='metadata') THEN
+    ALTER TABLE public.appointments ADD COLUMN metadata jsonb DEFAULT '{}'::jsonb;
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='is_emergency') THEN
+    ALTER TABLE public.appointments ADD COLUMN is_emergency boolean DEFAULT false;
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='total_amount') THEN
+    ALTER TABLE public.appointments ADD COLUMN total_amount numeric DEFAULT 0;
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='payments' AND column_name='rejection_reason') THEN
+    ALTER TABLE public.payments ADD COLUMN rejection_reason text;
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='payment_instructions') THEN
+    ALTER TABLE public.profiles ADD COLUMN payment_instructions text;
+  END IF;
+END $$;
+
+-- ── Update appointments status constraint for emergency flow ─
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname='appointments_status_check' AND conrelid='public.appointments'::regclass) THEN
+    ALTER TABLE public.appointments DROP CONSTRAINT appointments_status_check;
+  END IF;
+END $$;
+
+ALTER TABLE public.appointments
+  ADD CONSTRAINT appointments_status_check
+  CHECK (status IN ('pending','emergency_pending','emergency_request','emergency_accepted','emergency_declined','confirmed','cancelled','completed','ongoing'));
+
 DO $$
 DECLARE
     -- ── Doctor UUIDs ──────────────────────────────────────────
