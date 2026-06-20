@@ -211,22 +211,6 @@ class _OnboardingSlide extends StatelessWidget {
                 },
                 child: Image.asset(item.image, height: imageHeight, fit: BoxFit.contain),
               ),
-              // Icon bubble at bottom of illustration
-              Positioned(
-                bottom: -4,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: item.color.withValues(alpha: 0.15), blurRadius: 12, offset: const Offset(0, 4)),
-                    ],
-                  ),
-                  child: Icon(item.icon, color: item.color, size: 24),
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 24),

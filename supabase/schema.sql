@@ -85,6 +85,8 @@ create table profiles (
   next_of_kin_phone text,
   emergency_contact_name text,
   emergency_contact_phone text,
+  address text,
+  phone text,
   
   -- Privacy & Security
   biometric_enabled boolean default false,

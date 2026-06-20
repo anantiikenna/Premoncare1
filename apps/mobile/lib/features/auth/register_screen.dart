@@ -188,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => _currentStep > 0 ? _previousPage() : context.pop(),
+            onTap: () => _currentStep > 0 ? _previousPage() : context.go('/onboarding'),
             child: Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))), child: Icon(_currentStep > 0 ? Icons.arrow_back_rounded : Icons.close_rounded, color: const Color(0xFF1E293B), size: 20)),
           ),
           _buildStepIndicator(primaryColor),
@@ -240,6 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           const Text('PASSWORD', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
+            key: ValueKey('password_${_isPasswordVisible}'),
             controller: _passwordController,
             hint: 'Create Password',
             icon: Icons.lock_rounded,
@@ -287,17 +288,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           const Text('CONFIRM PASSWORD', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
+            key: ValueKey('confirmPassword_${_isConfirmPasswordVisible}'),
             controller: _confirmPasswordController,
             hint: 'Re-enter Password',
             icon: Icons.verified_user_rounded,
             isPassword: true,
             obscureText: !_isConfirmPasswordVisible,
-            suffixIcon: _buildConfirmPasswordSuffix(),
-            onSuffixTap: () {
-              if (_confirmPasswordController.text.isNotEmpty) {
-                setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
-              }
-            },
+            suffixIcon: Icon(_isConfirmPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: const Color(0xFF94A3B8), size: 20),
+            onSuffixTap: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
             primaryColor: primaryColor,
             onChanged: (_) => setState(() {}),
             hasError: _passwordsMismatch && _submitted,
@@ -466,6 +464,7 @@ class _ClinicalInput extends StatelessWidget {
   final bool hasError;
 
   const _ClinicalInput({
+    super.key,
     required this.controller,
     required this.hint,
     required this.icon,

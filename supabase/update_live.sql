@@ -9,6 +9,8 @@ ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS metadata jsonb DEFAULT 
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS is_emergency boolean DEFAULT false;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS total_amount numeric DEFAULT 0;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS payment_instructions text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone text;
 ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS rejection_reason text;
 
 -- 2. Update status check constraint for emergency flow
