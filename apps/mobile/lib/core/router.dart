@@ -148,11 +148,14 @@ final goRouter = GoRouter(
     }
 
     final role = await getUserRole();
+
+    if (role == 'admin') {
+      await supabase.auth.signOut();
+      return '/login';
+    }
     
     if (isLoggingIn || isOnboarding || isRegistering || isSplash) {
-      return (role == 'doctor' || role == 'admin') 
-          ? '/doctor_dashboard' 
-          : '/patient_dashboard';
+      return role == 'doctor' ? '/doctor_dashboard' : '/patient_dashboard';
     }
 
     final location = state.matchedLocation;
