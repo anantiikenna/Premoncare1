@@ -114,6 +114,7 @@
     transparent
   );
   transition: 0.5s;
+  pointer-events: none;
 }
 
 .glass-panel:hover::before {
