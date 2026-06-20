@@ -136,20 +136,21 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                       _buildQuickAction(Icons.warning, 'Emergency Availability', const Color(0xFF10B981), onTap: () async {
   final user = supabase.auth.currentUser;
   if (user == null) return;
+  final messenger = ScaffoldMessenger.of(context);
   try {
     final data = await supabase.from('profiles').select('is_emergency').eq('id', user.id).single();
     final currentValue = data['is_emergency'] as bool? ?? false;
     await supabase.from('profiles').update({'is_emergency': !currentValue}).eq('id', user.id);
     if (mounted) {
       setState(() => _emergencyAvailability = !currentValue);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      messenger.showSnackBar(SnackBar(
         content: Text(!currentValue ? 'Emergency availability enabled. Patients can now book emergency consultations.' : 'Emergency availability disabled. You will no longer receive emergency consultation requests.'),
         backgroundColor: const Color(0xFF10B981),
       ));
     }
   } catch (e) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update emergency availability. Please try again.'), backgroundColor: Color(0xFFEF4444)));
+      messenger.showSnackBar(const SnackBar(content: Text('Failed to update emergency availability. Please try again.'), backgroundColor: Color(0xFFEF4444)));
     }
   }
 }),
