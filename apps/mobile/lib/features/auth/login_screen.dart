@@ -180,9 +180,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                       Row(
                         children: [
-      Expanded(child: _SocialSyncCard(icon: Icons.g_mobiledata_rounded, label: 'GOOGLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Social login coming soon'))))),
+      Expanded(child: _SocialSyncCard(icon: Icons.g_mobiledata_rounded, label: 'GOOGLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Google Sign-In coming soon'))))),
                            const SizedBox(width: 16),
-                           Expanded(child: _SocialSyncCard(icon: Icons.apple_rounded, label: 'APPLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Social login coming soon'))))),
+                           Expanded(child: _SocialSyncCard(icon: Icons.apple_rounded, label: 'APPLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Apple Sign-In coming soon'))))),
                         ],
                       ),
 

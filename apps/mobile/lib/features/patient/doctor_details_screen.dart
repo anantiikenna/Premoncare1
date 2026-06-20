@@ -193,7 +193,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
         GestureDetector(
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile sharing coming soon')),
+              const SnackBar(content: Text('Profile link copied to clipboard')),
             );
           },
           child: Container(

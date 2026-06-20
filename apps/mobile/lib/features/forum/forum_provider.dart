@@ -319,7 +319,7 @@ class ForumService {
         'status': 'approved',
       });
     } catch (e) {
-      debugPrint('Error creating forum post: $e');
+      if (kDebugMode) debugPrint('Error creating forum post: $e');
       rethrow;
     }
   }
@@ -345,7 +345,7 @@ class ForumService {
         'replied_as_doctor': repliedAsDoctor,
       });
     } catch (e) {
-      debugPrint('Error adding reply: $e');
+      if (kDebugMode) debugPrint('Error adding reply: $e');
       rethrow;
     }
   }
@@ -372,7 +372,7 @@ class ForumService {
         });
       }
     } catch (e) {
-      debugPrint('Error toggling save on post: $e');
+      if (kDebugMode) debugPrint('Error toggling save on post: $e');
       rethrow;
     }
   }
@@ -399,7 +399,7 @@ class ForumService {
         });
       }
     } catch (e) {
-      debugPrint('Error toggling follow on post: $e');
+      if (kDebugMode) debugPrint('Error toggling follow on post: $e');
       rethrow;
     }
   }
@@ -448,7 +448,7 @@ class ForumService {
     try {
       await supabase.rpc('increment_forum_upvote', params: {'post_id': postId});
     } catch (e) {
-      debugPrint('Error upvoting post: $e');
+      if (kDebugMode) debugPrint('Error upvoting post: $e');
       rethrow;
     }
   }

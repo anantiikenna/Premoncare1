@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
+import '../../core/app_typography.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/providers.dart';
 import '../../shared/widgets/global_user_avatar.dart';
@@ -13,10 +15,9 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
     final user = supabase.auth.currentUser;
     final userProfile = ref.watch(userProfileProvider);
     final email = user?.email ?? 'patient@premoncare.com';
-    const bgColor = Color(0xFFF8FAFC);
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -24,27 +25,27 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            _buildTitleSection(),
+            _buildTitleSection(context),
             const SizedBox(height: 24),
-            _buildProfileSummary(email, userProfile.asData?.value),
+            _buildProfileSummary(context, email, userProfile.asData?.value),
             const SizedBox(height: 32),
-            _buildSectionHeader('Account Settings'),
+            _buildSectionHeader(context, 'Account Settings'),
             const SizedBox(height: 12),
             _buildAccountSettings(context),
             const SizedBox(height: 32),
-            _buildSectionHeader('Privacy & Data'),
+            _buildSectionHeader(context, 'Privacy & Data'),
             const SizedBox(height: 12),
             _buildPrivacyDataSettings(context),
             const SizedBox(height: 32),
-            _buildSectionHeader('Preferences'),
+            _buildSectionHeader(context, 'Preferences'),
             const SizedBox(height: 12),
             _buildPreferencesSettings(context),
             const SizedBox(height: 32),
-            _buildSectionHeader('Support & Legal'),
+            _buildSectionHeader(context, 'Support & Legal'),
             const SizedBox(height: 12),
             _buildSupportLegalSettings(context),
             const SizedBox(height: 32),
-            _buildFooterAlert(),
+            _buildFooterAlert(context),
             const SizedBox(height: 40),
           ],
         ),
@@ -53,76 +54,58 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final color = AppColors.textPrimaryOf(context);
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.surfaceOf(context),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B)),
+        icon: Icon(Icons.arrow_back_rounded, color: color),
         onPressed: () => context.pop(),
       ),
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10),
+          Image.asset(
+            'assets/logo-horizontal.png',
+            height: 28,
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) => Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.medical_services_rounded, color: AppColors.primary, size: 18),
+                ),
+                const SizedBox(width: 8),
+                Text('Premon', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
+                Text('Care', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
               ],
-            ),
-            child: const Icon(Icons.medical_services_rounded, color: Color(0xFF0F62FE), size: 18),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'Premon',
-            style: TextStyle(
-              color: Color(0xFF0F62FE),
-              fontWeight: FontWeight.w900,
-              fontSize: 18,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const Text(
-            'Care',
-            style: TextStyle(
-              color: Color(0xFF10B981),
-              fontWeight: FontWeight.w900,
-              fontSize: 18,
-              letterSpacing: -0.5,
             ),
           ),
         ],
       ),
       centerTitle: true,
       actions: [
-        Stack(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B)),
-              onPressed: () => context.push('/notifications'),
-            ),
-            Positioned(
-              right: 12,
-              top: 12,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle),
-                child: const Text('8', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ],
-        ),
-        const Padding(
-          padding: EdgeInsets.only(right: 16, left: 4),
-          child: GlobalUserAvatar(radius: 16),
-        ),
+          IconButton(
+            icon: Icon(Icons.notifications_none_rounded, color: color),
+            onPressed: () => context.push('/notifications'),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () => context.push('/personal-info'),
+            child: const GlobalUserAvatar(radius: 16),
+          ),
+        const SizedBox(width: 16),
       ],
     );
   }
 
-  Widget _buildTitleSection() {
+  Widget _buildTitleSection(BuildContext context) {
+    final color = AppColors.textPrimaryOf(context);
+    final secondary = AppColors.textSecondaryOf(context);
     return Row(
       children: [
         Container(
@@ -134,28 +117,13 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
           child: const Icon(Icons.shield_rounded, color: Color(0xFF8B5CF6), size: 28),
         ),
         const SizedBox(width: 16),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Settings & Privacy Center',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
-                  letterSpacing: -0.5,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'Manage your account, preferences and privacy settings',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF64748B),
-                ),
-              ),
+              Text('Settings & Privacy', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color, letterSpacing: -0.5)),
+              const SizedBox(height: 4),
+              Text('Manage your account and preferences', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: secondary)),
             ],
           ),
         ),
@@ -163,351 +131,143 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileSummary(String email, Map<String, dynamic>? profile) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              const GlobalUserAvatar(radius: 20),
-              Container(
-                width: 14,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildProfileSummary(BuildContext context, String email, Map<String, dynamic>? profile) {
+    final color = AppColors.textPrimaryOf(context);
+    final secondary = AppColors.textSecondaryOf(context);
+    return GestureDetector(
+      onTap: () => context.push('/personal-info'),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.borderOf(context)),
+        ),
+        child: Row(
+          children: [
+            Stack(
+              alignment: Alignment.bottomRight,
               children: [
-                Text(
-                  profile?['full_name'] ?? 'User',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                Text(
-                  email,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-                const SizedBox(height: 8),
+                const GlobalUserAvatar(radius: 20),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  width: 14, height: 14,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 10),
-                      SizedBox(width: 4),
-                      Text(
-                        'Verified',
-                        style: TextStyle(
-                          color: Color(0xFF10B981),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
+                    color: AppColors.success,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.surfaceOf(context), width: 2),
                   ),
                 ),
               ],
             ),
-          ),
-          const Row(
-            children: [
-              Text(
-                'View Profile',
-                style: TextStyle(
-                  color: Color(0xFF0F62FE),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(profile?['full_name'] ?? 'User', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color)),
+                  Text(email, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: secondary)),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.verified_rounded, color: AppColors.success, size: 10),
+                        SizedBox(width: 4),
+                        Text('Verified', style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w800)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded, color: Color(0xFF0F62FE), size: 18),
-            ],
-          ),
-        ],
+            ),
+            Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w900,
-        color: Color(0xFF1E293B),
-        letterSpacing: -0.3,
-      ),
-    );
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Text(title, style: AppTypography.labelMediumOf(context).copyWith(letterSpacing: -0.3, fontSize: 15, fontWeight: FontWeight.w900));
   }
 
   Widget _buildAccountSettings(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        children: [
-          _buildSettingsTile(
-            icon: Icons.person_outline_rounded,
-            color: const Color(0xFF3B82F6),
-            title: 'Personal Information',
-            subtitle: 'Update your personal details and contact information',
-            onTap: () => _showComingSoon(context, 'Personal Information'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.lock_outline_rounded,
-            color: const Color(0xFF10B981),
-            title: 'Login & Security',
-            subtitle: 'Manage password, 2FA and account security',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Login & Security'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.notifications_none_rounded,
-            color: const Color(0xFF8B5CF6),
-            title: 'Notification Preferences',
-            subtitle: 'Choose what notifications you want to receive',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Notification Preferences'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.language_rounded,
-            color: const Color(0xFFF59E0B),
-            title: 'Language & Region',
-            subtitle: 'Select your language and region',
-            trailingText: 'English (US)',
-            isDivider: true,
-            isLast: true,
-            onTap: () => _showComingSoon(context, 'Language & Region'),
-          ),
-        ],
-      ),
-    );
+    return _buildGroup(context, [
+      _SettingsTileData(icon: Icons.person_outline_rounded, color: const Color(0xFF3B82F6), title: 'Personal Information', subtitle: 'Update your details', onTap: () => context.push('/personal-info')),
+      _SettingsTileData(icon: Icons.lock_outline_rounded, color: AppColors.success, title: 'Login & Security', subtitle: 'Password and security settings', onTap: () => context.push('/login-security')),
+      _SettingsTileData(icon: Icons.notifications_none_rounded, color: const Color(0xFF8B5CF6), title: 'Notification Preferences', subtitle: 'Choose what notifications to receive', onTap: () => context.push('/notification-preferences')),
+      _SettingsTileData(icon: Icons.language_rounded, color: AppColors.warning, title: 'Language & Region', subtitle: 'Language and region', trailingText: 'English', onTap: () => context.push('/language-region')),
+    ]);
   }
 
   Widget _buildPrivacyDataSettings(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        children: [
-          _buildSettingsTile(
-            icon: Icons.shield_outlined,
-            color: const Color(0xFF10B981),
-            title: 'Biometric & Privacy Controls',
-            subtitle: 'Manage who can see your information and biometric data',
-            onTap: () => _showComingSoon(context, 'Biometric & Privacy Controls'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.medical_information_outlined,
-            color: const Color(0xFF3B82F6),
-            title: 'Medical Record Permissions',
-            subtitle: 'Manage who can access your medical records',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Medical Record Permissions'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.devices_rounded,
-            color: const Color(0xFF8B5CF6),
-            title: 'Device Sessions & Activity',
-            subtitle: 'View and manage active sessions and data activity',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Device Sessions & Activity'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.file_download_outlined,
-            color: const Color(0xFFF59E0B),
-            title: 'Download My Data',
-            subtitle: 'Download a copy of your health data',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Download My Data'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.delete_outline_rounded,
-            color: const Color(0xFFEF4444),
-            title: 'Delete Account',
-            subtitle: 'Permanently delete your account and data',
-            isDivider: true,
-            isLast: true,
-            onTap: () => _showDeleteAccountDialog(context),
-          ),
-        ],
-      ),
-    );
+    return _buildGroup(context, [
+      _SettingsTileData(icon: Icons.shield_outlined, color: AppColors.success, title: 'Biometric & Privacy', subtitle: 'Privacy and biometric controls', onTap: () => context.push('/biometric-privacy')),
+      _SettingsTileData(icon: Icons.medical_information_outlined, color: const Color(0xFF3B82F6), title: 'Record Permissions', subtitle: 'Manage doctor record access', onTap: () => context.push('/medical-record-permissions')),
+      _SettingsTileData(icon: Icons.devices_rounded, color: const Color(0xFF8B5CF6), title: 'Device Sessions', subtitle: 'Active sessions and activity', onTap: () => context.push('/device-sessions')),
+      _SettingsTileData(icon: Icons.file_download_outlined, color: AppColors.warning, title: 'Download My Data', subtitle: 'Export your health data', onTap: () => context.push('/download-data')),
+      _SettingsTileData(icon: Icons.delete_outline_rounded, color: AppColors.error, title: 'Delete Account', subtitle: 'Permanently delete your account', onTap: () => _showDeleteAccountDialog(context)),
+    ]);
   }
 
   Widget _buildPreferencesSettings(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        children: [
-          _buildSettingsTile(
-            icon: Icons.dark_mode_outlined,
-            color: const Color(0xFF10B981),
-            title: 'Appearance',
-            subtitle: 'Choose light or dark mode',
-            trailingText: 'Light Mode',
-            onTap: () => _showComingSoon(context, 'Appearance'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.accessibility_new_rounded,
-            color: const Color(0xFF3B82F6),
-            title: 'Accessibility',
-            subtitle: 'Text size, contrast and accessibility options',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Accessibility'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.favorite_border_rounded,
-            color: const Color(0xFF8B5CF6),
-            title: 'Health Preferences',
-            subtitle: 'Health goals, units and other preferences',
-            isDivider: true,
-            isLast: true,
-            onTap: () => _showComingSoon(context, 'Health Preferences'),
-          ),
-        ],
-      ),
-    );
+    return _buildGroup(context, [
+      _SettingsTileData(icon: Icons.dark_mode_outlined, color: AppColors.success, title: 'Appearance', subtitle: 'Choose light or dark mode', onTap: () => context.push('/appearance')),
+      _SettingsTileData(icon: Icons.accessibility_new_rounded, color: const Color(0xFF3B82F6), title: 'Accessibility', subtitle: 'Text size and display options', onTap: () => context.push('/accessibility')),
+      _SettingsTileData(icon: Icons.favorite_border_rounded, color: const Color(0xFF8B5CF6), title: 'Health Preferences', subtitle: 'Units and health settings', onTap: () => context.push('/health-preferences')),
+    ]);
   }
 
   Widget _buildSupportLegalSettings(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        children: [
-          _buildSettingsTile(
-            icon: Icons.headset_mic_outlined,
-            color: const Color(0xFF3B82F6),
-            title: 'Help & Support',
-            subtitle: 'Get help, contact support or view FAQs',
-            onTap: () => _showComingSoon(context, 'Help & Support'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.description_outlined,
-            color: const Color(0xFF10B981),
-            title: 'Terms of Service',
-            subtitle: 'Read our terms and conditions',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Terms of Service'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.verified_user_outlined,
-            color: const Color(0xFF8B5CF6),
-            title: 'Privacy Policy',
-            subtitle: 'Learn how we protect your privacy',
-            isDivider: true,
-            onTap: () => _showComingSoon(context, 'Privacy Policy'),
-          ),
-          _buildSettingsTile(
-            icon: Icons.info_outline_rounded,
-            color: const Color(0xFFF59E0B),
-            title: 'About Premon Care',
-            subtitle: 'App version 2.4.1',
-            isDivider: true,
-            isLast: true,
-            onTap: () => _showComingSoon(context, 'About Premon Care'),
-          ),
-        ],
-      ),
-    );
+    return _buildGroup(context, [
+      _SettingsTileData(icon: Icons.headset_mic_outlined, color: const Color(0xFF3B82F6), title: 'Help & Support', subtitle: 'FAQs and contact support', onTap: () => context.push('/help-support')),
+      _SettingsTileData(icon: Icons.description_outlined, color: AppColors.success, title: 'Terms of Service', subtitle: 'Read our terms', onTap: () => context.push('/terms-of-service')),
+      _SettingsTileData(icon: Icons.verified_user_outlined, color: const Color(0xFF8B5CF6), title: 'Privacy Policy', subtitle: 'How we protect your data', onTap: () => context.push('/privacy-policy')),
+      _SettingsTileData(icon: Icons.info_outline_rounded, color: AppColors.warning, title: 'About Premon Care', subtitle: 'App version 2.4.1', onTap: () => context.push('/about')),
+    ]);
   }
 
-  Widget _buildFooterAlert() {
+  Widget _buildGroup(BuildContext context, List<_SettingsTileData> tiles) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF10B981).withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.2)),
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
-      child: const Row(
-        children: [
-          Icon(Icons.shield_rounded, color: Color(0xFF10B981), size: 24),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Your privacy is our priority',
-                  style: TextStyle(
-                    color: Color(0xFF10B981),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'We use industry-standard encryption to protect your data and keep it secure.',
-                  style: TextStyle(
-                    color: Color(0xFF059669),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded, color: Color(0xFF10B981)),
-        ],
+      child: Column(
+        children: tiles.asMap().entries.map((entry) {
+          final i = entry.key;
+          final tile = entry.value;
+          return _buildSettingsTile(
+            context: context,
+            icon: tile.icon,
+            color: tile.color,
+            title: tile.title,
+            subtitle: tile.subtitle,
+            trailingText: tile.trailingText,
+            isDivider: i > 0,
+            onTap: tile.onTap,
+          );
+        }).toList(),
       ),
     );
   }
 
   Widget _buildSettingsTile({
+    required BuildContext context,
     required IconData icon,
     required Color color,
     required String title,
     required String subtitle,
     String? trailingText,
     bool isDivider = false,
-    bool isLast = false,
     VoidCallback? onTap,
   }) {
     return Column(
       children: [
-        if (isDivider)
-          const Divider(height: 1, indent: 64, endIndent: 20, color: Color(0xFFF1F5F9)),
+        if (isDivider) Divider(height: 1, indent: 64, endIndent: 20, color: AppColors.dividerOf(context)),
         ListTile(
           onTap: onTap ?? () {},
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -519,39 +279,18 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
             ),
             child: Icon(icon, color: color, size: 22),
           ),
-          title: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
-            ),
-          ),
+          title: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context))),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
-              ),
-            ),
+            child: Text(subtitle, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context))),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (trailingText != null)
-                Text(
-                  trailingText,
-                  style: const TextStyle(
-                    color: Color(0xFF0F62FE),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+                Text(trailingText, style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w800)),
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 20),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
             ],
           ),
         ),
@@ -559,41 +298,77 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
     );
   }
 
-  void _showComingSoon(BuildContext context, String featureName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$featureName coming soon')),
+  Widget _buildFooterAlert(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.success.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.success.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.shield_rounded, color: AppColors.success, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Your privacy is our priority', style: TextStyle(color: AppColors.success, fontSize: 13, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 2),
+                Text('We use industry-standard encryption to protect your data.', style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    final color = AppColors.textPrimaryOf(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surfaceOf(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning_rounded, color: Color(0xFFEF4444)),
-            SizedBox(width: 12),
-            Text('Delete Account?', style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1E293B), fontSize: 18)),
+            const Icon(Icons.warning_rounded, color: AppColors.error),
+            const SizedBox(width: 12),
+            Text('Delete Account?', style: TextStyle(fontWeight: FontWeight.w900, color: color, fontSize: 18)),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to permanently delete your account? This action cannot be undone and all your health data will be erased.',
-          style: TextStyle(color: Color(0xFF64748B), height: 1.5, fontSize: 13),
+        content: Text(
+          'This will permanently delete your account and all health data. This action cannot be undone.',
+          style: TextStyle(color: AppColors.textSecondaryOf(context), height: 1.5, fontSize: 13),
         ),
         actionsPadding: const EdgeInsets.all(16),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+            child: Text('Cancel', style: TextStyle(color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              // In a real app, this would trigger re-authentication before deletion
+              try {
+                final user = supabase.auth.currentUser;
+                if (user != null) {
+                  await supabase.from('audit_logs').insert({
+                    'user_id': user.id,
+                    'action': 'account_deletion_requested',
+                  });
+                }
+                await supabase.auth.signOut();
+                if (context.mounted) context.go('/login');
+              } catch (e) {
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.error,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Delete Permanently', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -602,4 +377,22 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _SettingsTileData {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final String? trailingText;
+  final VoidCallback? onTap;
+
+  const _SettingsTileData({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    this.trailingText,
+    this.onTap,
+  });
 }

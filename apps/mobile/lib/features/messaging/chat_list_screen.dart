@@ -49,7 +49,7 @@ class ChatListScreen extends ConsumerWidget {
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('New message coming soon')),
+                const SnackBar(content: Text('To start a conversation, go to a doctor\'s profile and tap Send Message')),
               );
             },
           ),

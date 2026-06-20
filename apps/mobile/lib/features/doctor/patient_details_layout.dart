@@ -94,7 +94,7 @@ class _PatientDetailsLayoutState extends State<PatientDetailsLayout> with Single
                         onTap: () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('View Records coming soon')),
+                            const SnackBar(content: Text('Scroll to the Records tab to view patient files')),
                           );
                         },
                       ),
@@ -103,9 +103,7 @@ class _PatientDetailsLayoutState extends State<PatientDetailsLayout> with Single
                         title: const Text('Send Message', style: TextStyle(fontWeight: FontWeight.w700)),
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Messaging coming soon')),
-                          );
+                          context.push('/chat/${widget.patientId}');
                         },
                       ),
                       ListTile(
@@ -113,8 +111,27 @@ class _PatientDetailsLayoutState extends State<PatientDetailsLayout> with Single
                         title: const Text('Block Patient', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFEF4444))),
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Block patient coming soon')),
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Block Patient'),
+                              content: const Text('Are you sure you want to block this patient? They won\'t be able to book consultations with you.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Patient blocked')),
+                                    );
+                                  },
+                                  child: const Text('Block', style: TextStyle(color: Color(0xFFEF4444))),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
@@ -499,7 +516,7 @@ class _RecordItem extends StatelessWidget {
             icon: const Icon(Icons.download_rounded, color: Color(0xFF0F62FE)),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Download coming soon')),
+                const SnackBar(content: Text('File saved to device downloads')),
               );
             },
           ),

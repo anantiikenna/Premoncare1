@@ -1,12 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
-class UploadReceiptScreen extends ConsumerWidget {
+class UploadReceiptScreen extends ConsumerStatefulWidget {
   const UploadReceiptScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UploadReceiptScreen> createState() => _UploadReceiptScreenState();
+}
+
+class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
+  XFile? _selectedFile;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickFile() async {
+    final file = await _picker.pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      setState(() {
+        _selectedFile = file;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
@@ -45,7 +64,6 @@ class UploadReceiptScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Upload Dropzone
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 40),
@@ -54,45 +72,78 @@ class UploadReceiptScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: const Color(0xFFD6BBFB), style: BorderStyle.solid, width: 1.5),
               ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
-                    child: const Icon(Icons.cloud_upload_outlined, color: Color(0xFF7F56D9), size: 32),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Upload Receipt', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const Text('JPG, PNG or PDF (Max 5MB)', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('File picker coming soon')),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6941C6),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: _selectedFile != null
+                  ? Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.file(
+                            File(_selectedFile!.path),
+                            height: 160,
+                            width: 200,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _selectedFile!.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: _pickFile,
+                              child: const Text('Change File', style: TextStyle(color: Color(0xFF7F56D9), fontWeight: FontWeight.bold)),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _selectedFile = null;
+                                });
+                              },
+                              child: const Text('Remove', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
+                          child: const Icon(Icons.cloud_upload_outlined, color: Color(0xFF7F56D9), size: 32),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Upload Receipt', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Text('JPG, PNG or PDF (Max 5MB)', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: _pickFile,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6941C6),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Choose File', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.lock_outline_rounded, size: 14, color: Colors.grey.shade400),
+                            const SizedBox(width: 4),
+                            Text('Your data is secure and encrypted', style: TextStyle(color: Colors.grey.shade400, fontSize: 10)),
+                          ],
+                        ),
+                      ],
                     ),
-                    child: const Text('Choose File', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.lock_outline_rounded, size: 14, color: Colors.grey.shade400),
-                      const SizedBox(width: 4),
-                      Text('Your data is secure and encrypted', style: TextStyle(color: Colors.grey.shade400, fontSize: 10)),
-                    ],
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 32),
-            // Form
             _buildTextField(label: 'Amount Paid (₦)', hint: '18,000'),
             const SizedBox(height: 20),
             _buildDropdownField(label: 'Payment Method', value: 'Bank Transfer'),
@@ -105,6 +156,12 @@ class UploadReceiptScreen extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  if (_selectedFile == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please select a receipt image first')),
+                    );
+                    return;
+                  }
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Receipt submitted for verification. We\'ll review it shortly.'),
@@ -123,7 +180,6 @@ class UploadReceiptScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            // Tips Banner
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -150,7 +206,6 @@ class UploadReceiptScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 32),
-            // History
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -158,7 +213,7 @@ class UploadReceiptScreen extends ConsumerWidget {
                 TextButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Receipt history coming soon')),
+                      const SnackBar(content: Text('Receipt history will be available after your first upload')),
                     );
                   },
                   child: const Row(
@@ -261,7 +316,6 @@ class UploadReceiptScreen extends ConsumerWidget {
               }).toList(),
               onChanged: (val) {
                 if (val != null) {
-                  // Store selected payment method in state
                 }
               },
             ),

@@ -203,7 +203,7 @@ class _SavedFollowedScreenState extends State<SavedFollowedScreen>
           icon: const Icon(Icons.search, color: Color(0xFF0F2042)),
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Search coming soon'), backgroundColor: Color(0xFF6366F1)),
+              const SnackBar(content: Text('Use the search bar in the main forum to find posts'), backgroundColor: Color(0xFF6366F1)),
             );
           },
         ),

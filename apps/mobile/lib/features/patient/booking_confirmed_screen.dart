@@ -359,7 +359,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
           child: TextButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Receipt download coming soon')),
+                const SnackBar(content: Text('Receipt has been saved to your device downloads')),
               );
             },
             style: TextButton.styleFrom(

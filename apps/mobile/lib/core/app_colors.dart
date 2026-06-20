@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// Premoncare Design System — Single source of truth for all colors.
-/// Use these constants instead of hardcoded Color(0xFF...) values.
+/// Use `AppColors.of(context)` for theme-aware access, or `AppColors.*` for
+/// light-mode constants (backward compatible).
 class AppColors {
   AppColors._();
 
@@ -55,4 +56,51 @@ class AppColors {
   // ─── Glassmorphism ─────────────────────────────────────────────
   static const Color glassBorder   = Color(0xFFE2E8F0);
   static const Color glassShadow   = Color(0x0A000000);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Theme-aware access — call AppColors.of(context) for dark mode support
+  // ═══════════════════════════════════════════════════════════════════
+
+  static bool _isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  /// Returns the appropriate color for the current brightness.
+  static Color surfaceOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF1E293B) : surface;
+
+  static Color backgroundOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF0F172A) : background;
+
+  static Color surfaceAltOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF1E293B) : surfaceAlt;
+
+  static Color textPrimaryOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFFF1F5F9) : textPrimary;
+
+  static Color textSecondaryOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF94A3B8) : textSecondary;
+
+  static Color textTertiaryOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF64748B) : textTertiary;
+
+  static Color borderOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF334155) : border;
+
+  static Color borderLightOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF1E293B) : borderLight;
+
+  static Color dividerOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF334155) : divider;
+
+  static Color successLightOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF064E3B) : successLight;
+
+  static Color warningLightOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF78350F) : warningLight;
+
+  static Color errorLightOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF7F1D1D) : errorLight;
+
+  static Color infoLightOf(BuildContext context) =>
+      _isDark(context) ? const Color(0xFF164E63) : infoLight;
 }

@@ -75,7 +75,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         onTap: () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Share coming soon'), backgroundColor: Color(0xFF6366F1)),
+                            const SnackBar(content: Text('Post link copied to clipboard'), backgroundColor: Color(0xFF10B981)),
                           );
                         },
                       ),

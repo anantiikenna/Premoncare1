@@ -227,7 +227,7 @@ class _PricingCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: isCurrent ? null : () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Subscription flow coming soon')),
+                        SnackBar(content: Text(isPremium ? 'To upgrade, contact support@premoncare.com or visit your profile settings.' : 'For enterprise inquiries, email sales@premoncare.com')),
                       );
                     },
                     style: ElevatedButton.styleFrom(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../shared/widgets/global_user_avatar.dart';
+import '../../shared/widgets/global_user_avatar.dart';
 
 class MyActivityScreen extends StatefulWidget {
   const MyActivityScreen({super.key});

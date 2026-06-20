@@ -158,7 +158,7 @@ class MessagingService {
         'metadata': metadata,
       });
     } catch (e) {
-      debugPrint('Error sending message: $e');
+      if (kDebugMode) debugPrint('Error sending message: $e');
     }
   }
 
@@ -174,7 +174,7 @@ class MessagingService {
           .eq('sender_id', senderId)
           .eq('is_read', false);
     } catch (e) {
-      debugPrint('Error marking messages as read: $e');
+      if (kDebugMode) debugPrint('Error marking messages as read: $e');
     }
   }
 }

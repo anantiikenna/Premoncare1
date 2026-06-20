@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 /// Premoncare Design System — Typography scale.
-/// Use these styles instead of hardcoded TextStyle values.
+/// Use `AppTypography.of(context)` for theme-aware access, or static constants
+/// for backward-compatible light-mode defaults.
 class AppTypography {
   AppTypography._();
 
@@ -97,4 +98,27 @@ class AppTypography {
     letterSpacing: 1.0,
     color: AppColors.textTertiary,
   );
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Theme-aware access — call AppTypography.of(context) for dark mode
+  // ═══════════════════════════════════════════════════════════════════
+
+  static TextStyle _t(BuildContext context, TextStyle base, Color? Function(BuildContext) colorFn) =>
+      base.copyWith(color: colorFn(context));
+
+  static TextStyle h1Of(BuildContext context) => _t(context, h1, AppColors.textPrimaryOf);
+  static TextStyle h2Of(BuildContext context) => _t(context, h2, AppColors.textPrimaryOf);
+  static TextStyle h3Of(BuildContext context) => _t(context, h3, AppColors.textPrimaryOf);
+  static TextStyle h4Of(BuildContext context) => _t(context, h4, AppColors.textPrimaryOf);
+
+  static TextStyle bodyLargeOf(BuildContext context) => _t(context, bodyLarge, AppColors.textPrimaryOf);
+  static TextStyle bodyMediumOf(BuildContext context) => _t(context, bodyMedium, AppColors.textPrimaryOf);
+  static TextStyle bodySmallOf(BuildContext context) => _t(context, bodySmall, AppColors.textSecondaryOf);
+
+  static TextStyle labelLargeOf(BuildContext context) => _t(context, labelLarge, AppColors.textPrimaryOf);
+  static TextStyle labelMediumOf(BuildContext context) => _t(context, labelMedium, AppColors.textPrimaryOf);
+  static TextStyle labelSmallOf(BuildContext context) => _t(context, labelSmall, AppColors.textSecondaryOf);
+
+  static TextStyle captionOf(BuildContext context) => _t(context, caption, AppColors.textTertiaryOf);
+  static TextStyle overlineOf(BuildContext context) => _t(context, overline, AppColors.textTertiaryOf);
 }

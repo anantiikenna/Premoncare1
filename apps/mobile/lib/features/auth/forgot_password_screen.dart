@@ -252,7 +252,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Phone reset coming soon'))),
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Phone number reset will be available in a future update. Use email reset for now.'))),
                   icon: const Icon(Icons.phone_outlined, size: 20),
                   label: const Text('Reset with Phone Number'),
                   style: OutlinedButton.styleFrom(

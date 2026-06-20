@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../shared/widgets/global_user_avatar.dart';
-import '../../../core/supabase_locator.dart';
+import '../../shared/widgets/global_user_avatar.dart';
+import '../../core/supabase_locator.dart';
 
 class ScheduleManagementScreen extends StatefulWidget {
   const ScheduleManagementScreen({super.key});
@@ -79,11 +79,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 16, left: 8),
             child: GestureDetector(
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Profile coming soon')),
-                );
-              },
+              onTap: () => context.push('/settings-privacy'),
               child: const GlobalUserAvatar(radius: 18),
             ),
           ),
@@ -134,10 +130,10 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     children: [
-                      _buildQuickAction(Icons.access_time, 'Working Hours', const Color(0xFF8B5CF6)),
-                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', const Color(0xFFEF4444)),
-                      _buildQuickAction(Icons.local_cafe, 'Break Times', const Color(0xFFF59E0B)),
-                      _buildQuickAction(Icons.warning, 'Emergency Availability', const Color(0xFF10B981)),
+                      _buildQuickAction(Icons.access_time, 'Working Hours', const Color(0xFF8B5CF6), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working hours editor coming soon')))),
+                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', const Color(0xFFEF4444), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date blocker coming soon')))),
+                      _buildQuickAction(Icons.local_cafe, 'Break Times', const Color(0xFFF59E0B), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Break schedule editor coming soon')))),
+                      _buildQuickAction(Icons.warning, 'Emergency Availability', const Color(0xFF10B981), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Emergency toggle coming soon')))),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -374,24 +370,27 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     );
   }
 
-  Widget _buildQuickAction(IconData icon, String label, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
+  Widget _buildQuickAction(IconData icon, String label, Color color, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+          ),
+        ],
+      ),
     );
   }
 

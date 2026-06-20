@@ -68,6 +68,20 @@ import '../features/admin/forum_moderation_panel.dart';
 import '../features/admin/admin_emergency_queue_screen.dart';
 import '../features/settings/settings_privacy_screen.dart';
 import '../features/settings/personal_info_screen.dart';
+import '../features/settings/appearance_settings_screen.dart';
+import '../features/settings/login_security_screen.dart';
+import '../features/settings/notification_preferences_screen.dart';
+import '../features/settings/language_region_screen.dart';
+import '../features/settings/biometric_privacy_screen.dart';
+import '../features/settings/medical_record_permissions_screen.dart';
+import '../features/settings/device_sessions_screen.dart';
+import '../features/settings/download_data_screen.dart';
+import '../features/settings/accessibility_settings_screen.dart';
+import '../features/settings/health_preferences_screen.dart';
+import '../features/settings/help_support_screen.dart';
+import '../features/settings/terms_of_service_screen.dart';
+import '../features/settings/privacy_policy_screen.dart';
+import '../features/settings/about_screen.dart';
 import 'flavor_config.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 
@@ -342,6 +356,62 @@ final goRouter = GoRouter(
     GoRoute(
       path: '/personal-info',
       builder: (context, state) => const PersonalInfoScreen(),
+    ),
+    GoRoute(
+      path: '/appearance',
+      builder: (context, state) => const AppearanceSettingsScreen(),
+    ),
+    GoRoute(
+      path: '/login-security',
+      builder: (context, state) => const LoginSecurityScreen(),
+    ),
+    GoRoute(
+      path: '/notification-preferences',
+      builder: (context, state) => const NotificationPreferencesScreen(),
+    ),
+    GoRoute(
+      path: '/language-region',
+      builder: (context, state) => const LanguageRegionScreen(),
+    ),
+    GoRoute(
+      path: '/biometric-privacy',
+      builder: (context, state) => const BiometricPrivacyScreen(),
+    ),
+    GoRoute(
+      path: '/medical-record-permissions',
+      builder: (context, state) => const MedicalRecordPermissionsScreen(),
+    ),
+    GoRoute(
+      path: '/device-sessions',
+      builder: (context, state) => const DeviceSessionsScreen(),
+    ),
+    GoRoute(
+      path: '/download-data',
+      builder: (context, state) => const DownloadDataScreen(),
+    ),
+    GoRoute(
+      path: '/accessibility',
+      builder: (context, state) => const AccessibilitySettingsScreen(),
+    ),
+    GoRoute(
+      path: '/health-preferences',
+      builder: (context, state) => const HealthPreferencesScreen(),
+    ),
+    GoRoute(
+      path: '/help-support',
+      builder: (context, state) => const HelpSupportScreen(),
+    ),
+    GoRoute(
+      path: '/terms-of-service',
+      builder: (context, state) => const TermsOfServiceScreen(),
+    ),
+    GoRoute(
+      path: '/privacy-policy',
+      builder: (context, state) => const PrivacyPolicyScreen(),
+    ),
+    GoRoute(
+      path: '/about',
+      builder: (context, state) => const AboutScreen(),
     ),
     GoRoute(
       path: '/admin/audit-timeline',

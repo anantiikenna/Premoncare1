@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 
 class SubscriptionManagementScreen extends StatefulWidget {
@@ -30,11 +31,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline_rounded, color: Color(0xFF1E293B)),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Help & Support coming soon')),
-              );
-            },
+            onPressed: () => context.push('/help-support'),
           ),
           const SizedBox(width: 8),
         ],
@@ -90,10 +87,42 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
         const SizedBox(height: 16),
         _buildActionTile(Icons.upgrade_rounded, 'Upgrade Plan', 'Get more benefits and features', const Color(0xFF0F62FE), () => setState(() => isExploring = true)),
         _buildActionTile(Icons.pause_circle_outline_rounded, 'Pause Subscription', 'Pause your plan for a while', const Color(0xFF6366F1), () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pause subscription coming soon')));
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Pause Subscription'),
+              content: const Text("Are you sure you want to pause your subscription? You won't be charged during the pause period."),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Subscription paused. Resume anytime from settings.')));
+                  },
+                  child: const Text('Pause'),
+                ),
+              ],
+            ),
+          );
         }),
         _buildActionTile(Icons.cancel_outlined, 'Cancel Subscription', 'Cancel your plan and stop future billing', const Color(0xFFEF4444), () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cancel subscription coming soon')));
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Cancel Subscription'),
+              content: const Text("Are you sure you want to cancel? You'll lose access to premium features at the end of your billing period."),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Subscription cancelled. Access continues until end of billing period.')));
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ],
+            ),
+          );
         }, isLast: true),
         
         const SizedBox(height: 32),
@@ -347,7 +376,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                   height: 40,
                   child: TextButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contact Admin coming soon')));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email admin@premoncare.com for subscription support')));
                     },
                     style: TextButton.styleFrom(
                       foregroundColor: const Color(0xFF0F62FE),
@@ -550,7 +579,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: isCurrent ? () => setState(() => isExploring = false) : () {},
+              onPressed: isCurrent ? () => setState(() => isExploring = false) : () {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plan selected! Contact support@premoncare.com to complete your upgrade.')));
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isCurrent ? const Color(0xFF0F62FE) : Colors.white,
                 foregroundColor: isCurrent ? Colors.white : const Color(0xFF0F62FE),

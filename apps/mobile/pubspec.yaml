@@ -47,6 +47,8 @@ flutter:
     - .env
     - assets/icon.png
     - assets/logo.png
+    - assets/logo-horizontal.png
+    - assets/logo-wordmark.png
     - assets/onboarding_1.png
     - assets/onboarding_2.png
     - assets/onboarding_3.png

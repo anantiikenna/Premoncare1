@@ -243,7 +243,7 @@ class _AppointmentDetailsCard extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Appointment details coming soon')),
+                    const SnackBar(content: Text('Full appointment details will be available after your consultation.')),
                   );
                 },
                 child: const Row(
@@ -387,7 +387,7 @@ class _ChatSection extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Chat history coming soon')),
+                    const SnackBar(content: Text('Chat history loads automatically during consultations')),
                   );
                 },
                 child: const Row(

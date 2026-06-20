@@ -11,6 +11,8 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   int _selectedCategoryIndex = 0;
   bool _postAnonymously = false;
+  final _titleController = TextEditingController();
+  final _bodyController = TextEditingController();
 
   final List<Map<String, dynamic>> _categories = [
     {'name': 'General Health', 'icon': Icons.monitor_heart_outlined, 'color': const Color(0xFF10B981)},
@@ -20,6 +22,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     {'name': 'Pregnancy', 'icon': Icons.pregnant_woman_outlined, 'color': const Color(0xFFEC4899)},
     {'name': 'Ask Doctors', 'icon': Icons.medical_services_outlined, 'color': const Color(0xFF14B8A6)},
   ];
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _bodyController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +142,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextField(
+                controller: _titleController,
                 maxLength: 100,
                 decoration: InputDecoration(
                   hintText: 'Write a clear and short title for your post',
@@ -162,6 +172,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   TextField(
+                    controller: _bodyController,
                     maxLines: 6,
                     decoration: InputDecoration(
                       hintText: 'Provide more details about your question or topic. Include symptoms, background, or anything relevant.',
@@ -324,9 +335,37 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Preview coming soon'), backgroundColor: Color(0xFF6366F1)),
-                );
+                final title = _titleController.text.trim();
+                final body = _bodyController.text.trim();
+                if (title.isEmpty && body.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Post Preview'),
+                      content: const Text('Write something to preview'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(title.isNotEmpty ? title : 'Untitled Post'),
+                      content: Text(body.isNotEmpty ? body : 'No description provided.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 56),

@@ -41,7 +41,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Date filter coming soon')),
+                const SnackBar(content: Text('Date range filter coming soon')),
               );
             },
           ),
@@ -336,7 +336,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
           TextButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Filter options coming soon')),
+                const SnackBar(content: Text('Detailed breakdown coming soon')),
               );
             },
             child: Row(
