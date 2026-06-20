@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       if (_isEmailTab) ...
                       [
                         _ClinicalInput(
-                          key: ValueKey('loginPassword_${_isPasswordVisible}'),
+                          key: ValueKey('loginPassword_$_isPasswordVisible'),
                           controller: _passwordController,
                           hint: 'Access Password',
                           icon: Icons.lock_rounded,

@@ -343,8 +343,8 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
           ],
         );
       },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+loading: () => const SizedBox.shrink(),
+        error: (_, _) => const SizedBox.shrink(),
     );
   }
 

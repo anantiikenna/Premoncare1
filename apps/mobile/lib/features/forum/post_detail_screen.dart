@@ -70,9 +70,11 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             onPressed: () async {
               try {
                 await ForumService.toggleSavePost(widget.postId);
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post saved'), backgroundColor: Color(0xFF10B981)));
+                if (!mounted) return;
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post saved'), backgroundColor: Color(0xFF10B981)));
               } catch (e) {
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                if (!mounted) return;
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
               }
             },
           ),
@@ -194,7 +196,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     const SizedBox(height: 2),
                     Text.rich(
                       TextSpan(children: [
-                        TextSpan(text: '$timeAgo'),
+                        TextSpan(text: timeAgo),
                         if (post.categoryName != null) ...[
                           const TextSpan(text: ' • Posted in '),
                           TextSpan(text: post.categoryName!, style: TextStyle(color: ForumUtils.getCategoryColor(post.categoryIcon), fontWeight: FontWeight.w600)),

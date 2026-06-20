@@ -240,7 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           const Text('PASSWORD', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
-            key: ValueKey('password_${_isPasswordVisible}'),
+            key: ValueKey('password_$_isPasswordVisible'),
             controller: _passwordController,
             hint: 'Create Password',
             icon: Icons.lock_rounded,
@@ -288,7 +288,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           const Text('CONFIRM PASSWORD', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
-            key: ValueKey('confirmPassword_${_isConfirmPasswordVisible}'),
+            key: ValueKey('confirmPassword_$_isConfirmPasswordVisible'),
             controller: _confirmPasswordController,
             hint: 'Re-enter Password',
             icon: Icons.verified_user_rounded,
@@ -327,17 +327,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           const SizedBox(height: 40),
         ],
       ),
-    );
-  }
-
-  Widget _buildConfirmPasswordSuffix() {
-    if (_confirmPasswordController.text.isEmpty) {
-      return Icon(Icons.visibility_rounded, color: const Color(0xFF94A3B8), size: 20);
-    }
-    return Icon(
-      _passwordsMatch ? Icons.check_circle_rounded : Icons.error_rounded,
-      color: _passwordsMatch ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-      size: 20,
     );
   }
 
