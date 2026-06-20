@@ -157,7 +157,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       const SizedBox(height: 16),
                       if (_isEmailTab) ...
                       [
-                        _ClinicalInput(controller: _passwordController, hint: 'Access Password', icon: Icons.lock_rounded, isPassword: true, isPasswordVisible: _isPasswordVisible, onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible), primaryColor: primaryColor),
+                        _ClinicalInput(
+                          controller: _passwordController,
+                          hint: 'Access Password',
+                          icon: Icons.lock_rounded,
+                          isPassword: true,
+                          obscureText: !_isPasswordVisible,
+                          suffixIcon: Icon(
+                            _isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                            color: const Color(0xFF94A3B8),
+                            size: 20,
+                          ),
+                          onSuffixTap: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                          primaryColor: primaryColor,
+                        ),
                         const SizedBox(height: 12),
                         Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => context.push('/forgot-password'), child: Text('FORGOT ACCESS KEY?', style: TextStyle(color: primaryColor, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)))),
                       ]
@@ -323,11 +336,21 @@ class _ClinicalInput extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool isPassword;
-  final bool isPasswordVisible;
-  final VoidCallback? onToggleVisibility;
+  final bool obscureText;
+  final Widget? suffixIcon;
+  final VoidCallback? onSuffixTap;
   final Color primaryColor;
 
-  const _ClinicalInput({required this.controller, required this.hint, required this.icon, this.isPassword = false, this.isPasswordVisible = false, this.onToggleVisibility, required this.primaryColor});
+  const _ClinicalInput({
+    required this.controller,
+    required this.hint,
+    required this.icon,
+    this.isPassword = false,
+    this.obscureText = false,
+    this.suffixIcon,
+    this.onSuffixTap,
+    required this.primaryColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -335,13 +358,15 @@ class _ClinicalInput extends StatelessWidget {
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFF1F5F9))),
       child: TextField(
         controller: controller,
-        obscureText: isPassword && !isPasswordVisible,
+        obscureText: obscureText,
         style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF1E293B)),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w600),
           prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: primaryColor.withValues(alpha: 0.6), size: 20)),
-          suffixIcon: isPassword ? IconButton(icon: Icon(isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: const Color(0xFF94A3B8), size: 20), onPressed: onToggleVisibility) : null,
+          suffixIcon: suffixIcon != null
+              ? GestureDetector(onTap: onSuffixTap, child: Container(padding: const EdgeInsets.all(12), alignment: Alignment.center, child: suffixIcon))
+              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         ),
