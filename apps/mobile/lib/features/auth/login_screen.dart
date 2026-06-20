@@ -158,6 +158,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       if (_isEmailTab) ...
                       [
                         _ClinicalInput(
+                          key: ValueKey('loginPassword_${_isPasswordVisible}'),
                           controller: _passwordController,
                           hint: 'Access Password',
                           icon: Icons.lock_rounded,
@@ -342,6 +343,7 @@ class _ClinicalInput extends StatelessWidget {
   final Color primaryColor;
 
   const _ClinicalInput({
+    super.key,
     required this.controller,
     required this.hint,
     required this.icon,
