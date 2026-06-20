@@ -30,7 +30,7 @@ export function ViewCredentialsButton() {
       variant="outline"
       size="sm"
       className="bg-white border-blue-200 text-blue-600 text-xs font-bold rounded-xl h-9 shrink-0"
-      onClick={() => toast.info('Credentials verification coming soon')}
+      onClick={() => toast.info('You can request credentials verification from the doctor\'s profile. This feature is being enhanced.')}
     >
       View Credentials
     </Button>

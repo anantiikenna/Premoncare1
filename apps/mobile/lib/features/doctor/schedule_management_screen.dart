@@ -130,10 +130,29 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     children: [
-                      _buildQuickAction(Icons.access_time, 'Working Hours', const Color(0xFF8B5CF6), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working hours editor coming soon')))),
-                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', const Color(0xFFEF4444), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date blocker coming soon')))),
-                      _buildQuickAction(Icons.local_cafe, 'Break Times', const Color(0xFFF59E0B), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Break schedule editor coming soon')))),
-                      _buildQuickAction(Icons.warning, 'Emergency Availability', const Color(0xFF10B981), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Emergency toggle coming soon')))),
+                      _buildQuickAction(Icons.access_time, 'Working Hours', const Color(0xFF8B5CF6), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working hours management is being developed. Edit your available slots in the schedule table above.')))),
+                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', const Color(0xFFEF4444), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date blocking is being developed. Remove individual time slots from the schedule to block specific dates.')))),
+                      _buildQuickAction(Icons.local_cafe, 'Break Times', const Color(0xFFF59E0B), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Break scheduling is being developed. Remove time slots from the table to create breaks between appointments.')))),
+                      _buildQuickAction(Icons.warning, 'Emergency Availability', const Color(0xFF10B981), onTap: () async {
+  final user = supabase.auth.currentUser;
+  if (user == null) return;
+  try {
+    final data = await supabase.from('profiles').select('is_emergency').eq('id', user.id).single();
+    final currentValue = data['is_emergency'] as bool? ?? false;
+    await supabase.from('profiles').update({'is_emergency': !currentValue}).eq('id', user.id);
+    if (mounted) {
+      setState(() => _emergencyAvailability = !currentValue);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(!currentValue ? 'Emergency availability enabled. Patients can now book emergency consultations.' : 'Emergency availability disabled. You will no longer receive emergency consultation requests.'),
+        backgroundColor: const Color(0xFF10B981),
+      ));
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update emergency availability. Please try again.'), backgroundColor: Color(0xFFEF4444)));
+    }
+  }
+}),
                     ],
                   ),
                   const SizedBox(height: 24),

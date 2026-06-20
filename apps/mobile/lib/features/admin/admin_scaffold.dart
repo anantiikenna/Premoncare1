@@ -70,7 +70,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               title: const Text('Admin Profile', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin profile settings coming soon')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin profile settings are being developed. Your account is managed by the platform owner.')));
               },
             ),
             ListTile(

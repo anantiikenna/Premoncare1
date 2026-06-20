@@ -54,7 +54,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: primaryColor,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('User creation coming soon')),
+                const SnackBar(content: Text('New users register through the patient portal. Send them the registration link.')),
               );
             },
           ),
@@ -65,7 +65,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: const Color(0xFF64748B),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Bulk actions coming soon')),
+                const SnackBar(content: Text('Bulk actions are being developed. Manage users individually through the list above.')),
               );
             },
           ),
@@ -76,7 +76,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: const Color(0xFF64748B),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Export coming soon')),
+                const SnackBar(content: Text('Export is being developed. Use your device\'s screenshot feature to save user data.')),
               );
             },
           ),
@@ -87,7 +87,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: const Color(0xFF64748B),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Invite coming soon')),
+                const SnackBar(content: Text('Invitations are sent automatically when users register. Direct them to the signup page.')),
               );
             },
           ),
@@ -98,7 +98,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: const Color(0xFF64748B),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Audit logs coming soon')),
+                const SnackBar(content: Text('Audit logs are being developed. All admin actions are tracked in the system for compliance.')),
               );
             },
           ),

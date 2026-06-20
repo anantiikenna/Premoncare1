@@ -160,7 +160,7 @@ class SubscriptionPlanControl extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Edit coming soon')),
+                    const SnackBar(content: Text('Plan editing is being developed. Contact the development team to modify subscription plans.')),
                   );
                 },
                 child: const Row(
@@ -185,7 +185,7 @@ class SubscriptionPlanControl extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Create plan coming soon')),
+            const SnackBar(content: Text('Plan creation is being developed. Subscription plans are configured in the database by administrators.')),
           );
         },
         icon: const Icon(Icons.add_rounded),

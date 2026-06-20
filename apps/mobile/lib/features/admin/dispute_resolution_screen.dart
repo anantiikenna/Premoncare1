@@ -533,7 +533,7 @@ class _DisputeResolutionScreenState extends ConsumerState<DisputeResolutionScree
           trailing: const Icon(Icons.chevron_right, size: 18, color: Color(0xFF64748B)),
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$title functionality coming soon')),
+              SnackBar(content: Text('$title is being developed. Contact support for immediate dispute resolution.')),
             );
           },
         ),

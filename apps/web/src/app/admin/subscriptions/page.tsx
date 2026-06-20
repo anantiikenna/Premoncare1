@@ -218,12 +218,12 @@ export default function AdminSubscriptionsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" className="rounded-2xl border-slate-200 shadow-sm h-12 px-6 font-bold text-slate-600 gap-2"
-                        onClick={() => toast.info('Full analytics coming soon')}>
+                        onClick={() => toast.info('Comprehensive subscription analytics are being developed. Use the overview cards to track key metrics.')}>
                         <BarChart3 className="h-4 w-4" />
                         Full Analytics
                     </Button>
                     <Button className="rounded-2xl shadow-lg shadow-primary/20 h-12 px-8 font-black uppercase tracking-widest text-[11px] gap-2"
-                        onClick={() => toast.info('Billing settings coming soon')}>
+                        onClick={() => toast.info('Billing configuration is being developed. Manage subscriptions directly from the table below.')}>
                         <CreditCard className="h-4 w-4" />
                         Billing Settings
                     </Button>

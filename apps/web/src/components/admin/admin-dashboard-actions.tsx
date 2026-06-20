@@ -14,7 +14,7 @@ export function AdminDashboardActions() {
                 variant="outline"
                 size="icon"
                 className="rounded-2xl border-slate-200 shadow-sm"
-                onClick={() => toast.info('Search coming soon')}
+                onClick={() => toast.info('Dashboard-wide search is being developed. Use the sidebar navigation to access specific sections.')}
             >
                 <Search className="h-4 w-4 text-slate-500" />
             </Button>

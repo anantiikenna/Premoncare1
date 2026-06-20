@@ -178,7 +178,7 @@ export function ScheduleManagement() {
                             variant="outline"
                             size="sm"
                             className="rounded-xl font-bold gap-2 text-primary border-primary/20 hover:bg-primary/5"
-                            onClick={() => toast.info('Break scheduling coming soon')}
+                            onClick={() => toast.info('Break scheduling is being developed. Remove individual time slots from the table below to create breaks.')}
                         >
                             <Plus className="h-4 w-4" />
                             Add Break
@@ -201,7 +201,7 @@ export function ScheduleManagement() {
                                         variant="ghost"
                                         size="icon"
                                         className="rounded-xl text-rose-500 opacity-0 group-hover:opacity-100 hover:bg-rose-50 transition-all"
-                                        onClick={() => toast.info('Break removal coming soon')}
+                                        onClick={() => toast.info('Bulk break removal is being developed. Use the table to remove individual time slots.')}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>

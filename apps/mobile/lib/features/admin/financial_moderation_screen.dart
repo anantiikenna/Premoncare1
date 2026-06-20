@@ -863,7 +863,7 @@ class _IconButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label coming soon')),
+          SnackBar(content: Text('$label is being developed. Financial moderation features are rolling out gradually.')),
         );
       },
       child: Container(
@@ -973,7 +973,7 @@ class _AlertCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$btnLabel coming soon')),
+                  SnackBar(content: Text('$btnLabel is being developed. Financial moderation features are rolling out gradually.')),
                 );
               },
               style: ElevatedButton.styleFrom(

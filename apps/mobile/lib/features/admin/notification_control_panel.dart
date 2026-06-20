@@ -592,7 +592,7 @@ class _ChannelTile extends StatelessWidget {
         TextButton(
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Configuration coming soon')),
+              const SnackBar(content: Text('Notification configuration is being developed. Default notifications are active and functional.')),
             );
           },
           style: TextButton.styleFrom(

@@ -114,11 +114,11 @@ export default function SettingsPrivacyPage() {
         <div className="space-y-4">
           <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider ml-2">Account Settings</h3>
           <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-            <SettingsRow icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" iconColor="text-blue-500" iconBg="bg-blue-50" title="Login & Security" subtitle="Manage password and 2FA" onClick={() => toast.info('Security settings coming soon')} />
+            <SettingsRow icon="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" iconColor="text-blue-500" iconBg="bg-blue-50" title="Login & Security" subtitle="Manage password and 2FA" onClick={() => toast.info('Password and two-factor authentication settings are under development. Contact support to update your credentials in the meantime.')} />
             <div className="h-px bg-slate-100 mx-6"></div>
-            <SettingsRow icon="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" iconColor="text-amber-500" iconBg="bg-amber-50" title="Notification Preferences" subtitle="Push, email, and SMS alerts" onClick={() => toast.info('Notification preferences coming soon')} />
+            <SettingsRow icon="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" iconColor="text-amber-500" iconBg="bg-amber-50" title="Notification Preferences" subtitle="Push, email, and SMS alerts" onClick={() => router.push('/notifications')} />
             <div className="h-px bg-slate-100 mx-6"></div>
-            <SettingsRow icon="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" iconColor="text-emerald-500" iconBg="bg-emerald-50" title="Payment Methods" subtitle="Manage cards and bank accounts" onClick={() => toast.info('Payment methods coming soon')} />
+            <SettingsRow icon="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" iconColor="text-emerald-500" iconBg="bg-emerald-50" title="Payment Methods" subtitle="Manage cards and bank accounts" onClick={() => router.push('/patient/payments')} />
           </div>
         </div>
 
@@ -126,11 +126,11 @@ export default function SettingsPrivacyPage() {
         <div className="space-y-4">
           <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider ml-2">Privacy & Data</h3>
           <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-            <SettingsRow icon="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" iconColor="text-violet-500" iconBg="bg-violet-50" title="Medical Record Permissions" subtitle="Manage who can see your records" onClick={() => toast.info('Record permissions coming soon')} />
+            <SettingsRow icon="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" iconColor="text-violet-500" iconBg="bg-violet-50" title="Medical Record Permissions" subtitle="Manage who can see your records" onClick={() => router.push('/patient/records')} />
             <div className="h-px bg-slate-100 mx-6"></div>
-            <SettingsRow icon="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" iconColor="text-blue-500" iconBg="bg-blue-50" title="Biometric & Privacy Controls" subtitle="Face ID and app locking" onClick={() => toast.info('Privacy controls coming soon')} />
+            <SettingsRow icon="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" iconColor="text-blue-500" iconBg="bg-blue-50" title="Biometric & Privacy Controls" subtitle="Face ID and app locking" onClick={() => toast.info('Biometric authentication and app lock features are coming soon. Your data is protected by Supabase Row-Level Security in the meantime.')} />
             <div className="h-px bg-slate-100 mx-6"></div>
-            <SettingsRow icon="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" iconColor="text-slate-500" iconBg="bg-slate-100" title="Device Sessions & Activity" subtitle="Review active logins" onClick={() => toast.info('Session management coming soon')} />
+            <SettingsRow icon="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" iconColor="text-slate-500" iconBg="bg-slate-100" title="Device Sessions & Activity" subtitle="Review active logins" onClick={() => toast.info('Active session monitoring is under development. You can revoke access by changing your password from the Login & Security section.')} />
           </div>
         </div>
 

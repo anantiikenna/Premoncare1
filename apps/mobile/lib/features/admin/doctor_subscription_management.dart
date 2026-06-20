@@ -207,7 +207,7 @@ class DoctorSubscriptionManagement extends StatelessWidget {
                       TextButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Full list coming soon')),
+                            const SnackBar(content: Text('Full subscription list is being developed. Use the search to find specific doctors.')),
                           );
                         },
                         child: const Text('View All', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
@@ -342,7 +342,7 @@ class _IconButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label coming soon')),
+          SnackBar(content: Text('$label is being developed. Subscription management features are rolling out gradually.')),
         );
       },
       child: Container(

@@ -150,7 +150,7 @@ export function UserManagement() {
                     <Button
                         variant="outline"
                         className="h-12 rounded-xl px-4 border-slate-200"
-                        onClick={() => toast.info('Advanced filters coming soon')}
+                        onClick={() => toast.info('Advanced filtering options are being developed. Use the search bar to find users.')}
                     >
                         <Filter className="h-4 w-4 mr-2" />
                         Filters
@@ -258,7 +258,7 @@ export function UserManagement() {
                                                     <DropdownMenuLabel className="text-[10px] font-black uppercase text-slate-400 px-3 py-2">System Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem
                                                         className="rounded-xl px-3 py-2.5 text-sm font-bold gap-3"
-                                                        onClick={() => toast.info('Edit profile coming soon')}
+                                                        onClick={() => toast.info('Direct profile editing from this panel is under development. Use the user\'s profile page to make changes.')}
                                                     >
                                                         <RefreshCcw className="h-4 w-4 text-primary" />
                                                         Edit Profile Info
@@ -272,7 +272,7 @@ export function UserManagement() {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         className="rounded-xl px-3 py-2.5 text-sm font-bold gap-3 text-primary"
-                                                        onClick={() => toast.info('Impersonation coming soon')}
+                                                        onClick={() => toast.info('Account impersonation is restricted to senior administrators and is under development.')}
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                         Impersonate View
