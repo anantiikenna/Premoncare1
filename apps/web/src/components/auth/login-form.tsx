@@ -60,7 +60,10 @@ export function LoginForm() {
         // Redirect based on role
         const role = profile?.role;
         if (role === "admin") {
-          router.push("/admin/dashboard");
+          await supabase.auth.signOut();
+          setError("Admin accounts cannot access the patient/doctor portal. Please use the Admin dashboard.");
+          setLoading(false);
+          return;
         } else if (role === "doctor") {
           router.push("/doctor/dashboard");
         } else {
@@ -99,7 +102,8 @@ export function LoginForm() {
 
     const role = profile?.role;
     if (role === "admin") {
-      router.push("/admin/dashboard");
+      await supabase.auth.signOut();
+      throw new Error("Admin accounts cannot access the patient/doctor portal. Please use the Admin dashboard.");
     } else if (role === "doctor") {
       router.push("/doctor/dashboard");
     } else {

@@ -61,11 +61,16 @@ export async function updateSession(request: NextRequest) {
         if (pathname.startsWith('/admin') && role !== 'admin') {
             return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url))
         }
-        if (pathname.startsWith('/doctor') && pathname !== '/doctor/apply' && role !== 'doctor' && role !== 'admin') {
-            return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url))
+        if (pathname.startsWith('/doctor') && pathname !== '/doctor/apply' && role !== 'doctor') {
+            return NextResponse.redirect(new URL(role === 'admin' ? '/admin/dashboard' : `/${role}/dashboard`, request.url))
         }
-        if (pathname.startsWith('/patient') && role !== 'patient' && role !== 'admin') {
-            return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url))
+        if (pathname.startsWith('/patient') && role !== 'patient') {
+            return NextResponse.redirect(new URL(role === 'admin' ? '/admin/dashboard' : `/${role}/dashboard`, request.url))
+        }
+
+        // Redirect admin away from login/register to admin dashboard
+        if ((pathname === '/login' || pathname === '/register') && role === 'admin') {
+            return NextResponse.redirect(new URL('/admin/dashboard', request.url))
         }
 
         // Redirect from login/register if already authenticated
