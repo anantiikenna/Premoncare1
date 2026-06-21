@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart' as fp;
+import '../../core/app_colors.dart';
 import '../../shared/widgets/custom_text_field.dart';
 import '../../shared/widgets/glass_card.dart';
 import 'records_provider.dart';
@@ -73,9 +74,9 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
         left: 24,
         right: 24,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -88,10 +89,10 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Your files are stored in an encrypted private bucket.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 13),
+              style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13),
             ),
             const SizedBox(height: 32),
             CustomTextField(
@@ -123,7 +124,7 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                backgroundColor: const Color(0xFF6366F1),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
               child: _isUploading
@@ -147,7 +148,7 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
             Icon(
               _selectedFile != null ? Icons.check_circle : Icons.cloud_upload_outlined,
               size: 48,
-              color: _selectedFile != null ? Colors.green : const Color(0xFF6366F1),
+              color: _selectedFile != null ? AppColors.success : AppColors.primary,
             ),
             const SizedBox(height: 16),
             Text(
@@ -157,7 +158,7 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: _selectedFile != null ? Colors.green : Colors.black,
+                color: _selectedFile != null ? AppColors.success : AppColors.textPrimaryOf(context),
               ),
             ),
           ],

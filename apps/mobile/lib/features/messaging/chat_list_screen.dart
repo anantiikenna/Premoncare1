@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import 'messaging_provider.dart';
 
 class ChatListScreen extends ConsumerWidget {
@@ -9,26 +10,25 @@ class ChatListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final conversationsAsync = ref.watch(conversationsProvider);
-    const primaryColor = Color(0xFF0F62FE);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Row(
           children: [
-            const Icon(Icons.chat, color: primaryColor, size: 24),
+            const Icon(Icons.chat, color: AppColors.primary, size: 24),
             const SizedBox(width: 12),
-            const Text(
+            Text(
               'Chats',
-              style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w900, fontSize: 24, letterSpacing: -1),
+              style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w900, fontSize: 24, letterSpacing: -1),
             ),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: primaryColor, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
               child: conversationsAsync.when(
                 data: (conversations) => Text(
                   '${conversations.where((c) => c.unreadCount > 0).length}',
@@ -44,8 +44,8 @@ class ChatListScreen extends ConsumerWidget {
           IconButton(
             icon: Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.edit, color: Color(0xFF1E293B), size: 18),
+              decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(12)),
+              child: Icon(Icons.edit, color: AppColors.textPrimaryOf(context), size: 18),
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -59,46 +59,43 @@ class ChatListScreen extends ConsumerWidget {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
+                border: Border.all(color: AppColors.borderLightOf(context)),
               ),
-              child: const TextField(
+              child: TextField(
                 decoration: InputDecoration(
                   hintText: 'Search chats...',
-                  hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                  prefixIcon: Icon(Icons.search, color: Color(0xFF94A3B8), size: 18),
+                  hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
+                  prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 18),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          // Filters
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                _buildFilterChip('All', true),
-                _buildFilterChip('Doctors', false, count: 7),
-                _buildFilterChip('Support', false),
+                _buildFilterChip(context, 'All', true),
+                _buildFilterChip(context, 'Doctors', false, count: 7),
+                _buildFilterChip(context, 'Support', false),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          // Chat List
           Expanded(
             child: conversationsAsync.when(
               data: (conversations) {
                 if (conversations.isEmpty) {
-                  return _buildEmptyState(primaryColor);
+                  return _buildEmptyState(context);
                 }
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -106,11 +103,11 @@ class ChatListScreen extends ConsumerWidget {
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final contact = conversations[index];
-                    return _ChatTile(contact: contact, primaryColor: primaryColor);
+                    return _ChatTile(contact: contact);
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: primaryColor)),
+              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
               error: (err, _) => Center(child: Text('Error: $err')),
             ),
           ),
@@ -119,12 +116,12 @@ class ChatListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected, {int? count}) {
+  Widget _buildFilterChip(BuildContext context, String label, bool isSelected, {int? count}) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF0F62FE) : const Color(0xFFF1F5F9),
+        color: isSelected ? AppColors.primary : AppColors.borderLightOf(context),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -132,7 +129,7 @@ class ChatListScreen extends ConsumerWidget {
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : const Color(0xFF64748B),
+              color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
@@ -142,7 +139,7 @@ class ChatListScreen extends ConsumerWidget {
             Text(
               count.toString(),
               style: TextStyle(
-                color: isSelected ? Colors.white.withValues(alpha: 0.7) : const Color(0xFF94A3B8),
+                color: isSelected ? Colors.white.withValues(alpha: 0.7) : AppColors.textTertiaryOf(context),
                 fontSize: 11,
               ),
             ),
@@ -152,21 +149,21 @@ class ChatListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState(Color primaryColor) {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble, size: 64, color: primaryColor.withValues(alpha: 0.1)),
+          Icon(Icons.chat_bubble, size: 64, color: AppColors.primary.withValues(alpha: 0.1)),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'No conversations yet',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Start a chat with a specialist to see it here.',
-            style: TextStyle(color: Color(0xFF64748B)),
+            style: TextStyle(color: AppColors.textSecondaryOf(context)),
           ),
         ],
       ),
@@ -176,9 +173,8 @@ class ChatListScreen extends ConsumerWidget {
 
 class _ChatTile extends StatelessWidget {
   final ChatContact contact;
-  final Color primaryColor;
 
-  const _ChatTile({required this.contact, required this.primaryColor});
+  const _ChatTile({required this.contact});
 
   @override
   Widget build(BuildContext context) {
@@ -187,12 +183,12 @@ class _ChatTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: AppColors.borderLightOf(context)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: AppColors.shadowLight,
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -211,10 +207,10 @@ class _ChatTile extends StatelessWidget {
                     image: contact.avatarUrl != null
                         ? DecorationImage(image: NetworkImage(contact.avatarUrl!), fit: BoxFit.cover)
                         : null,
-                    color: primaryColor.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                   ),
                   child: contact.avatarUrl == null
-                      ? const Icon(Icons.person, color: Color(0xFF0F62FE))
+                      ? const Icon(Icons.person, color: AppColors.primary)
                       : null,
                 ),
                 if (contact.isOnline)
@@ -222,7 +218,7 @@ class _ChatTile extends StatelessWidget {
                     width: 14,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981),
+                      color: AppColors.success,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2.5),
                     ),
@@ -239,18 +235,18 @@ class _ChatTile extends StatelessWidget {
                     children: [
                       Text(
                         contact.fullName,
-                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E293B)),
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context)),
                       ),
                       Text(
                         _formatTime(contact.lastMessage.createdAt),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textTertiaryOf(context)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     contact.specialty ?? 'Premon Care Support',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context)),
                   ),
                   const SizedBox(height: 6),
                   Row(
@@ -260,13 +256,13 @@ class _ChatTile extends StatelessWidget {
                           contact.lastMessage.content,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500),
                         ),
                       ),
                       if (contact.unreadCount > 0)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: primaryColor, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
                           child: Text(
                             contact.unreadCount.toString(),
                             style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900),

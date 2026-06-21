@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 
@@ -15,6 +16,27 @@ class _HealthPreferencesScreenState extends State<HealthPreferencesScreen> {
   String _heightUnit = 'cm';
   String _temperatureUnit = '°C';
   String _dateFormat = 'DD/MM/YYYY';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _weightUnit = prefs.getString('health_weight_unit') ?? 'kg';
+      _heightUnit = prefs.getString('health_height_unit') ?? 'cm';
+      _temperatureUnit = prefs.getString('health_temperature_unit') ?? '°C';
+      _dateFormat = prefs.getString('health_date_format') ?? 'DD/MM/YYYY';
+    });
+  }
+
+  Future<void> _savePreference(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +58,13 @@ class _HealthPreferencesScreenState extends State<HealthPreferencesScreen> {
         children: [
           Text('MEASUREMENT UNITS', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildUnitSelector('Weight', ['kg', 'lbs'], _weightUnit, (v) => setState(() => _weightUnit = v)),
-          _buildUnitSelector('Height', ['cm', 'ft/in'], _heightUnit, (v) => setState(() => _heightUnit = v)),
-          _buildUnitSelector('Temperature', ['°C', '°F'], _temperatureUnit, (v) => setState(() => _temperatureUnit = v)),
+          _buildUnitSelector('Weight', ['kg', 'lbs'], _weightUnit, (v) { setState(() => _weightUnit = v); _savePreference('health_weight_unit', v); }),
+          _buildUnitSelector('Height', ['cm', 'ft/in'], _heightUnit, (v) { setState(() => _heightUnit = v); _savePreference('health_height_unit', v); }),
+          _buildUnitSelector('Temperature', ['°C', '°F'], _temperatureUnit, (v) { setState(() => _temperatureUnit = v); _savePreference('health_temperature_unit', v); }),
           const SizedBox(height: 24),
           Text('FORMAT', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildUnitSelector('Date Format', ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'], _dateFormat, (v) => setState(() => _dateFormat = v)),
+          _buildUnitSelector('Date Format', ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'], _dateFormat, (v) { setState(() => _dateFormat = v); _savePreference('health_date_format', v); }),
         ],
       ),
     );

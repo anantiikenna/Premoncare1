@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../../core/app_colors.dart';
 
 class VerificationRejectedScreen extends StatelessWidget {
   final String? reason;
@@ -9,16 +9,12 @@ class VerificationRejectedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-    const errorColor = Color(0xFFEF4444);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Immersive mesh background
-          Positioned(top: -150, right: -100, child: _MeshCircle(color: errorColor.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.05), size: 400)),
+          Positioned(top: -150, right: -100, child: _MeshCircle(color: AppColors.error.withValues(alpha: 0.1), size: 500)),
+          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.05), size: 400)),
 
           SafeArea(
             child: SingleChildScrollView(
@@ -28,23 +24,23 @@ class VerificationRejectedScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 24),
-                  _ErrorHub(errorColor: errorColor),
+                  const _ErrorHub(),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('REQUIRED CORRECTIONS'),
+                  _buildSectionTitle(context, 'REQUIRED CORRECTIONS'),
                   const SizedBox(height: 16),
-                  _CorrectionFeed(reason: reason, errorColor: errorColor),
+                  _CorrectionFeed(reason: reason),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('NEXT STEPS'),
+                  _buildSectionTitle(context, 'NEXT STEPS'),
                   const SizedBox(height: 16),
-                  _ActionTileFeed(primaryColor: primaryColor),
+                  const _ActionTileFeed(),
                   const SizedBox(height: 40),
 
-                  _SecurityBox(),
+                  const _SecurityBox(),
                   const SizedBox(height: 48),
 
-                  _ActionHub(onResubmit: onResubmit, primaryColor: primaryColor),
+                  _ActionHub(onResubmit: onResubmit),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -55,44 +51,43 @@ class VerificationRejectedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
   }
 }
 
 class _ErrorHub extends StatelessWidget {
-  final Color errorColor;
-  const _ErrorHub({required this.errorColor});
+  const _ErrorHub();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(36), border: Border.all(color: const Color(0xFFF1F5F9)), boxShadow: [BoxShadow(color: errorColor.withValues(alpha: 0.05), blurRadius: 40, offset: const Offset(0, 20))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(36), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: AppColors.error.withValues(alpha: 0.05), blurRadius: 40, offset: const Offset(0, 20))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: errorColor.withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(Icons.gpp_maybe_rounded, color: errorColor, size: 28)),
+              Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: AppColors.error.withValues(alpha: 0.1), shape: BoxShape.circle), child: const Icon(Icons.gpp_maybe_rounded, color: AppColors.error, size: 28)),
               const SizedBox(width: 20),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Review Incomplete', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
-                    SizedBox(height: 4),
-                    Text('Action Required', style: TextStyle(fontSize: 13, color: Color(0xFFEF4444), fontWeight: FontWeight.w700)),
+                    Text('Review Incomplete', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+                    const SizedBox(height: 4),
+                    const Text('Action Required', style: TextStyle(fontSize: 13, color: AppColors.error, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 28),
-          const Text(
+          Text(
             'We were unable to approve your clinical credentials at this time. Please address the highlighted issues below and resubmit for priority review.',
-            style: TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.6, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), height: 1.6, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -102,16 +97,15 @@ class _ErrorHub extends StatelessWidget {
 
 class _CorrectionFeed extends StatelessWidget {
   final String? reason;
-  final Color errorColor;
-  const _CorrectionFeed({this.reason, required this.errorColor});
+  const _CorrectionFeed({this.reason});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _CorrectionCard(icon: Icons.badge_rounded, title: 'Identity Document', description: 'The uploaded ID is slightly blurry. Please ensure all text is legible and well-lit.', color: errorColor),
-        _CorrectionCard(icon: Icons.face_rounded, title: 'Facial Biometric', description: 'The selfie does not match the provided ID document. Please retake in a brighter environment.', color: errorColor),
-        if (reason != null) _CorrectionCard(icon: Icons.description_rounded, title: 'Clinical License', description: reason!, color: errorColor),
+        const _CorrectionCard(icon: Icons.badge_rounded, title: 'Identity Document', description: 'The uploaded ID is slightly blurry. Please ensure all text is legible and well-lit.'),
+        const _CorrectionCard(icon: Icons.face_rounded, title: 'Facial Biometric', description: 'The selfie does not match the provided ID document. Please retake in a brighter environment.'),
+        if (reason != null) _CorrectionCard(icon: Icons.description_rounded, title: 'Clinical License', description: reason!),
       ],
     );
   }
@@ -121,28 +115,27 @@ class _CorrectionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-  final Color color;
 
-  const _CorrectionCard({required this.icon, required this.title, required this.description, required this.color});
+  const _CorrectionCard({required this.icon, required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)), child: Icon(icon, color: color, size: 20)),
+          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.error.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)), child: const Icon(icon, color: AppColors.error, size: 20)),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF1E293B), letterSpacing: -0.3)),
+                Text(title, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context), letterSpacing: -0.3)),
                 const SizedBox(height: 6),
-                Text(description, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.5, fontWeight: FontWeight.w600)),
+                Text(description, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), height: 1.5, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -153,15 +146,14 @@ class _CorrectionCard extends StatelessWidget {
 }
 
 class _ActionTileFeed extends StatelessWidget {
-  final Color primaryColor;
-  const _ActionTileFeed({required this.primaryColor});
+  const _ActionTileFeed();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       children: [
-        _ActionTile(icon: Icons.help_center_rounded, title: 'View Requirements', subtitle: 'Detailed guide on clinical standards', color: primaryColor),
-        _ActionTile(icon: Icons.support_agent_rounded, title: 'Contact Support', subtitle: 'Speak with clinical onboarding', color: primaryColor),
+        _ActionTile(icon: Icons.help_center_rounded, title: 'View Requirements', subtitle: 'Detailed guide on clinical standards'),
+        _ActionTile(icon: Icons.support_agent_rounded, title: 'Contact Support', subtitle: 'Speak with clinical onboarding'),
       ],
     );
   }
@@ -171,31 +163,30 @@ class _ActionTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final Color color;
 
-  const _ActionTile({required this.icon, required this.title, required this.subtitle, required this.color});
+  const _ActionTile({required this.icon, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: Icon(icon, color: color, size: 20)),
+          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: const Icon(icon, color: AppColors.primary, size: 20)),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF1E293B), letterSpacing: -0.3)),
+                Text(title, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppColors.textPrimaryOf(context), letterSpacing: -0.3)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                Text(subtitle, style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 20),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.slate300, size: 20),
         ],
       ),
     );
@@ -203,16 +194,18 @@ class _ActionTile extends StatelessWidget {
 }
 
 class _SecurityBox extends StatelessWidget {
+  const _SecurityBox();
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(28)),
-      child: const Row(
+      decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(28)),
+      child: Row(
         children: [
-          Icon(Icons.lock_rounded, color: Color(0xFF64748B), size: 20),
-          SizedBox(width: 16),
-          Expanded(child: Text('Your information remains encrypted and protected in our private clinical vault.', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w700, height: 1.4))),
+          const Icon(Icons.lock_rounded, color: AppColors.textSecondary, size: 20),
+          const SizedBox(width: 16),
+          Expanded(child: Text('Your information remains encrypted and protected in our private clinical vault.', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700, height: 1.4))),
         ],
       ),
     );
@@ -221,8 +214,7 @@ class _SecurityBox extends StatelessWidget {
 
 class _ActionHub extends StatelessWidget {
   final VoidCallback onResubmit;
-  final Color primaryColor;
-  const _ActionHub({required this.onResubmit, required this.primaryColor});
+  const _ActionHub({required this.onResubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +225,7 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: onResubmit,
-            style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Colors.white, elevation: 15, shadowColor: primaryColor.withValues(alpha: 0.3), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, elevation: 15, shadowColor: AppColors.primary.withValues(alpha: 0.3), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
             child: const Text('CORRECT & RESUBMIT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
           ),
         ),
@@ -243,7 +235,7 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E293B), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.slate800, foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
             child: const Text('BACK TO DASHBOARD', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
           ),
         ),
@@ -269,5 +261,3 @@ class _MeshCircle extends StatelessWidget {
     );
   }
 }
-
-

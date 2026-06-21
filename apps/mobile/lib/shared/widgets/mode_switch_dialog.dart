@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../../core/app_colors.dart';
 
 class ModeSwitchDialog extends StatelessWidget {
-  final String targetMode; // 'Doctor' or 'Patient'
+  final String targetMode;
   final VoidCallback onConfirm;
 
   const ModeSwitchDialog({super.key, required this.targetMode, required this.onConfirm});
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: AlertDialog(
-        backgroundColor: Colors.white.withValues(alpha: 0.9),
+        backgroundColor: AppColors.surfaceOf(context).withValues(alpha: 0.9),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(32),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+          side: BorderSide(color: AppColors.surfaceOf(context).withValues(alpha: 0.2)),
         ),
         contentPadding: const EdgeInsets.all(32),
         content: Column(
@@ -25,20 +24,20 @@ class ModeSwitchDialog extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: const Icon(Icons.sync_rounded, color: primaryColor, size: 32),
+              decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: const Icon(Icons.sync_rounded, color: AppColors.primary, size: 32),
             ),
             const SizedBox(height: 24),
             Text(
               'Switch to $targetMode Mode?',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5),
             ),
             const SizedBox(height: 12),
             Text(
               'You are transitioning to your ${targetMode.toLowerCase()} profile. Your session will remain secure.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w500, height: 1.5),
+              style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500, height: 1.5),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -50,7 +49,7 @@ class ModeSwitchDialog extends StatelessWidget {
                   onConfirm();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                   elevation: 0,
@@ -61,7 +60,7 @@ class ModeSwitchDialog extends StatelessWidget {
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('CANCEL', style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1)),
+              child: Text('CANCEL', style: TextStyle(color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1)),
             ),
           ],
         ),

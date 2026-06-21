@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
+import '../../core/app_colors.dart';
 
 class SelectDurationScreen extends StatefulWidget {
   final String doctorId;
@@ -23,7 +24,6 @@ class SelectDurationScreen extends StatefulWidget {
 class _SelectDurationScreenState extends State<SelectDurationScreen> {
   int _selectedDuration = 30;
 
-  /// Price per minute from hourly rate (with emergency multiplier applied)
   double get _ratePerMinute => (widget.hourlyRate / 60) * (widget.isEmergency ? 5 : 1);
 
   int _priceForDuration(int minutes) => (_ratePerMinute * minutes).toInt();
@@ -31,10 +31,10 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
   @override
   Widget build(BuildContext context) {
     final isEmergency = widget.isEmergency;
-    final primaryColor = isEmergency ? const Color(0xFFEF4444) : const Color(0xFF0F62FE);
+    final primaryColor = isEmergency ? AppColors.error : AppColors.primary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
           Positioned(top: -150, right: -100, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
@@ -50,10 +50,10 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                   _buildAppBar(context, isEmergency),
                   const SizedBox(height: 24),
                   Text(isEmergency ? 'PRIORITY DISPATCH' : 'CLINICAL BOOKING',
-                      style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                      style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                   const SizedBox(height: 12),
                   Text(isEmergency ? 'Emergency Access' : 'Booking Details',
-                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
                   const SizedBox(height: 32),
 
                   _SpecialistPreviewCard(
@@ -97,7 +97,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                         'isEmergency': isEmergency,
                       }),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E293B),
+                        backgroundColor: AppColors.slate800,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
@@ -126,7 +126,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
+    return Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
   }
 
   Widget _buildAppBar(BuildContext context, bool isEmergency) {
@@ -139,8 +139,8 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
             onTap: () => context.pop(),
             child: Container(
               width: 48, height: 48,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
-              child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
+              decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
+              child: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 20),
             ),
           ),
           if (isEmergency) _EmergencyBadge(),
@@ -169,9 +169,9 @@ class _SpecialistPreviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: isEmergency ? const Color(0xFFFEE2E2) : const Color(0xFFF1F5F9)),
+        border: Border.all(color: isEmergency ? AppColors.errorLightOf(context) : AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
@@ -181,9 +181,9 @@ class _SpecialistPreviewCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(displayName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+                Text(displayName, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
                 const SizedBox(height: 4),
-                Text('₦${hourlyRate.toStringAsFixed(0)} / hour', style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                Text('₦${hourlyRate.toStringAsFixed(0)} / hour', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -230,9 +230,9 @@ class _DurationSelector extends StatelessWidget {
               margin: const EdgeInsets.only(right: 16),
               padding: const EdgeInsets.symmetric(vertical: 28),
               decoration: BoxDecoration(
-                color: isSelected ? primaryColor : Colors.white,
+                color: isSelected ? primaryColor : AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: isSelected ? primaryColor : const Color(0xFFF1F5F9)),
+                border: Border.all(color: isSelected ? primaryColor : AppColors.borderLightOf(context)),
                 boxShadow: isSelected
                     ? [BoxShadow(color: primaryColor.withValues(alpha: 0.25), blurRadius: 20, offset: const Offset(0, 10))]
                     : [],
@@ -240,9 +240,9 @@ class _DurationSelector extends StatelessWidget {
               child: Column(
                 children: [
                   Text('$mins',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : const Color(0xFF1E293B), letterSpacing: -1)),
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : AppColors.textPrimaryOf(context), letterSpacing: -1)),
                   Text('MINS',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: isSelected ? Colors.white70 : const Color(0xFF94A3B8), letterSpacing: 1)),
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: isSelected ? Colors.white70 : AppColors.textTertiaryOf(context), letterSpacing: 1)),
                   const SizedBox(height: 16),
                   Text('₦${_price(mins)}',
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : primaryColor)),
@@ -279,9 +279,9 @@ class _PricingModule extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(36),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         children: [
@@ -292,11 +292,11 @@ class _PricingModule extends StatelessWidget {
             const SizedBox(height: 16),
             const _PriceRow(label: 'EMERGENCY PREMIUM', value: '5X RATE APPLIED', isUrgent: true),
           ],
-          const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: Divider(color: Color(0xFFF1F5F9), thickness: 2)),
+          Padding(padding: const EdgeInsets.symmetric(vertical: 24), child: Divider(color: AppColors.borderLightOf(context), thickness: 2)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('TOTAL ESTIMATE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Color(0xFF64748B), letterSpacing: 0.5)),
+              Text('TOTAL ESTIMATE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
               Text('₦$totalStr', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32, color: primaryColor, letterSpacing: -1.5)),
             ],
           ),
@@ -317,8 +317,8 @@ class _PriceRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF94A3B8), letterSpacing: 0.5)),
-        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: isUrgent ? const Color(0xFFEF4444) : const Color(0xFF1E293B))),
+        Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textTertiaryOf(context), letterSpacing: 0.5)),
+        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: isUrgent ? AppColors.error : AppColors.textPrimaryOf(context))),
       ],
     );
   }
@@ -329,12 +329,12 @@ class _EmergencyBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFFECACA))),
-      child: const Row(
+      decoration: BoxDecoration(color: AppColors.errorLightOf(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.errorLightOf(context))),
+      child: Row(
         children: [
-          Icon(Icons.bolt_rounded, color: Color(0xFFEF4444), size: 16),
-          SizedBox(width: 8),
-          Text('PRIORITY ACCESS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFB91C1C), letterSpacing: 0.5)),
+          Icon(Icons.bolt_rounded, color: AppColors.error, size: 16),
+          const SizedBox(width: 8),
+          Text('PRIORITY ACCESS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 0.5)),
         ],
       ),
     );

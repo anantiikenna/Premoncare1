@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:mobile/features/verification/verification_provider.dart';
+import '../../../core/app_colors.dart';
 
 class ProfessionalStep extends ConsumerStatefulWidget {
   const ProfessionalStep({super.key});
@@ -49,8 +50,8 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
     if (result != null) {
       final file = File(result.files.single.path!);
       await ref.read(verificationProvider.notifier).uploadFile(
-        file, 
-        VerificationField.license, 
+        file,
+        VerificationField.license,
         'medical_license_${DateTime.now().millisecondsSinceEpoch}',
       );
     }
@@ -63,26 +64,25 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Info Box
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFF),
+            color: AppColors.backgroundOf(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEEF2FF)),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEEF2FF),
+                  color: AppColors.surfaceAltOf(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.badge_outlined, color: Color(0xFF4338CA), size: 24),
+                child: Icon(Icons.badge_outlined, color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -91,13 +91,13 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Color(0xFF1E1B4B),
+                        color: AppColors.textPrimaryOf(context),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'This information helps us verify your credentials and ensure trust on our platform.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), height: 1.4),
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), height: 1.4),
                     ),
                   ],
                 ),
@@ -106,10 +106,8 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
           ),
         ),
         const SizedBox(height: 32),
-
-        // Medical Specialty Dropdown
         _buildLabel('Medical Specialty', isRequired: true),
-        const Text('Select your primary area of specialization.', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+        Text('Select your primary area of specialization.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
         const SizedBox(height: 12),
         _buildDropdown(
           hint: 'Select your specialty',
@@ -122,10 +120,8 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
           },
         ),
         const SizedBox(height: 24),
-
-        // Sub-specialty Dropdown
         _buildLabel('Sub-specialty', isRequired: false),
-        const Text('Select your sub-specialty if applicable.', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+        Text('Select your sub-specialty if applicable.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
         const SizedBox(height: 12),
         _buildDropdown(
           hint: 'Select sub-specialty',
@@ -137,10 +133,8 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
           },
         ),
         const SizedBox(height: 24),
-
-        // Years of Experience Dropdown
         _buildLabel('Years of Experience', isRequired: true),
-        const Text('Total years of professional experience in your field.', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+        Text('Total years of professional experience in your field.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
         const SizedBox(height: 12),
         _buildDropdown(
           hint: 'Select years of experience',
@@ -153,40 +147,36 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
           },
         ),
         const SizedBox(height: 24),
-
-        // Medical License Number
         _buildLabel('Medical License Number', isRequired: true),
-        const Text('Enter your valid medical license number.', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+        Text('Enter your valid medical license number.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
         const SizedBox(height: 12),
         TextField(
           controller: _licenseController,
           onChanged: (_) => _onChanged(),
           decoration: InputDecoration(
             hintText: 'Enter license number',
-            hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
-            prefixIcon: const Icon(Icons.verified_outlined, color: Color(0xFF6366F1), size: 20),
+            hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
+            prefixIcon: Icon(Icons.verified_outlined, color: AppColors.primary, size: 20),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppColors.surfaceOf(context),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              borderSide: BorderSide(color: AppColors.borderOf(context)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              borderSide: BorderSide(color: AppColors.borderOf(context)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.5),
+              borderSide: BorderSide(color: AppColors.primary, width: 1.5),
             ),
           ),
         ),
         const SizedBox(height: 32),
-
-        // File Upload
         _buildLabel('Upload Medical License', isRequired: true),
-        const Text('Upload a clear copy of your medical license.', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+        Text('Upload a clear copy of your medical license.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
         const SizedBox(height: 16),
         InkWell(
           onTap: state.isUploading ? null : _pickLicense,
@@ -194,49 +184,47 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
             width: double.infinity,
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF6366F1), style: BorderStyle.solid, width: 1), // Real Flutter dashed border needs a custom painter or package
+              border: Border.all(color: AppColors.primary, style: BorderStyle.solid, width: 1),
             ),
             child: Column(
               children: [
-                const Icon(Icons.cloud_upload_outlined, color: Color(0xFF6366F1), size: 40),
+                Icon(Icons.cloud_upload_outlined, color: AppColors.primary, size: 40),
                 const SizedBox(height: 12),
                 Text(
                   state.licenseUrl != null ? 'License Document Uploaded' : 'Upload License Document',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E1B4B)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context)),
                 ),
                 const SizedBox(height: 4),
-                const Text('PDF, JPG or PNG (Max. 10MB)', style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
+                Text('PDF, JPG or PNG (Max. 10MB)', style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context))),
               ],
             ),
           ),
         ),
         const SizedBox(height: 32),
-
-        // Encryption Info
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFF),
+            color: AppColors.backgroundOf(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
-              const Icon(Icons.lock_outline_rounded, color: Color(0xFF6366F1), size: 20),
+              Icon(Icons.lock_outline_rounded, color: AppColors.primary, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Your information is 256-bit encrypted',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E1B4B)),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textPrimaryOf(context)),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'All documents are securely stored in your private vault and are only accessible to our verification team.',
-                      style: TextStyle(fontSize: 10, color: Colors.grey.shade600, height: 1.4),
+                      style: TextStyle(fontSize: 10, color: AppColors.textSecondaryOf(context), height: 1.4),
                     ),
                   ],
                 ),
@@ -255,10 +243,10 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
         children: [
           Text(
             text,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E1B4B)),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context)),
           ),
           if (isRequired)
-            const Text(' *', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            Text(' *', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -273,9 +261,9 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: DropdownButtonHideUnderline(
@@ -283,17 +271,17 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
           value: value,
           hint: Row(
             children: [
-              Icon(icon, color: const Color(0xFF6366F1), size: 20),
+              Icon(icon, color: AppColors.primary, size: 20),
               const SizedBox(width: 12),
-              Text(hint, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14)),
+              Text(hint, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
             ],
           ),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF)),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textTertiaryOf(context)),
           items: items.map((String item) {
             return DropdownMenuItem<String>(
               value: item,
-              child: Text(item, style: const TextStyle(fontSize: 14, color: Color(0xFF1E1B4B))),
+              child: Text(item, style: TextStyle(fontSize: 14, color: AppColors.textPrimaryOf(context))),
             );
           }).toList(),
           onChanged: onChanged,

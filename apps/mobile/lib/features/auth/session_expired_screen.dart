@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 
 class SessionExpiredScreen extends StatelessWidget {
   const SessionExpiredScreen({super.key});
@@ -7,14 +8,13 @@ class SessionExpiredScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
               const SizedBox(height: 60),
-              // Illustration
               Center(
                 child: Stack(
                   alignment: Alignment.center,
@@ -23,20 +23,19 @@ class SessionExpiredScreen extends StatelessWidget {
                       width: 260,
                       height: 260,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFF),
+                        color: AppColors.surfaceAltOf(context),
                         shape: BoxShape.circle,
                       ),
                     ),
-                    // Shield & Lock Mock
-                    Icon(Icons.shield_rounded, size: 180, color: const Color(0xFF6366F1).withValues(alpha: 0.1)),
+                    Icon(Icons.shield_rounded, size: 180, color: AppColors.primary.withValues(alpha: 0.1)),
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1),
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(32),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 30,
                             offset: const Offset(0, 10),
                           ),
@@ -44,75 +43,72 @@ class SessionExpiredScreen extends StatelessWidget {
                       ),
                       child: const Icon(Icons.lock_rounded, color: Colors.white, size: 60),
                     ),
-                    // Clock Overlay
                     Positioned(
                       bottom: 40,
                       right: 40,
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEE2E2),
+                          color: AppColors.errorLightOf(context),
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 4),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.red.withValues(alpha: 0.2),
+                              color: AppColors.error.withValues(alpha: 0.2),
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.access_time_filled_rounded, color: Color(0xFFEF4444), size: 32),
+                        child: Icon(Icons.access_time_filled_rounded, color: AppColors.error, size: 32),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 48),
-              const Text(
+              Text(
                 'Session expired',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E1B4B),
+                  color: AppColors.textPrimaryOf(context),
                   letterSpacing: -1,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'For your security, please sign in again\nto continue.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF6B7280),
+                  color: AppColors.textSecondaryOf(context),
                   height: 1.5,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 40),
-              
-              // Timeout Card
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFF),
+                  color: AppColors.surfaceAltOf(context),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFFEEF2FF)),
+                  border: Border.all(color: AppColors.borderLightOf(context)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surfaceOf(context),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFEEF2FF)),
+                        border: Border.all(color: AppColors.borderLightOf(context)),
                       ),
-                      child: const Icon(Icons.lock_outline_rounded, color: Color(0xFF6366F1), size: 24),
+                      child: Icon(Icons.lock_outline_rounded, color: AppColors.primary, size: 24),
                     ),
                     const SizedBox(width: 20),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -121,15 +117,15 @@ class SessionExpiredScreen extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
-                              color: Color(0xFF1E1B4B),
+                              color: AppColors.textPrimaryOf(context),
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'For your safety, we automatically log you out after a period of inactivity.',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF6B7280),
+                              color: AppColors.textSecondaryOf(context),
                               height: 1.4,
                             ),
                           ),
@@ -139,17 +135,14 @@ class SessionExpiredScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
               const SizedBox(height: 40),
-              
-              // Action Buttons
               SizedBox(
                 width: double.infinity,
                 height: 64,
                 child: ElevatedButton(
                   onPressed: () => context.go('/login'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F62FE),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -176,8 +169,8 @@ class SessionExpiredScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => context.go('/'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF0F62FE),
-                    side: const BorderSide(color: Color(0xFFE5E7EB)),
+                    foregroundColor: AppColors.primary,
+                    side: BorderSide(color: AppColors.borderOf(context)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -195,32 +188,29 @@ class SessionExpiredScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
               const SizedBox(height: 32),
-              
-              // Help Card
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFF),
+                  color: AppColors.surfaceAltOf(context),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEEF2FF),
+                      decoration: BoxDecoration(
+                        color: AppColors.borderLightOf(context),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.headset_mic_outlined,
-                        color: Color(0xFF4F46E5),
+                        color: AppColors.primary,
                         size: 20,
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -229,39 +219,36 @@ class SessionExpiredScreen extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
-                              color: Color(0xFF1E1B4B),
+                              color: AppColors.textPrimaryOf(context),
                             ),
                           ),
                           Text(
                             'Our support team is here for you 24/7.',
-                            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context)),
                           ),
                         ],
                       ),
                     ),
                     TextButton(
                       onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contact support@premoncare.com'))),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Text(
                             'Contact Support',
                             style: TextStyle(
-                              color: Color(0xFF0F62FE),
+                              color: AppColors.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),
                           ),
-                          Icon(Icons.chevron_right_rounded, color: Color(0xFF0F62FE), size: 16),
+                          Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 16),
                         ],
                       ),
                     ),
                   ],
                 ),
               ),
-              
               const SizedBox(height: 48),
-              
-              // Footer Security Info
               Column(
                 children: [
                   Row(

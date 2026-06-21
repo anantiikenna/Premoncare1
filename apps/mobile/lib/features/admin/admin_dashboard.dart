@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
+import '../../core/app_colors.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
@@ -13,12 +14,11 @@ class AdminDashboard extends ConsumerStatefulWidget {
 class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
     final statsAsync = ref.watch(adminStatsProvider);
 
     return statsAsync.when(
       loading: () => const Center(
-        child: CircularProgressIndicator(color: Color(0xFF0F62FE)),
+        child: CircularProgressIndicator(color: AppColors.primary),
       ),
       error: (e, _) => Center(
         child: Text('Failed to load dashboard: $e'),
@@ -35,11 +35,11 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 const SizedBox(height: 32),
                 _buildSectionHeader('Priority Alerts', onSeeAll: () => context.push('/admin/doctor-verification')),
                 const SizedBox(height: 16),
-                _buildPriorityAlerts(context, primaryColor),
+                _buildPriorityAlerts(context, AppColors.primary),
                 const SizedBox(height: 32),
                 _buildSectionHeader('Analytics Overview'),
                 const SizedBox(height: 16),
-                _buildAnalyticsSection(primaryColor),
+                _buildAnalyticsSection(AppColors.primary),
                 const SizedBox(height: 32),
                 _buildSectionHeader('Recent Doctor Applications', onSeeAll: () => context.push('/admin/doctor-verification')),
                 const SizedBox(height: 16),
@@ -51,7 +51,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 const SizedBox(height: 32),
                 _buildSectionHeader('Quick Actions'),
                 const SizedBox(height: 16),
-                _buildQuickActions(context, primaryColor),
+                _buildQuickActions(context, AppColors.primary),
                 const SizedBox(height: 40),
               ],
             ),
@@ -63,31 +63,31 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Text('Welcome back, Admin', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
-                SizedBox(width: 8),
-                Text('👋', style: TextStyle(fontSize: 24)),
+                Text('Welcome back, Admin', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+                const SizedBox(width: 8),
+                const Text('👋', style: TextStyle(fontSize: 24)),
               ],
             ),
-            SizedBox(height: 4),
-            Text('System activity is running smoothly.', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 4),
+            Text('System activity is running smoothly.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF10B981).withValues(alpha: 0.1),
+            color: AppColors.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.circle, color: Color(0xFF10B981), size: 8),
-              SizedBox(width: 8),
-              Text('All systems operational', style: TextStyle(color: Color(0xFF10B981), fontSize: 11, fontWeight: FontWeight.w700)),
+              const Icon(Icons.circle, color: AppColors.success, size: 8),
+              const SizedBox(width: 8),
+              Text('All systems operational', style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w700)),
             ],
           ),
         ),
@@ -117,29 +117,29 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               title: 'Total Users',
               value: '${stats['totalUsers']}',
               icon: Icons.people_outline_rounded,
-              iconBgColor: const Color(0xFFEFF6FF),
-              iconColor: const Color(0xFF3B82F6),
+              iconBgColor: AppColors.infoLightOf(context),
+              iconColor: AppColors.info,
             ),
             _StatCard(
               title: 'Verified Doctors',
               value: '${stats['verifiedDoctors']}',
               icon: Icons.medical_services_outlined,
-              iconBgColor: const Color(0xFFECFDF5),
-              iconColor: const Color(0xFF10B981),
+              iconBgColor: AppColors.successLightOf(context),
+              iconColor: AppColors.success,
             ),
             _StatCard(
               title: 'Appointments Today',
               value: '${stats['todayAppointments']}',
               icon: Icons.calendar_today_outlined,
-              iconBgColor: const Color(0xFFF5F3FF),
-              iconColor: const Color(0xFF8B5CF6),
+              iconBgColor: AppColors.primary.withValues(alpha: 0.1),
+              iconColor: AppColors.primary,
             ),
             _StatCard(
               title: 'Total Revenue',
               value: formattedRevenue,
               icon: Icons.currency_exchange_rounded,
-              iconBgColor: const Color(0xFFFFF7ED),
-              iconColor: const Color(0xFFF59E0B),
+              iconBgColor: AppColors.warningLightOf(context),
+              iconColor: AppColors.warning,
             ),
           ],
         );
@@ -155,8 +155,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           title: '',
           value: '...',
           icon: Icons.hourglass_empty_rounded,
-          iconBgColor: Color(0xFFF1F5F9),
-          iconColor: Color(0xFF94A3B8),
+          iconBgColor: AppColors.borderLight,
+          iconColor: AppColors.textTertiary,
         )),
       ),
       error: (_, _) => const Center(child: Text('Failed to load stats')),
@@ -178,7 +178,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             count: '$verificationsCount',
             title: 'Pending Doctor Verifications',
             btnLabel: 'Review',
-            color: const Color(0xFFF59E0B),
+            color: AppColors.warning,
             icon: Icons.warning_amber_rounded,
             onTap: () => context.push('/admin/doctor-verification'),
           ),
@@ -187,7 +187,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             count: '$disputesCount',
             title: 'Payment Disputes',
             btnLabel: 'Resolve',
-            color: const Color(0xFFEF4444),
+            color: AppColors.error,
             icon: Icons.error_outline_rounded,
             onTap: () => context.push('/admin/disputes'),
           ),
@@ -196,7 +196,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             count: '—',
             title: 'Emergency Queue',
             btnLabel: 'Open Queue',
-            color: const Color(0xFF3B82F6),
+            color: AppColors.info,
             icon: Icons.access_time_rounded,
             onTap: () => context.push('/admin/emergency-queue'),
           ),
@@ -213,9 +213,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,42 +223,41 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Revenue Overview', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
-                        SizedBox(height: 4),
-                        Text('₦28,540,600', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+                        Text('Revenue Overview', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
+                        const SizedBox(height: 4),
+                        Text('₦28,540,600', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
                       ],
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(8)),
-                      child: const Row(
+                      decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(8)),
+                      child: Row(
                         children: [
-                          Icon(Icons.arrow_upward_rounded, color: Color(0xFF10B981), size: 12),
-                          SizedBox(width: 4),
-                          Text('18.7%', style: TextStyle(color: Color(0xFF10B981), fontSize: 11, fontWeight: FontWeight.w700)),
+                          const Icon(Icons.arrow_upward_rounded, color: AppColors.success, size: 12),
+                          const SizedBox(width: 4),
+                          Text('18.7%', style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w700)),
                         ],
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-                // Placeholder for Chart
                 SizedBox(
                   height: 120,
                   width: double.infinity,
                   child: CustomPaint(painter: _LineChartPainter(primaryColor)),
                 ),
                 const SizedBox(height: 12),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Jun 8', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
-                    Text('Jun 10', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
-                    Text('Jun 12', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
-                    Text('Jun 14', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                    Text('Jun 8', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
+                    Text('Jun 10', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
+                    Text('Jun 12', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
+                    Text('Jun 14', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
                   ],
                 ),
               ],
@@ -271,13 +270,13 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               children: [
-                const Text('Appointments Overview', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                Text('Appointments Overview', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
                 const SizedBox(height: 20),
                 Stack(
                   alignment: Alignment.center,
@@ -292,18 +291,18 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                         valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                       ),
                     ),
-                    const Column(
+                    Column(
                       children: [
-                        Text('432', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-                        Text('Total', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8))),
+                        Text('432', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+                        Text('Total', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 _buildAnalyticsLegend('Completed', '58%', primaryColor),
-                _buildAnalyticsLegend('Upcoming', '28%', const Color(0xFF22D3EE)),
-                _buildAnalyticsLegend('Cancelled', '9%', const Color(0xFFF59E0B)),
+                _buildAnalyticsLegend('Upcoming', '28%', AppColors.info),
+                _buildAnalyticsLegend('Cancelled', '9%', AppColors.warning),
               ],
             ),
           ),
@@ -319,8 +318,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         children: [
           Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 8),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600))),
-          Text(value, style: const TextStyle(fontSize: 11, color: Color(0xFF1E293B), fontWeight: FontWeight.w700)),
+          Expanded(child: Text(label, style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600))),
+          Text(value, style: TextStyle(fontSize: 11, color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w700)),
         ],
       ),
     );
@@ -331,10 +330,10 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     return appsAsync.when(
       data: (apps) {
         if (apps.isEmpty) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No pending applications', style: TextStyle(color: Color(0xFF94A3B8))),
+              padding: const EdgeInsets.all(24),
+              child: Text('No pending applications', style: TextStyle(color: AppColors.textTertiaryOf(context))),
             ),
           );
         }
@@ -375,10 +374,10 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     return txAsync.when(
       data: (txs) {
         if (txs.isEmpty) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No recent transactions', style: TextStyle(color: Color(0xFF94A3B8))),
+              padding: const EdgeInsets.all(24),
+              child: Text('No recent transactions', style: TextStyle(color: AppColors.textTertiaryOf(context))),
             ),
           );
         }
@@ -399,20 +398,20 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 date: timeAgo,
                 status: isCompleted ? 'Completed' : isRefunded ? 'Refunded' : 'Pending',
                 statusColor: isCompleted
-                    ? const Color(0xFF10B981)
+                    ? AppColors.success
                     : isRefunded
-                        ? const Color(0xFFEF4444)
-                        : const Color(0xFFF59E0B),
+                        ? AppColors.error
+                        : AppColors.warning,
                 icon: isCompleted
                     ? Icons.payments_outlined
                     : isRefunded
                         ? Icons.replay_circle_filled_rounded
                         : Icons.pending_outlined,
                 iconBg: isCompleted
-                    ? const Color(0xFFECFDF5)
+                    ? AppColors.successLightOf(context)
                     : isRefunded
-                        ? const Color(0xFFFEF2F2)
-                        : const Color(0xFFFFF7ED),
+                        ? AppColors.errorLightOf(context)
+                        : AppColors.warningLightOf(context),
               ),
             );
           }).toList(),
@@ -433,12 +432,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       childAspectRatio: 1.1,
       children: [
         _QuickActionItem(icon: Icons.verified_user_rounded, label: 'Verify Doctors', color: primaryColor, onTap: () => context.push('/admin/doctor-verification')),
-        _QuickActionItem(icon: Icons.groups_rounded, label: 'Manage Users', color: const Color(0xFF8B5CF6), onTap: () => context.push('/admin/user-management')),
-        _QuickActionItem(icon: Icons.campaign_rounded, label: 'Broadcast Notice', color: const Color(0xFF10B981), onTap: () => context.push('/admin/notifications')),
-        _QuickActionItem(icon: Icons.description_rounded, label: 'Audit Logs', color: const Color(0xFFF59E0B), onTap: () => context.push('/admin/audit-timeline')),
-        _QuickActionItem(icon: Icons.account_balance_wallet_rounded, label: 'Payments', color: const Color(0xFF22D3EE), onTap: () => context.push('/admin/financial')),
-        _QuickActionItem(icon: Icons.gavel_rounded, label: 'Disputes', color: const Color(0xFFEF4444), onTap: () => context.push('/admin/disputes')),
-        _QuickActionItem(icon: Icons.forum_rounded, label: 'Forum Mod', color: const Color(0xFFE879F9), onTap: () => context.push('/admin/forum-moderation')),
+        _QuickActionItem(icon: Icons.groups_rounded, label: 'Manage Users', color: AppColors.primary, onTap: () => context.push('/admin/user-management')),
+        _QuickActionItem(icon: Icons.campaign_rounded, label: 'Broadcast Notice', color: AppColors.success, onTap: () => context.push('/admin/notifications')),
+        _QuickActionItem(icon: Icons.description_rounded, label: 'Audit Logs', color: AppColors.warning, onTap: () => context.push('/admin/audit-timeline')),
+        _QuickActionItem(icon: Icons.account_balance_wallet_rounded, label: 'Payments', color: AppColors.info, onTap: () => context.push('/admin/financial')),
+        _QuickActionItem(icon: Icons.gavel_rounded, label: 'Disputes', color: AppColors.error, onTap: () => context.push('/admin/disputes')),
+        _QuickActionItem(icon: Icons.forum_rounded, label: 'Forum Mod', color: AppColors.primary, onTap: () => context.push('/admin/forum-moderation')),
       ],
     );
   }
@@ -447,11 +446,11 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+        Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
         if (onSeeAll != null)
           TextButton(
             onPressed: onSeeAll,
-            child: const Text('View All', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.w700, fontSize: 13)),
+            child: Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13)),
           ),
       ],
     );
@@ -474,9 +473,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,9 +490,9 @@ class _StatCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+              Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
               const SizedBox(height: 2),
-              Text(title, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w700)),
+              Text(title, style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700)),
             ],
           ),
         ],
@@ -518,9 +517,9 @@ class _AlertCard extends StatelessWidget {
       width: 260,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -534,7 +533,7 @@ class _AlertCard extends StatelessWidget {
                 children: [
                   Text(count, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color)),
                   const SizedBox(height: 2),
-                  Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
                 ],
               ),
             ],
@@ -546,7 +545,7 @@ class _AlertCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onTap,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.surfaceOf(context),
                 foregroundColor: color,
                 elevation: 0,
                 side: BorderSide(color: color.withValues(alpha: 0.2)),
@@ -575,25 +574,25 @@ class _ApplicationTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-            child: Text(initial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF0F62FE))),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            child: Text(initial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.primary)),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF1E293B))),
+                Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
                 const SizedBox(height: 2),
-                Text('$specialty • Submitted $time', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.w600)),
+                Text('$specialty • Submitted $time', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -601,13 +600,13 @@ class _ApplicationTile extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () => context.push('/admin/doctor-verification'),
-                style: TextButton.styleFrom(backgroundColor: const Color(0xFFECFDF5), foregroundColor: const Color(0xFF10B981), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                style: TextButton.styleFrom(backgroundColor: AppColors.successLightOf(context), foregroundColor: AppColors.success, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                 child: const Text('Approve', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
               ),
               const SizedBox(width: 8),
               TextButton(
                 onPressed: onReview,
-                style: TextButton.styleFrom(backgroundColor: const Color(0xFFF1F5F9), foregroundColor: const Color(0xFF64748B), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                style: TextButton.styleFrom(backgroundColor: AppColors.borderLightOf(context), foregroundColor: AppColors.textSecondaryOf(context), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                 child: const Text('Review', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
               ),
             ],
@@ -635,9 +634,9 @@ class _TransactionTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
@@ -647,16 +646,16 @@ class _TransactionTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF1E293B))),
+                Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
                 const SizedBox(height: 2),
-                Text(sub, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.w600)),
+                Text(sub, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(amount, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF1E293B))),
+              Text(amount, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -666,7 +665,7 @@ class _TransactionTile extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.slate300),
         ],
       ),
     );
@@ -688,16 +687,16 @@ class _QuickActionItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(icon, color: color, size: 24)),
             const SizedBox(height: 12),
-            Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF1E293B))),
+            Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context))),
           ],
         ),
       ),
@@ -707,7 +706,8 @@ class _QuickActionItem extends StatelessWidget {
 
 class _LineChartPainter extends CustomPainter {
   final Color color;
-  _LineChartPainter(this.color);
+  final Color dotInnerColor;
+  _LineChartPainter(this.color) : dotInnerColor = Colors.white;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -738,10 +738,9 @@ class _LineChartPainter extends CustomPainter {
     fillPath.close();
     canvas.drawPath(fillPath, fillPaint);
 
-    // Draw dots
     final dotPaint = Paint()..color = color..style = PaintingStyle.fill;
-    final dotPaintInner = Paint()..color = Colors.white..style = PaintingStyle.fill;
-    
+    final dotPaintInner = Paint()..color = dotInnerColor..style = PaintingStyle.fill;
+
     _drawDot(canvas, Offset(size.width * 0.3, size.height * 0.7), dotPaint, dotPaintInner);
     _drawDot(canvas, Offset(size.width * 0.6, size.height * 0.4), dotPaint, dotPaintInner);
     _drawDot(canvas, Offset(size.width, size.height * 0.1), dotPaint, dotPaintInner);

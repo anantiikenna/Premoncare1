@@ -984,7 +984,7 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFEFF6FF) : AppColors.surface,
+        color: isSelected ? AppColors.infoLight : AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isSelected

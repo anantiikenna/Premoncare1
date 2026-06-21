@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../core/app_colors.dart';
 import 'forum_provider.dart';
 import 'forum_utils.dart';
 
@@ -18,15 +19,15 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2042)),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Saved & Followed', style: TextStyle(color: Color(0xFF0F2042), fontWeight: FontWeight.bold)),
+        title: Text('Saved & Followed', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.bold)),
       ),
       body: Column(
         children: [
@@ -41,7 +42,7 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
 
   Widget _buildTabs() {
     return Container(
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[200]!))),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.borderOf(context)))),
       child: Row(
         children: [
           _buildTab('Saved Posts', 0),
@@ -59,7 +60,7 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            border: isSelected ? const Border(bottom: BorderSide(color: Color(0xFF0F62FE), width: 2)) : null,
+            border: isSelected ? Border(bottom: BorderSide(color: AppColors.primary, width: 2)) : null,
           ),
           child: Text(
             title,
@@ -67,7 +68,7 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-              color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[500],
+              color: isSelected ? AppColors.primary : AppColors.textSecondaryOf(context),
             ),
           ),
         ),
@@ -122,13 +123,13 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             if (followedCategories.isNotEmpty) ...[
-              Text('Followed Categories', style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('Followed Categories', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ...followedCategories.map((f) => _buildFollowedCategoryCard(f['category_id'] as String)),
               const SizedBox(height: 24),
             ],
             if (followedPosts.isNotEmpty) ...[
-              Text('Followed Posts', style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('Followed Posts', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ...followedPosts.map((f) => _buildFollowedPostCard(f['post_id'] as String)),
             ],
@@ -149,9 +150,9 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
+          border: Border.all(color: AppColors.borderOf(context)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +169,7 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
                     child: Text(post.categoryName!, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: ForumUtils.getCategoryColor(post.categoryIcon))),
                   ),
                 const Spacer(),
-                Text(timeAgo, style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                Text(timeAgo, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: () async {
@@ -176,32 +177,32 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
                       await ForumService.toggleSavePost(post.id);
                     } catch (_) {}
                   },
-                  child: const Icon(Icons.bookmark, color: Color(0xFF0F62FE), size: 18),
+                  child: Icon(Icons.bookmark, color: AppColors.primary, size: 18),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(post.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F2042))),
+            Text(post.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 6),
-            Text(post.content, style: TextStyle(color: Colors.grey[600], fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(post.content, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 12),
             Row(
               children: [
                 CircleAvatar(
                   radius: 10,
-                  backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                  child: Text(post.authorName.isNotEmpty ? post.authorName[0].toUpperCase() : '?', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF0F62FE))),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: Text(post.authorName.isNotEmpty ? post.authorName[0].toUpperCase() : '?', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primary)),
                 ),
                 const SizedBox(width: 8),
-                Text(post.authorName, style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                Text(post.authorName, style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
                 const Spacer(),
-                Icon(Icons.chat_bubble_outline, size: 14, color: Colors.grey[400]),
+                Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.textTertiaryOf(context)),
                 const SizedBox(width: 4),
-                Text('${post.replyCount}', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text('${post.replyCount}', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
                 const SizedBox(width: 12),
-                Icon(Icons.favorite_border, size: 14, color: Colors.red[300]),
+                Icon(Icons.favorite_border, size: 14, color: AppColors.error),
                 const SizedBox(width: 4),
-                Text('${post.upvotes}', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text('${post.upvotes}', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
               ],
             ),
           ],
@@ -241,7 +242,7 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
                     await ForumService.toggleFollowCategory(categoryId);
                   } catch (_) {}
                 },
-                child: Text('Unfollow', style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w600)),
+                child: Text('Unfollow', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
               ),
             ],
           ),
@@ -263,7 +264,7 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
         return _buildSavedPostCard(post);
       },
       loading: () => const SizedBox(height: 60, child: Center(child: CircularProgressIndicator())),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
@@ -274,11 +275,11 @@ class _SavedFollowedScreenState extends ConsumerState<SavedFollowedScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.grey[300], size: 56),
+            Icon(icon, color: AppColors.textTertiaryOf(context), size: 56),
             const SizedBox(height: 16),
-            Text(title, style: TextStyle(color: Colors.grey[600], fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(subtitle, style: TextStyle(color: Colors.grey[500], fontSize: 13), textAlign: TextAlign.center),
+            Text(subtitle, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13), textAlign: TextAlign.center),
           ],
         ),
       ),

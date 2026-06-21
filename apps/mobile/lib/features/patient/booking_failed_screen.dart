@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/app_colors.dart';
+
 class BookingFailedScreen extends StatelessWidget {
   final String? doctorName;
   final String? doctorSpecialty;
@@ -18,18 +20,18 @@ class BookingFailedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.backgroundOf(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E1B4B), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimaryOf(context), size: 20),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Booking Failed',
           style: TextStyle(
-            color: Color(0xFF1E1B4B),
+            color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -41,7 +43,6 @@ class BookingFailedScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Illustration
             Center(
               child: Stack(
                 alignment: Alignment.center,
@@ -50,18 +51,17 @@ class BookingFailedScreen extends StatelessWidget {
                     width: 200,
                     height: 200,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFF),
+                      color: AppColors.backgroundOf(context),
                       shape: BoxShape.circle,
                     ),
                   ),
-                  // Calendar Illustration
                   Transform.translate(
                     offset: const Offset(0, -10),
                     child: Container(
                       width: 120,
                       height: 130,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surfaceOf(context),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -75,9 +75,9 @@ class BookingFailedScreen extends StatelessWidget {
                         children: [
                           Container(
                             height: 24,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFE4E6),
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                            decoration: BoxDecoration(
+                              color: AppColors.errorLightOf(context),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                             ),
                           ),
                           Expanded(
@@ -88,14 +88,14 @@ class BookingFailedScreen extends StatelessWidget {
                               crossAxisSpacing: 8,
                               children: List.generate(6, (index) => Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF9FAFF),
+                                  color: AppColors.backgroundOf(context),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Center(
                                   child: Icon(
                                     Icons.close_rounded, 
                                     size: 10, 
-                                    color: Colors.red.withValues(alpha: 0.2)
+                                    color: AppColors.error.withValues(alpha: 0.2)
                                   ),
                                 ),
                               )),
@@ -105,19 +105,18 @@ class BookingFailedScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Red X Circle Overlay
                   Positioned(
                     bottom: 20,
                     right: 40,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.error,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
+                        border: Border.all(color: AppColors.surfaceOf(context), width: 3),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withValues(alpha: 0.3),
+                            color: AppColors.error.withValues(alpha: 0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -125,24 +124,23 @@ class BookingFailedScreen extends StatelessWidget {
                       ),
                       child: const Icon(
                         Icons.close_rounded,
-                        color: Colors.white,
+                        color: AppColors.textInverse,
                         size: 32,
                       ),
                     ),
                   ),
-                  // Exclamation Bubble
                   Positioned(
                     top: 60,
                     right: 20,
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceOf(context),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.priority_high_rounded,
-                        color: Color(0xFFEF4444),
+                        color: AppColors.error,
                         size: 20,
                       ),
                     ),
@@ -151,36 +149,35 @@ class BookingFailedScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'We couldn\'t confirm your booking',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E1B4B),
+                color: AppColors.textPrimaryOf(context),
                 height: 1.2,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'This time slot is no longer available or has just been\nbooked by someone else.\nPlease choose another time.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF6B7280),
+                color: AppColors.textSecondaryOf(context),
                 height: 1.5,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 32),
             
-            // Booking Details Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFF3F4F6)),
+                border: Border.all(color: AppColors.borderOf(context)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
@@ -192,12 +189,12 @@ class BookingFailedScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Booking Details',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                      color: Color(0xFF1E1B4B),
+                      color: AppColors.textPrimaryOf(context),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -205,12 +202,12 @@ class BookingFailedScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 28,
-                        backgroundColor: const Color(0xFF4F46E5).withValues(alpha: 0.12),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.12),
                         child: Text(
                           (doctorName ?? '').isNotEmpty
                               ? (doctorName ?? '')[0].toUpperCase()
                               : 'D',
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF4F46E5)),
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.primary),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -220,24 +217,24 @@ class BookingFailedScreen extends StatelessWidget {
                           children: [
                             Text(
                               doctorName ?? '',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: Color(0xFF1E1B4B),
+                                color: AppColors.textPrimaryOf(context),
                               ),
                             ),
                             Text(
                               doctorSpecialty ?? 'General Physician',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF6B7280),
+                                color: AppColors.textSecondaryOf(context),
                               ),
                             ),
-                            const Text(
+                            Text(
                               'MBBS, MD • 8+ Years Exp.',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Color(0xFF9CA3AF),
+                                color: AppColors.textTertiaryOf(context),
                               ),
                             ),
                           ],
@@ -249,18 +246,18 @@ class BookingFailedScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF5F3FF),
+                              color: AppColors.surfaceAltOf(context),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.access_time_rounded, color: Color(0xFF818CF8), size: 12),
-                                SizedBox(width: 4),
+                                Icon(Icons.access_time_rounded, color: AppColors.primaryLight, size: 12),
+                                const SizedBox(width: 4),
                                 Text(
                                   'Unavailable',
                                   style: TextStyle(
-                                    color: Color(0xFF818CF8),
+                                    color: AppColors.primaryLight,
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -269,16 +266,16 @@ class BookingFailedScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          Text(
                             'Today, May 28',
-                            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context)),
                           ),
-                          const Text(
+                          Text(
                             '10:30 AM',
                             style: TextStyle(
                               fontSize: 14, 
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E1B4B)
+                              color: AppColors.textPrimaryOf(context)
                             ),
                           ),
                         ],
@@ -286,26 +283,25 @@ class BookingFailedScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  // Slot not available banner
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7F7),
+                      color: AppColors.errorLightOf(context),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFEE2E2)),
+                      border: Border.all(color: AppColors.errorLightOf(context)),
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(10),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFEE2E2),
+                          decoration: BoxDecoration(
+                            color: AppColors.errorLightOf(context),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.calendar_today_rounded, color: Color(0xFFEF4444), size: 20),
+                          child: Icon(Icons.calendar_today_rounded, color: AppColors.error, size: 20),
                         ),
                         const SizedBox(width: 16),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -314,15 +310,15 @@ class BookingFailedScreen extends StatelessWidget {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                                  color: Color(0xFF991B1B),
+                                  color: AppColors.error,
                                 ),
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
                                 'This time slot is no longer available. Please select a different time or date.',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Color(0xFFB91C1C),
+                                  color: AppColors.error,
                                   height: 1.4,
                                 ),
                               ),
@@ -337,28 +333,27 @@ class BookingFailedScreen extends StatelessWidget {
             ),
             
             const SizedBox(height: 32),
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'What would you like to do?',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
-                  color: Color(0xFF1E1B4B),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
             ),
             const SizedBox(height: 16),
             
-            // Action Buttons
             SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
                 onPressed: () => context.pop(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E31BE),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.textInverse,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -384,8 +379,8 @@ class BookingFailedScreen extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => context.go('/doctor-search'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF4F46E5),
-                  side: const BorderSide(color: Color(0xFFE5E7EB)),
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(color: AppColors.borderOf(context)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -406,24 +401,23 @@ class BookingFailedScreen extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            // Help Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFF),
+                color: AppColors.backgroundOf(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEEF2FF),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceAltOf(context),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.headset_mic_outlined,
-                      color: Color(0xFF4F46E5),
+                      color: AppColors.primary,
                       size: 24,
                     ),
                   ),
@@ -432,20 +426,20 @@ class BookingFailedScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Need help finding a slot?',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: Color(0xFF1E1B4B),
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           'Our support team can help you find the next available slot.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            color: AppColors.textSecondaryOf(context),
                             height: 1.4,
                           ),
                         ),
@@ -458,17 +452,17 @@ class BookingFailedScreen extends StatelessWidget {
                         const SnackBar(content: Text('Contact support@premoncare.com for assistance')),
                       );
                     },
-                    child: const Row(
+                    child: Row(
                       children: [
                         Text(
                           'Contact Support',
                           style: TextStyle(
-                            color: Color(0xFF4F46E5),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: Color(0xFF4F46E5), size: 16),
+                        Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 16),
                       ],
                     ),
                   ),
@@ -478,21 +472,20 @@ class BookingFailedScreen extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            // Back to Home
             SizedBox(
               width: double.infinity,
               height: 60,
               child: TextButton(
                 onPressed: () => context.go('/patient_dashboard'),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.home_outlined, color: Color(0xFF1E1B4B), size: 24),
-                    SizedBox(width: 10),
+                    Icon(Icons.home_outlined, color: AppColors.textPrimaryOf(context), size: 24),
+                    const SizedBox(width: 10),
                     Text(
                       'Back to Home',
                       style: TextStyle(
-                        color: Color(0xFF1E1B4B),
+                        color: AppColors.textPrimaryOf(context),
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),

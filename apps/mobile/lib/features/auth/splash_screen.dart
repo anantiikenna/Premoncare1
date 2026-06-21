@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 
 import '../../core/supabase_locator.dart';
+import '../../core/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,13 +25,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   void initState() {
     super.initState();
     
-    // Main entrance animation
     _mainController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
 
-    // Subtle floating animation for logo
     _floatController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
@@ -102,29 +101,26 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     final size = MediaQuery.of(context).size;
     
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       body: Stack(
         children: [
-          // 1. Background Gradient
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFFE0F2FE),
-                    Colors.white,
+                    AppColors.infoLightOf(context),
+                    AppColors.surfaceOf(context),
                   ],
                 ),
               ),
             ),
           ),
           
-          // 2. Decorative Background Elements
           _buildDecorativeElements(size),
 
-          // 3. Bottom Mesh/Waves
           Positioned(
             bottom: 0,
             left: 0,
@@ -135,7 +131,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             ),
           ),
 
-          // 4. Central Content
           Center(
             child: AnimatedBuilder(
               animation: _floatController,
@@ -160,17 +155,16 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // New Vertical Logo (Symbol + Text)
                         Image.asset(
                           'assets/logo.png',
                           width: size.width * 0.65,
                           fit: BoxFit.contain,
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'Secure healthcare, simplified',
                           style: TextStyle(
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondaryOf(context),
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                             letterSpacing: 0.1,
@@ -184,20 +178,19 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             ),
           ),
 
-          // 5. Minimalist Loading
           Positioned(
             bottom: 80,
             left: 0,
             right: 0,
             child: FadeTransition(
               opacity: _fadeAnimation,
-              child: const Column(
+              child: Column(
                 children: [
                   SizedBox(
                     width: 40,
                     child: LinearProgressIndicator(
-                      backgroundColor: Color(0xFFF1F5F9),
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F62FE)),
+                      backgroundColor: AppColors.borderLightOf(context),
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                       minHeight: 2,
                     ),
                   ),
@@ -213,12 +206,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   Widget _buildDecorativeElements(Size size) {
     return Stack(
       children: [
-        // Floating Plus Icons
         _buildPlusIcon(size.width * 0.85, size.height * 0.15, 24, 0.2),
         _buildPlusIcon(size.width * 0.15, size.height * 0.28, 18, 0.1),
         _buildPlusIcon(size.width * 0.9, size.height * 0.52, 20, 0.15),
         
-        // Dot Patterns
         _buildDotPattern(size.width * 0.08, size.height * 0.45),
         _buildDotPattern(size.width * 0.88, size.height * 0.68),
       ],
@@ -231,7 +222,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       top: top,
       child: Opacity(
         opacity: opacity,
-        child: Icon(Icons.add, size: size, color: const Color(0xFF0F62FE)),
+        child: Icon(Icons.add, size: size, color: AppColors.primary),
       ),
     );
   }
@@ -248,7 +239,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               margin: const EdgeInsets.all(2),
               width: 3,
               height: 3,
-              decoration: const BoxDecoration(color: Color(0xFF0F62FE), shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
             )),
           )),
         ),
@@ -265,8 +256,8 @@ class _MeshPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFF0F62FE).withValues(alpha: 0.05),
-          const Color(0xFF0F62FE).withValues(alpha: 0.2),
+          AppColors.primary.withValues(alpha: 0.05),
+          AppColors.primary.withValues(alpha: 0.2),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.stroke
@@ -274,7 +265,6 @@ class _MeshPainter extends CustomPainter {
 
     final path = Path();
     
-    // Draw wavy lines to simulate the mesh in the image
     for (var i = 0; i < 15; i++) {
       path.reset();
       path.moveTo(0, size.height * (0.4 + i * 0.05));
@@ -293,4 +283,3 @@ class _MeshPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
-

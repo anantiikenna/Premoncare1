@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import 'glass_card.dart';
 
@@ -39,7 +40,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
     try {
       final response = await supabase.storage
           .from(widget.bucket)
-          .createSignedUrl(widget.path, 1800); // 30 minutes
+          .createSignedUrl(widget.path, 1800);
       return response;
     } catch (e) {
       if (kDebugMode) debugPrint('Error generating signed URL: $e');
@@ -69,7 +70,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                  Icon(Icons.error_outline, color: AppColors.error, size: 64),
                   const SizedBox(height: 16),
                   const Text(
                     'Failed to load document',
@@ -78,7 +79,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                   const SizedBox(height: 8),
                   TextButton(
                     onPressed: () => setState(() { _urlFuture = _getSignedUrl(); }),
-                    child: const Text('Retry', style: TextStyle(color: Color(0xFF6366F1))),
+                    child: Text('Retry', style: TextStyle(color: AppColors.primary)),
                   ),
                 ],
               ),
@@ -110,7 +111,6 @@ class _DocumentViewerState extends State<DocumentViewer> {
             );
           }
 
-          // Fallback for non-images (PDFs, etc.)
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
@@ -127,10 +127,10 @@ class _DocumentViewerState extends State<DocumentViewer> {
                       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'PDF and other complex formats must be opened in an external viewer.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey, fontSize: 13),
+                      style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13),
                     ),
                     const SizedBox(height: 32),
                     ElevatedButton.icon(
@@ -138,7 +138,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                       icon: const Icon(Icons.open_in_new),
                       label: const Text('Open External Viewer'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),

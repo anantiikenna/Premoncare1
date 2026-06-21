@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/app_colors.dart';
 import '../verification_provider.dart';
 
 class ReviewStep extends ConsumerWidget {
-  const ReviewStep({super.key});
+  ReviewStep({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -13,30 +14,29 @@ class ReviewStep extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Info Box
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFF),
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEEF2FF)),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEEF2FF),
+                  color: AppColors.borderLightOf(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.shield_outlined,
-                  color: Color(0xFF4338CA),
+                  color: AppColors.primary,
                   size: 24,
                 ),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -45,15 +45,15 @@ class ReviewStep extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Color(0xFF1E1B4B),
+                        color: AppColors.textPrimaryOf(context),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Please review all the information below before submitting. You can edit any section if needed.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF6B7280),
+                        color: AppColors.textSecondaryOf(context),
                         height: 1.4,
                       ),
                     ),
@@ -65,16 +65,17 @@ class ReviewStep extends ConsumerWidget {
         ),
         const SizedBox(height: 32),
 
-        // Section 1: Professional Profile
         _buildSectionCard(
+          context: context,
           title: 'Professional Profile',
           icon: Icons.person_outline_rounded,
           onEdit: () => notifier.goToStep(VerificationStep.professional),
           children: [
-            _buildDetailRow('Medical Specialty', state.specialty),
-            _buildDetailRow('Years of Experience', '${state.experience} Years'),
-            _buildDetailRow('Medical License Number', state.licenseNumber),
+            _buildDetailRow(context, 'Medical Specialty', state.specialty),
+            _buildDetailRow(context, 'Years of Experience', '${state.experience} Years'),
+            _buildDetailRow(context, 'Medical License Number', state.licenseNumber),
             _buildDetailRow(
+              context,
               'Uploaded License',
               state.licenseUrl != null ? 'Medical_License.pdf' : 'Not uploaded',
               showFile: state.licenseUrl != null,
@@ -84,19 +85,21 @@ class ReviewStep extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
-        // Section 2: Identity Documents
         _buildSectionCard(
+          context: context,
           title: 'Identity Documents',
           icon: Icons.badge_outlined,
           onEdit: () => notifier.goToStep(VerificationStep.identity),
           children: [
-            _buildDetailRow('ID Type', state.idType ?? 'Not selected'),
+            _buildDetailRow(context, 'ID Type', state.idType ?? 'Not selected'),
             _buildDetailRow(
+              context,
               'Front Side',
               state.idFrontUrl != null ? 'ID_Front.jpg' : 'Not uploaded',
               showFile: state.idFrontUrl != null,
             ),
             _buildDetailRow(
+              context,
               'Back Side',
               state.idBackUrl != null ? 'ID_Back.jpg' : 'Not uploaded',
               showFile: state.idBackUrl != null,
@@ -105,13 +108,14 @@ class ReviewStep extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
-        // Section 3: Facial Biometrics
         _buildSectionCard(
+          context: context,
           title: 'Facial Biometrics',
           icon: Icons.face_outlined,
           onEdit: () => notifier.goToStep(VerificationStep.facial),
           children: [
             _buildDetailRow(
+              context,
               'Selfie Captured',
               state.selfieUrl != null ? 'Selfie_Capture.jpg' : 'Not captured',
               showFile: state.selfieUrl != null,
@@ -120,11 +124,10 @@ class ReviewStep extends ConsumerWidget {
         ),
         const SizedBox(height: 32),
 
-        // Submission Disclaimer
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFF),
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
@@ -132,16 +135,16 @@ class ReviewStep extends ConsumerWidget {
             children: [
               const Icon(
                 Icons.info_outline_rounded,
-                color: Color(0xFF6366F1),
+                color: AppColors.primary,
                 size: 20,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: RichText(
                   text: TextSpan(
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF6B7280),
+                      color: AppColors.textSecondaryOf(context),
                       height: 1.5,
                     ),
                     children: [
@@ -153,7 +156,7 @@ class ReviewStep extends ConsumerWidget {
                         text: '24–48 hours',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.indigo.shade900,
+                          color: AppColors.textPrimaryOf(context),
                         ),
                       ),
                       const TextSpan(text: '.'),
@@ -166,23 +169,19 @@ class ReviewStep extends ConsumerWidget {
         ),
         const SizedBox(height: 32),
 
-        // Submit Button (Handled by the parent screen but shown here as placeholder if needed)
-        // Note: The actual Submit for Review button is in VerifyPractitionerScreen's _buildNavigationButton
-
-        // Encryption Footer
-        const Center(
+        Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.lock_outline_rounded,
-                color: Color(0xFF9CA3AF),
+                color: AppColors.textTertiaryOf(context),
                 size: 14,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'Your information is 256-bit encrypted and securely stored.',
-                style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+                style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context)),
               ),
             ],
           ),
@@ -192,6 +191,7 @@ class ReviewStep extends ConsumerWidget {
   }
 
   Widget _buildSectionCard({
+    required BuildContext context,
     required String title,
     required IconData icon,
     required VoidCallback onEdit,
@@ -199,9 +199,9 @@ class ReviewStep extends ConsumerWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,14 +210,14 @@ class ReviewStep extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(icon, color: const Color(0xFF6366F1), size: 20),
+                Icon(icon, color: AppColors.primary, size: 20),
                 const SizedBox(width: 12),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: Color(0xFF1E1B4B),
+                    color: AppColors.textPrimaryOf(context),
                   ),
                 ),
                 const Spacer(),
@@ -226,13 +226,13 @@ class ReviewStep extends ConsumerWidget {
                   icon: const Icon(
                     Icons.edit_outlined,
                     size: 14,
-                    color: Color(0xFF6366F1),
+                    color: AppColors.primary,
                   ),
-                  label: const Text(
+                  label: Text(
                     'Edit',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF6366F1),
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -240,7 +240,7 @@ class ReviewStep extends ConsumerWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFE5E7EB)),
+          Divider(height: 1, color: AppColors.borderOf(context)),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(children: children),
@@ -251,6 +251,7 @@ class ReviewStep extends ConsumerWidget {
   }
 
   Widget _buildDetailRow(
+    BuildContext context,
     String label,
     String value, {
     bool showFile = false,
@@ -265,7 +266,7 @@ class ReviewStep extends ConsumerWidget {
             flex: 2,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context)),
             ),
           ),
           Expanded(
@@ -276,10 +277,10 @@ class ReviewStep extends ConsumerWidget {
                 if (!showFile)
                   Text(
                     value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E1B4B),
+                      color: AppColors.textPrimaryOf(context),
                     ),
                   )
                 else
@@ -289,9 +290,9 @@ class ReviewStep extends ConsumerWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFF),
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFFEEF2FF)),
+                      border: Border.all(color: AppColors.borderLightOf(context)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -299,14 +300,14 @@ class ReviewStep extends ConsumerWidget {
                         Icon(
                           fileIcon ?? Icons.image_outlined,
                           size: 14,
-                          color: const Color(0xFF6366F1),
+                          color: AppColors.primary,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           value,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF1E1B4B),
+                            color: AppColors.textPrimaryOf(context),
                             fontWeight: FontWeight.w500,
                           ),
                         ),

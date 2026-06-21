@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 
 class EmergencyFailedScreen extends StatelessWidget {
   const EmergencyFailedScreen({super.key});
@@ -7,12 +8,12 @@ class EmergencyFailedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E1B4B), size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.primary, size: 20),
           onPressed: () => context.pop(),
         ),
         title: Row(
@@ -20,18 +21,18 @@ class EmergencyFailedScreen extends StatelessWidget {
           children: [
             const Text(
               'Emergency',
-              style: TextStyle(color: Color(0xFF1E1B4B), fontWeight: FontWeight.bold, fontSize: 18),
+              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444),
+                color: AppColors.error,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: const Text(
                 'SOS',
-                style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -43,7 +44,6 @@ class EmergencyFailedScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Illustration
             Center(
               child: Stack(
                 alignment: Alignment.center,
@@ -52,11 +52,10 @@ class EmergencyFailedScreen extends StatelessWidget {
                     width: 240,
                     height: 200,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1F2).withValues(alpha: 0.5),
+                      color: AppColors.errorLightOf(context).withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
                   ),
-                  // Siren Illustration Mock
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -64,7 +63,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                         width: 80,
                         height: 90,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEF4444),
+                          color: AppColors.error,
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(30), bottom: Radius.circular(10)),
                           boxShadow: [
                             BoxShadow(
@@ -77,7 +76,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                         child: const Center(
                           child: Text(
                             '!',
-                            style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900),
+                            style: TextStyle(color: AppColors.textInverse, fontSize: 48, fontWeight: FontWeight.w900),
                           ),
                         ),
                       ),
@@ -86,31 +85,30 @@ class EmergencyFailedScreen extends StatelessWidget {
                         width: 100,
                         height: 12,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E1B4B),
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                     ],
                   ),
-                  // Wifi-off bubble
                   Positioned(
                     top: 40,
                     right: 20,
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceOf(context),
                         shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.wifi_off_rounded, color: Color(0xFFEF4444), size: 24),
+                          const Icon(Icons.wifi_off_rounded, color: AppColors.error, size: 24),
                           Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle),
-                            child: const Icon(Icons.close_rounded, color: Colors.white, size: 8),
+                            decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                            child: const Icon(Icons.close_rounded, color: AppColors.textInverse, size: 8),
                           ),
                         ],
                       ),
@@ -120,47 +118,45 @@ class EmergencyFailedScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'Unable to connect\nright now',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E1B4B),
+                color: AppColors.textPrimaryOf(context),
                 letterSpacing: -0.5,
                 height: 1.2,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Please hold on while we try to reconnect you\nto an available doctor.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
-                color: Color(0xFF6B7280),
+                color: AppColors.textSecondaryOf(context),
                 height: 1.5,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 40),
-            
-            // Queue Info Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF1F2),
+                color: AppColors.errorLightOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFFFE4E6)),
+                border: Border.all(color: AppColors.borderLightOf(context)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFE4E6),
+                    decoration: BoxDecoration(
+                      color: AppColors.errorLightOf(context),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.group_rounded, color: Color(0xFFEF4444), size: 24),
+                    child: const Icon(Icons.group_rounded, color: AppColors.error, size: 24),
                   ),
                   const SizedBox(width: 16),
                   const Expanded(
@@ -172,7 +168,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: Color(0xFF991B1B),
+                            color: AppColors.error,
                           ),
                         ),
                         SizedBox(height: 4),
@@ -180,7 +176,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                           'We\'re experiencing heavy traffic. You\'re in the queue and we\'ll connect you as soon as a doctor is available.',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFFB91C1C),
+                            color: AppColors.error,
                             height: 1.4,
                           ),
                         ),
@@ -191,47 +187,41 @@ class EmergencyFailedScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
-                        Text('Your position', style: TextStyle(fontSize: 8, color: Color(0xFFEF4444), fontWeight: FontWeight.bold)),
-                        Text('3', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFFEF4444))),
-                        Text('Est. wait: 2-3 min', style: TextStyle(fontSize: 8, color: Color(0xFF9CA3AF))),
+                        const Text('Your position', style: TextStyle(fontSize: 8, color: AppColors.error, fontWeight: FontWeight.bold)),
+                        const Text('3', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.error)),
+                        Text('Est. wait: 2-3 min', style: TextStyle(fontSize: 8, color: AppColors.textTertiaryOf(context))),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 16),
-            
-            // Status Banner
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F3FF),
+                color: AppColors.infoLightOf(context),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.shield_outlined, color: Color(0xFF4F46E5), size: 18),
+                  Icon(Icons.shield_outlined, color: AppColors.primary, size: 18),
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Don\'t worry, we\'re still trying to connect you.\nPlease keep this screen open.',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF4F46E5), fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 32),
-            
-            // Action Buttons
             SizedBox(
               width: double.infinity,
               height: 60,
@@ -243,8 +233,8 @@ class EmergencyFailedScreen extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEF4444),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.error,
+                  foregroundColor: AppColors.textInverse,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -274,27 +264,27 @@ class EmergencyFailedScreen extends StatelessWidget {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFEF4444),
-                  side: const BorderSide(color: Color(0xFFFFE4E6)),
+                  foregroundColor: AppColors.error,
+                  side: BorderSide(color: AppColors.borderLightOf(context)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.phone_in_talk_outlined, size: 20),
-                    SizedBox(width: 10),
+                    const Icon(Icons.phone_in_talk_outlined, size: 20),
+                    const SizedBox(width: 10),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Call Emergency Line',
                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           'Speak to our emergency support team',
-                          style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF)),
+                          style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context)),
                         ),
                       ],
                     ),
@@ -302,32 +292,29 @@ class EmergencyFailedScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
             const SizedBox(height: 24),
-            
-            // Local Emergency Service Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFBEB),
+                color: AppColors.warningLightOf(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFEF3C7),
+                    decoration: BoxDecoration(
+                      color: AppColors.warningLightOf(context),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.notifications_active_outlined,
-                      color: Color(0xFFD97706),
+                      color: AppColors.warning,
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -336,15 +323,15 @@ class EmergencyFailedScreen extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: Color(0xFF1E1B4B),
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           'If your condition is critical, please call your local emergency service immediately.',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF6B7280),
+                            color: AppColors.textSecondaryOf(context),
                             height: 1.4,
                           ),
                         ),
@@ -354,52 +341,49 @@ class EmergencyFailedScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+                      boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10)],
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.phone_rounded, color: Color(0xFFEF4444), size: 16),
+                        Icon(Icons.phone_rounded, color: AppColors.error, size: 16),
                         SizedBox(width: 8),
                         Text(
                           '911',
-                          style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold),
+                          style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: 4),
-                        Icon(Icons.chevron_right_rounded, color: Color(0xFFEF4444), size: 16),
+                        Icon(Icons.chevron_right_rounded, color: AppColors.error, size: 16),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 12),
-            
-            // Support Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFF),
+                color: AppColors.infoLightOf(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEEF2FF),
+                    decoration: BoxDecoration(
+                      color: AppColors.infoLightOf(context),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.headset_mic_outlined,
-                      color: Color(0xFF4F46E5),
+                      color: AppColors.primary,
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -408,13 +392,13 @@ class EmergencyFailedScreen extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: Color(0xFF1E1B4B),
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Our support team is here for you 24/7.',
-                          style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+                          style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context)),
                         ),
                       ],
                     ),
@@ -430,22 +414,19 @@ class EmergencyFailedScreen extends StatelessWidget {
                         Text(
                           'Chat with Support',
                           style: TextStyle(
-                            color: Color(0xFF2E31BE),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: Color(0xFF2E31BE), size: 16),
+                        Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 16),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 32),
-            
-            // Footer Security Info
             Column(
               children: [
                 Row(

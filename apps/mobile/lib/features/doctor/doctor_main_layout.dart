@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'doctor_dashboard.dart';
@@ -34,18 +35,18 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
       isScrollControlled: true,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Doctor Menu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+            Text('Doctor Menu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.person_outline_rounded, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.person_outline_rounded, color: AppColors.primary),
               title: const Text('Doctor Profile', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -53,7 +54,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.verified_user_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.verified_user_outlined, color: AppColors.primary),
               title: const Text('Verification Status', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -61,7 +62,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.card_membership_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.card_membership_outlined, color: AppColors.primary),
               title: const Text('Subscription', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -69,7 +70,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.schedule_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.schedule_outlined, color: AppColors.primary),
               title: const Text('Availability', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -77,7 +78,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.trending_up_rounded, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.trending_up_rounded, color: AppColors.primary),
               title: const Text('Earnings', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -85,7 +86,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.settings_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.settings_outlined, color: AppColors.primary),
               title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -94,8 +95,8 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Colors.red),
-              title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              leading: const Icon(Icons.logout_rounded, color: AppColors.error),
+              title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
                 await supabase.auth.signOut();
@@ -112,9 +113,9 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         title: Row(
           children: [
@@ -128,16 +129,16 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Center(
-                      child: Text('D', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: Text('D', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text('Premon', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Text('Care', style: TextStyle(color: Color(0xFF10B981), fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('Premon', style: TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('Care', style: TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -145,16 +146,16 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Text('DOCTOR', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+              child: const Text('DOCTOR', style: TextStyle(color: AppColors.primary, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B)),
+            icon: const Icon(Icons.notifications_none_rounded, color: AppColors.slate800),
             onPressed: () => context.push('/notifications'),
           ),
           const SizedBox(width: 4),
@@ -171,12 +172,12 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+            const BoxShadow(
+              color: AppColors.shadowLight,
               blurRadius: 20,
-              offset: const Offset(0, -5),
+              offset: Offset(0, -5),
             ),
           ],
         ),
@@ -247,7 +248,7 @@ class _NavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? const Color(0xFF0F62FE) : const Color(0xFF94A3B8);
+    final color = isSelected ? AppColors.primary : AppColors.textTertiaryOf(context);
 
     return Expanded(
       child: GestureDetector(
@@ -275,4 +276,3 @@ class _NavBarItem extends StatelessWidget {
     );
   }
 }
-

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../core/app_colors.dart';
 import 'forum_provider.dart';
 import 'forum_utils.dart';
 
@@ -94,7 +95,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/forum/create'),
-        backgroundColor: const Color(0xFF0F62FE),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 4,
         icon: const Icon(Icons.add_rounded, size: 22),
@@ -109,9 +110,9 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Community Forum',
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF0F2042), letterSpacing: -0.5),
+            style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5),
           ),
           const SizedBox(height: 4),
           Text(
@@ -147,7 +148,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF0F62FE), width: 1.5),
+                      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
                     ),
                   ),
                 ),
@@ -206,7 +207,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
     final isSelected = _selectedTabIndex == index;
     return ListTile(
       title: Text(label, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
-      trailing: isSelected ? const Icon(Icons.check_circle, color: Color(0xFF0F62FE)) : null,
+      trailing: isSelected ? const Icon(Icons.check_circle, color: AppColors.primary) : null,
       onTap: () {
         setState(() => _selectedTabIndex = index);
         Navigator.pop(context);
@@ -273,7 +274,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          color: isSelected ? const Color(0xFF0F2042) : Colors.grey[600],
+                          color: isSelected ? AppColors.textPrimaryOf(context) : Colors.grey[600],
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -322,9 +323,9 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                     children: [
                       const Icon(Icons.local_fire_department_rounded, color: Colors.deepOrange, size: 20),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         'Trending Discussions',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F2042)),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)),
                       ),
                     ],
                   ),
@@ -343,8 +344,8 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
           ],
         );
       },
-loading: () => const SizedBox.shrink(),
-        error: (_, _) => const SizedBox.shrink(),
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
@@ -390,7 +391,7 @@ loading: () => const SizedBox.shrink(),
             const Spacer(),
             Text(
               post.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042), height: 1.3),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context), height: 1.3),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
@@ -399,8 +400,8 @@ loading: () => const SizedBox.shrink(),
               children: [
                 CircleAvatar(
                   radius: 12,
-                  backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                  child: Text(authorInitial, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0F62FE))),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: Text(authorInitial, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary)),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -454,14 +455,14 @@ loading: () => const SizedBox.shrink(),
       child: Container(
         padding: const EdgeInsets.only(bottom: 12, right: 24),
         decoration: BoxDecoration(
-          border: isSelected ? const Border(bottom: BorderSide(color: Color(0xFF0F62FE), width: 2)) : null,
+          border: isSelected ? const Border(bottom: BorderSide(color: AppColors.primary, width: 2)) : null,
         ),
         child: Text(
           title,
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-            color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[500],
+            color: isSelected ? AppColors.primary : Colors.grey[500],
           ),
         ),
       ),
@@ -487,8 +488,8 @@ loading: () => const SizedBox.shrink(),
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                  child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F62FE))),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.primary)),
                 ),
                 if (!post.isAnonymous)
                   Positioned(
@@ -518,7 +519,7 @@ loading: () => const SizedBox.shrink(),
                       Expanded(
                         child: Text(
                           post.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F2042)),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimaryOf(context)),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -604,7 +605,7 @@ loading: () => const SizedBox.shrink(),
                   Navigator.pop(ctx);
                   try {
                     await ForumService.toggleSavePost(post.id);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post saved'), backgroundColor: Color(0xFF10B981)));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post saved'), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
                   }
@@ -615,7 +616,7 @@ loading: () => const SizedBox.shrink(),
                 title: const Text('Share Post'),
                 onTap: () {
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post link copied to clipboard'), backgroundColor: Color(0xFF10B981)));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post link copied to clipboard'), backgroundColor: AppColors.success));
                 },
               ),
               ListTile(
@@ -625,7 +626,7 @@ loading: () => const SizedBox.shrink(),
                   Navigator.pop(ctx);
                   try {
                     await ForumService.report(postId: post.id, reason: 'Reported by user');
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post reported'), backgroundColor: Color(0xFF10B981)));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post reported'), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
                   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import '../../core/app_colors.dart';
 
 
 class EarningsAnalyticsScreen extends StatefulWidget {
@@ -15,17 +16,17 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimaryOf(context), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Earnings & Analytics',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w800, fontSize: 20),
+          style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w800, fontSize: 20),
         ),
         centerTitle: true,
         actions: [
@@ -33,11 +34,11 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.borderOf(context)),
               ),
-              child: const Icon(Icons.calendar_today_rounded, size: 18, color: Color(0xFF1E293B)),
+              child: Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textPrimaryOf(context)),
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -53,40 +54,34 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Text(
                 'Track your earnings and performance\nall in one place.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w500),
+                style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(height: 24),
             
-            // 1. Time Filters
             _buildTimeFilters(),
             const SizedBox(height: 24),
 
-            // 2. Total Earnings Card
             _buildTotalEarningsCard(),
             const SizedBox(height: 24),
 
-            // 3. Stats Grid
             _buildStatsGrid(),
             const SizedBox(height: 24),
 
-            // 4. Earnings Overview (Line Chart)
             _buildSectionHeader('Earnings Overview', hasDot: true),
             const SizedBox(height: 16),
             _buildEarningsChart(),
             const SizedBox(height: 24),
 
-            // 5. Earnings Breakdown (Donut Chart)
             _buildSectionHeader('Earnings Breakdown', trailing: 'View Details'),
             const SizedBox(height: 16),
             _buildBreakdownChart(),
             const SizedBox(height: 24),
 
-            // 6. Insight Card
             _buildInsightCard(),
             const SizedBox(height: 40),
           ],
@@ -100,7 +95,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.borderLightOf(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -113,10 +108,10 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF0F62FE) : Colors.transparent,
+                color: isSelected ? AppColors.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: isSelected ? [
-                  BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))
+                  BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))
                 ] : null,
               ),
               child: Row(
@@ -124,14 +119,14 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
                   Text(
                     filter,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF64748B),
+                      color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                       fontSize: 13,
                     ),
                   ),
                   if (filter == 'Custom') ...[
                     const SizedBox(width: 4),
-                    Icon(Icons.calendar_month_rounded, size: 14, color: isSelected ? Colors.white : const Color(0xFF64748B)),
+                    Icon(Icons.calendar_month_rounded, size: 14, color: isSelected ? Colors.white : AppColors.textSecondaryOf(context)),
                   ]
                 ],
               ),
@@ -148,14 +143,14 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0F62FE), Color(0xFF0EA5E9), Color(0xFF22D3EE)],
+          colors: [AppColors.primary, AppColors.info, AppColors.info],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F62FE).withValues(alpha: 0.4),
+            color: AppColors.primary.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -215,41 +210,39 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Wallet
-          Container(
+          const SizedBox(
             width: 100,
             height: 70,
             decoration: BoxDecoration(
-              color: const Color(0xFF1E40AF),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10)],
+              color: AppColors.primaryDark,
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
             ),
             child: Center(
-              child: Icon(Icons.payments_rounded, color: Colors.white.withValues(alpha: 0.3), size: 40),
+              child: Icon(Icons.payments_rounded, color: Colors.white30, size: 40),
             ),
           ),
-          // Coins
           Positioned(
             top: 10,
             right: 20,
-            child: _buildCoin(24, 0xFF67E8F9),
+            child: _buildCoin(24, AppColors.info),
           ),
           Positioned(
             top: 25,
             right: 45,
-            child: _buildCoin(20, 0xFF22D3EE),
+            child: _buildCoin(20, AppColors.info),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCoin(double size, int color) {
+  Widget _buildCoin(double size, Color color) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Color(color),
+        color: color,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
@@ -263,17 +256,17 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
       children: [
         Row(
           children: [
-            Expanded(child: _buildStatCard('Consultations', '42', '12%', Icons.account_balance_wallet_rounded, const Color(0xFF0F62FE))),
+            Expanded(child: _buildStatCard('Consultations', '42', '12%', Icons.account_balance_wallet_rounded, AppColors.primary)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard('Hours Spent', '28h 15m', '8%', Icons.access_time_filled_rounded, const Color(0xFF06B6D4))),
+            Expanded(child: _buildStatCard('Hours Spent', '28h 15m', '8%', Icons.access_time_filled_rounded, AppColors.info)),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildStatCard('New Patients', '18', '20%', Icons.person_add_alt_1_rounded, const Color(0xFF8B5CF6))),
+            Expanded(child: _buildStatCard('New Patients', '18', '20%', Icons.person_add_alt_1_rounded, AppColors.primary)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard('Rating', '4.9', '100%', Icons.stars_rounded, const Color(0xFFF59E0B))),
+            Expanded(child: _buildStatCard('Rating', '4.9', '100%', Icons.stars_rounded, AppColors.warning)),
           ],
         ),
       ],
@@ -284,11 +277,11 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
-          BoxShadow(color: const Color(0xFF64748B).withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))
+          BoxShadow(color: AppColors.textSecondaryOf(context).withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))
         ],
       ),
       child: Column(
@@ -300,22 +293,22 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
             child: Icon(icon, color: color, size: 18),
           ),
           const SizedBox(height: 12),
-          Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(label, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Row(
             children: [
-              Text(value, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w800)),
+              Text(value, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w800)),
               const Spacer(),
               if (label == 'Rating') 
-                const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16)
+                Icon(Icons.star_rounded, color: AppColors.warning, size: 16)
               else ...[
-                const Icon(Icons.arrow_upward_rounded, color: Color(0xFF22C55E), size: 12),
-                Text(percent, style: const TextStyle(color: Color(0xFF22C55E), fontSize: 11, fontWeight: FontWeight.w800)),
+                Icon(Icons.arrow_upward_rounded, color: AppColors.success, size: 12),
+                Text(percent, style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w800)),
               ]
             ],
           ),
           const SizedBox(height: 8),
-          Text('vs last week', style: TextStyle(color: const Color(0xFF64748B).withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w600)),
+          Text('vs last week', style: TextStyle(color: AppColors.textSecondaryOf(context).withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -324,12 +317,12 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
   Widget _buildSectionHeader(String title, {bool hasDot = false, String? trailing}) {
     return Row(
       children: [
-        Text(title, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 16, fontWeight: FontWeight.w800)),
+        Text(title, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 16, fontWeight: FontWeight.w800)),
         if (hasDot) ...[
           const SizedBox(width: 8),
-          const Icon(Icons.circle, size: 8, color: Color(0xFF0F62FE)),
+          const Icon(Icons.circle, size: 8, color: AppColors.primary),
           const SizedBox(width: 4),
-          const Text('Earnings (₦)', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+          Text('Earnings (₦)', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
         ],
         const Spacer(),
         if (trailing != null)
@@ -341,8 +334,8 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
             },
             child: Row(
               children: [
-                Text(trailing, style: const TextStyle(color: Color(0xFF0F62FE), fontSize: 13, fontWeight: FontWeight.w700)),
-                const Icon(Icons.chevron_right_rounded, color: Color(0xFF0F62FE), size: 20),
+                Text(trailing, style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w700)),
+                const Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 20),
               ],
             ),
           ),
@@ -356,18 +349,18 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
       height: 220,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Text('₹14,560', style: TextStyle(color: Color(0xFF1E293B), fontSize: 24, fontWeight: FontWeight.w900)),
+              Text('₹14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 24, fontWeight: FontWeight.w900)),
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_upward_rounded, color: Color(0xFF22C55E), size: 16),
-              const Text('18.6%', style: TextStyle(color: Color(0xFF22C55E), fontSize: 14, fontWeight: FontWeight.w800)),
+              Icon(Icons.arrow_upward_rounded, color: AppColors.success, size: 16),
+              Text('18.6%', style: TextStyle(color: AppColors.success, fontSize: 14, fontWeight: FontWeight.w800)),
             ],
           ),
           const Expanded(child: _LineChartPainterWidget()),
@@ -375,7 +368,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                .map((d) => Text(d, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.w700)))
+                .map((d) => Text(d, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10, fontWeight: FontWeight.w700)))
                 .toList(),
           ),
         ],
@@ -387,24 +380,24 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
-          const SizedBox(
+          SizedBox(
             width: 120,
             height: 120,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                _DonutChartPainterWidget(),
+                const _DonutChartPainterWidget(),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('₹14,560', style: TextStyle(color: Color(0xFF1E293B), fontSize: 14, fontWeight: FontWeight.w900)),
-                    Text('Total', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w600)),
+                    Text('₹14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w900)),
+                    Text('Total', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],
@@ -414,10 +407,10 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
           Expanded(
             child: Column(
               children: [
-                _buildBreakdownItem('Video Consultations', '₦8,640', '59%', const Color(0xFF0F62FE)),
-                _buildBreakdownItem('Chat Consultations', '₦3,840', '26%', const Color(0xFF22D3EE)),
-                _buildBreakdownItem('Follow-ups', '₦1,760', '12%', const Color(0xFF8B5CF6)),
-                _buildBreakdownItem('Other Services', '₦320', '3%', const Color(0xFFF59E0B)),
+                _buildBreakdownItem('Video Consultations', '₦8,640', '59%', AppColors.primary),
+                _buildBreakdownItem('Chat Consultations', '₦3,840', '26%', AppColors.info),
+                _buildBreakdownItem('Follow-ups', '₦1,760', '12%', AppColors.primary),
+                _buildBreakdownItem('Other Services', '₦320', '3%', AppColors.warning),
               ],
             ),
           ),
@@ -436,15 +429,15 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w600, overflow: TextOverflow.ellipsis),
+              style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w600, overflow: TextOverflow.ellipsis),
             ),
           ),
-          Text(amount, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 11, fontWeight: FontWeight.w800)),
+          Text(amount, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(4)),
-            child: Text(percent, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w800)),
+            decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(4)),
+            child: Text(percent, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -455,32 +448,32 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: AppColors.successLightOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFDCFCE7)),
+        border: Border.all(color: AppColors.successLightOf(context)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(color: Color(0xFFDCFCE7), shape: BoxShape.circle),
-            child: const Icon(Icons.trending_up_rounded, color: Color(0xFF16A34A), size: 24),
+            decoration: BoxDecoration(color: AppColors.successLightOf(context), shape: BoxShape.circle),
+            child: const Icon(Icons.trending_up_rounded, color: AppColors.success, size: 24),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Great progress!', style: TextStyle(color: Color(0xFF166534), fontSize: 16, fontWeight: FontWeight.w800)),
-                SizedBox(height: 4),
+                Text('Great progress!', style: TextStyle(color: AppColors.success, fontSize: 16, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
                 Text(
                   'Your earnings increased by 18.6%\ncompared to last week.',
-                  style: TextStyle(color: Color(0xFF166534), fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+                  style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
                 ),
               ],
             ),
           ),
-          Image.asset('assets/growth_icon.png', width: 60, errorBuilder: (_, _, _) => const Icon(Icons.bar_chart_rounded, size: 40, color: Color(0xFF16A34A))),
+          Image.asset('assets/growth_icon.png', width: 60, errorBuilder: (_, _, _) => const Icon(Icons.bar_chart_rounded, size: 40, color: AppColors.success)),
         ],
       ),
     );
@@ -503,7 +496,7 @@ class _LineChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF0F62FE)
+      ..color = AppColors.primary
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round;
@@ -512,7 +505,7 @@ class _LineChartPainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [const Color(0xFF0F62FE).withValues(alpha: 0.2), Colors.transparent],
+        colors: [AppColors.primary.withValues(alpha: 0.2), Colors.transparent],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final points = [
@@ -544,9 +537,8 @@ class _LineChartPainter extends CustomPainter {
     canvas.drawPath(fillPath, fillPaint);
     canvas.drawPath(path, paint);
 
-    // Draw dots
     final dotPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
-    final dotBorderPaint = Paint()..color = const Color(0xFF0F62FE)..style = PaintingStyle.stroke..strokeWidth = 2.0;
+    final dotBorderPaint = Paint()..color = AppColors.primary..style = PaintingStyle.stroke..strokeWidth = 2.0;
 
     for (final p in points) {
       canvas.drawCircle(p, 5, dotPaint);
@@ -593,12 +585,11 @@ class _DonutChartPainter extends CustomPainter {
       );
     }
 
-    // Video 59%, Chat 26%, Follow-ups 12%, Other 3%
     const startAngle = -math.pi / 2;
-    drawSegment(startAngle, 2 * math.pi * 0.59, const Color(0xFF0F62FE));
-    drawSegment(startAngle + 2 * math.pi * 0.59, 2 * math.pi * 0.26, const Color(0xFF22D3EE));
-    drawSegment(startAngle + 2 * math.pi * 0.85, 2 * math.pi * 0.12, const Color(0xFF8B5CF6));
-    drawSegment(startAngle + 2 * math.pi * 0.97, 2 * math.pi * 0.03, const Color(0xFFF59E0B));
+    drawSegment(startAngle, 2 * math.pi * 0.59, AppColors.primary);
+    drawSegment(startAngle + 2 * math.pi * 0.59, 2 * math.pi * 0.26, AppColors.info);
+    drawSegment(startAngle + 2 * math.pi * 0.85, 2 * math.pi * 0.12, AppColors.primary);
+    drawSegment(startAngle + 2 * math.pi * 0.97, 2 * math.pi * 0.03, AppColors.warning);
   }
 
   @override

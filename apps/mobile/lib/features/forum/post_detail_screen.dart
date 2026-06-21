@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../core/app_colors.dart';
 import 'forum_provider.dart';
 import 'forum_utils.dart';
 
@@ -35,13 +36,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       _replyController.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reply posted'), backgroundColor: Color(0xFF10B981)),
+          SnackBar(content: Text('Reply posted'), backgroundColor: AppColors.success),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to reply: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Failed to reply: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -55,31 +56,31 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final repliesAsync = ref.watch(forumRepliesProvider(widget.postId));
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2042)),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Post Detail', style: TextStyle(color: Color(0xFF0F2042), fontWeight: FontWeight.bold)),
+        title: Text('Post Detail', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.bookmark_border, color: Color(0xFF0F2042)),
+            icon: Icon(Icons.bookmark_border, color: AppColors.textPrimaryOf(context)),
             onPressed: () async {
               try {
                 await ForumService.toggleSavePost(widget.postId);
                 if (!mounted) return;
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post saved'), backgroundColor: Color(0xFF10B981)));
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post saved'), backgroundColor: AppColors.success));
               } catch (e) {
                 if (!mounted) return;
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
               }
             },
           ),
           IconButton(
-            icon: const Icon(Icons.more_horiz, color: Color(0xFF0F2042)),
+            icon: Icon(Icons.more_horiz, color: AppColors.textPrimaryOf(context)),
             onPressed: () => _showPostOptions(),
           ),
         ],
@@ -112,11 +113,11 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           child: Center(
                             child: Column(
                               children: [
-                                Icon(Icons.chat_bubble_outline, color: Colors.grey[300], size: 48),
+                                Icon(Icons.chat_bubble_outline, color: AppColors.textTertiaryOf(context), size: 48),
                                 const SizedBox(height: 12),
-                                Text('No replies yet', style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+                                Text('No replies yet', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
                                 const SizedBox(height: 4),
-                                Text('Be the first to reply', style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+                                Text('Be the first to reply', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 12)),
                               ],
                             ),
                           ),
@@ -150,11 +151,11 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Widget _buildBreadcrumbs(ForumPost? post) {
     return Row(
       children: [
-        Text('Forum', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-        Icon(Icons.chevron_right, size: 16, color: Colors.grey[400]),
-        Text(post?.categoryName ?? 'General', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-        Icon(Icons.chevron_right, size: 16, color: Colors.grey[400]),
-        const Text('Post Details', style: TextStyle(color: Color(0xFF0F2042), fontSize: 13, fontWeight: FontWeight.bold)),
+        Text('Forum', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
+        Icon(Icons.chevron_right, size: 16, color: AppColors.textTertiaryOf(context)),
+        Text(post?.categoryName ?? 'General', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
+        Icon(Icons.chevron_right, size: 16, color: AppColors.textTertiaryOf(context)),
+        Text('Post Details', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 13, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -168,11 +169,11 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[100]!),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 15, offset: const Offset(0, 5)),
+          BoxShadow(color: AppColors.shadowLight, blurRadius: 15, offset: const Offset(0, 5)),
         ],
       ),
       child: Column(
@@ -183,26 +184,26 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F62FE))),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                child: Text(authorInitial, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.primary)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(post.authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
-                    Text(post.authorRole == 'doctor' ? 'Doctor' : 'Community Member', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    Text(post.authorName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+                    Text(post.authorRole == 'doctor' ? 'Doctor' : 'Community Member', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
                     const SizedBox(height: 2),
                     Text.rich(
                       TextSpan(children: [
                         TextSpan(text: timeAgo),
                         if (post.categoryName != null) ...[
-                          const TextSpan(text: ' • Posted in '),
+                          TextSpan(text: ' • Posted in '),
                           TextSpan(text: post.categoryName!, style: TextStyle(color: ForumUtils.getCategoryColor(post.categoryIcon), fontWeight: FontWeight.w600)),
                         ],
                       ]),
-                      style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                      style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11),
                     ),
                   ],
                 ),
@@ -211,30 +212,30 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 onPressed: () async {
                   try {
                     await ForumService.toggleFollowPost(post.id);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Follow toggled'), backgroundColor: Color(0xFF10B981)));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Follow toggled'), backgroundColor: AppColors.success));
                   } catch (e) {
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                   minimumSize: const Size(0, 32),
-                  side: const BorderSide(color: Color(0xFF0F62FE)),
+                  side: BorderSide(color: AppColors.primary),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Follow', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text('Follow', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             ],
           ),
           const SizedBox(height: 20),
           Text(
             post.title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF0F2042), height: 1.3),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), height: 1.3),
           ),
           const SizedBox(height: 12),
           Text(
             post.content,
-            style: TextStyle(fontSize: 15, color: Colors.grey[800], height: 1.6),
+            style: TextStyle(fontSize: 15, color: AppColors.textPrimaryOf(context), height: 1.6),
           ),
           const SizedBox(height: 20),
           const Divider(),
@@ -262,9 +263,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Widget _buildStatAction(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey[500]),
+        Icon(icon, size: 16, color: AppColors.textSecondaryOf(context)),
         const SizedBox(width: 6),
-        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500)),
+        Text(text, style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -272,7 +273,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Widget _buildRepliesHeader() {
     return Row(
       children: [
-        const Text('Top Replies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF0F2042))),
+        Text('Top Replies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
         const Spacer(),
         _buildFilterChip('All Replies', 0),
         const SizedBox(width: 8),
@@ -290,13 +291,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[100],
+          color: isSelected ? AppColors.primary : AppColors.borderLightOf(context),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[600],
+            color: isSelected ? AppColors.textInverse : AppColors.textSecondaryOf(context),
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
           ),
@@ -312,9 +313,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.surfaceAltOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.blue[100]!),
+        border: Border.all(color: AppColors.infoLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,8 +327,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                    child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F62FE))),
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                    child: Text(authorInitial, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.primary)),
                   ),
                   Positioned(
                     right: 0,
@@ -336,9 +337,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: Colors.teal,
+                        color: AppColors.success,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: AppColors.surfaceOf(context), width: 2),
                       ),
                     ),
                   )
@@ -351,37 +352,37 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(reply.authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
+                        Text(reply.authorName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
                         const SizedBox(width: 4),
-                        const Icon(Icons.verified, size: 14, color: Color(0xFF0F62FE)),
+                        Icon(Icons.verified, size: 14, color: AppColors.primary),
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.teal[50],
-                            border: Border.all(color: Colors.teal[200]!),
+                            color: AppColors.successLightOf(context),
+                            border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.check_circle_outline, size: 10, color: Colors.teal[700]),
+                              Icon(Icons.check_circle_outline, size: 10, color: AppColors.success),
                               const SizedBox(width: 2),
-                              Text('Verified Doctor', style: TextStyle(fontSize: 9, color: Colors.teal[700], fontWeight: FontWeight.bold)),
+                              Text('Verified Doctor', style: TextStyle(fontSize: 9, color: AppColors.success, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         )
                       ],
                     ),
                     const SizedBox(height: 2),
-                    Text(timeAgo, style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                    Text(timeAgo, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11)),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Text(reply.content, style: TextStyle(fontSize: 14, color: Colors.grey[800], height: 1.5)),
+          Text(reply.content, style: TextStyle(fontSize: 14, color: AppColors.textPrimaryOf(context), height: 1.5)),
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 8),
@@ -391,14 +392,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 onTap: () async {
                   try {
                     await ForumService.voteReplyHelpful(reply.id);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marked as helpful'), backgroundColor: Color(0xFF10B981)));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Marked as helpful'), backgroundColor: AppColors.success));
                   } catch (_) {}
                 },
                 child: Row(
                   children: [
-                    Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey[500]),
+                    Icon(Icons.thumb_up_alt_outlined, size: 16, color: AppColors.textSecondaryOf(context)),
                     const SizedBox(width: 6),
-                    Text('Helpful (${reply.helpfulVotes})', style: TextStyle(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                    Text('Helpful (${reply.helpfulVotes})', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -407,9 +408,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 onTap: () => _replyController.text = '@${reply.authorName} ',
                 child: Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[500]),
+                    Icon(Icons.chat_bubble_outline, size: 16, color: AppColors.textSecondaryOf(context)),
                     const SizedBox(width: 6),
-                    Text('Reply', style: TextStyle(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                    Text('Reply', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -427,9 +428,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,25 +440,25 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.15),
-                child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF6366F1))),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                child: Text(authorInitial, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(reply.authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F2042))),
-                    Text('Community Member', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    Text(reply.authorName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
+                    Text('Community Member', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
                     const SizedBox(height: 2),
-                    Text(timeAgo, style: TextStyle(color: Colors.grey[400], fontSize: 10)),
+                    Text(timeAgo, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(reply.content, style: TextStyle(fontSize: 14, color: Colors.grey[800], height: 1.5)),
+          Text(reply.content, style: TextStyle(fontSize: 14, color: AppColors.textPrimaryOf(context), height: 1.5)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -469,9 +470,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 },
                 child: Row(
                   children: [
-                    Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey[500]),
+                    Icon(Icons.thumb_up_alt_outlined, size: 16, color: AppColors.textSecondaryOf(context)),
                     const SizedBox(width: 6),
-                    Text('Helpful (${reply.helpfulVotes})', style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                    Text('Helpful (${reply.helpfulVotes})', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -480,9 +481,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 onTap: () => _replyController.text = '@${reply.authorName} ',
                 child: Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[500]),
+                    Icon(Icons.chat_bubble_outline, size: 16, color: AppColors.textSecondaryOf(context)),
                     const SizedBox(width: 6),
-                    Text('Reply', style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                    Text('Reply', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -496,9 +497,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Widget _buildBottomInputArea() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2)),
+          BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, -2)),
         ],
       ),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -509,7 +510,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: AppColors.borderLightOf(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: TextField(
@@ -517,7 +518,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 maxLines: null,
                 decoration: InputDecoration(
                   hintText: 'Write a reply...',
-                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
+                  hintStyle: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14),
                   border: InputBorder.none,
                 ),
               ),
@@ -528,13 +529,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             onTap: _isSubmittingReply ? null : _submitReply,
             child: Container(
               padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: Color(0xFF0F62FE),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
               child: _isSubmittingReply
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Icon(Icons.send, color: Colors.white, size: 20),
+                  : Icon(Icons.send, color: AppColors.textInverse, size: 20),
             ),
           ),
         ],
@@ -546,7 +547,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final post = widget.post;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => SafeArea(
         child: Column(
@@ -556,27 +557,27 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               width: 40,
               height: 4,
               margin: const EdgeInsets.only(top: 12),
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(color: AppColors.textTertiaryOf(context), borderRadius: BorderRadius.circular(2)),
             ),
             ListTile(
-              leading: const Icon(Icons.share_outlined, color: Color(0xFF0F62FE)),
+              leading: Icon(Icons.share_outlined, color: AppColors.primary),
               title: const Text('Share Post'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post link copied to clipboard'), backgroundColor: Color(0xFF10B981)));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post link copied to clipboard'), backgroundColor: AppColors.success));
               },
             ),
             ListTile(
-              leading: const Icon(Icons.flag_outlined, color: Colors.red),
+              leading: Icon(Icons.flag_outlined, color: AppColors.error),
               title: const Text('Report Post'),
               onTap: () async {
                 Navigator.pop(context);
                 if (post != null) {
                   try {
                     await ForumService.report(postId: post.id, reason: 'Reported by user');
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post reported'), backgroundColor: Color(0xFF10B981)));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post reported'), backgroundColor: AppColors.success));
                   } catch (e) {
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }
                 }
               },

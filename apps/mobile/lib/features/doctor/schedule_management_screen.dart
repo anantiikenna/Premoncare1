@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import '../../core/supabase_locator.dart';
+import '../../core/app_colors.dart';
 
 class ScheduleManagementScreen extends StatefulWidget {
   const ScheduleManagementScreen({super.key});
@@ -51,21 +52,19 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Doctor Availability & Schedule',
           style: TextStyle(
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.w900,
             fontSize: 18,
             letterSpacing: -0.5,
@@ -73,7 +72,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Color(0xFF1E293B)),
+            icon: Icon(Icons.notifications, color: AppColors.textPrimaryOf(context)),
             onPressed: () => context.push('/notifications'),
           ),
           Padding(
@@ -86,15 +85,15 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: primaryColor))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Manage your working hours, availability and preferences',
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 24),
 
@@ -106,7 +105,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                           'Availability Status',
                           'Available',
                           'You are open for bookings',
-                          const Color(0xFF10B981),
+                          AppColors.success,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -130,10 +129,10 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     children: [
-                      _buildQuickAction(Icons.access_time, 'Working Hours', const Color(0xFF8B5CF6), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Working hours management is being developed. Edit your available slots in the schedule table above.')))),
-                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', const Color(0xFFEF4444), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date blocking is being developed. Remove individual time slots from the schedule to block specific dates.')))),
-                      _buildQuickAction(Icons.local_cafe, 'Break Times', const Color(0xFFF59E0B), onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Break scheduling is being developed. Remove time slots from the table to create breaks between appointments.')))),
-                      _buildQuickAction(Icons.warning, 'Emergency Availability', const Color(0xFF10B981), onTap: () async {
+                      _buildQuickAction(Icons.access_time, 'Working Hours', AppColors.primary, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Working hours management is being developed. Edit your available slots in the schedule table above.')))),
+                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', AppColors.error, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Date blocking is being developed. Remove individual time slots from the schedule to block specific dates.')))),
+                      _buildQuickAction(Icons.local_cafe, 'Break Times', AppColors.warning, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Break scheduling is being developed. Remove time slots from the table to create breaks between appointments.')))),
+                      _buildQuickAction(Icons.warning, 'Emergency Availability', AppColors.success, onTap: () async {
   final user = supabase.auth.currentUser;
   if (user == null) return;
   final messenger = ScaffoldMessenger.of(context);
@@ -145,12 +144,12 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
       setState(() => _emergencyAvailability = !currentValue);
       messenger.showSnackBar(SnackBar(
         content: Text(!currentValue ? 'Emergency availability enabled. Patients can now book emergency consultations.' : 'Emergency availability disabled. You will no longer receive emergency consultation requests.'),
-        backgroundColor: const Color(0xFF10B981),
+        backgroundColor: AppColors.success,
       ));
     }
   } catch (e) {
     if (mounted) {
-      messenger.showSnackBar(const SnackBar(content: Text('Failed to update emergency availability. Please try again.'), backgroundColor: Color(0xFFEF4444)));
+      messenger.showSnackBar(SnackBar(content: const Text('Failed to update emergency availability. Please try again.'), backgroundColor: AppColors.error));
     }
   }
 }),
@@ -162,24 +161,24 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFF1F5F9)),
+                      border: Border.all(color: AppColors.borderLightOf(context)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.language, color: primaryColor, size: 20),
+                        const Icon(Icons.language, color: AppColors.primary, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Timezone', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-                              Text(_timezone, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                              Text('Timezone', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context))),
+                              Text(_timezone, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
                             ],
                           ),
                         ),
-                        const Icon(Icons.chevron_right, color: Color(0xFF94A3B8), size: 16),
+                        Icon(Icons.chevron_right, color: AppColors.textTertiaryOf(context), size: 16),
                       ],
                     ),
                   ),
@@ -223,17 +222,17 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                             margin: const EdgeInsets.only(top: 12),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                              color: AppColors.success.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Icon(Icons.verified, color: Color(0xFF10B981), size: 16),
-                                SizedBox(width: 8),
+                                Icon(Icons.verified, color: AppColors.success, size: 16),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'Emergency rate: 5x normal rate',
-                                    style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ],
@@ -252,17 +251,17 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                             margin: const EdgeInsets.only(top: 12),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: primaryColor.withValues(alpha: 0.05),
+                              color: AppColors.primary.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Icon(Icons.info, color: primaryColor, size: 16),
-                                SizedBox(width: 8),
+                                Icon(Icons.info, color: AppColors.primary, size: 16),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'You will be notified of all new bookings',
-                                    style: TextStyle(color: primaryColor, fontSize: 10, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ],
@@ -277,11 +276,11 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   final user = supabase.auth.currentUser;
                   if (user == null) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Schedule saved successfully ✓'), backgroundColor: Color(0xFF10B981)),
+                    SnackBar(content: const Text('Schedule saved successfully ✓'), backgroundColor: AppColors.success),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F62FE),
+                  backgroundColor: AppColors.primary,
                   minimumSize: const Size.fromHeight(54),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
@@ -298,14 +297,14 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+          Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context))),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -319,7 +318,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(sub, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
+          Text(sub, style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context))),
         ],
       ),
     );
@@ -329,9 +328,9 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,19 +338,19 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+              Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context))),
               Transform.scale(
                 scale: 0.7,
                 child: Switch(
                   value: value,
                   onChanged: onChanged,
-                  activeThumbColor: const Color(0xFF0F62FE),
+                  activeThumbColor: AppColors.primary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(sub, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
+          Text(sub, style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context))),
         ],
       ),
     );
@@ -361,9 +360,9 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,19 +370,19 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)))),
+              Expanded(child: Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)))),
               Transform.scale(
                 scale: 0.7,
                 child: Switch(
                   value: value,
                   onChanged: onChanged,
-                  activeThumbColor: const Color(0xFF0F62FE),
+                  activeThumbColor: AppColors.primary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(sub, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
+          Text(sub, style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context))),
           ?footer,
         ],
       ),
@@ -407,7 +406,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.textSecondaryOf(context)),
           ),
         ],
       ),
@@ -418,11 +417,11 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
         TextButton.icon(
           onPressed: onAction,
-          icon: Icon(actionIcon, size: 14, color: const Color(0xFF0F62FE)),
-          label: Text(actionLabel, style: const TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.w700, fontSize: 12)),
+          icon: Icon(actionIcon, size: 14, color: AppColors.primary),
+          label: Text(actionLabel, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 12)),
         ),
       ],
     );
@@ -441,7 +440,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: enabled ? const Color(0xFF1E293B) : const Color(0xFF94A3B8),
+                color: enabled ? AppColors.textPrimaryOf(context) : AppColors.textTertiaryOf(context),
               ),
             ),
           ),
@@ -450,21 +449,21 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
             child: Switch(
               value: enabled,
               onChanged: (val) => setState(() => day['enabled'] = val),
-              activeThumbColor: const Color(0xFF10B981),
+              activeThumbColor: AppColors.success,
             ),
           ),
           const Spacer(),
           if (enabled) ...[
             _buildTimePicker(day['start']),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text('to', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text('to', style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context))),
             ),
             _buildTimePicker(day['end']),
           ] else
-            const Text('Unavailable', style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8), fontStyle: FontStyle.italic)),
+            Text('Unavailable', style: TextStyle(fontSize: 14, color: AppColors.textTertiaryOf(context), fontStyle: FontStyle.italic)),
           const SizedBox(width: 8),
-          const Icon(Icons.add, size: 18, color: Color(0xFFCBD5E1)),
+          Icon(Icons.add, size: 18, color: AppColors.slate300),
         ],
       ),
     );
@@ -474,15 +473,15 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
-          Text(time, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+          Text(time, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context))),
           const SizedBox(width: 4),
-          const Icon(Icons.expand_more, size: 14, color: Color(0xFF94A3B8)),
+          Icon(Icons.expand_more, size: 14, color: AppColors.textTertiaryOf(context)),
         ],
       ),
     );
@@ -493,22 +492,22 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(brk['time']!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+              Text(brk['time']!, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
               const SizedBox(width: 12),
-              const Icon(Icons.delete, size: 16, color: Color(0xFFEF4444)),
+              Icon(Icons.delete, size: 16, color: AppColors.error),
             ],
           ),
           const SizedBox(height: 4),
-          Text(brk['label']!, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
+          Text(brk['label']!, style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500)),
         ],
       ),
     );

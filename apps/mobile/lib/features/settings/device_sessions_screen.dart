@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
@@ -94,7 +96,13 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
   }
 
   String _getPlatformName() {
-    return 'Mobile App';
+    if (kIsWeb) return 'Web Browser';
+    if (Platform.isAndroid) return 'Android';
+    if (Platform.isIOS) return 'iOS';
+    if (Platform.isMacOS) return 'macOS';
+    if (Platform.isWindows) return 'Windows';
+    if (Platform.isLinux) return 'Linux';
+    return 'Unknown Device';
   }
 
   Widget _buildSessionCard({required IconData icon, required String device, required String os, required String lastActive, required bool isCurrent}) {

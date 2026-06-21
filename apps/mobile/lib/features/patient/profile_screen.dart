@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/providers.dart';
+import '../../core/app_colors.dart';
 import 'patient_providers.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/mode_switch_dialog.dart';
@@ -16,22 +17,20 @@ class ProfileScreen extends ConsumerWidget {
     final user = supabase.auth.currentUser;
     final userProfile = ref.watch(userProfileProvider);
     final email = user?.email ?? 'patient@premoncare.com';
-    const primaryColor = Color(0xFF0F62FE);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Premium mesh background
           Positioned(
             top: -150,
             right: -100,
-            child: _MeshCircle(color: primaryColor.withValues(alpha: 0.08), size: 500),
+            child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.08), size: 500),
           ),
           Positioned(
             bottom: -100,
             left: -50,
-            child: _MeshCircle(color: primaryColor.withValues(alpha: 0.03), size: 300),
+            child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.03), size: 300),
           ),
 
           SafeArea(
@@ -43,13 +42,13 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
                   _buildHeader(context),
                   const SizedBox(height: 32),
-                  _buildUserCard(email, userProfile.asData?.value),
+                  _buildUserCard(context, email, userProfile.asData?.value),
                   const SizedBox(height: 32),
-                  _buildAccountModeSwitcher(context, userProfile.asData?.value, primaryColor),
+                  _buildAccountModeSwitcher(context, userProfile.asData?.value),
                   const SizedBox(height: 32),
-                  _buildStatsGrid(context, ref, primaryColor),
+                  _buildStatsGrid(context, ref),
                   const SizedBox(height: 32),
-                  _buildMenuSection(context, userProfile.asData?.value, primaryColor),
+                  _buildMenuSection(context, userProfile.asData?.value),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -64,23 +63,23 @@ class ProfileScreen extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('ACCOUNT SETTINGS', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-            SizedBox(height: 8),
-            Text('Your Profile', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+            Text('ACCOUNT SETTINGS', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+            const SizedBox(height: 8),
+            Text('Your Profile', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
           ],
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFF1F5F9)),
+            border: Border.all(color: AppColors.borderLightOf(context)),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10)],
           ),
           child: IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Color(0xFF1E293B)),
+            icon: Icon(Icons.settings_outlined, color: AppColors.textPrimaryOf(context)),
             onPressed: () => context.push('/settings-privacy'),
           ),
         ),
@@ -88,7 +87,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildUserCard(String email, Map<String, dynamic>? profile) {
+  Widget _buildUserCard(BuildContext context, String email, Map<String, dynamic>? profile) {
     final role = profile?['role'] ?? 'patient';
     final status = profile?['verification_status'] ?? 'unsubmitted';
     
@@ -96,14 +95,14 @@ class ProfileScreen extends ConsumerWidget {
     final String badgeText = isVerified 
         ? 'VERIFIED ${role.toUpperCase()}' 
         : (status == 'pending' ? 'PENDING VERIFICATION' : 'UNVERIFIED PATIENT');
-    final Color badgeColor = isVerified ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    final Color badgeColor = isVerified ? AppColors.success : AppColors.warning;
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: Row(
@@ -116,13 +115,13 @@ class ProfileScreen extends ConsumerWidget {
                 height: 80,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF1F5F9), width: 2),
+                  border: Border.all(color: AppColors.borderLightOf(context), width: 2),
                 ),
                 child: const GlobalUserAvatar(radius: 40),
               ),
               Container(
                 padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(color: Color(0xFF0F62FE), shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                 child: const Icon(Icons.camera_alt_rounded, size: 12, color: Colors.white),
               ),
             ],
@@ -132,9 +131,9 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(profile?['full_name'] ?? 'Rohan Mehta', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+                Text(profile?['full_name'] ?? 'Rohan Mehta', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
                 const SizedBox(height: 4),
-                Text(email, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(email, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -156,14 +155,14 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAccountModeSwitcher(BuildContext context, Map<String, dynamic>? profile, Color primaryColor) {
+  Widget _buildAccountModeSwitcher(BuildContext context, Map<String, dynamic>? profile) {
     final bool isVerified = profile?['verification_status'] == 'approved';
     final String currentPath = GoRouterState.of(context).matchedLocation;
     final bool isDoctorMode = currentPath.startsWith('/doctor');
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))]),
+      decoration: BoxDecoration(color: AppColors.slate800, borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: AppColors.slate800.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -211,9 +210,9 @@ class ProfileScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF0F62FE) : Colors.white.withValues(alpha: 0.05),
+          color: isActive ? AppColors.primary : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isActive ? const Color(0xFF0F62FE) : Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: isActive ? AppColors.primary : Colors.white.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -227,7 +226,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsGrid(BuildContext context, WidgetRef ref, Color primaryColor) {
+  Widget _buildStatsGrid(BuildContext context, WidgetRef ref) {
     final appointmentsAsync = ref.watch(patientAppointmentsProvider);
     final recordsAsync = ref.watch(patientMedicalRecordsProvider);
     final creditsAsync = ref.watch(patientCreditsProvider);
@@ -239,30 +238,30 @@ class ProfileScreen extends ConsumerWidget {
 
     return Row(
       children: [
-        _buildStatItem(apptsCount, 'Appts', Icons.calendar_month_rounded, primaryColor),
+        _buildStatItem(context, apptsCount, 'Appts', Icons.calendar_month_rounded, AppColors.primary),
         const SizedBox(width: 12),
-        _buildStatItem(historyCount, 'History', Icons.history_rounded, const Color(0xFF10B981)),
+        _buildStatItem(context, historyCount, 'History', Icons.history_rounded, AppColors.success),
         const SizedBox(width: 12),
-        _buildStatItem(reportsCount, 'Reports', Icons.description_rounded, const Color(0xFF6366F1)),
+        _buildStatItem(context, reportsCount, 'Reports', Icons.description_rounded, AppColors.primary),
         const SizedBox(width: 12),
-        _buildStatItem('${credits}m', 'Credits', Icons.account_balance_wallet_rounded, const Color(0xFFF59E0B), onTap: () => context.push('/credits')),
+        _buildStatItem(context, '${credits}m', 'Credits', Icons.account_balance_wallet_rounded, AppColors.warning, onTap: () => context.push('/credits')),
       ],
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon, Color color, {VoidCallback? onTap}) {
+  Widget _buildStatItem(BuildContext context, String value, String label, IconData icon, Color color, {VoidCallback? onTap}) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFF1F5F9))),
+          decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
           child: Column(
             children: [
               Icon(icon, color: color, size: 20),
               const SizedBox(height: 12),
-              Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-              Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.w700)),
+              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+              Text(label, style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700)),
             ],
           ),
         ),
@@ -270,21 +269,21 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context, Map<String, dynamic>? profile, Color primaryColor) {
+  Widget _buildMenuSection(BuildContext context, Map<String, dynamic>? profile) {
     final status = profile?['verification_status'] ?? 'unsubmitted';
     final String statusLabel = status == 'approved' ? 'Verified' : (status == 'pending' ? 'Reviewing' : 'Register');
-    final Color statusColor = status == 'approved' ? const Color(0xFF10B981) : (status == 'pending' ? const Color(0xFFF59E0B) : const Color(0xFF0F62FE));
+    final Color statusColor = status == 'approved' ? AppColors.success : (status == 'pending' ? AppColors.warning : AppColors.primary);
 
     return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
-          _buildMenuTile(Icons.person_rounded, 'Personal Information', primaryColor, onTap: () => context.push('/settings-privacy')),
-          _buildMenuTile(Icons.verified_rounded, 'Practitioner Registration', primaryColor, badge: statusLabel, badgeColor: statusColor, onTap: () => context.push('/verify-practitioner')),
-          _buildMenuTile(Icons.folder_shared_rounded, 'Medical Records', primaryColor, onTap: () => context.push('/vault')),
-          _buildMenuTile(Icons.payment_rounded, 'My Credits & Billing', primaryColor, onTap: () => context.push('/credits')),
-          _buildMenuTile(Icons.notifications_rounded, 'Notifications', primaryColor, onTap: () => context.push('/notifications')),
-          _buildMenuTile(Icons.help_center_rounded, 'Help & Support', primaryColor, isLast: true, onTap: () {
+          _buildMenuTile(context, Icons.person_rounded, 'Personal Information', onTap: () => context.push('/settings-privacy')),
+          _buildMenuTile(context, Icons.verified_rounded, 'Practitioner Registration', badge: statusLabel, badgeColor: statusColor, onTap: () => context.push('/verify-practitioner')),
+          _buildMenuTile(context, Icons.folder_shared_rounded, 'Medical Records', onTap: () => context.push('/vault')),
+          _buildMenuTile(context, Icons.payment_rounded, 'My Credits & Billing', onTap: () => context.push('/credits')),
+          _buildMenuTile(context, Icons.notifications_rounded, 'Notifications', onTap: () => context.push('/notifications')),
+          _buildMenuTile(context, Icons.help_center_rounded, 'Help & Support', isLast: true, onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Support: support@premoncare.com | WhatsApp: +234 800 000 0000'), duration: Duration(seconds: 4)),
             );
@@ -294,24 +293,24 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuTile(IconData icon, String title, Color primaryColor, {String? badge, Color? badgeColor, VoidCallback? onTap, bool isLast = false}) {
+  Widget _buildMenuTile(BuildContext context, IconData icon, String title, {String? badge, Color? badgeColor, VoidCallback? onTap, bool isLast = false}) {
     return Column(
       children: [
         ListTile(
           onTap: onTap,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-          leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: primaryColor, size: 20)),
-          title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+          leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: AppColors.primary, size: 20)),
+          title: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimaryOf(context))),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (badge != null) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: badgeColor!.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)), child: Text(badge, style: TextStyle(color: badgeColor, fontSize: 10, fontWeight: FontWeight.w900))),
               const SizedBox(width: 8),
-              const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+              Icon(Icons.chevron_right_rounded, color: AppColors.slate300),
             ],
           ),
         ),
-        if (!isLast) const Divider(height: 1, indent: 72, endIndent: 24, color: Color(0xFFF1F5F9)),
+        if (!isLast) Divider(height: 1, indent: 72, endIndent: 24, color: AppColors.borderLightOf(context)),
       ],
     );
   }
@@ -344,4 +343,3 @@ class _MeshCircle extends StatelessWidget {
     );
   }
 }
-

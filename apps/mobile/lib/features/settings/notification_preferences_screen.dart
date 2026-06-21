@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 
@@ -21,6 +22,31 @@ class _NotificationPreferencesScreenState extends State<NotificationPreferencesS
   bool _marketingEmails = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _pushEnabled = prefs.getBool('notif_push') ?? true;
+      _emailEnabled = prefs.getBool('notif_email') ?? false;
+      _appointmentAlerts = prefs.getBool('notif_appointments') ?? true;
+      _paymentAlerts = prefs.getBool('notif_payments') ?? true;
+      _clinicalAlerts = prefs.getBool('notif_clinical') ?? true;
+      _forumUpdates = prefs.getBool('notif_forum') ?? false;
+      _emergencyAlerts = prefs.getBool('notif_emergency') ?? true;
+      _marketingEmails = prefs.getBool('notif_marketing') ?? false;
+    });
+  }
+
+  Future<void> _savePreference(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final color = AppColors.textPrimaryOf(context);
 
@@ -40,17 +66,17 @@ class _NotificationPreferencesScreenState extends State<NotificationPreferencesS
         children: [
           Text('CHANNELS', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggleTile(icon: Icons.notifications_active_rounded, color: AppColors.primary, title: 'Push Notifications', subtitle: 'Receive alerts on your device', value: _pushEnabled, onChanged: (v) => setState(() => _pushEnabled = v)),
-          _buildToggleTile(icon: Icons.email_outlined, color: AppColors.warning, title: 'Email Notifications', subtitle: 'Receive alerts via email', value: _emailEnabled, onChanged: (v) => setState(() => _emailEnabled = v)),
+          _buildToggleTile(icon: Icons.notifications_active_rounded, color: AppColors.primary, title: 'Push Notifications', subtitle: 'Receive alerts on your device', value: _pushEnabled, onChanged: (v) { setState(() => _pushEnabled = v); _savePreference('notif_push', v); }),
+          _buildToggleTile(icon: Icons.email_outlined, color: AppColors.warning, title: 'Email Notifications', subtitle: 'Receive alerts via email', value: _emailEnabled, onChanged: (v) { setState(() => _emailEnabled = v); _savePreference('notif_email', v); }),
           const SizedBox(height: 24),
           Text('CATEGORIES', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggleTile(icon: Icons.calendar_today_rounded, color: AppColors.success, title: 'Appointment Alerts', subtitle: 'Reminders for upcoming consultations', value: _appointmentAlerts, onChanged: (v) => setState(() => _appointmentAlerts = v)),
-          _buildToggleTile(icon: Icons.payment_rounded, color: AppColors.info, title: 'Payment Alerts', subtitle: 'Transaction confirmations and receipts', value: _paymentAlerts, onChanged: (v) => setState(() => _paymentAlerts = v)),
-          _buildToggleTile(icon: Icons.medical_services_rounded, color: const Color(0xFF8B5CF6), title: 'Clinical Updates', subtitle: 'Prescription updates and health records', value: _clinicalAlerts, onChanged: (v) => setState(() => _clinicalAlerts = v)),
-          _buildToggleTile(icon: Icons.forum_rounded, color: const Color(0xFFEC4899), title: 'Forum Updates', subtitle: 'Replies and mentions in the community', value: _forumUpdates, onChanged: (v) => setState(() => _forumUpdates = v)),
-          _buildToggleTile(icon: Icons.emergency_rounded, color: AppColors.error, title: 'Emergency Alerts', subtitle: 'Critical emergency notifications', value: _emergencyAlerts, onChanged: (v) => setState(() => _emergencyAlerts = v)),
-          _buildToggleTile(icon: Icons.campaign_rounded, color: AppColors.textTertiaryOf(context), title: 'Marketing Emails', subtitle: 'Product updates and health tips', value: _marketingEmails, onChanged: (v) => setState(() => _marketingEmails = v)),
+          _buildToggleTile(icon: Icons.calendar_today_rounded, color: AppColors.success, title: 'Appointment Alerts', subtitle: 'Reminders for upcoming consultations', value: _appointmentAlerts, onChanged: (v) { setState(() => _appointmentAlerts = v); _savePreference('notif_appointments', v); }),
+          _buildToggleTile(icon: Icons.payment_rounded, color: AppColors.info, title: 'Payment Alerts', subtitle: 'Transaction confirmations and receipts', value: _paymentAlerts, onChanged: (v) { setState(() => _paymentAlerts = v); _savePreference('notif_payments', v); }),
+_buildToggleTile(icon: Icons.medical_services_rounded, color: AppColors.primary, title: 'Clinical Updates', subtitle: 'Prescription updates and health records', value: _clinicalAlerts, onChanged: (v) { setState(() => _clinicalAlerts = v); _savePreference('notif_clinical', v); }),
+_buildToggleTile(icon: Icons.forum_rounded, color: AppColors.pink, title: 'Forum Updates', subtitle: 'Replies and mentions in the community', value: _forumUpdates, onChanged: (v) { setState(() => _forumUpdates = v); _savePreference('notif_forum', v); }),
+          _buildToggleTile(icon: Icons.emergency_rounded, color: AppColors.error, title: 'Emergency Alerts', subtitle: 'Critical emergency notifications', value: _emergencyAlerts, onChanged: (v) { setState(() => _emergencyAlerts = v); _savePreference('notif_emergency', v); }),
+          _buildToggleTile(icon: Icons.campaign_rounded, color: AppColors.textTertiaryOf(context), title: 'Marketing Emails', subtitle: 'Product updates and health tips', value: _marketingEmails, onChanged: (v) { setState(() => _marketingEmails = v); _savePreference('notif_marketing', v); }),
         ],
       ),
     );

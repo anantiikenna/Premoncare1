@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
@@ -36,7 +37,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
       .toString()
       .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
 
-  Color get _primaryColor => widget.isEmergency ? const Color(0xFFEF4444) : const Color(0xFF0F62FE);
+  Color get _primaryColor => widget.isEmergency ? AppColors.error : AppColors.primary;
 
   Future<void> _confirmBooking() async {
     setState(() { _isLoading = true; _error = null; });
@@ -54,7 +55,6 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
         await prefs.setString('premon_guest_token', guestToken);
       }
 
-      // Insert the appointment record
       final insertPayload = {
         'patient_id': userId,
         'doctor_id': widget.doctorId,
@@ -75,7 +75,6 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
       final insertResponse = await supabase.from('appointments').insert(insertPayload).select('id').single();
       final appointmentId = insertResponse['id'] as String;
 
-      // Send in-app notification to doctor (direct DB insert for real-time)
       try {
         await supabase.from('notifications').insert({
           'user_id': widget.doctorId,
@@ -85,11 +84,8 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
           'is_read': false,
           'metadata': {'appointment_id': appointmentId},
         });
-      } catch (_) {
-        // Non-fatal: notification failure shouldn't block booking
-      }
+      } catch (_) {}
 
-      // Dispatch FCM push + email via web notification pipeline
       try {
         final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
         await http.post(
@@ -110,13 +106,10 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
             },
           }),
         );
-      } catch (_) {
-        // Non-fatal: push/email failure shouldn't block booking
-      }
+      } catch (_) {}
 
       if (mounted) {
         if (widget.isEmergency) {
-          // Emergency: redirect to waiting screen where patient waits for doctor acceptance
           context.go(
             '/emergency-waiting',
             extra: {
@@ -128,7 +121,6 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
             },
           );
         } else {
-          // Regular: redirect to booking confirmed
           context.go(
             '/booking-confirmed',
             extra: {
@@ -153,7 +145,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
           Positioned(
@@ -173,35 +165,35 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 24),
-                        _buildSectionTitle('SPECIALIST REVIEW'),
+                        _buildSectionTitle(context, 'SPECIALIST REVIEW'),
                         const SizedBox(height: 16),
-                        _buildDoctorMiniCard(),
+                        _buildDoctorMiniCard(context),
                         const SizedBox(height: 32),
-                        _buildSectionTitle('APPOINTMENT TIMELINE'),
+                        _buildSectionTitle(context, 'APPOINTMENT TIMELINE'),
                         const SizedBox(height: 16),
-                        _buildTimelineDetails(),
+                        _buildTimelineDetails(context),
                         const SizedBox(height: 32),
-                        _buildSectionTitle('FINANCIAL SUMMARY'),
+                        _buildSectionTitle(context, 'FINANCIAL SUMMARY'),
                         const SizedBox(height: 16),
-                        _buildPaymentSummary(),
+                        _buildPaymentSummary(context),
                         const SizedBox(height: 32),
-                        if (widget.isEmergency) _buildEmergencyWarning(),
+                        if (widget.isEmergency) _buildEmergencyWarning(context),
                         const SizedBox(height: 32),
-                        _buildSecurityNote(),
+                        _buildSecurityNote(context),
                         if (_error != null) ...[
                           const SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFEE2E2),
+                              color: AppColors.errorLightOf(context),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.error_outline, color: Color(0xFFEF4444), size: 18),
+                                Icon(Icons.error_outline, color: AppColors.error, size: 18),
                                 const SizedBox(width: 12),
                                 Expanded(
-                                  child: Text(_error!, style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 13, fontWeight: FontWeight.w600)),
+                                  child: Text(_error!, style: TextStyle(color: AppColors.error, fontSize: 13, fontWeight: FontWeight.w600)),
                                 ),
                               ],
                             ),
@@ -222,8 +214,8 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 1.5));
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 1.5));
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -236,13 +228,13 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
             onTap: () => context.pop(),
             child: Container(
               width: 44, height: 44,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE2E8F0))),
-              child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
+              decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.borderOf(context))),
+              child: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 20),
             ),
           ),
           Text(
             widget.isEmergency ? 'Emergency Review' : 'Final Review',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5),
           ),
           const SizedBox(width: 44),
         ],
@@ -250,11 +242,11 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
     );
   }
 
-  Widget _buildDoctorMiniCard() {
+  Widget _buildDoctorMiniCard(BuildContext context) {
     final displayName = widget.doctorName.startsWith('Dr.') ? widget.doctorName : 'Dr. ${widget.doctorName}';
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
           const GenericUserAvatar(radius: 28, avatarUrl: null),
@@ -263,22 +255,22 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(displayName, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E293B))),
-                Text('${widget.durationMinutes} min session', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w700)),
+                Text(displayName, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context))),
+                Text('${widget.durationMinutes} min session', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 12, fontWeight: FontWeight.w700)),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-            child: const Text('VERIFIED', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
+            decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+            child: Text('VERIFIED', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppColors.success)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineDetails() {
+  Widget _buildTimelineDetails(BuildContext context) {
     final now = DateTime.now().add(const Duration(hours: 1));
     final end = now.add(Duration(minutes: widget.durationMinutes));
     final dateStr = '${now.day} ${_monthName(now.month)} ${now.year}';
@@ -286,22 +278,22 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
-          _buildTimelineRow(Icons.calendar_today_rounded, 'Schedule', dateStr),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
-          _buildTimelineRow(Icons.access_time_rounded, 'Duration', '${widget.durationMinutes} minutes'),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
-          _buildTimelineRow(Icons.videocam_rounded, 'Timing', timeStr),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
-          _buildTimelineRow(Icons.videocam_rounded, 'Consult Type', widget.isEmergency ? 'Emergency Session' : 'HD Video Session'),
+          _buildTimelineRow(context, Icons.calendar_today_rounded, 'Schedule', dateStr),
+          Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.dividerOf(context))),
+          _buildTimelineRow(context, Icons.access_time_rounded, 'Duration', '${widget.durationMinutes} minutes'),
+          Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.dividerOf(context))),
+          _buildTimelineRow(context, Icons.videocam_rounded, 'Timing', timeStr),
+          Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.dividerOf(context))),
+          _buildTimelineRow(context, Icons.videocam_rounded, 'Consult Type', widget.isEmergency ? 'Emergency Session' : 'HD Video Session'),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineRow(IconData icon, String label, String value) {
+  Widget _buildTimelineRow(BuildContext context, IconData icon, String label, String value) {
     return Row(
       children: [
         Container(
@@ -310,31 +302,31 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
           child: Icon(icon, color: _primaryColor, size: 18),
         ),
         const SizedBox(width: 16),
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8))),
+        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
         const Spacer(),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
       ],
     );
   }
 
-  Widget _buildPaymentSummary() {
+  Widget _buildPaymentSummary(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: _primaryColor.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
-          _buildPriceRow('Consultation Fee', '₦$_amountStr'),
+          _buildPriceRow(context, 'Consultation Fee', '₦$_amountStr'),
           const SizedBox(height: 12),
-          _buildPriceRow('Platform Service', 'FREE', isSpecial: true),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
+          _buildPriceRow(context, 'Platform Service', 'FREE', isSpecial: true),
+          Padding(padding: const EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: AppColors.dividerOf(context))),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total Payable', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E293B))),
+              Text('Total Payable', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context))),
               Text('₦$_amountStr', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 24, color: _primaryColor, letterSpacing: -0.5)),
             ],
           ),
@@ -343,17 +335,17 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
     );
   }
 
-  Widget _buildPriceRow(String label, String value, {bool isSpecial = false}) {
+  Widget _buildPriceRow(BuildContext context, String label, String value, {bool isSpecial = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: isSpecial ? const Color(0xFF10B981) : const Color(0xFF1E293B))),
+        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context))),
+        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: isSpecial ? AppColors.success : AppColors.textPrimaryOf(context))),
       ],
     );
   }
 
-  Widget _buildEmergencyWarning() {
+  Widget _buildEmergencyWarning(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -361,14 +353,14 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: _primaryColor.withValues(alpha: 0.1)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.flash_on_rounded, color: Color(0xFFEF4444)),
-          SizedBox(width: 16),
+          Icon(Icons.flash_on_rounded, color: AppColors.error),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               'Emergency mode triggers instant notification to the specialist for immediate clinical attention.',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFB91C1C), height: 1.4),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.error, height: 1.4),
             ),
           ),
         ],
@@ -376,15 +368,15 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
     );
   }
 
-  Widget _buildSecurityNote() {
-    return const Center(
+  Widget _buildSecurityNote(BuildContext context) {
+    return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.lock_rounded, size: 14, color: Color(0xFF94A3B8)),
-          SizedBox(width: 8),
+          Icon(Icons.lock_rounded, size: 14, color: AppColors.textTertiaryOf(context)),
+          const SizedBox(width: 8),
           Text('End-to-end encrypted booking & clinical records',
-              style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w700)),
+              style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700)),
         ],
       ),
     );
@@ -396,8 +388,8 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 40, offset: const Offset(0, -10))],
+          color: AppColors.surfaceOf(context),
+          boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 40, offset: const Offset(0, -10))],
         ),
         child: SizedBox(
           height: 64,

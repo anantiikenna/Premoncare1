@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'patient_dashboard.dart';
@@ -34,18 +35,18 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
       isScrollControlled: true,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Account Menu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+            Text('Account Menu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.person_outline_rounded, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.person_outline_rounded, color: AppColors.primary),
               title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -53,7 +54,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.folder_shared_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.folder_shared_outlined, color: AppColors.primary),
               title: const Text('Medical Records', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -61,7 +62,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.verified_user_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.verified_user_outlined, color: AppColors.primary),
               title: const Text('Permissions', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -69,7 +70,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.account_balance_wallet_outlined, color: AppColors.primary),
               title: const Text('Credits', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -77,7 +78,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.settings_outlined, color: Color(0xFF0F62FE)),
+              leading: const Icon(Icons.settings_outlined, color: AppColors.primary),
               title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -86,8 +87,8 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
             ),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Colors.red),
-              title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              leading: const Icon(Icons.logout_rounded, color: AppColors.error),
+              title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
                 await supabase.auth.signOut();
@@ -104,9 +105,9 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         title: Image.asset(
           'assets/logo-horizontal.png',
@@ -118,22 +119,22 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
-                  child: Text('P', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: Text('P', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
               ),
               const SizedBox(width: 8),
-              const Text('Premon', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 18, fontWeight: FontWeight.bold)),
-              const Text('Care', style: TextStyle(color: Color(0xFF10B981), fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Premon', style: TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Care', style: TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B)),
+            icon: const Icon(Icons.notifications_none_rounded, color: AppColors.slate800),
             onPressed: () => context.push('/notifications'),
           ),
           const SizedBox(width: 4),
@@ -150,12 +151,12 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+            const BoxShadow(
+              color: AppColors.shadowLight,
               blurRadius: 20,
-              offset: const Offset(0, -5),
+              offset: Offset(0, -5),
             ),
           ],
         ),
@@ -236,7 +237,7 @@ class _NavBarItem extends StatelessWidget {
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected ? const Color(0xFF0F62FE) : const Color(0xFF94A3B8),
+              color: isSelected ? AppColors.primary : AppColors.textTertiaryOf(context),
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -245,7 +246,7 @@ class _NavBarItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                color: isSelected ? const Color(0xFF0F62FE) : const Color(0xFF94A3B8),
+                color: isSelected ? AppColors.primary : AppColors.textTertiaryOf(context),
               ),
             ),
           ],

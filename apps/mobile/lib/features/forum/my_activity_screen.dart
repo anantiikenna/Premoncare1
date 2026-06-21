@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'forum_provider.dart';
@@ -19,15 +20,15 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2042)),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
-        title: const Text('My Activity', style: TextStyle(color: Color(0xFF0F2042), fontWeight: FontWeight.bold)),
+        title: Text('My Activity', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.bold)),
         actions: [
           const Padding(
             padding: EdgeInsets.only(right: 16.0),
@@ -50,7 +51,7 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
     final tabs = ['My Posts', 'Saved', 'Following'];
 
     return Container(
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[200]!))),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.borderOf(context)))),
       child: Row(
         children: tabs.asMap().entries.map((entry) {
           final index = entry.key;
@@ -62,7 +63,7 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  border: isSelected ? const Border(bottom: BorderSide(color: Color(0xFF0F62FE), width: 2)) : null,
+                  border: isSelected ? Border(bottom: BorderSide(color: AppColors.primary, width: 2)) : null,
                 ),
                 child: Text(
                   title,
@@ -70,7 +71,7 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                    color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[500],
+                    color: isSelected ? AppColors.primary : AppColors.textSecondaryOf(context),
                   ),
                 ),
               ),
@@ -193,11 +194,11 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.grey[300], size: 56),
+            Icon(icon, color: AppColors.textTertiaryOf(context), size: 56),
             const SizedBox(height: 16),
-            Text(title, style: TextStyle(color: Colors.grey[600], fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(subtitle, style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+            Text(subtitle, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13)),
           ],
         ),
       ),
@@ -214,9 +215,9 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
+          border: Border.all(color: AppColors.borderOf(context)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,16 +226,16 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
               children: [
                 CircleAvatar(
                   radius: 14,
-                  backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                  child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF0F62FE))),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: Text(authorInitial, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppColors.primary)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(post.authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F2042))),
-                      Text(timeAgo, style: TextStyle(color: Colors.grey[500], fontSize: 10)),
+                      Text(post.authorName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textPrimaryOf(context))),
+                      Text(timeAgo, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
                     ],
                   ),
                 ),
@@ -247,23 +248,23 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(post.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F2042))),
+            Text(post.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 6),
-            Text(post.content, style: TextStyle(color: Colors.grey[600], fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(post.content, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.chat_bubble_outline, size: 14, color: Colors.grey[400]),
+                Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.textTertiaryOf(context)),
                 const SizedBox(width: 4),
-                Text('${post.replyCount}', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text('${post.replyCount}', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
                 const SizedBox(width: 16),
-                Icon(Icons.favorite_border, size: 14, color: Colors.red[300]),
+                Icon(Icons.favorite_border, size: 14, color: AppColors.error),
                 const SizedBox(width: 4),
-                Text('${post.upvotes}', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text('${post.upvotes}', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
                 const SizedBox(width: 16),
-                Icon(Icons.visibility_outlined, size: 14, color: Colors.grey[400]),
+                Icon(Icons.visibility_outlined, size: 14, color: AppColors.textTertiaryOf(context)),
                 const SizedBox(width: 4),
-                Text('${post.viewCount}', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text('${post.viewCount}', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
               ],
             ),
           ],

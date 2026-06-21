@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/providers.dart';
 import 'patient_providers.dart';
 
@@ -10,13 +11,12 @@ class PatientDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userProfileProvider);
-    const primaryColor = Color(0xFF0F62FE);
+    const primaryColor = AppColors.primary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Signature mesh background
           Positioned(
             top: -150,
             right: -100,
@@ -30,7 +30,7 @@ class PatientDashboard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  _buildHeader(userAsync),
+                  _buildHeader(context, userAsync),
                   const SizedBox(height: 32),
                   _buildSearchHub(),
                   const SizedBox(height: 32),
@@ -38,7 +38,7 @@ class PatientDashboard extends ConsumerWidget {
                   const SizedBox(height: 32),
                   _buildActionGrid(context, primaryColor),
                   const SizedBox(height: 40),
-                  _buildSectionHeader('TOP SPECIALISTS', onSeeAll: () => context.push('/doctor-search')),
+                  _buildSectionHeader(context, 'TOP SPECIALISTS', onSeeAll: () => context.push('/doctor-search')),
                   const SizedBox(height: 16),
                   _buildDoctorList(ref),
                   const SizedBox(height: 40),
@@ -51,30 +51,30 @@ class PatientDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(AsyncValue<Map<String, dynamic>?> userAsync) {
+  Widget _buildHeader(BuildContext context, AsyncValue<Map<String, dynamic>?> userAsync) {
     return userAsync.when(
       data: (profile) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Good Morning,', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600)),
+          Text('Good Morning,', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
           Text(
             '${profile?['full_name']?.split(' ')[0] ?? 'Patient'} 👋',
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0),
           ),
         ],
       ),
-      loading: () => const Column(
+      loading: () => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Good Morning,', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600)),
-          Text('...', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
+          Text('Good Morning,', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+          const Text('...', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
         ],
       ),
-      error: (_, _) => const Column(
+      error: (_, _) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Good Morning,', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600)),
-          Text('Welcome 👋', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
+          Text('Good Morning,', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+          const Text('Welcome 👋', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
         ],
       ),
     );
@@ -86,14 +86,14 @@ class PatientDashboard extends ConsumerWidget {
       onTap: () => context.push('/doctor-search'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFF1F5F9)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))]),
-        child: const Row(
+        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))]),
+        child: Row(
           children: [
-            Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 20),
-            SizedBox(width: 16),
-            Text('Search specialists, clinic...', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w600)),
-            Spacer(),
-            Icon(Icons.tune_rounded, color: Color(0xFF64748B), size: 20),
+            Icon(Icons.search_rounded, color: AppColors.textTertiaryOf(context), size: 20),
+            const SizedBox(width: 16),
+            Text('Search specialists, clinic...', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            Icon(Icons.tune_rounded, color: AppColors.textSecondaryOf(context), size: 20),
           ],
         ),
       ),
@@ -168,19 +168,19 @@ class PatientDashboard extends ConsumerWidget {
       children: [
         _ActionCard(icon: Icons.calendar_today_rounded, label: 'Book Now', sublabel: 'Specialists', color: primaryColor, onPress: () => context.push('/doctor-search')),
         const SizedBox(width: 16),
-        _ActionCard(icon: Icons.description_rounded, label: 'Records', sublabel: 'Medical Vault', color: const Color(0xFF10B981), onPress: () => context.push('/vault')),
+        _ActionCard(icon: Icons.description_rounded, label: 'Records', sublabel: 'Medical Vault', color: AppColors.success, onPress: () => context.push('/vault')),
         const SizedBox(width: 16),
-        _ActionCard(icon: Icons.account_balance_wallet_rounded, label: 'Credits', sublabel: 'P2P Top-up', color: const Color(0xFF6366F1), onPress: () => context.push('/credits')),
+        _ActionCard(icon: Icons.account_balance_wallet_rounded, label: 'Credits', sublabel: 'P2P Top-up', color: AppColors.primary, onPress: () => context.push('/credits')),
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title, {required VoidCallback onSeeAll}) {
+  Widget _buildSectionHeader(BuildContext context, String title, {required VoidCallback onSeeAll}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 1.5)),
-        TextButton(onPressed: onSeeAll, child: const Text('See All', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.w800, fontSize: 13))),
+        Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 1.5)),
+        TextButton(onPressed: onSeeAll, child: const Text('See All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13))),
       ],
     );
   }
@@ -253,14 +253,14 @@ class _ActionCard extends StatelessWidget {
         onTap: onPress,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 24),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFF1F5F9)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))]),
+          decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))]),
           child: Column(
             children: [
               Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.05), shape: BoxShape.circle), child: Icon(icon, color: color, size: 24)),
               const SizedBox(height: 16),
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF1E293B))),
+              Text(label, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.textPrimaryOf(context))),
               const SizedBox(height: 2),
-              Text(sublabel, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.w700)),
+              Text(sublabel, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10, fontWeight: FontWeight.w700)),
             ],
           ),
         ),
@@ -284,13 +284,13 @@ class _DoctorListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
           CircleAvatar(
             radius: 36,
-            backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-            child: Text(initial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Color(0xFF0F62FE))),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            child: Text(initial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: AppColors.primary)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -300,21 +300,21 @@ class _DoctorListItem extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis)),
-                    Text(price, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF0F62FE))),
+                    Expanded(child: Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context)), overflow: TextOverflow.ellipsis)),
+                    Text(price, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppColors.primary)),
                   ],
                 ),
-                Text(specialty, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(specialty, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Color(0xFFFACC15), size: 16),
+                    const Icon(Icons.star_rounded, color: AppColors.warning, size: 16),
                     const SizedBox(width: 4),
-                    Text(rating, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Color(0xFF1E293B))),
+                    Text(rating, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: AppColors.textPrimaryOf(context))),
                     const SizedBox(width: 4),
-                    Text('($reviews reviews)', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.w600)),
+                    Text('($reviews reviews)', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
                     const Spacer(),
-                    Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8)), child: Text(experience, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w800))),
+                    Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(8)), child: Text(experience, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w800))),
                   ],
                 ),
               ],
@@ -343,5 +343,3 @@ class _MeshCircle extends StatelessWidget {
     );
   }
 }
-
-

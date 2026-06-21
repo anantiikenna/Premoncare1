@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import 'messaging_provider.dart';
 
@@ -60,16 +61,15 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   Widget build(BuildContext context) {
     final messagesAsync = ref.watch(chatMessagesProvider(widget.partnerId));
     final currentUserId = supabase.auth.currentUser?.id;
-    const primaryColor = Color(0xFF0F62FE);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF1E293B)),
+          icon: Icon(Icons.chevron_left, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
         titleSpacing: 0,
@@ -88,7 +88,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                         image: _partnerProfile!['avatar_url'] != null
                             ? DecorationImage(image: NetworkImage(_partnerProfile!['avatar_url']), fit: BoxFit.cover)
                             : null,
-                        color: primaryColor.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                       ),
                       child: _partnerProfile!['avatar_url'] == null ? const Icon(Icons.person, size: 20) : null,
                     ),
@@ -96,7 +96,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       Container(
                         width: 12,
                         height: 12,
-                        decoration: BoxDecoration(color: const Color(0xFF10B981), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
+                        decoration: BoxDecoration(color: AppColors.success, shape: BoxShape.circle, border: Border.all(color: AppColors.surfaceOf(context), width: 2)),
                       ),
                   ],
                 ),
@@ -104,10 +104,10 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_partnerProfile!['full_name'], style: const TextStyle(color: Color(0xFF1E293B), fontSize: 15, fontWeight: FontWeight.w900)),
+                    Text(_partnerProfile!['full_name'], style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.w900)),
                     Text(
                       '${_partnerProfile!['specialty'] ?? 'Specialist'} • ${_partnerProfile!['is_online'] == true ? 'Online' : 'Offline'}',
-                      style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -115,11 +115,11 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.phone, color: Color(0xFF0F62FE), size: 18),
+            icon: Icon(Icons.phone, color: AppColors.primary, size: 18),
             onPressed: () => context.push('/appointments'),
           ),
           IconButton(
-            icon: const Icon(Icons.videocam, color: Color(0xFF0F62FE), size: 20),
+            icon: Icon(Icons.videocam, color: AppColors.primary, size: 20),
             onPressed: () => context.push('/appointments'),
           ),
           const SizedBox(width: 8),
@@ -127,19 +127,18 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
       ),
       body: Column(
         children: [
-          // Encryption Banner
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(color: const Color(0xFFF1F5F9).withValues(alpha: 0.5)),
+            decoration: BoxDecoration(color: AppColors.borderLightOf(context).withValues(alpha: 0.5)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.verified, color: Color(0xFF10B981), size: 14),
+                Icon(Icons.verified, color: AppColors.success, size: 14),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'Messages and data are end-to-end encrypted.',
-                  style: TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 10, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -147,7 +146,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           Expanded(
             child: messagesAsync.when(
               data: (messages) {
-                if (messages.isEmpty) return _buildEmptyState(primaryColor);
+                if (messages.isEmpty) return _buildEmptyState();
                 final reversedMessages = messages.reversed.toList();
                 
                 return ListView.builder(
@@ -159,7 +158,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     final msg = reversedMessages[index];
                     final isMe = msg.senderId == currentUserId;
                     
-                    // Add date header or unread divider
                     bool showUnreadDivider = false;
                     if (index > 0 && !msg.isRead && !isMe && reversedMessages[index - 1].isRead) {
                       showUnreadDivider = true;
@@ -168,17 +166,17 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     return Column(
                       children: [
                         if (showUnreadDivider) _buildUnreadDivider(),
-                        _MessageBubble(message: msg, isMe: isMe, primaryColor: primaryColor, partnerAvatar: _partnerProfile?['avatar_url']),
+                        _MessageBubble(message: msg, isMe: isMe, primaryColor: AppColors.primary, partnerAvatar: _partnerProfile?['avatar_url']),
                       ],
                     );
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: primaryColor)),
+              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
               error: (err, _) => Center(child: Text('Error: $err')),
             ),
           ),
-          _buildInputArea(primaryColor),
+          _buildInputArea(),
         ],
       ),
     );
@@ -189,44 +187,44 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
       margin: const EdgeInsets.symmetric(vertical: 24),
       child: Row(
         children: [
-          Expanded(child: Container(height: 1, color: const Color(0xFF0F62FE).withValues(alpha: 0.2))),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('1 Unread Message', style: TextStyle(color: Color(0xFF0F62FE), fontSize: 11, fontWeight: FontWeight.w900)),
+          Expanded(child: Container(height: 1, color: AppColors.primary.withValues(alpha: 0.2))),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text('1 Unread Message', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w900)),
           ),
-          Expanded(child: Container(height: 1, color: const Color(0xFF0F62FE).withValues(alpha: 0.2))),
+          Expanded(child: Container(height: 1, color: AppColors.primary.withValues(alpha: 0.2))),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyState(Color primaryColor) {
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), shape: BoxShape.circle),
-            child: Icon(Icons.chat_bubble, size: 48, color: primaryColor.withValues(alpha: 0.2)),
+            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), shape: BoxShape.circle),
+            child: Icon(Icons.chat_bubble, size: 48, color: AppColors.primary.withValues(alpha: 0.2)),
           ),
           const SizedBox(height: 24),
-          const Text('Start your consultation', style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w900)),
+          Text('Start your consultation', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 48),
-            child: Text('Feel free to ask questions or share symptoms with your specialist.', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF64748B), fontSize: 13, height: 1.5)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
+            child: Text('Feel free to ask questions or share symptoms with your specialist.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, height: 1.5)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInputArea(Color primaryColor) {
+  Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))],
       ),
       child: Column(
@@ -235,25 +233,25 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () => _showAttachmentSheet(context, primaryColor),
+                  onTap: () => _showAttachmentSheet(context),
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-                    child: const Icon(Icons.add, color: Color(0xFF64748B), size: 20),
+                    decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(12)),
+                    child: Icon(Icons.add, color: AppColors.textSecondaryOf(context), size: 20),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(16)),
+                    decoration: BoxDecoration(color: AppColors.backgroundOf(context), borderRadius: BorderRadius.circular(16)),
                     child: TextField(
                       controller: _messageController,
                       maxLines: null,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Type a message...',
-                        hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                        hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
                   ),
@@ -263,7 +261,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   onTap: _sendMessage,
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(color: Color(0xFF0F62FE), shape: BoxShape.circle),
+                    decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                     child: const Icon(Icons.send, color: Colors.white, size: 20),
                   ),
                 ),
@@ -276,15 +274,15 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     );
   }
 
-  void _showAttachmentSheet(BuildContext context, Color primaryColor) {
+  void _showAttachmentSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -294,19 +292,19 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               children: [
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(Icons.description, 'Prescription', const Color(0xFF10B981)),
+                  child: _buildAttachmentOption(Icons.description, 'Prescription', AppColors.success),
                 ),
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(Icons.assignment, 'Reports', const Color(0xFF0F62FE)),
+                  child: _buildAttachmentOption(Icons.assignment, 'Reports', AppColors.primary),
                 ),
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(Icons.image, 'Images', const Color(0xFF8B5CF6)),
+                  child: _buildAttachmentOption(Icons.image, 'Images', AppColors.primary),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: _buildAttachmentOption(Icons.location_on, 'Location', const Color(0xFF06B6D4)),
+                  child: _buildAttachmentOption(Icons.location_on, 'Location', AppColors.info),
                 ),
               ],
             ),
@@ -326,7 +324,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           child: Icon(icon, color: color, size: 24),
         ),
         const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF64748B))),
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondaryOf(context))),
       ],
     );
   }
@@ -364,7 +362,7 @@ class _MessageBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isMe ? primaryColor : Colors.white,
+                color: isMe ? primaryColor : AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
@@ -378,7 +376,7 @@ class _MessageBubble extends StatelessWidget {
                 children: [
                   Text(
                     message.content,
-                    style: TextStyle(color: isMe ? Colors.white : const Color(0xFF1E293B), fontSize: 13, height: 1.5, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: isMe ? Colors.white : AppColors.textPrimaryOf(context), fontSize: 13, height: 1.5, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -386,11 +384,11 @@ class _MessageBubble extends StatelessWidget {
                     children: [
                       Text(
                         _formatTime(message.createdAt),
-                        style: TextStyle(color: (isMe ? Colors.white70 : const Color(0xFF94A3B8)), fontSize: 9, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: (isMe ? Colors.white70 : AppColors.textTertiaryOf(context)), fontSize: 9, fontWeight: FontWeight.bold),
                       ),
                       if (isMe) ...[
                         const SizedBox(width: 4),
-                        Icon(Icons.done_all, size: 12, color: message.isRead ? const Color(0xFF60A5FA) : Colors.white70),
+                        Icon(Icons.done_all, size: 12, color: message.isRead ? AppColors.info : Colors.white70),
                       ],
                     ],
                   ),

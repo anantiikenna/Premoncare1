@@ -73,14 +73,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
     }
   }
 
-  Color _getColor(String? type) {
+  Color _getColor(String? type, BuildContext context) {
     switch (type) {
       case 'appointment': return AppColors.primary;
       case 'payment': return AppColors.success;
-      case 'prescription': return const Color(0xFF8B5CF6);
-      case 'message': return const Color(0xFF06B6D4);
+      case 'prescription': return AppColors.primary;
+      case 'message': return AppColors.info;
       case 'system': return AppColors.error;
-      default: return AppColors.textSecondary;
+      default: return AppColors.textSecondaryOf(context);
     }
   }
 
@@ -101,7 +101,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
     final notificationsAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -109,7 +109,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+              icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
               onPressed: () => context.pop(),
             ),
             const SizedBox(width: 4),
@@ -127,11 +127,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
               children: [
                 Text('Notifications', style: AppTypography.h3),
                 notificationsAsync.when(
-                  loading: () => const Text('Loading...', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                  loading: () => Text('Loading...', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
                   error: (_, _) => const Text('Error', style: TextStyle(fontSize: 11, color: AppColors.error)),
                   data: (notifs) => Text(
                     '${notifs.where((n) => n['is_read'] == false).length} unread',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textTertiary, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -156,7 +156,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
           controller: _tabController,
           isScrollable: true,
           labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textTertiary,
+          unselectedLabelColor: AppColors.textTertiaryOf(context),
           labelStyle: AppTypography.labelMedium,
           indicatorColor: AppColors.primary,
           tabs: _tabs.map((t) => Tab(text: t)).toList(),
@@ -187,7 +187,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.notifications_none_rounded, color: AppColors.textTertiary, size: 56),
+                  Icon(Icons.notifications_none_rounded, color: AppColors.textTertiaryOf(context), size: 56),
                   const SizedBox(height: 16),
                   Text('No notifications yet', style: AppTypography.h4),
                   const SizedBox(height: 8),
@@ -208,7 +208,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
               final notif = filtered[index];
               final isRead = notif['is_read'] == true;
               final type = notif['type'] as String?;
-              final color = _getColor(type);
+              final color = _getColor(type, context);
               final icon = _getIcon(type);
 
               return GestureDetector(
@@ -224,10 +224,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isRead ? Colors.white : color.withValues(alpha: 0.03),
+                    color: isRead ? AppColors.surfaceOf(context) : color.withValues(alpha: 0.03),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isRead ? AppColors.border : color.withValues(alpha: 0.2),
+                      color: isRead ? AppColors.borderOf(context) : color.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
@@ -254,7 +254,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
                                     style: TextStyle(
                                       fontWeight: isRead ? FontWeight.w600 : FontWeight.w900,
                                       fontSize: 14,
-                                      color: AppColors.textPrimary,
+                                      color: AppColors.textPrimaryOf(context),
                                     ),
                                   ),
                                 ),
@@ -279,7 +279,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
                             const SizedBox(height: 8),
                             Text(
                               _timeAgo(notif['created_at']),
-                              style: AppTypography.labelSmall.copyWith(color: AppColors.textTertiary),
+                              style: AppTypography.labelSmall.copyWith(color: AppColors.textTertiaryOf(context)),
                             ),
                           ],
                         ),

@@ -2,10 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/app_colors.dart';
 import '../verification_provider.dart';
 
 class FacialStep extends ConsumerWidget {
-  const FacialStep({super.key});
+  FacialStep({super.key});
 
   Future<void> _pickImage(WidgetRef ref, ImageSource source) async {
     final picker = ImagePicker();
@@ -32,26 +33,25 @@ class FacialStep extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Security Header Box
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFF),
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEEF2FF)),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEEF2FF),
+                  color: AppColors.borderLightOf(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.verified_user_outlined, color: Color(0xFF4338CA), size: 24),
+                child: const Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -60,43 +60,41 @@ class FacialStep extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Color(0xFF1E1B4B),
+                        color: AppColors.textPrimaryOf(context),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'We use facial biometrics to verify you are the person on your identity document.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), height: 1.4),
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), height: 1.4),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.face_retouching_natural_outlined, size: 60, color: Color(0xFF818CF8)),
+              const Icon(Icons.face_retouching_natural_outlined, size: 60, color: AppColors.primaryLight),
             ],
           ),
         ),
         const SizedBox(height: 32),
 
-        // Camera Preview Simulation
-        const Center(
+        Center(
           child: Column(
             children: [
               Text(
                 'Take a live selfie',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E1B4B)),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimaryOf(context)),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Position your face in the center of the frame and follow the instructions to capture your photo.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context)),
               ),
             ],
           ),
         ),
         const SizedBox(height: 24),
 
-        // Simulated Camera Frame
         Center(
           child: Container(
             width: double.infinity,
@@ -113,7 +111,6 @@ class FacialStep extends ConsumerWidget {
             child: Stack(
               children: [
                 if (state.selfieUrl == null) ...[
-                  // Camera Indicators
                   Positioned(
                     top: 16,
                     left: 16,
@@ -125,7 +122,7 @@ class FacialStep extends ConsumerWidget {
                       ),
                       child: Row(
                         children: [
-                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
                           const SizedBox(width: 8),
                           const Text('Camera ready', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                         ],
@@ -141,7 +138,6 @@ class FacialStep extends ConsumerWidget {
                       child: const Icon(Icons.flash_off_rounded, color: Colors.white, size: 16),
                     ),
                   ),
-                  // Oval Overlay
                   Center(
                     child: Container(
                       width: 180,
@@ -152,7 +148,6 @@ class FacialStep extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  // Animated Oval segments (simplified)
                   Center(
                     child: Container(
                       width: 180,
@@ -162,11 +157,10 @@ class FacialStep extends ConsumerWidget {
                         value: 0.7,
                         strokeWidth: 4,
                         backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.success),
                       ),
                     ),
                   ),
-                  // Bottom text overlay
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -189,7 +183,7 @@ class FacialStep extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 80),
+                        Icon(Icons.check_circle_rounded, color: AppColors.success, size: 80),
                         SizedBox(height: 16),
                         Text('Selfie Captured Successfully', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ],
@@ -201,11 +195,10 @@ class FacialStep extends ConsumerWidget {
         ),
         const SizedBox(height: 32),
 
-        // Tips Section
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFF),
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -216,15 +209,15 @@ class FacialStep extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEEF2FF),
+                      color: AppColors.borderLightOf(context),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.lightbulb_outline_rounded, color: Color(0xFF4338CA), size: 18),
+                    child: const Icon(Icons.lightbulb_outline_rounded, color: AppColors.primary, size: 18),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'Tips for best results',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E1B4B)),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context)),
                   ),
                 ],
               ),
@@ -235,17 +228,17 @@ class FacialStep extends ConsumerWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        _buildTipRow('Use a well-lit environment'),
-                        _buildTipRow('Remove sunglasses or hats'),
-                        _buildTipRow('Look directly at the camera'),
+                        _buildTipRow(context, 'Use a well-lit environment'),
+                        _buildTipRow(context, 'Remove sunglasses or hats'),
+                        _buildTipRow(context, 'Look directly at the camera'),
                       ],
                     ),
                   ),
                   Expanded(
                     child: Column(
                       children: [
-                        _buildTipRow('Keep a neutral expression'),
-                        _buildTipRow('Ensure your face is clearly visible'),
+                        _buildTipRow(context, 'Keep a neutral expression'),
+                        _buildTipRow(context, 'Ensure your face is clearly visible'),
                       ],
                     ),
                   ),
@@ -256,44 +249,43 @@ class FacialStep extends ConsumerWidget {
         ),
         const SizedBox(height: 32),
 
-        // Capture Controls
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildControlButton(Icons.refresh_rounded, 'Retake', () => _pickImage(ref, ImageSource.camera)),
+            _buildControlButton(context, Icons.refresh_rounded, 'Retake', () => _pickImage(ref, ImageSource.camera)),
             GestureDetector(
               onTap: state.isUploading ? null : () => _pickImage(ref, ImageSource.camera),
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF4F46E5).withValues(alpha: 0.2), width: 4),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 4),
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(color: Color(0xFF4F46E5), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                   child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 32),
                 ),
               ),
             ),
-            _buildControlButton(Icons.image_outlined, 'Upload', () => _pickImage(ref, ImageSource.gallery)),
+            _buildControlButton(context, Icons.image_outlined, 'Upload', () => _pickImage(ref, ImageSource.gallery)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildTipRow(String text) {
+  Widget _buildTipRow(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF10B981), size: 16),
+          const Icon(Icons.check_circle_outline_rounded, color: AppColors.success, size: 16),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context)),
             ),
           ),
         ],
@@ -301,21 +293,21 @@ class FacialStep extends ConsumerWidget {
     );
   }
 
-  Widget _buildControlButton(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildControlButton(BuildContext context, IconData icon, String label, VoidCallback onTap) {
     return Column(
       children: [
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
-            icon: Icon(icon, color: const Color(0xFF1E1B4B)),
+            icon: Icon(icon, color: AppColors.textPrimaryOf(context)),
             onPressed: onTap,
           ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500)),
+        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500)),
       ],
     );
   }

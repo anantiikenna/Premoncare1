@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 
 class PaymentFailedScreen extends StatelessWidget {
   final String? appointmentId;
   final String? doctorName;
   final String? amount;
-  final String? errorType; // e.g., 'network', 'rejected', 'insufficient_funds'
+  final String? errorType;
 
   const PaymentFailedScreen({
     super.key,
@@ -18,18 +19,18 @@ class PaymentFailedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.backgroundOf(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E1B4B), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimaryOf(context), size: 20),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Payment Failed',
           style: TextStyle(
-            color: Color(0xFF1E1B4B),
+            color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -41,7 +42,6 @@ class PaymentFailedScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Illustration
             Center(
               child: Stack(
                 alignment: Alignment.center,
@@ -50,22 +50,21 @@ class PaymentFailedScreen extends StatelessWidget {
                     width: 200,
                     height: 200,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFF),
+                      color: AppColors.surfaceAltOf(context),
                       shape: BoxShape.circle,
                     ),
                   ),
-                  // Mock Credit Card Illustration
                   Transform.rotate(
                     angle: -0.1,
                     child: Container(
                       width: 140,
                       height: 90,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFDA4AF), // Light red/pink card
+                        color: AppColors.errorLightOf(context),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withValues(alpha: 0.1),
+                            color: AppColors.error.withValues(alpha: 0.1),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -80,7 +79,7 @@ class PaymentFailedScreen extends StatelessWidget {
                               width: 30,
                               height: 20,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: AppColors.textInverse.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -94,7 +93,7 @@ class PaymentFailedScreen extends StatelessWidget {
                                   width: 20,
                                   height: 20,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.5),
+                                    color: AppColors.textInverse.withValues(alpha: 0.5),
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -104,7 +103,7 @@ class PaymentFailedScreen extends StatelessWidget {
                                     width: 20,
                                     height: 20,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.3),
+                                      color: AppColors.textInverse.withValues(alpha: 0.3),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -116,43 +115,41 @@ class PaymentFailedScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Red X Circle
                   Positioned(
                     bottom: 30,
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.error,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4),
+                        border: Border.all(color: AppColors.textInverse, width: 4),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withValues(alpha: 0.3),
+                            color: AppColors.error.withValues(alpha: 0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.close_rounded,
-                        color: Colors.white,
+                        color: AppColors.textInverse,
                         size: 40,
                       ),
                     ),
                   ),
-                  // Exclamation Bubble
                   Positioned(
                     top: 40,
                     right: 20,
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceOf(context),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.priority_high_rounded,
-                        color: Color(0xFFEF4444),
+                        color: AppColors.error,
                         size: 20,
                       ),
                     ),
@@ -161,37 +158,35 @@ class PaymentFailedScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Payment failed',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E1B4B),
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'We couldn\'t process your payment.\nPlease try again.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF6B7280),
+                color: AppColors.textSecondaryOf(context),
                 height: 1.5,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 32),
-            
-            // Details Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFF3F4F6)),
+                border: Border.all(color: AppColors.borderLightOf(context)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: AppColors.shadowLight,
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -200,72 +195,73 @@ class PaymentFailedScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _buildDetailRow(
+                    context: context,
                     icon: Icons.credit_card_rounded,
-                    iconBg: const Color(0xFFEEF2FF),
-                    iconColor: const Color(0xFF4F46E5),
+                    iconBg: AppColors.surfaceAltOf(context),
+                    iconColor: AppColors.primary,
                     label: 'Payment Method',
                     value: '•••• 4242 (Visa)',
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(color: Color(0xFFF3F4F6), height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: AppColors.borderLightOf(context), height: 1),
                   ),
                   _buildDetailRow(
+                    context: context,
                     icon: Icons.calendar_today_rounded,
-                    iconBg: const Color(0xFFEEF2FF),
-                    iconColor: const Color(0xFF4F46E5),
+                    iconBg: AppColors.surfaceAltOf(context),
+                    iconColor: AppColors.primary,
                     label: 'Appointment',
                     value: doctorName ?? '',
                     subValue: 'Today, 10:30 AM',
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(color: Color(0xFFF3F4F6), height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: AppColors.borderLightOf(context), height: 1),
                   ),
                   _buildDetailRow(
+                    context: context,
                     icon: Icons.payments_rounded,
-                    iconBg: const Color(0xFFEEF2FF),
-                    iconColor: const Color(0xFF4F46E5),
+                    iconBg: AppColors.surfaceAltOf(context),
+                    iconColor: AppColors.primary,
                     label: 'Amount',
                     value: '₦${amount ?? '0'}',
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(color: Color(0xFFF3F4F6), height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: AppColors.borderLightOf(context), height: 1),
                   ),
                   _buildDetailRow(
+                    context: context,
                     icon: Icons.access_time_rounded,
-                    iconBg: const Color(0xFFEEF2FF),
-                    iconColor: const Color(0xFF4F46E5),
+                    iconBg: AppColors.surfaceAltOf(context),
+                    iconColor: AppColors.primary,
                     label: 'Time',
                     value: 'May 28, 2025 • 9:41 AM',
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 24),
-            
-            // Error Banner
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
+                color: AppColors.errorLightOf(context),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFFEE2E2)),
+                border: Border.all(color: AppColors.errorLightOf(context)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFEF4444),
+                      color: AppColors.error,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 20),
+                    child: Icon(Icons.wifi_off_rounded, color: AppColors.textInverse, size: 20),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -274,15 +270,15 @@ class PaymentFailedScreen extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: Color(0xFF991B1B),
+                            color: AppColors.error,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Please check your internet connection\nand try again.',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFFB91C1C),
+                            color: AppColors.error,
                             height: 1.4,
                           ),
                         ),
@@ -292,21 +288,17 @@ class PaymentFailedScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
             const SizedBox(height: 32),
-            
-            // Action Buttons
             SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
                 onPressed: () {
-                  // Retry logic
                   context.pop();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E31BE),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.textInverse,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -332,8 +324,8 @@ class PaymentFailedScreen extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => context.pop(),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF4F46E5),
-                  side: const BorderSide(color: Color(0xFFE5E7EB)),
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(color: AppColors.borderOf(context)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -351,14 +343,11 @@ class PaymentFailedScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
             const SizedBox(height: 24),
-            
-            // Help Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFF),
+                color: AppColors.surfaceAltOf(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
@@ -366,12 +355,12 @@ class PaymentFailedScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFEEF2FF),
+                      color: AppColors.surfaceAlt,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.headset_mic_outlined,
-                      color: Color(0xFF4F46E5),
+                      color: AppColors.primary,
                       size: 24,
                     ),
                   ),
@@ -380,20 +369,20 @@ class PaymentFailedScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Need help?',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: Color(0xFF1E1B4B),
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           'Our support team is here for you.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            color: AppColors.textSecondaryOf(context),
                           ),
                         ),
                       ],
@@ -405,41 +394,38 @@ class PaymentFailedScreen extends StatelessWidget {
                         const SnackBar(content: Text('Contact support@premoncare.com for assistance')),
                       );
                     },
-                    child: const Row(
+                    child: Row(
                       children: [
                         Text(
                           'Contact Support',
                           style: TextStyle(
-                            color: Color(0xFF4F46E5),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: Color(0xFF4F46E5), size: 16),
+                        Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 16),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 24),
-            
-            // Back to Home
             SizedBox(
               width: double.infinity,
               height: 60,
               child: TextButton(
                 onPressed: () => context.go('/patient_dashboard'),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.home_outlined, color: Color(0xFF1E1B4B), size: 24),
-                    SizedBox(width: 10),
+                    Icon(Icons.home_outlined, color: AppColors.textPrimaryOf(context), size: 24),
+                    const SizedBox(width: 10),
                     Text(
                       'Back to Home',
                       style: TextStyle(
-                        color: Color(0xFF1E1B4B),
+                        color: AppColors.textPrimaryOf(context),
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -456,6 +442,7 @@ class PaymentFailedScreen extends StatelessWidget {
   }
 
   Widget _buildDetailRow({
+    required BuildContext context,
     required IconData icon,
     required Color iconBg,
     required Color iconColor,
@@ -473,10 +460,10 @@ class PaymentFailedScreen extends StatelessWidget {
         const SizedBox(width: 16),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
+            color: AppColors.textSecondaryOf(context),
           ),
         ),
         const Spacer(),
@@ -485,18 +472,18 @@ class PaymentFailedScreen extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E1B4B),
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             if (subValue != null)
               Text(
                 subValue,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF9CA3AF),
+                  color: AppColors.textTertiaryOf(context),
                 ),
               ),
           ],

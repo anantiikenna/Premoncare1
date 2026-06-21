@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 
@@ -49,8 +50,22 @@ class AboutScreen extends StatelessWidget {
           _buildInfoTile(icon: Icons.info_outline_rounded, color: AppColors.primary, title: 'About', subtitle: 'Premon Care is a telemedicine platform connecting patients with licensed healthcare providers across Nigeria and Africa.'),
           _buildInfoTile(icon: Icons.code_rounded, color: AppColors.success, title: 'Built With', subtitle: 'Flutter, Supabase, Firebase'),
           _buildInfoTile(icon: Icons.favorite_rounded, color: AppColors.error, title: 'Our Mission', subtitle: 'To make quality healthcare accessible to everyone, everywhere through technology.'),
-          _buildInfoTile(icon: Icons.public_rounded, color: const Color(0xFF8B5CF6), title: 'Website', subtitle: 'www.premoncare.com'),
-          _buildInfoTile(icon: Icons.email_outlined, color: AppColors.warning, title: 'Contact', subtitle: 'hello@premoncare.com'),
+          _buildTappableTile(
+            context,
+            icon: Icons.public_rounded,
+            color: AppColors.primary,
+            title: 'Website',
+            subtitle: 'www.premoncare.com',
+            url: 'https://www.premoncare.com',
+          ),
+          _buildTappableTile(
+            context,
+            icon: Icons.email_outlined,
+            color: AppColors.warning,
+            title: 'Contact',
+            subtitle: 'hello@premoncare.com',
+            url: 'mailto:hello@premoncare.com',
+          ),
           const SizedBox(height: 24),
           Center(
             child: Text(
@@ -87,6 +102,42 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTappableTile(BuildContext context, {required IconData icon, required Color color, required String title, required String subtitle, required String url}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GestureDetector(
+        onTap: () async {
+          final uri = Uri.parse(url);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri);
+          }
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: TextStyle(fontSize: 13, color: AppColors.primary, decoration: TextDecoration.underline, decorationColor: AppColors.primary)),
+                ],
+              ),
+            ),
+            Icon(Icons.open_in_new_rounded, color: AppColors.textTertiaryOf(context), size: 16),
+          ],
+        ),
       ),
     );
   }

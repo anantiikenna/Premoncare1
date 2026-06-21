@@ -66,7 +66,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
         ElevatedButton(
           onPressed: _isSubmitting ? null : _handleReviewSubmit,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6366F1),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
           ),
           child: _isSubmitting 

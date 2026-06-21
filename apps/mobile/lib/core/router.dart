@@ -434,7 +434,13 @@ final goRouter = GoRouter(
       path: '/consultation/:id',
       builder: (context, state) {
         final id = state.pathParameters['id'] ?? '';
-        return ConsultationScreen(appointmentId: id);
+        final extras = state.extra as Map<String, dynamic>?;
+        return ConsultationScreen(
+          appointmentId: id,
+          doctorName: extras?['doctorName'] as String?,
+          specialty: extras?['specialty'] as String?,
+          durationMinutes: extras?['durationMinutes'] as int?,
+        );
       },
     ),
     GoRoute(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/app_colors.dart';
 import 'admin_providers.dart';
 import 'admin_scaffold.dart';
 
@@ -62,7 +63,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           _QuickActionBtn(
             icon: Icons.content_copy,
             label: 'Bulk Actions',
-            color: const Color(0xFF64748B),
+            color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Bulk actions are being developed. Manage users individually through the list above.')),
@@ -73,7 +74,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           _QuickActionBtn(
             icon: Icons.download,
             label: 'Export Users',
-            color: const Color(0xFF64748B),
+            color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Export is being developed. Use your device\'s screenshot feature to save user data.')),
@@ -84,7 +85,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           _QuickActionBtn(
             icon: Icons.person_add,
             label: 'Invite User',
-            color: const Color(0xFF64748B),
+            color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Invitations are sent automatically when users register. Direct them to the signup page.')),
@@ -95,7 +96,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           _QuickActionBtn(
             icon: Icons.description,
             label: 'User Logs',
-            color: const Color(0xFF64748B),
+            color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Audit logs are being developed. All admin actions are tracked in the system for compliance.')),
@@ -109,7 +110,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF0F62FE);
+    final primaryColor = AppColors.primary;
     final adminService = ref.watch(adminServiceProvider);
 
     return AdminScaffold(
@@ -123,20 +124,20 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'User Management',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.textPrimaryOf(context),
                       letterSpacing: -1,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'View, manage and take actions on all platform users',
                     style: TextStyle(
-                      color: Color(0xFF64748B),
+                      color: AppColors.textSecondaryOf(context),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -184,35 +185,35 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
                 value: stats['total'].toString(),
                 trend: '+18.6%',
                 icon: Icons.people,
-                color: const Color(0xFF0F62FE),
+                color: AppColors.primary,
               ),
               _StatCard(
                 label: 'Doctors',
                 value: stats['doctors'].toString(),
                 trend: '+14.2%',
                 icon: Icons.medical_services,
-                color: const Color(0xFF10B981),
+                color: AppColors.success,
               ),
               _StatCard(
                 label: 'Patients',
                 value: stats['patients'].toString(),
                 trend: '+19.3%',
                 icon: Icons.person,
-                color: const Color(0xFF8B5CF6),
+                color: AppColors.primary,
               ),
               _StatCard(
                 label: 'Pending',
                 value: stats['pending'].toString(),
                 trend: '-6.1%',
                 icon: Icons.access_time,
-                color: const Color(0xFFF59E0B),
+                color: AppColors.warning,
               ),
               _StatCard(
                 label: 'Suspended',
                 value: stats['suspended'].toString(),
                 trend: '-3.4%',
                 icon: Icons.warning,
-                color: const Color(0xFFEF4444),
+                color: AppColors.error,
               ),
             ],
           ),
@@ -228,16 +229,16 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           child: Container(
             height: 52,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Icon(
                   Icons.search,
-                  color: const Color(0xFF94A3B8),
+                  color: AppColors.textTertiaryOf(context),
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -245,10 +246,10 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
                   child: TextField(
                     controller: _searchController,
                     onChanged: (val) => setState(() => _searchQuery = val),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Search by name, email or phone...',
                       hintStyle: TextStyle(
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textTertiaryOf(context),
                         fontSize: 14,
                       ),
                       border: InputBorder.none,
@@ -264,15 +265,15 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           height: 52,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: Row(
             children: [
               Icon(
                 Icons.filter_list,
-                color: const Color(0xFF1E293B),
+                color: AppColors.textPrimaryOf(context),
                 size: 18,
               ),
               const SizedBox(width: 8),
@@ -292,7 +293,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
       controller: _tabController,
       isScrollable: true,
       labelColor: primaryColor,
-      unselectedLabelColor: const Color(0xFF64748B),
+      unselectedLabelColor: AppColors.textSecondaryOf(context),
       indicatorColor: primaryColor,
       indicatorWeight: 3,
       indicatorSize: TabBarIndicatorSize.label,
@@ -354,17 +355,17 @@ class _QuickActionBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isPrimary = color == const Color(0xFF0F62FE);
+    final isPrimary = color == AppColors.primary;
 
     return ElevatedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 16),
       label: Text(label),
       style: ElevatedButton.styleFrom(
-        backgroundColor: isPrimary ? color : Colors.white,
-        foregroundColor: isPrimary ? Colors.white : color,
+        backgroundColor: isPrimary ? color : AppColors.surfaceOf(context),
+        foregroundColor: isPrimary ? AppColors.textInverse : color,
         elevation: 0,
-        side: isPrimary ? BorderSide.none : BorderSide(color: Colors.grey.shade200),
+        side: isPrimary ? BorderSide.none : BorderSide(color: AppColors.borderLightOf(context)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -403,9 +404,9 @@ class _StatCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: 0.05),
@@ -428,8 +429,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF64748B),
+            style: TextStyle(
+              color: AppColors.textSecondaryOf(context),
               fontSize: 11,
               fontWeight: FontWeight.bold,
             ),
@@ -437,10 +438,10 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -451,8 +452,8 @@ class _StatCard extends StatelessWidget {
                     ? Icons.trending_up
                     : Icons.trending_down,
                 color: trend.startsWith('+')
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFFEF4444),
+                    ? AppColors.success
+                    : AppColors.error,
                 size: 12,
               ),
               const SizedBox(width: 4),
@@ -460,8 +461,8 @@ class _StatCard extends StatelessWidget {
                 trend,
                 style: TextStyle(
                   color: trend.startsWith('+')
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFEF4444),
+                      ? AppColors.success
+                      : AppColors.error,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                 ),
@@ -486,9 +487,9 @@ class _UserListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
@@ -496,11 +497,11 @@ class _UserListItem extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 26,
-                backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.15),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
                 child: Text(
                   (user['full_name'] ?? 'U')[0].toUpperCase(),
                   style: const TextStyle(
-                    color: Color(0xFF0F62FE),
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
@@ -514,10 +515,10 @@ class _UserListItem extends StatelessWidget {
                   height: 14,
                   decoration: BoxDecoration(
                     color: user['is_online'] == true
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFF94A3B8),
+                        ? AppColors.success
+                        : AppColors.textTertiaryOf(context),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: AppColors.surfaceOf(context), width: 2),
                   ),
                 ),
               ),
@@ -532,10 +533,10 @@ class _UserListItem extends StatelessWidget {
                   children: [
                     Text(
                       user['full_name'] ?? 'User Name',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimaryOf(context),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -545,8 +546,8 @@ class _UserListItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   user['email'] ?? 'email@example.com',
-                  style: const TextStyle(
-                    color: Color(0xFF64748B),
+                  style: TextStyle(
+                    color: AppColors.textSecondaryOf(context),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -554,8 +555,8 @@ class _UserListItem extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'ID: USR-${(user['id'] as String).substring(0, 5).toUpperCase()}',
-                  style: const TextStyle(
-                    color: Color(0xFF94A3B8),
+                  style: TextStyle(
+                    color: AppColors.textTertiaryOf(context),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
@@ -574,9 +575,9 @@ class _UserListItem extends StatelessWidget {
               const SizedBox(height: 8),
               IconButton(
                 onPressed: () => _showActionSheet(context, user),
-                icon: const Icon(
+                icon: Icon(
                   Icons.more_horiz,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiaryOf(context),
                 ),
               ),
             ],
@@ -589,13 +590,13 @@ class _UserListItem extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'active':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'pending':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'suspended':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       default:
-        return const Color(0xFF64748B);
+        return AppColors.textSecondary;
     }
   }
 
@@ -617,15 +618,15 @@ class _RoleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.borderLightOf(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         role.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF64748B),
+          color: AppColors.textSecondaryOf(context),
           letterSpacing: 0.5,
         ),
       ),
@@ -668,9 +669,9 @@ class _UserActionSheet extends ConsumerWidget {
     final adminService = ref.watch(adminServiceProvider);
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -680,7 +681,7 @@ class _UserActionSheet extends ConsumerWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFE2E8F0),
+              color: AppColors.borderOf(context),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -692,8 +693,8 @@ class _UserActionSheet extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             'Manage account for ${user['full_name']}',
-            style: const TextStyle(
-              color: Color(0xFF64748B),
+            style: TextStyle(
+              color: AppColors.textSecondaryOf(context),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -705,8 +706,8 @@ class _UserActionSheet extends ConsumerWidget {
                 ? 'Activate Account'
                 : 'Suspend Account',
             color: user['account_status'] == 'suspended'
-                ? const Color(0xFF10B981)
-                : const Color(0xFFF59E0B),
+                ? AppColors.success
+                : AppColors.warning,
             onTap: () {
               adminService.updateUserAccountStatus(
                 user['id'],
@@ -718,7 +719,7 @@ class _UserActionSheet extends ConsumerWidget {
           _ActionTile(
             icon: Icons.gpp_bad,
             label: 'Ban Account (Permanent)',
-            color: const Color(0xFFEF4444),
+            color: AppColors.error,
             onTap: () {
               adminService.updateUserAccountStatus(user['id'], 'banned');
               Navigator.pop(context);
@@ -728,7 +729,6 @@ class _UserActionSheet extends ConsumerWidget {
             icon: Icons.edit,
             label: 'Edit Profile Information',
             onTap: () {
-              // Navigate to edit profile
               Navigator.pop(context);
             },
           ),
@@ -743,18 +743,16 @@ class _UserActionSheet extends ConsumerWidget {
           _ActionTile(
             icon: Icons.visibility,
             label: 'Impersonate / Support View',
-            color: const Color(0xFF0F62FE),
+            color: AppColors.primary,
             onTap: () {
-              // Implementation of support mode
               Navigator.pop(context);
             },
           ),
           _ActionTile(
             icon: Icons.bolt,
             label: 'Emergency Intervention',
-            color: const Color(0xFFF59E0B),
+            color: AppColors.warning,
             onTap: () {
-              // Implementation of emergency override
               Navigator.pop(context);
             },
           ),
@@ -779,7 +777,7 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final finalColor = color ?? const Color(0xFF1E293B);
+    final finalColor = color ?? AppColors.textPrimaryOf(context);
 
     return ListTile(
       leading: Icon(icon, color: finalColor, size: 20),

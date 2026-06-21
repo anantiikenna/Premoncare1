@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 
@@ -7,7 +8,7 @@ class AccessibilitySettingsScreen extends StatefulWidget {
   const AccessibilitySettingsScreen({super.key});
 
   @override
- State<AccessibilitySettingsScreen> createState() => _AccessibilitySettingsScreenState();
+  State<AccessibilitySettingsScreen> createState() => _AccessibilitySettingsScreenState();
 }
 
 class _AccessibilitySettingsScreenState extends State<AccessibilitySettingsScreen> {
@@ -15,6 +16,32 @@ class _AccessibilitySettingsScreenState extends State<AccessibilitySettingsScree
   bool _highContrast = false;
   bool _reduceAnimations = false;
   bool _screenReaderHints = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _textScale = prefs.getDouble('access_text_scale') ?? 1.0;
+      _highContrast = prefs.getBool('access_high_contrast') ?? false;
+      _reduceAnimations = prefs.getBool('access_reduce_animations') ?? false;
+      _screenReaderHints = prefs.getBool('access_screen_reader') ?? true;
+    });
+  }
+
+  Future<void> _saveDouble(String key, double value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(key, value);
+  }
+
+  Future<void> _saveBool(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +83,10 @@ class _AccessibilitySettingsScreenState extends State<AccessibilitySettingsScree
                   max: 1.5,
                   divisions: 7,
                   activeColor: AppColors.primary,
-                  onChanged: (v) => setState(() => _textScale = v),
+                  onChanged: (v) {
+                    setState(() => _textScale = v);
+                    _saveDouble('access_text_scale', v);
+                  },
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -71,9 +101,9 @@ class _AccessibilitySettingsScreenState extends State<AccessibilitySettingsScree
           const SizedBox(height: 24),
           Text('DISPLAY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.contrast_rounded, color: AppColors.primary, title: 'High Contrast', subtitle: 'Increase contrast for better visibility', value: _highContrast, onChanged: (v) => setState(() => _highContrast = v)),
-          _buildToggle(icon: Icons.animation_rounded, color: AppColors.warning, title: 'Reduce Animations', subtitle: 'Minimize motion effects', value: _reduceAnimations, onChanged: (v) => setState(() => _reduceAnimations = v)),
-          _buildToggle(icon: Icons.accessibility_new_rounded, color: AppColors.success, title: 'Screen Reader Hints', subtitle: 'Add extra labels for screen readers', value: _screenReaderHints, onChanged: (v) => setState(() => _screenReaderHints = v)),
+          _buildToggle(icon: Icons.contrast_rounded, color: AppColors.primary, title: 'High Contrast', subtitle: 'Increase contrast for better visibility', value: _highContrast, onChanged: (v) { setState(() => _highContrast = v); _saveBool('access_high_contrast', v); }),
+          _buildToggle(icon: Icons.animation_rounded, color: AppColors.warning, title: 'Reduce Animations', subtitle: 'Minimize motion effects', value: _reduceAnimations, onChanged: (v) { setState(() => _reduceAnimations = v); _saveBool('access_reduce_animations', v); }),
+          _buildToggle(icon: Icons.accessibility_new_rounded, color: AppColors.success, title: 'Screen Reader Hints', subtitle: 'Add extra labels for screen readers', value: _screenReaderHints, onChanged: (v) { setState(() => _screenReaderHints = v); _saveBool('access_screen_reader', v); }),
         ],
       ),
     );

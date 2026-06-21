@@ -111,10 +111,10 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.shield_rounded, color: Color(0xFF8B5CF6), size: 28),
+          child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 28),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -195,9 +195,9 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
 
   Widget _buildAccountSettings(BuildContext context) {
     return _buildGroup(context, [
-      _SettingsTileData(icon: Icons.person_outline_rounded, color: const Color(0xFF3B82F6), title: 'Personal Information', subtitle: 'Update your details', onTap: () => context.push('/personal-info')),
+      _SettingsTileData(icon: Icons.person_outline_rounded, color: AppColors.info, title: 'Personal Information', subtitle: 'Update your details', onTap: () => context.push('/personal-info')),
       _SettingsTileData(icon: Icons.lock_outline_rounded, color: AppColors.success, title: 'Login & Security', subtitle: 'Password and security settings', onTap: () => context.push('/login-security')),
-      _SettingsTileData(icon: Icons.notifications_none_rounded, color: const Color(0xFF8B5CF6), title: 'Notification Preferences', subtitle: 'Choose what notifications to receive', onTap: () => context.push('/notification-preferences')),
+      _SettingsTileData(icon: Icons.notifications_none_rounded, color: AppColors.primary, title: 'Notification Preferences', subtitle: 'Choose what notifications to receive', onTap: () => context.push('/notification-preferences')),
       _SettingsTileData(icon: Icons.language_rounded, color: AppColors.warning, title: 'Language & Region', subtitle: 'Language and region', trailingText: 'English', onTap: () => context.push('/language-region')),
     ]);
   }
@@ -205,8 +205,8 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
   Widget _buildPrivacyDataSettings(BuildContext context) {
     return _buildGroup(context, [
       _SettingsTileData(icon: Icons.shield_outlined, color: AppColors.success, title: 'Biometric & Privacy', subtitle: 'Privacy and biometric controls', onTap: () => context.push('/biometric-privacy')),
-      _SettingsTileData(icon: Icons.medical_information_outlined, color: const Color(0xFF3B82F6), title: 'Record Permissions', subtitle: 'Manage doctor record access', onTap: () => context.push('/medical-record-permissions')),
-      _SettingsTileData(icon: Icons.devices_rounded, color: const Color(0xFF8B5CF6), title: 'Device Sessions', subtitle: 'Active sessions and activity', onTap: () => context.push('/device-sessions')),
+      _SettingsTileData(icon: Icons.medical_information_outlined, color: AppColors.info, title: 'Record Permissions', subtitle: 'Manage doctor record access', onTap: () => context.push('/medical-record-permissions')),
+      _SettingsTileData(icon: Icons.devices_rounded, color: AppColors.primary, title: 'Device Sessions', subtitle: 'Active sessions and activity', onTap: () => context.push('/device-sessions')),
       _SettingsTileData(icon: Icons.file_download_outlined, color: AppColors.warning, title: 'Download My Data', subtitle: 'Export your health data', onTap: () => context.push('/download-data')),
       _SettingsTileData(icon: Icons.delete_outline_rounded, color: AppColors.error, title: 'Delete Account', subtitle: 'Permanently delete your account', onTap: () => _showDeleteAccountDialog(context)),
     ]);
@@ -215,16 +215,16 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
   Widget _buildPreferencesSettings(BuildContext context) {
     return _buildGroup(context, [
       _SettingsTileData(icon: Icons.dark_mode_outlined, color: AppColors.success, title: 'Appearance', subtitle: 'Choose light or dark mode', onTap: () => context.push('/appearance')),
-      _SettingsTileData(icon: Icons.accessibility_new_rounded, color: const Color(0xFF3B82F6), title: 'Accessibility', subtitle: 'Text size and display options', onTap: () => context.push('/accessibility')),
-      _SettingsTileData(icon: Icons.favorite_border_rounded, color: const Color(0xFF8B5CF6), title: 'Health Preferences', subtitle: 'Units and health settings', onTap: () => context.push('/health-preferences')),
+      _SettingsTileData(icon: Icons.accessibility_new_rounded, color: AppColors.info, title: 'Accessibility', subtitle: 'Text size and display options', onTap: () => context.push('/accessibility')),
+      _SettingsTileData(icon: Icons.favorite_border_rounded, color: AppColors.primary, title: 'Health Preferences', subtitle: 'Units and health settings', onTap: () => context.push('/health-preferences')),
     ]);
   }
 
   Widget _buildSupportLegalSettings(BuildContext context) {
     return _buildGroup(context, [
-      _SettingsTileData(icon: Icons.headset_mic_outlined, color: const Color(0xFF3B82F6), title: 'Help & Support', subtitle: 'FAQs and contact support', onTap: () => context.push('/help-support')),
+      _SettingsTileData(icon: Icons.headset_mic_outlined, color: AppColors.info, title: 'Help & Support', subtitle: 'FAQs and contact support', onTap: () => context.push('/help-support')),
       _SettingsTileData(icon: Icons.description_outlined, color: AppColors.success, title: 'Terms of Service', subtitle: 'Read our terms', onTap: () => context.push('/terms-of-service')),
-      _SettingsTileData(icon: Icons.verified_user_outlined, color: const Color(0xFF8B5CF6), title: 'Privacy Policy', subtitle: 'How we protect your data', onTap: () => context.push('/privacy-policy')),
+      _SettingsTileData(icon: Icons.verified_user_outlined, color: AppColors.primary, title: 'Privacy Policy', subtitle: 'How we protect your data', onTap: () => context.push('/privacy-policy')),
       _SettingsTileData(icon: Icons.info_outline_rounded, color: AppColors.warning, title: 'About Premon Care', subtitle: 'App version 2.4.1', onTap: () => context.push('/about')),
     ]);
   }

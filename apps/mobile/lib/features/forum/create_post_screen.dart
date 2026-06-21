@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/app_colors.dart';
 import 'forum_provider.dart';
 import 'forum_utils.dart';
 
@@ -48,7 +49,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     await prefs.setString('forum_draft_body', _bodyController.text);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Draft saved'), backgroundColor: Color(0xFF10B981)),
+        const SnackBar(content: Text('Draft saved'), backgroundColor: AppColors.success),
       );
     }
   }
@@ -85,7 +86,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post submitted for review'), backgroundColor: Color(0xFF10B981)),
+          const SnackBar(content: Text('Post submitted for review'), backgroundColor: AppColors.success),
         );
         context.pop();
       }
@@ -108,14 +109,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2042)),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Create Post', style: TextStyle(color: Color(0xFF0F2042), fontWeight: FontWeight.bold)),
+        title: Text('Create Post', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.bold)),
         actions: [
           TextButton(
             onPressed: _saveDraft,
-            child: const Text('Save Draft', style: TextStyle(color: Color(0xFF0F62FE), fontWeight: FontWeight.bold, fontSize: 13)),
+            child: const Text('Save Draft', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13)),
           ),
           const SizedBox(width: 8),
         ],
@@ -125,24 +126,22 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Create a Post', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF0F2042))),
+            Text('Create a Post', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 4),
             Text('Ask a question, share your experience or start a discussion.', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
             const SizedBox(height: 32),
 
-            // 1. Select Category
-            const Text.rich(TextSpan(children: [
-              TextSpan(text: '1. Select Category ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
-              TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+            Text.rich(TextSpan(children: [
+              TextSpan(text: '1. Select Category ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 16),
             _buildCategoryPicker(),
             const SizedBox(height: 32),
 
-            // 2. Post Title
-            const Text.rich(TextSpan(children: [
-              TextSpan(text: '2. Post Title ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
-              TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+            Text.rich(TextSpan(children: [
+              TextSpan(text: '2. Post Title ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 12),
             Container(
@@ -166,10 +165,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             ),
             const SizedBox(height: 32),
 
-            // 3. Describe
-            const Text.rich(TextSpan(children: [
-              TextSpan(text: '3. Describe Your Question or Topic ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
-              TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+            Text.rich(TextSpan(children: [
+              TextSpan(text: '3. Describe Your Question or Topic ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 12),
             Container(
@@ -200,29 +198,28 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.lightbulb_outline, color: Color(0xFF0F62FE), size: 16),
+                const Icon(Icons.lightbulb_outline, color: AppColors.primary, size: 16),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Tip: The more details you provide, the better and more helpful the responses you\'ll receive.',
-                    style: TextStyle(color: const Color(0xFF0F62FE), fontSize: 11, fontWeight: FontWeight.bold, height: 1.4),
+                    style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold, height: 1.4),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 32),
 
-            // 4. Attachments
-            const Text.rich(TextSpan(children: [
-              TextSpan(text: '4. Add Attachments ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F2042))),
-              TextSpan(text: '(Optional)', style: TextStyle(color: Colors.grey, fontSize: 15)),
+            Text.rich(TextSpan(children: [
+              TextSpan(text: '4. Add Attachments ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              const TextSpan(text: '(Optional)', style: TextStyle(color: Colors.grey, fontSize: 15)),
             ])),
             const SizedBox(height: 4),
             Text('You can upload images or documents to provide more context.', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildAttachmentButton(Icons.image_outlined, 'Add Photo', const Color(0xFF0F62FE))),
+                Expanded(child: _buildAttachmentButton(Icons.image_outlined, 'Add Photo', AppColors.primary)),
                 const SizedBox(width: 8),
                 Expanded(child: _buildAttachmentButton(Icons.description_outlined, 'Add Document', Colors.teal)),
                 const SizedBox(width: 8),
@@ -235,7 +232,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             Text('Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file', style: TextStyle(color: Colors.grey[500], fontSize: 10)),
             const SizedBox(height: 32),
 
-            // Anonymous Toggle
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -255,7 +251,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Post Anonymously', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F2042))),
+                        Text('Post Anonymously', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
                         const SizedBox(height: 2),
                         Text('Your name will be hidden from other members.', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
                       ],
@@ -271,16 +267,15 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Submit
             Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF0F62FE), Color(0xFF00B4D8)],
+                  colors: [AppColors.primary, AppColors.info],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5))],
+                boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5))],
               ),
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitPost,
@@ -332,9 +327,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   width: 80,
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF0F62FE).withValues(alpha: 0.05) : Colors.white,
+                    color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : Colors.white,
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[200]!,
+                      color: isSelected ? AppColors.primary : Colors.grey[200]!,
                       width: isSelected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -350,7 +345,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          color: isSelected ? const Color(0xFF0F62FE) : Colors.grey[800],
+                          color: isSelected ? AppColors.primary : Colors.grey[800],
                         ),
                       ),
                     ],

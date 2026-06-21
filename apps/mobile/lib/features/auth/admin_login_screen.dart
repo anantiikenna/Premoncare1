@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 
@@ -22,8 +23,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
-  static const _primaryColor = Color(0xFF0F62FE);
 
   @override
   void initState() {
@@ -91,11 +90,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          Positioned(top: -120, right: -80, child: _DecorCircle(color: _primaryColor.withValues(alpha: 0.07), size: 420)),
-          Positioned(bottom: -80, left: -40, child: _DecorCircle(color: _primaryColor.withValues(alpha: 0.04), size: 320)),
+          Positioned(top: -120, right: -80, child: _DecorCircle(color: AppColors.primary.withValues(alpha: 0.07), size: 420)),
+          Positioned(bottom: -80, left: -40, child: _DecorCircle(color: AppColors.primary.withValues(alpha: 0.04), size: 320)),
 
           SafeArea(
             child: GestureDetector(
@@ -116,47 +115,44 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                           children: [
                             const SizedBox(height: 32),
 
-                            // Shield icon
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: _primaryColor.withValues(alpha: 0.08),
+                                color: AppColors.primary.withValues(alpha: 0.08),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.admin_panel_settings_rounded, size: 40, color: _primaryColor),
+                              child: Icon(Icons.admin_panel_settings_rounded, size: 40, color: AppColors.primary),
                             ),
                             const SizedBox(height: 20),
 
-                            // Title
-                            const Text(
+                            Text(
                               'Premon Admin',
-                              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF0F172A), letterSpacing: -0.5),
+                              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               'Administrative Access Portal',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF64748B).withValues(alpha: 0.9)),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context)),
                             ),
                             const SizedBox(height: 36),
 
-                            // Error banner
                             if (_errorMessage != null) ...[
                               Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFEF2F2),
+                                  color: AppColors.errorLightOf(context),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: const Color(0xFFFECACA)),
+                                  border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 18),
+                                    Icon(Icons.error_outline_rounded, color: AppColors.error, size: 18),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(
                                         _errorMessage!,
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF991B1B)),
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.error),
                                       ),
                                     ),
                                   ],
@@ -165,7 +161,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                               const SizedBox(height: 20),
                             ],
 
-                            // Email field
                             _AdminInput(
                               controller: _emailController,
                               focusNode: _emailFocus,
@@ -177,7 +172,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                             ),
                             const SizedBox(height: 14),
 
-                            // Password field
                             _AdminInput(
                               controller: _passwordController,
                               focusNode: _passwordFocus,
@@ -189,7 +183,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                               suffix: IconButton(
                                 icon: Icon(
                                   _isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                                  color: const Color(0xFF94A3B8),
+                                  color: AppColors.textTertiaryOf(context),
                                   size: 19,
                                 ),
                                 onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
@@ -197,25 +191,24 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                             ),
                             const SizedBox(height: 28),
 
-                            // Sign In button
                             SizedBox(
                               width: double.infinity,
                               height: 52,
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _primaryColor,
-                                  foregroundColor: Colors.white,
-                                  disabledBackgroundColor: _primaryColor.withValues(alpha: 0.5),
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: AppColors.textInverse,
+                                  disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                                   elevation: 6,
-                                  shadowColor: _primaryColor.withValues(alpha: 0.3),
+                                  shadowColor: AppColors.primary.withValues(alpha: 0.3),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                                 ),
                                 child: _isLoading
                                     ? const SizedBox(
                                         width: 20,
                                         height: 20,
-                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                        child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2.5),
                                       )
                                     : const Text(
                                         'Sign In',
@@ -225,11 +218,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                             ),
                             const SizedBox(height: 48),
 
-                            // Footer
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.shield_rounded, size: 14, color: const Color(0xFF94A3B8).withValues(alpha: 0.7)),
+                                Icon(Icons.shield_rounded, size: 14, color: AppColors.textTertiaryOf(context)),
                                 const SizedBox(width: 6),
                                 Text(
                                   'SECURED ADMINISTRATIVE SESSION',
@@ -237,7 +229,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 1.0,
-                                    color: const Color(0xFF94A3B8).withValues(alpha: 0.8),
+                                    color: AppColors.textTertiaryOf(context),
                                   ),
                                 ),
                               ],
@@ -285,10 +277,10 @@ class _AdminInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: TextField(
         controller: controller,
@@ -297,11 +289,11 @@ class _AdminInput extends StatelessWidget {
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         onSubmitted: onSubmitted,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF0F172A)),
+        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimaryOf(context)),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500),
-          prefixIcon: Padding(padding: const EdgeInsets.only(left: 14, right: 10), child: Icon(icon, color: const Color(0xFF94A3B8), size: 19)),
+          hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
+          prefixIcon: Padding(padding: const EdgeInsets.only(left: 14, right: 10), child: Icon(icon, color: AppColors.textTertiaryOf(context), size: 19)),
           prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           suffixIcon: suffix != null ? Padding(padding: const EdgeInsets.only(right: 8), child: suffix!) : null,
           suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),

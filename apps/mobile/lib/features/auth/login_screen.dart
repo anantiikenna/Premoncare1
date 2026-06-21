@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/user_facing_errors.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         await supabase.auth.signOut();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Admin accounts cannot access the patient/doctor app. Please use the Admin app.'), backgroundColor: Colors.red),
+            SnackBar(content: Text('Admin accounts cannot access the patient/doctor app. Please use the Admin app.'), backgroundColor: AppColors.error),
           );
         }
         return;
@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       logHandledError('Login failed', e, stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'We could not sign you in. Please check your details and try again.')), backgroundColor: Colors.red),
+          SnackBar(content: Text(userFacingError(e, fallback: 'We could not sign you in. Please check your details and try again.')), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       logHandledError('OTP send failed', e, stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'We could not send the verification code. Please try again.')), backgroundColor: Colors.red),
+          SnackBar(content: Text(userFacingError(e, fallback: 'We could not send the verification code. Please try again.')), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -106,15 +106,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Immersive clinical mesh background
-          Positioned(top: -150, right: -100, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.05), size: 400)),
+          Positioned(top: -150, right: -100, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.1), size: 500)),
+          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.05), size: 400)),
 
           SafeArea(
             child: GestureDetector(
@@ -130,30 +127,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   child: Column(
                     children: [
                       const SizedBox(height: 40),
-                      // Brand Identity Hub
                       Image.asset(
                         'assets/logo.png',
                         height: 120,
                         fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 12),
-                      const Text('SECURE CLINICAL ECOSYSTEM', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                      Text('SECURE CLINICAL ECOSYSTEM', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                       const SizedBox(height: 36),
 
-                      // Mode Switcher
                       Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(20)),
+                        decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(20)),
                         child: Row(
                           children: [
-                            _TabButton(label: 'EMAIL ACCESS', isSelected: _isEmailTab, onTap: () => setState(() => _isEmailTab = true), primaryColor: primaryColor),
-                            _TabButton(label: 'SECURE OTP', isSelected: !_isEmailTab, onTap: () => setState(() => _isEmailTab = false), primaryColor: primaryColor),
+                            _TabButton(label: 'EMAIL ACCESS', isSelected: _isEmailTab, onTap: () => setState(() => _isEmailTab = true)),
+                            _TabButton(label: 'SECURE OTP', isSelected: !_isEmailTab, onTap: () => setState(() => _isEmailTab = false)),
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
 
-                      _ClinicalInput(controller: _emailController, hint: _isEmailTab ? 'Clinical Email or Phone' : 'Clinical Email Address', icon: Icons.person_rounded, primaryColor: primaryColor),
+                      _ClinicalInput(controller: _emailController, hint: _isEmailTab ? 'Clinical Email or Phone' : 'Clinical Email Address', icon: Icons.person_rounded),
                       const SizedBox(height: 16),
                       if (_isEmailTab) ...
                       [
@@ -166,21 +161,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           obscureText: !_isPasswordVisible,
                           suffixIcon: Icon(
                             _isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                            color: const Color(0xFF94A3B8),
+                            color: AppColors.textTertiaryOf(context),
                             size: 20,
                           ),
                           onSuffixTap: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                          primaryColor: primaryColor,
                         ),
                         const SizedBox(height: 12),
-                        Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => context.push('/forgot-password'), child: Text('FORGOT ACCESS KEY?', style: TextStyle(color: primaryColor, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)))),
+                        Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => context.push('/forgot-password'), child: Text('FORGOT ACCESS KEY?', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)))),
                       ]
                       else ...
                       [
                         const SizedBox(height: 4),
                         Text(
                           'We\'ll send a one-time code to your email to log you in securely.',
-                          style: TextStyle(color: const Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600, height: 1.5),
+                          style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600, height: 1.5),
                         ),
                       ],
 
@@ -192,10 +186,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : (_isEmailTab ? _login : _loginWithOtp),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             elevation: 10,
-                            shadowColor: primaryColor.withValues(alpha: 0.3),
+                            shadowColor: AppColors.primary.withValues(alpha: 0.3),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           ),
                           child: _isLoading ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 3) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(_isEmailTab ? 'INITIATE SESSION' : 'SEND OTP CODE', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5)), const SizedBox(width: 12), const Icon(Icons.arrow_forward_rounded, size: 20)]),
@@ -208,9 +202,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                       Row(
                         children: [
-      Expanded(child: _SocialSyncCard(icon: Icons.g_mobiledata_rounded, label: 'GOOGLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Google Sign-In will be available in the next update. Use email sign-in to continue.'))))),
-                           const SizedBox(width: 16),
-                           Expanded(child: _SocialSyncCard(icon: Icons.apple_rounded, label: 'APPLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Apple Sign-In will be available in the next update. Use email sign-in to continue.'))))),
+                          Expanded(child: _SocialSyncCard(icon: Icons.g_mobiledata_rounded, label: 'GOOGLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Google Sign-In will be available in the next update. Use email sign-in to continue.'))))),
+                          const SizedBox(width: 16),
+                          Expanded(child: _SocialSyncCard(icon: Icons.apple_rounded, label: 'APPLE', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Apple Sign-In will be available in the next update. Use email sign-in to continue.'))))),
                         ],
                       ),
 
@@ -218,23 +212,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text("NO CLINICAL ACCOUNT? ", style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w800, fontSize: 12)),
-                          GestureDetector(onTap: () => context.push('/register'), child: Text('CREATE ACCESS', style: TextStyle(color: primaryColor, fontWeight: FontWeight.w900, fontSize: 12))),
+                          Text("NO CLINICAL ACCOUNT? ", style: TextStyle(color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w800, fontSize: 12)),
+                          GestureDetector(onTap: () => context.push('/register'), child: Text('CREATE ACCESS', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 12))),
                         ],
                       ),
 
                       const SizedBox(height: 32),
 
-                      // Emergency access — compact banner at bottom
-                      _EmergencyBanner(primaryColor: primaryColor),
+                      _EmergencyBanner(),
 
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.verified_user_rounded, size: 16, color: Color(0xFF10B981)),
+                          Icon(Icons.verified_user_rounded, size: 16, color: AppColors.success),
                           const SizedBox(width: 10),
-                          const Text('HIPAA COMPLIANT & AES-256 ENCRYPTED', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                          Text('HIPAA COMPLIANT & AES-256 ENCRYPTED', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                         ],
                       ),
                       const SizedBox(height: 40),
@@ -252,9 +245,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 }
 
 class _EmergencyBanner extends StatelessWidget {
-  final Color primaryColor;
-  const _EmergencyBanner({required this.primaryColor});
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -262,29 +252,29 @@ class _EmergencyBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFFEF2F2),
+          color: AppColors.errorLightOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFFECACA)),
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
               child: const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 14),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('EMERGENCY ACCESS', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: 0.3)),
-                  SizedBox(height: 2),
-                  Text('Need urgent care? Skip login.', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('EMERGENCY ACCESS', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: 0.3)),
+                  const SizedBox(height: 2),
+                  Text('Need urgent care? Skip login.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Color(0xFFEF4444)),
+            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.error),
           ],
         ),
       ),
@@ -294,15 +284,16 @@ class _EmergencyBanner extends StatelessWidget {
 
 class _SectionDivider extends StatelessWidget {
   final String label;
+
   const _SectionDivider({required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1))),
-        const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+        Expanded(child: Divider(color: AppColors.borderOf(context))),
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(label, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1))),
+        Expanded(child: Divider(color: AppColors.borderOf(context))),
       ],
     );
   }
@@ -312,9 +303,8 @@ class _TabButton extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-  final Color primaryColor;
 
-  const _TabButton({required this.label, required this.isSelected, required this.onTap, required this.primaryColor});
+  const _TabButton({required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -324,8 +314,8 @@ class _TabButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(color: isSelected ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(14), boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))] : []),
-          child: Center(child: Text(label, style: TextStyle(color: isSelected ? primaryColor : const Color(0xFF64748B), fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5))),
+          decoration: BoxDecoration(color: isSelected ? AppColors.surfaceOf(context) : Colors.transparent, borderRadius: BorderRadius.circular(14), boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))] : []),
+          child: Center(child: Text(label, style: TextStyle(color: isSelected ? AppColors.primary : AppColors.textSecondaryOf(context), fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5))),
         ),
       ),
     );
@@ -340,7 +330,6 @@ class _ClinicalInput extends StatelessWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final VoidCallback? onSuffixTap;
-  final Color primaryColor;
 
   const _ClinicalInput({
     super.key,
@@ -351,21 +340,20 @@ class _ClinicalInput extends StatelessWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.onSuffixTap,
-    required this.primaryColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context))),
       child: TextField(
         controller: controller,
         obscureText: obscureText,
-        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF1E293B)),
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimaryOf(context)),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w600),
-          prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: primaryColor.withValues(alpha: 0.6), size: 20)),
+          hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600),
+          prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: AppColors.primary.withValues(alpha: 0.6), size: 20)),
           suffixIcon: suffixIcon != null
               ? GestureDetector(onTap: onSuffixTap, child: Container(padding: const EdgeInsets.all(12), alignment: Alignment.center, child: suffixIcon))
               : null,
@@ -388,16 +376,16 @@ class _SocialSyncCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 60,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context))),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: const Color(0xFF1E293B), size: 24),
+            Icon(icon, color: AppColors.textPrimaryOf(context), size: 24),
             const SizedBox(width: 12),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5, color: Color(0xFF1E293B))),
+            Text(label, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5, color: AppColors.textPrimaryOf(context))),
           ],
         ),
       ),
@@ -422,4 +410,3 @@ class _MeshCircle extends StatelessWidget {
     );
   }
 }
-

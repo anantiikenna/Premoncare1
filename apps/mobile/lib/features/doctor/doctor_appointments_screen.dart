@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../core/app_colors.dart';
 
 class DoctorAppointmentsScreen extends ConsumerStatefulWidget {
   const DoctorAppointmentsScreen({super.key});
@@ -35,22 +35,19 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Immersive mesh background
           Positioned(
             top: -150,
             right: -100,
-            child: _MeshCircle(color: primaryColor.withValues(alpha: 0.08), size: 500),
+            child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.08), size: 500),
           ),
           Positioned(
             bottom: -100,
             left: -50,
-            child: _MeshCircle(color: primaryColor.withValues(alpha: 0.03), size: 300),
+            child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.03), size: 300),
           ),
 
           SafeArea(
@@ -58,7 +55,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 24),
-                _buildHeader(primaryColor),
+                _buildHeader(),
                 const SizedBox(height: 32),
                 Expanded(
                   child: SingleChildScrollView(
@@ -67,17 +64,17 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildStatsHeader(primaryColor),
+                        _buildStatsHeader(),
                         const SizedBox(height: 32),
                         _buildSectionTitle('SCHEDULE NAVIGATION'),
                         const SizedBox(height: 16),
-                        _buildTabNavigation(primaryColor),
+                        _buildTabNavigation(),
                         const SizedBox(height: 32),
-                        _buildDateSelector(primaryColor),
+                        _buildDateSelector(),
                         const SizedBox(height: 24),
-                        _buildTimeline(primaryColor),
+                        _buildTimeline(),
                         const SizedBox(height: 32),
-                        _buildPerformanceCard(primaryColor),
+                        _buildPerformanceCard(),
                         const SizedBox(height: 40),
                       ],
                     ),
@@ -92,20 +89,20 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
+    return Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
   }
 
-  Widget _buildHeader(Color primaryColor) {
+  Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('CLINICAL OPERATIONS', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-              SizedBox(height: 8),
-              Text('Appointments', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+              Text('CLINICAL OPERATIONS', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+              const SizedBox(height: 8),
+              Text('Appointments', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
             ],
           ),
           const Spacer(),
@@ -119,17 +116,17 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     return Container(
       width: 48,
       height: 48,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
-      child: Icon(icon, color: const Color(0xFF1E293B), size: 20),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
+      child: Icon(icon, color: AppColors.textPrimaryOf(context), size: 20),
     );
   }
 
-  Widget _buildStatsHeader(Color primaryColor) {
+  Widget _buildStatsHeader() {
     return Row(
       children: [
-        _buildStatCard('TODAY', '8', primaryColor, Icons.calendar_today_rounded),
+        _buildStatCard('TODAY', '8', AppColors.primary, Icons.calendar_today_rounded),
         const SizedBox(width: 16),
-        _buildStatCard('PENDING', '5', const Color(0xFFF59E0B), Icons.hourglass_empty_rounded),
+        _buildStatCard('PENDING', '5', AppColors.warning, Icons.hourglass_empty_rounded),
       ],
     );
   }
@@ -138,39 +135,39 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFFF1F5F9)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10))]),
+        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10))]),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 20)),
             const SizedBox(height: 20),
-            Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+            Text(label, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
             const SizedBox(height: 4),
-            Text(value, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 28, fontWeight: FontWeight.w900)),
+            Text(value, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 28, fontWeight: FontWeight.w900)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTabNavigation(Color primaryColor) {
+  Widget _buildTabNavigation() {
     return Container(
       padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(20)),
       child: TabBar(
         controller: _tabController,
         dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
-        indicator: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))]),
-        labelColor: primaryColor,
-        unselectedLabelColor: const Color(0xFF64748B),
+        indicator: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))]),
+        labelColor: AppColors.primary,
+        unselectedLabelColor: AppColors.textSecondaryOf(context),
         labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
         tabs: const [Tab(text: 'TODAY'), Tab(text: 'UPCOMING'), Tab(text: 'PENDING'), Tab(text: 'PAST')],
       ),
     );
   }
 
-  Widget _buildDateSelector(Color primaryColor) {
+  Widget _buildDateSelector() {
     final months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     final dateStr = '${months[_selectedDate.month - 1]} ${_selectedDate.day}, ${_selectedDate.year}';
 
@@ -180,14 +177,14 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         _buildSectionTitle('CLINICAL TIMELINE'),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
+          decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
           child: Row(
             children: [
-              GestureDetector(onTap: _previousDay, child: const Icon(Icons.chevron_left_rounded, size: 20, color: Color(0xFF1E293B))),
+              GestureDetector(onTap: _previousDay, child: Icon(Icons.chevron_left_rounded, size: 20, color: AppColors.textPrimaryOf(context))),
               const SizedBox(width: 12),
-              Text(dateStr, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.w900)),
+              Text(dateStr, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 12, fontWeight: FontWeight.w900)),
               const SizedBox(width: 12),
-              GestureDetector(onTap: _nextDay, child: const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF1E293B))),
+              GestureDetector(onTap: _nextDay, child: Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textPrimaryOf(context))),
             ],
           ),
         ),
@@ -195,18 +192,18 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     );
   }
 
-  Widget _buildTimeline(Color primaryColor) {
+  Widget _buildTimeline() {
     final appointments = [
-      {'time': '09:30 AM', 'name': 'Sarah Johnson', 'type': 'VIDEO CONSULTATION', 'status': 'COMPLETED', 'color': const Color(0xFF10B981)},
-      {'time': '10:45 AM', 'name': 'Emily Davis', 'type': 'CLINICAL REVIEW', 'status': 'UPCOMING', 'color': primaryColor},
-      {'time': '12:00 PM', 'name': 'CLINICAL BREAK', 'type': '', 'status': 'BREAK', 'color': const Color(0xFFF59E0B)},
-      {'time': '02:15 PM', 'name': 'Michael Brown', 'type': 'FOLLOW-UP', 'status': 'UPCOMING', 'color': primaryColor},
-      {'time': '04:30 PM', 'name': 'Jessica Lee', 'type': 'NEW CONSULTATION', 'status': 'UPCOMING', 'color': primaryColor},
+      {'time': '09:30 AM', 'name': 'Sarah Johnson', 'type': 'VIDEO CONSULTATION', 'status': 'COMPLETED', 'color': AppColors.success},
+      {'time': '10:45 AM', 'name': 'Emily Davis', 'type': 'CLINICAL REVIEW', 'status': 'UPCOMING', 'color': AppColors.primary},
+      {'time': '12:00 PM', 'name': 'CLINICAL BREAK', 'type': '', 'status': 'BREAK', 'color': AppColors.warning},
+      {'time': '02:15 PM', 'name': 'Michael Brown', 'type': 'FOLLOW-UP', 'status': 'UPCOMING', 'color': AppColors.primary},
+      {'time': '04:30 PM', 'name': 'Jessica Lee', 'type': 'NEW CONSULTATION', 'status': 'UPCOMING', 'color': AppColors.primary},
     ];
 
     return Container(
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
           for (int i = 0; i < appointments.length; i++)
@@ -216,7 +213,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
               '${appointments[i]['type']}',
               '${appointments[i]['status']}',
               appointments[i]['color'] as Color,
-              primaryColor,
+              AppColors.primary,
               isFirst: i == 0,
               isLast: i == appointments.length - 1,
               isBreak: appointments[i]['status'] == 'BREAK',
@@ -230,11 +227,11 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 65, child: Text(time, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.w800))),
+        SizedBox(width: 65, child: Text(time, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w800))),
         Column(
           children: [
-            Container(width: 12, height: 12, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: color, width: 3))),
-            if (!isLast) Container(width: 2, height: isBreak ? 50 : 90, color: const Color(0xFFF1F5F9)),
+            Container(width: 12, height: 12, decoration: BoxDecoration(color: AppColors.surfaceOf(context), shape: BoxShape.circle, border: Border.all(color: color, width: 3))),
+            if (!isLast) Container(width: 2, height: isBreak ? 50 : 90, color: AppColors.borderLightOf(context)),
           ],
         ),
         const SizedBox(width: 20),
@@ -242,14 +239,14 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
           child: Container(
             margin: const EdgeInsets.only(bottom: 24),
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: isBreak ? const Color(0xFFFFF7ED) : const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(24), border: Border.all(color: isBreak ? const Color(0xFFFFEDD5) : const Color(0xFFF1F5F9))),
+            decoration: BoxDecoration(color: isBreak ? AppColors.warningLightOf(context) : AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: isBreak ? AppColors.warningLightOf(context) : AppColors.borderLightOf(context))),
             child: isBreak
-                ? Row(children: [const Icon(Icons.coffee_rounded, color: Color(0xFFF59E0B), size: 16), const SizedBox(width: 12), Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF1E293B)))])
+                ? Row(children: [Icon(Icons.coffee_rounded, color: AppColors.warning, size: 16), const SizedBox(width: 12), Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.textPrimaryOf(context)))])
                 : Row(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 20,
-                        backgroundColor: Color(0xFF0F62FE),
+                        backgroundColor: AppColors.primary,
                         child: Text('P', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                       ),
                       const SizedBox(width: 16),
@@ -257,13 +254,13 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF1E293B))),
+                            Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
                             const SizedBox(height: 2),
-                            Text(type, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                            Text(type, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                           ],
                         ),
                       ),
-                      Container(width: 36, height: 36, decoration: BoxDecoration(color: (status == 'COMPLETED' ? const Color(0xFF10B981) : primaryColor).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: Icon(status == 'COMPLETED' ? Icons.check_rounded : Icons.videocam_rounded, color: status == 'COMPLETED' ? const Color(0xFF10B981) : primaryColor, size: 18)),
+                      Container(width: 36, height: 36, decoration: BoxDecoration(color: (status == 'COMPLETED' ? AppColors.success : primaryColor).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: Icon(status == 'COMPLETED' ? Icons.check_rounded : Icons.videocam_rounded, color: status == 'COMPLETED' ? AppColors.success : primaryColor, size: 18)),
                     ],
                   ),
           ),
@@ -272,21 +269,21 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     );
   }
 
-  Widget _buildPerformanceCard(Color primaryColor) {
+  Widget _buildPerformanceCard() {
     return Container(
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: const Color(0xFF1E293B).withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))]),
+      decoration: BoxDecoration(color: AppColors.slate800, borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: AppColors.slate800.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))]),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('DAILY PROGRESS', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                SizedBox(height: 8),
-                Text('37% Completed', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
-                SizedBox(height: 4),
-                Text('Keep going! You have 5 more clinical sessions today.', style: TextStyle(color: Colors.white60, fontSize: 12, height: 1.4, fontWeight: FontWeight.w500)),
+                const Text('DAILY PROGRESS', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                const SizedBox(height: 8),
+                const Text('37% Completed', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                const SizedBox(height: 4),
+                const Text('Keep going! You have 5 more clinical sessions today.', style: TextStyle(color: Colors.white60, fontSize: 12, height: 1.4, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -294,7 +291,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
           Stack(
             alignment: Alignment.center,
             children: [
-              SizedBox(width: 70, height: 70, child: CircularProgressIndicator(value: 0.37, strokeWidth: 8, backgroundColor: Colors.white.withValues(alpha: 0.1), valueColor: const AlwaysStoppedAnimation(Color(0xFF10B981)), strokeCap: StrokeCap.round)),
+              SizedBox(width: 70, height: 70, child: CircularProgressIndicator(value: 0.37, strokeWidth: 8, backgroundColor: Colors.white.withValues(alpha: 0.1), valueColor: const AlwaysStoppedAnimation(AppColors.success), strokeCap: StrokeCap.round)),
               const Text('37%', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900)),
             ],
           ),
@@ -321,5 +318,3 @@ class _MeshCircle extends StatelessWidget {
     );
   }
 }
-
-

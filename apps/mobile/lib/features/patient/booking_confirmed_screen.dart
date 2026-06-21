@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 
@@ -45,14 +46,14 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   Widget build(BuildContext context) {
     final state = GoRouterState.of(context);
     final isEmergency = state.uri.queryParameters['emergency'] == 'true';
-    final primaryColor = isEmergency ? const Color(0xFFEF4444) : const Color(0xFF0F62FE);
+    final primaryColor = isEmergency ? AppColors.error : AppColors.primary;
     final extra = state.extra as Map<String, dynamic>?;
     final fee = widget.consultationFee ?? extra?['consultationFee'] ?? 0;
     final name = widget.doctorName ?? extra?['doctorName'] ?? '';
     final docId = widget.doctorId ?? extra?['doctorId'];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
           Positioned(
@@ -104,7 +105,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 1.5),
+      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 1.5),
     );
   }
 
@@ -116,21 +117,21 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: isEmergency ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+            color: isEmergency ? AppColors.error : AppColors.success,
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: (isEmergency ? const Color(0xFFEF4444) : const Color(0xFF10B981)).withValues(alpha: 0.2), blurRadius: 30, offset: const Offset(0, 10))],
+            boxShadow: [BoxShadow(color: (isEmergency ? AppColors.error : AppColors.success).withValues(alpha: 0.2), blurRadius: 30, offset: const Offset(0, 10))],
           ),
           child: const Icon(Icons.check_rounded, color: Colors.white, size: 48),
         ),
         const SizedBox(height: 32),
         Text(
           isEmergency ? 'Emergency Consult\nConfirmed' : 'Booking\nConfirmed!',
-          style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), height: 1.1, letterSpacing: -1.5),
+          style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), height: 1.1, letterSpacing: -1.5),
         ),
         const SizedBox(height: 12),
         Text(
           isEmergency ? 'Your priority medical session is scheduled for immediate connection. Complete payment to start.' : 'Your appointment has been successfully scheduled and verified.',
-          style: const TextStyle(fontSize: 16, color: Color(0xFF64748B), fontWeight: FontWeight.w500, height: 1.5),
+          style: TextStyle(fontSize: 16, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500, height: 1.5),
         ),
       ],
     );
@@ -139,7 +140,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   Widget _buildDoctorCard(Color primaryColor, String name) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLight)),
       child: Row(
         children: [
           const GenericUserAvatar(radius: 32, avatarUrl: null),
@@ -148,8 +149,8 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name.isNotEmpty ? name : '', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF1E293B))),
-                const Text('Specialist', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w700)),
+                Text(name.isNotEmpty ? name : '', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: AppColors.textPrimaryOf(context))),
+                Text('Specialist', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -169,13 +170,13 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     final timeStr = '${_fmt(now.hour)}:${_fmt(now.minute)}';
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLight)),
       child: Column(
         children: [
           _buildInfoRow(Icons.calendar_today_rounded, 'Date', dateStr),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
           _buildInfoRow(Icons.access_time_rounded, 'Time', timeStr),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)),
@@ -198,11 +199,11 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
+        Icon(icon, size: 18, color: AppColors.textTertiaryOf(context)),
         const SizedBox(width: 12),
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8))),
+        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
         const Spacer(),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
       ],
     );
   }
@@ -212,30 +213,30 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: const Color(0xFFFEE2E2), width: 2),
+        border: Border.all(color: AppColors.errorLight, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.account_balance_rounded, color: Color(0xFFEF4444), size: 20),
+              const Icon(Icons.account_balance_rounded, color: AppColors.error, size: 20),
               const SizedBox(width: 12),
-              const Text('P2P Payment Instructions', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFFB91C1C))),
+              Text('P2P Payment Instructions', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.error)),
             ],
           ),
           const SizedBox(height: 16),
           Text(
             'Pay the emergency fee below to start your consultation immediately:',
-            style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.4),
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), height: 1.4),
           ),
           const SizedBox(height: 16),
           Center(
             child: Text(
               '₦$feeStr',
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 36, color: Color(0xFFEF4444), letterSpacing: -1),
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 36, color: AppColors.error, letterSpacing: -1),
             ),
           ),
           const SizedBox(height: 16),
@@ -243,7 +244,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: AppColors.textPrimaryOf(context),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
@@ -252,10 +253,10 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Center(
+          Center(
             child: Text(
               'Once paid, the doctor will be alerted for immediate session startup.',
-              style: TextStyle(fontSize: 10, color: Color(0xFFEF4444), fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 10, color: AppColors.error, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -267,17 +268,17 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     final feeStr = fee.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLight)),
       child: Column(
         children: [
           _buildPriceRow('Consultation Fee', '₦$feeStr'),
           const SizedBox(height: 12),
           _buildPriceRow('Platform Service', '₦0.00', isSpecial: true),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: Color(0xFFF1F5F9))),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: AppColors.borderLight)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E293B))),
+              Text('Total', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context))),
               Text('₦$feeStr', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: primaryColor)),
             ],
           ),
@@ -290,8 +291,8 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: isSpecial ? const Color(0xFF10B981) : const Color(0xFF1E293B))),
+        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context))),
+        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: isSpecial ? AppColors.success : AppColors.textPrimaryOf(context))),
       ],
     );
   }
@@ -299,21 +300,21 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   Widget _buildSupportBanner() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(24)),
-      child: const Row(
+      decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(24)),
+      child: Row(
         children: [
-          Icon(Icons.headset_mic_rounded, color: Color(0xFF64748B), size: 20),
-          SizedBox(width: 16),
+          Icon(Icons.headset_mic_rounded, color: AppColors.textSecondaryOf(context), size: 20),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Need assistance?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF1E293B))),
-                Text('Our care team is available 24/7', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+                Text('Need assistance?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.textPrimaryOf(context))),
+                Text('Our care team is available 24/7', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
               ],
             ),
           ),
-          Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context)),
         ],
       ),
     );
@@ -329,7 +330,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             child: ElevatedButton(
               onPressed: () => context.push('/account-conversion'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
+                backgroundColor: AppColors.error,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -363,7 +364,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               );
             },
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF64748B),
+              foregroundColor: AppColors.textSecondaryOf(context),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             ),
             child: const Text('Download Digital Receipt', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),

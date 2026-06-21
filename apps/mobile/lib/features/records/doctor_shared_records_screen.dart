@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../shared/widgets/glass_card.dart';
 import 'records_provider.dart';
 
@@ -29,23 +30,23 @@ class DoctorSharedRecordsScreen extends ConsumerWidget {
         child: recordsAsync.when(
           data: (records) {
             if (records.isEmpty) {
-              return const Center(
+              return Center(
                 child: Padding(
-                  padding: EdgeInsets.all(40.0),
+                  padding: const EdgeInsets.all(40.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.lock_outline, size: 60, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
+                      Icon(Icons.lock_outline, size: 60, color: AppColors.textTertiaryOf(context)),
+                      const SizedBox(height: 16),
+                      const Text(
                         'No Shared Records',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Patients must explicitly share their vault documents with you for them to appear here.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: AppColors.textSecondaryOf(context)),
                       ),
                     ],
                   ),
@@ -87,10 +88,10 @@ class _SharedRecordCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.file_present, color: Color(0xFF6366F1)),
+                child: const Icon(Icons.file_present, color: AppColors.primary),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -100,7 +101,7 @@ class _SharedRecordCard extends StatelessWidget {
                     Text(record.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     Text(
                       'TYPE: ${record.recordType.name.split('_').join(' ').toUpperCase()}',
-                      style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -113,7 +114,7 @@ class _SharedRecordCard extends StatelessWidget {
             children: [
               Text(
                 'Shared on ${record.createdAt.day}/${record.createdAt.month}/${record.createdAt.year}',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context)),
               ),
               ElevatedButton.icon(
                 onPressed: () => context.push('/document-viewer', extra: {
@@ -124,8 +125,8 @@ class _SharedRecordCard extends StatelessWidget {
                 icon: const Icon(Icons.visibility),
                 label: const Text('View Record'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                  foregroundColor: const Color(0xFF6366F1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  foregroundColor: AppColors.primary,
                   elevation: 0,
                 ),
               ),

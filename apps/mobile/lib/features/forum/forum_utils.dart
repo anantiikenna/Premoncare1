@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 
 class ForumUtils {
-  /// Maps the string `icon_name` from Supabase `forum_categories` to Flutter IconData.
   static IconData getCategoryIcon(String? iconName) {
     switch (iconName) {
       case 'heart_pulse':
@@ -13,7 +13,7 @@ class ForumUtils {
       case 'baby':
         return Icons.pregnant_woman_outlined;
       case 'activity':
-        return Icons.trending_up_rounded; // Chronic conditions
+        return Icons.trending_up_rounded;
       case 'pill':
         return Icons.medication_outlined;
       case 'dumbbell':
@@ -21,31 +21,30 @@ class ForumUtils {
       case 'stethoscope':
         return Icons.medical_services_outlined;
       default:
-        return Icons.article_outlined; // Default fallback icon
+        return Icons.article_outlined;
     }
   }
 
-  /// Maps the string `icon_name` to a consistent thematic color for UI badges.
   static Color getCategoryColor(String? iconName) {
     switch (iconName) {
       case 'heart_pulse':
-        return const Color(0xFF10B981); // Emerald
+        return AppColors.success;
       case 'brain':
-        return const Color(0xFFA855F7); // Purple
+        return AppColors.primary;
       case 'apple':
-        return const Color(0xFFF59E0B); // Amber
+        return AppColors.warning;
       case 'baby':
-        return const Color(0xFFEC4899); // Pink
+        return AppColors.pink;
       case 'activity':
-        return const Color(0xFFEF4444); // Red
+        return AppColors.error;
       case 'pill':
-        return const Color(0xFF3B82F6); // Blue
+        return AppColors.info;
       case 'dumbbell':
-        return const Color(0xFF6366F1); // Indigo
+        return AppColors.primary;
       case 'stethoscope':
-        return const Color(0xFF14B8A6); // Teal
+        return AppColors.teal;
       default:
-        return const Color(0xFF64748B); // Slate fallback
+        return AppColors.textSecondary;
     }
   }
 }

@@ -15,6 +15,7 @@ class LoginSecurityScreen extends StatefulWidget {
 class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
   bool _obscureCurrent = true;
   bool _obscureNew = true;
+  bool _obscureConfirm = true;
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -80,7 +81,7 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
             const SizedBox(height: 12),
             _buildPasswordField('New Password', _newPasswordController, _obscureNew, () => setState(() => _obscureNew = !_obscureNew), color, secondary),
             const SizedBox(height: 12),
-            _buildPasswordField('Confirm New Password', _confirmPasswordController, _obscureNew, () {}, color, secondary),
+            _buildPasswordField('Confirm New Password', _confirmPasswordController, _obscureConfirm, () => setState(() => _obscureConfirm = !_obscureConfirm), color, secondary),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,

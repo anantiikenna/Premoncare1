@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -14,7 +15,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  // Mock requirements check
   bool get _hasMinLength => _passwordController.text.length >= 8;
   bool get _hasUppercase => _passwordController.text.contains(RegExp(r'[A-Z]'));
   bool get _hasNumber => _passwordController.text.contains(RegExp(r'[0-9]'));
@@ -36,7 +36,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -44,16 +44,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 12),
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
+                    icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context)),
                     onPressed: () => context.pop(),
                     style: IconButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: Colors.grey.shade200),
+                      backgroundColor: AppColors.surfaceOf(context),
+                      side: BorderSide(color: AppColors.borderOf(context)),
                       padding: const EdgeInsets.all(12),
                     ),
                   ),
@@ -61,35 +60,31 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-
-              // Title & Description
-              const Text(
+              Text(
                 'Reset Password',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF111827),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Create a new password to secure your account.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF6B7280),
+                  color: AppColors.textSecondaryOf(context),
                   height: 1.5,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 32),
-
-              // New Password
-              const Text(
+              Text(
                 'New Password',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               const SizedBox(height: 8),
@@ -100,25 +95,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 onToggle: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
               ),
               const SizedBox(height: 12),
-
-              // Strength Indicator
               _buildStrengthIndicator(),
               const SizedBox(height: 20),
-
-              // Requirements Checklist
               _buildRequirementRow('At least 8 characters', _hasMinLength),
               _buildRequirementRow('One uppercase letter', _hasUppercase),
               _buildRequirementRow('One number', _hasNumber),
               _buildRequirementRow('One special character', _hasSpecial),
               const SizedBox(height: 32),
-
-              // Confirm Password
-              const Text(
+              Text(
                 'Confirm New Password',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               const SizedBox(height: 8),
@@ -129,31 +118,29 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 onToggle: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
               ),
               const SizedBox(height: 32),
-
-              // Security Tip
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
+                  color: AppColors.surfaceAltOf(context),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFF3F4F6)),
+                  border: Border.all(color: AppColors.borderLightOf(context)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surfaceOf(context),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.shield_outlined,
-                        color: Color(0xFF4F46E5),
+                        color: AppColors.primary,
                         size: 20,
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -162,15 +149,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
-                              color: Color(0xFF4F46E5),
+                              color: AppColors.primary,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'A strong password keeps your account safe and protects your personal data.',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF6B7280),
+                              color: AppColors.textSecondaryOf(context),
                               height: 1.4,
                             ),
                           ),
@@ -181,8 +168,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // Action Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -190,28 +175,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   icon: const Icon(Icons.lock_outline_rounded, size: 20),
                   label: const Text('Reset Password'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F62FE),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.textInverse,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 4,
-                    shadowColor: const Color(0xFF0F62FE).withValues(alpha: 0.4),
+                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
                     textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
               const SizedBox(height: 40),
-
-              // Footer
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.lock_rounded, size: 14, color: Color(0xFF6B7280)),
+                  Icon(Icons.lock_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 8),
                   Text(
                     'Your information is secure and encrypted',
                     style: TextStyle(
-                      color: Colors.grey.shade600,
+                      color: AppColors.textSecondaryOf(context),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -234,9 +217,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: TextField(
         controller: controller,
@@ -244,19 +227,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            color: Colors.grey.shade400,
+            color: AppColors.textTertiaryOf(context),
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.lock_outline_rounded,
-            color: Colors.grey,
+            color: AppColors.textTertiaryOf(context),
             size: 22,
           ),
           suffixIcon: IconButton(
             icon: Icon(
               isVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-              color: Colors.grey,
+              color: AppColors.textTertiaryOf(context),
               size: 22,
             ),
             onPressed: onToggle,
@@ -275,19 +258,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     if (_hasNumber) strength++;
     if (_hasSpecial) strength++;
 
-    Color color = Colors.grey.shade200;
+    Color color = AppColors.borderOf(context);
     String label = 'Weak';
     if (strength == 1) {
-      color = Colors.red;
+      color = AppColors.error;
       label = 'Weak';
     } else if (strength == 2) {
-      color = Colors.orange;
+      color = AppColors.warning;
       label = 'Fair';
     } else if (strength == 3) {
-      color = Colors.blue;
+      color = AppColors.info;
       label = 'Good';
     } else if (strength == 4) {
-      color = Colors.green;
+      color = AppColors.success;
       label = 'Strong';
     }
 
@@ -299,7 +282,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               height: 6,
               margin: EdgeInsets.only(right: i < 3 ? 8 : 0),
               decoration: BoxDecoration(
-                color: i < strength ? color : Colors.grey.shade200,
+                color: i < strength ? color : AppColors.borderOf(context),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -308,7 +291,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         Text(
           label,
           style: TextStyle(
-            color: strength > 0 ? color : Colors.grey,
+            color: strength > 0 ? color : AppColors.textTertiaryOf(context),
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -324,14 +307,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         children: [
           Icon(
             Icons.check_circle_rounded,
-            color: isMet ? Colors.green : Colors.grey.shade300,
+            color: isMet ? AppColors.success : AppColors.textTertiaryOf(context),
             size: 18,
           ),
           const SizedBox(width: 12),
           Text(
             text,
             style: TextStyle(
-              color: isMet ? const Color(0xFF1F2937) : Colors.grey,
+              color: isMet ? AppColors.textPrimaryOf(context) : AppColors.textTertiaryOf(context),
               fontSize: 13,
               fontWeight: isMet ? FontWeight.w600 : FontWeight.w500,
             ),
@@ -350,23 +333,23 @@ class _EmergencyBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
+        color: AppColors.errorLightOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFEE2E2)),
+        border: Border.all(color: AppColors.errorLightOf(context)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceOf(context),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.emergency_rounded, color: Colors.red, size: 24),
+            child: Icon(Icons.emergency_rounded, color: AppColors.error, size: 24),
           ),
           const SizedBox(width: 12),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -375,7 +358,7 @@ class _EmergencyBadge extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
-                  color: Colors.red,
+                  color: AppColors.error,
                 ),
               ),
               Text(
@@ -383,7 +366,7 @@ class _EmergencyBadge extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF7F1D1D),
+                  color: AppColors.error,
                 ),
               ),
             ],

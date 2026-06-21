@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 
 class PricingPlansScreen extends StatelessWidget {
   const PricingPlansScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Immersive mesh background
-          Positioned(top: -150, right: -100, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.05), size: 400)),
+          Positioned(top: -150, right: -100, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.1), size: 500)),
+          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.05), size: 400)),
 
           SafeArea(
             child: Column(
@@ -27,11 +25,11 @@ class PricingPlansScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('PREMIUM ACCESS', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                        Text('PREMIUM ACCESS', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                         const SizedBox(height: 12),
-                        const Text('Explore Plans', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+                        Text('Explore Plans', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
                         const SizedBox(height: 8),
-                        const Text('Choose a plan that fits your clinical needs.', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w500)),
+                        Text('Choose a plan that fits your clinical needs.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500)),
                         const SizedBox(height: 32),
 
                         _PricingCard(
@@ -46,7 +44,6 @@ class PricingPlansScreen extends StatelessWidget {
                           ],
                           buttonLabel: 'CURRENT PLAN',
                           isCurrent: true,
-                          primaryColor: primaryColor,
                         ),
                         const SizedBox(height: 24),
 
@@ -64,7 +61,6 @@ class PricingPlansScreen extends StatelessWidget {
                           ],
                           buttonLabel: 'UPGRADE NOW',
                           isPremium: true,
-                          primaryColor: primaryColor,
                         ),
                         const SizedBox(height: 24),
 
@@ -80,7 +76,6 @@ class PricingPlansScreen extends StatelessWidget {
                             'On-site Clinic Sync'
                           ],
                           buttonLabel: 'CONTACT SALES',
-                          primaryColor: const Color(0xFF8B5CF6),
                         ),
                         const SizedBox(height: 40),
                       ],
@@ -107,11 +102,11 @@ class PricingPlansScreen extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.borderOf(context)),
               ),
-              child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
+              child: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 20),
             ),
           ),
           GestureDetector(
@@ -131,11 +126,11 @@ class PricingPlansScreen extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.borderOf(context)),
               ),
-              child: const Icon(Icons.help_outline_rounded, color: Color(0xFF1E293B), size: 20),
+              child: Icon(Icons.help_outline_rounded, color: AppColors.textPrimaryOf(context), size: 20),
             ),
           ),
         ],
@@ -153,7 +148,6 @@ class _PricingCard extends StatelessWidget {
   final String buttonLabel;
   final bool isPremium;
   final bool isCurrent;
-  final Color primaryColor;
 
   const _PricingCard({
     required this.title,
@@ -164,17 +158,16 @@ class _PricingCard extends StatelessWidget {
     required this.buttonLabel,
     this.isPremium = false,
     this.isCurrent = false,
-    required this.primaryColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: isPremium ? primaryColor.withValues(alpha: 0.3) : const Color(0xFFF1F5F9), width: isPremium ? 2 : 1),
-        boxShadow: isPremium ? [BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 30, offset: const Offset(0, 15))] : [],
+        border: Border.all(color: isPremium ? AppColors.primary.withValues(alpha: 0.3) : AppColors.borderLightOf(context), width: isPremium ? 2 : 1),
+        boxShadow: isPremium ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.1), blurRadius: 30, offset: const Offset(0, 15))] : [],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,39 +177,39 @@ class _PricingCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: primaryColor,
+                color: AppColors.primary,
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
               ),
-              child: const Text('MOST POPULAR CHOICE', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+              child: Text('MOST POPULAR CHOICE', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
             ),
           Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: isPremium ? primaryColor : const Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                Text(title, style: TextStyle(color: isPremium ? AppColors.primary : AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                 const SizedBox(height: 16),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(price, style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1)),
+                    Text(price, style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
                     if (period != null)
-                      Text(period!, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8))),
+                      Text(period!, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(subtitle, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(subtitle, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 32),
-                const Divider(color: Color(0xFFF1F5F9)),
+                Divider(color: AppColors.borderLightOf(context)),
                 const SizedBox(height: 32),
                 ...features.map((f) => Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
                     children: [
-                      Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: const Color(0xFFECFDF5), shape: BoxShape.circle), child: const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 12)),
+                      Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: AppColors.successLightOf(context), shape: BoxShape.circle), child: const Icon(Icons.check_rounded, color: AppColors.success, size: 12)),
                       const SizedBox(width: 16),
-                      Text(f, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B), fontWeight: FontWeight.w700)),
+                      Text(f, style: TextStyle(fontSize: 14, color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w700)),
                     ],
                   ),
                 )),
@@ -231,13 +224,13 @@ class _PricingCard extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isPremium ? primaryColor : (isCurrent ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B)),
-                      foregroundColor: isPremium || !isCurrent ? Colors.white : const Color(0xFF94A3B8),
+                      backgroundColor: isPremium ? AppColors.primary : (isCurrent ? AppColors.borderLightOf(context) : AppColors.slate800),
+                      foregroundColor: isPremium || !isCurrent ? AppColors.textInverse : AppColors.textTertiaryOf(context),
                       elevation: isPremium ? 10 : 0,
-                      shadowColor: primaryColor.withValues(alpha: 0.3),
+                      shadowColor: AppColors.primary.withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     ),
-                    child: Text(buttonLabel, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
+                    child: Text(buttonLabel, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
                   ),
                 ),
               ],

@@ -53,7 +53,7 @@ class HelpSupportScreen extends StatelessWidget {
           _buildContactOption(
             context,
             icon: Icons.chat_bubble_outline_rounded,
-            color: const Color(0xFF8B5CF6),
+            color: AppColors.primary,
             title: 'Live Chat',
             subtitle: 'Available Mon-Fri, 9am-5pm WAT',
             onTap: () {

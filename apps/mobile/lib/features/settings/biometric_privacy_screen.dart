@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 
@@ -16,6 +17,28 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
   bool _showOnlineStatus = true;
   bool _shareDataForResearch = false;
   bool _allowCrashReporting = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _biometricLock = prefs.getBool('privacy_biometric') ?? false;
+      _profileVisible = prefs.getBool('privacy_profile_visible') ?? true;
+      _showOnlineStatus = prefs.getBool('privacy_online_status') ?? true;
+      _shareDataForResearch = prefs.getBool('privacy_research') ?? false;
+      _allowCrashReporting = prefs.getBool('privacy_crash_reporting') ?? true;
+    });
+  }
+
+  Future<void> _savePreference(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +60,17 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
         children: [
           Text('SECURITY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.fingerprint_rounded, color: AppColors.primary, title: 'Biometric Lock', subtitle: 'Require fingerprint or face to open app', value: _biometricLock, onChanged: (v) => setState(() => _biometricLock = v)),
+          _buildToggle(icon: Icons.fingerprint_rounded, color: AppColors.primary, title: 'Biometric Lock', subtitle: 'Require fingerprint or face to open app', value: _biometricLock, onChanged: (v) { setState(() => _biometricLock = v); _savePreference('privacy_biometric', v); }),
           const SizedBox(height: 24),
           Text('VISIBILITY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.visibility_rounded, color: AppColors.success, title: 'Profile Visibility', subtitle: 'Allow doctors to see your profile', value: _profileVisible, onChanged: (v) => setState(() => _profileVisible = v)),
-          _buildToggle(icon: Icons.circle_rounded, color: AppColors.info, title: 'Online Status', subtitle: 'Show when you are online', value: _showOnlineStatus, onChanged: (v) => setState(() => _showOnlineStatus = v)),
+          _buildToggle(icon: Icons.visibility_rounded, color: AppColors.success, title: 'Profile Visibility', subtitle: 'Allow doctors to see your profile', value: _profileVisible, onChanged: (v) { setState(() => _profileVisible = v); _savePreference('privacy_profile_visible', v); }),
+          _buildToggle(icon: Icons.circle_rounded, color: AppColors.info, title: 'Online Status', subtitle: 'Show when you are online', value: _showOnlineStatus, onChanged: (v) { setState(() => _showOnlineStatus = v); _savePreference('privacy_online_status', v); }),
           const SizedBox(height: 24),
           Text('DATA', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.science_rounded, color: const Color(0xFF8B5CF6), title: 'Research Data Sharing', subtitle: 'Share anonymized data for medical research', value: _shareDataForResearch, onChanged: (v) => setState(() => _shareDataForResearch = v)),
-          _buildToggle(icon: Icons.bug_report_rounded, color: AppColors.warning, title: 'Crash Reporting', subtitle: 'Help improve the app by sending crash reports', value: _allowCrashReporting, onChanged: (v) => setState(() => _allowCrashReporting = v)),
+          _buildToggle(icon: Icons.science_rounded, color: AppColors.primary, title: 'Research Data Sharing', subtitle: 'Share anonymized data for medical research', value: _shareDataForResearch, onChanged: (v) { setState(() => _shareDataForResearch = v); _savePreference('privacy_research', v); }),
+          _buildToggle(icon: Icons.bug_report_rounded, color: AppColors.warning, title: 'Crash Reporting', subtitle: 'Help improve the app by sending crash reports', value: _allowCrashReporting, onChanged: (v) { setState(() => _allowCrashReporting = v); _savePreference('privacy_crash_reporting', v); }),
         ],
       ),
     );

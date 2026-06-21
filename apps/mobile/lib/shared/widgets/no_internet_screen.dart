@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/app_colors.dart';
+
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E1B4B), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimaryOf(context), size: 20),
           onPressed: () => context.pop(),
         ),
       ),
@@ -21,7 +23,6 @@ class NoInternetScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Illustration
             Center(
               child: Stack(
                 alignment: Alignment.center,
@@ -30,42 +31,40 @@ class NoInternetScreen extends StatelessWidget {
                     width: 240,
                     height: 200,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFF),
+                      color: AppColors.surfaceAltOf(context),
                       borderRadius: BorderRadius.circular(40),
                     ),
                   ),
-                  // Cloud & Wifi Mock
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.cloud_rounded, size: 120, color: Colors.blue.withValues(alpha: 0.1)),
+                      Icon(Icons.cloud_rounded, size: 120, color: AppColors.info.withValues(alpha: 0.1)),
                       Transform.translate(
                         offset: const Offset(0, -60),
-                        child: const Icon(Icons.wifi_rounded, size: 60, color: Color(0xFF1E1B4B)),
+                        child: Icon(Icons.wifi_rounded, size: 60, color: AppColors.textPrimaryOf(context)),
                       ),
                     ],
                   ),
-                  // Red X Circle Overlay
                   Positioned(
                     bottom: 40,
                     right: 60,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.error,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
+                        border: Border.all(color: AppColors.surfaceOf(context), width: 3),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withValues(alpha: 0.3),
+                            color: AppColors.error.withValues(alpha: 0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.close_rounded,
-                        color: Colors.white,
+                        color: AppColors.textInverse,
                         size: 24,
                       ),
                     ),
@@ -74,49 +73,47 @@ class NoInternetScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'No internet connection',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E1B4B),
+                color: AppColors.textPrimaryOf(context),
                 letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Please check your connection\nand try again.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Color(0xFF6B7280),
+                color: AppColors.textSecondaryOf(context),
                 height: 1.5,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 40),
-            
-            // Auto-retry Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F3FF),
+                color: AppColors.surfaceAltOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFEDE9FE)),
+                border: Border.all(color: AppColors.borderLightOf(context)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEDE9FE),
+                    decoration: BoxDecoration(
+                      color: AppColors.borderLightOf(context),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.wifi_rounded, color: Color(0xFF818CF8), size: 24),
+                    child: Icon(Icons.wifi_rounded, color: AppColors.primaryLight, size: 24),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -125,15 +122,15 @@ class NoInternetScreen extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: Color(0xFF1E1B4B),
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           'We are automatically retrying to reconnect. This usually takes just a few seconds.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            color: AppColors.textSecondaryOf(context),
                             height: 1.4,
                           ),
                         ),
@@ -148,18 +145,18 @@ class NoInternetScreen extends StatelessWidget {
                           width: 6,
                           height: 6,
                           margin: const EdgeInsets.symmetric(horizontal: 2),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF818CF8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
                             shape: BoxShape.circle,
                           ),
                         )),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Auto-retrying...',
                         style: TextStyle(
                           fontSize: 9,
-                          color: Color(0xFF818CF8),
+                          color: AppColors.primaryLight,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -168,18 +165,15 @@ class NoInternetScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
             const SizedBox(height: 32),
-            
-            // Action Buttons
             SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
                 onPressed: () => Navigator.of(context).maybePop(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E31BE),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.textInverse,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -205,27 +199,27 @@ class NoInternetScreen extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).maybePop(),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF4F46E5),
-                  side: const BorderSide(color: Color(0xFFE5E7EB)),
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(color: AppColors.borderOf(context)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.cloud_download_outlined, size: 20),
-                    SizedBox(width: 10),
+                    const Icon(Icons.cloud_download_outlined, size: 20),
+                    const SizedBox(width: 10),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Go Offline Mode',
                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           'Access saved data and pages',
-                          style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF)),
+                          style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context)),
                         ),
                       ],
                     ),
@@ -233,27 +227,24 @@ class NoInternetScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
             const SizedBox(height: 24),
-            
-            // Help Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: AppColors.successLightOf(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFDCFCE7),
+                    decoration: BoxDecoration(
+                      color: AppColors.successLightOf(context),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.headset_mic_outlined,
-                      color: Color(0xFF10B981),
+                      color: AppColors.success,
                       size: 24,
                     ),
                   ),
@@ -262,20 +253,20 @@ class NoInternetScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Still having trouble?',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: Color(0xFF1E1B4B),
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           'Contact our support team, we\'re here to help.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            color: AppColors.textSecondaryOf(context),
                             height: 1.4,
                           ),
                         ),
@@ -284,54 +275,51 @@ class NoInternetScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).maybePop(),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Text(
                           'Contact Support',
                           style: TextStyle(
-                            color: Color(0xFF10B981),
+                            color: AppColors.success,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: Color(0xFF10B981), size: 16),
+                        Icon(Icons.chevron_right_rounded, color: AppColors.success, size: 16),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            
             const SizedBox(height: 32),
-            
-            // Footer Info
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF9FAFF),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceAltOf(context),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.wifi_off_rounded, color: Color(0xFF1E1B4B), size: 24),
+                  child: Icon(Icons.wifi_off_rounded, color: AppColors.textPrimaryOf(context), size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'No connection?',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
-                          color: Color(0xFF1E1B4B),
+                          color: AppColors.textPrimaryOf(context),
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Some features may be limited without internet.',
-                        style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+                        style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context)),
                       ),
                       InkWell(
                         onTap: () {
@@ -353,17 +341,17 @@ class NoInternetScreen extends StatelessWidget {
                             ),
                           );
                         },
-                        child: const Row(
+                        child: Row(
                           children: [
                             Text(
                               'Learn more about offline mode',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF2E31BE),
+                                color: AppColors.primary,
                               ),
                             ),
-                            Icon(Icons.chevron_right_rounded, color: Color(0xFF2E31BE), size: 14),
+                            Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 14),
                           ],
                         ),
                       ),

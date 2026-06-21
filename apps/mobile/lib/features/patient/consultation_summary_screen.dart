@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 
 
 class ConsultationSummaryScreen extends ConsumerWidget {
@@ -11,14 +12,13 @@ class ConsultationSummaryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const primaryColor = Color(0xFF0F62FE);
-    const successColor = Color(0xFF10B981);
+    final primaryColor = AppColors.primary;
+    final successColor = AppColors.success;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Immersive mesh background
           Positioned(top: -150, left: -100, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
           Positioned(bottom: -100, right: -50, child: _MeshCircle(color: successColor.withValues(alpha: 0.05), size: 400)),
 
@@ -31,25 +31,25 @@ class ConsultationSummaryScreen extends ConsumerWidget {
                 children: [
                   _buildAppBar(context),
                   const SizedBox(height: 24),
-                  const Text('SESSION FINALIZED', style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                  Text('SESSION FINALIZED', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                   const SizedBox(height: 12),
-                  const Text('Summary Report', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+                  Text('Summary Report', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
                   const SizedBox(height: 32),
 
                   _SuccessHub(successColor: successColor),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('CONSULTING SPECIALIST'),
+                  _buildSectionTitle(context, 'CONSULTING SPECIALIST'),
                   const SizedBox(height: 16),
                   _SpecialistSummaryCard(primaryColor: primaryColor, doctorName: doctorName, doctorSpecialty: doctorSpecialty),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('CLINICAL PRESCRIPTION'),
+                  _buildSectionTitle(context, 'CLINICAL PRESCRIPTION'),
                   const SizedBox(height: 16),
                   _PrescriptionFeed(),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('DOCTOR\'S OBSERVATIONS'),
+                  _buildSectionTitle(context, 'DOCTOR\'S OBSERVATIONS'),
                   const SizedBox(height: 16),
                   _ObservationModule(),
                   const SizedBox(height: 40),
@@ -57,7 +57,7 @@ class ConsultationSummaryScreen extends ConsumerWidget {
                   _FollowUpHub(primaryColor: primaryColor),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('EXPERIENCE RATING'),
+                  _buildSectionTitle(context, 'EXPERIENCE RATING'),
                   const SizedBox(height: 16),
                   _FeedbackModule(),
                   const SizedBox(height: 48),
@@ -73,8 +73,8 @@ class ConsultationSummaryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
   }
 
   Widget _buildAppBar(BuildContext context) {
@@ -85,9 +85,9 @@ class ConsultationSummaryScreen extends ConsumerWidget {
         children: [
           GestureDetector(
             onTap: () => context.pop(),
-            child: Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))), child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20)),
+            child: Container(width: 48, height: 48, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))), child: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 20)),
           ),
-          Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))), child: const Icon(Icons.share_rounded, color: Color(0xFF1E293B), size: 20)),
+          Container(width: 48, height: 48, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))), child: Icon(Icons.share_rounded, color: AppColors.textPrimaryOf(context), size: 20)),
         ],
       ),
     );
@@ -138,17 +138,17 @@ class _SpecialistSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
           Container(
             width: 72, height: 72,
             decoration: BoxDecoration(
-              color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(24),
             ),
-            child: const Center(
-              child: Text('A', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF0F62FE))),
+            child: Center(
+              child: Text('A', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.primary)),
             ),
           ),
           const SizedBox(width: 20),
@@ -156,9 +156,9 @@ class _SpecialistSummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(doctorName ?? '', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.5)),
+                Text(doctorName ?? '', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
                 const SizedBox(height: 4),
-                Text(doctorSpecialty ?? 'General Medical Physician', style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+                Text(doctorSpecialty ?? 'General Medical Physician', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -174,9 +174,9 @@ class _PrescriptionFeed extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _MedicationModule(name: 'Amoxicillin 500mg', instructions: '1 CAPSULE • 3X DAILY • POST-PRANDIAL', duration: '7 DAYS', color: Colors.indigo),
-        _MedicationModule(name: 'Paracetamol 500mg', instructions: '1 TABLET • AS REQUIRED • PAIN MANAGEMENT', duration: '5 DAYS', color: Colors.blue),
-        _MedicationModule(name: 'Cetirizine 10mg', instructions: '1 TABLET • 1X DAILY • NOCTURNAL', duration: '7 DAYS', color: Colors.purple),
+        _MedicationModule(name: 'Amoxicillin 500mg', instructions: '1 CAPSULE • 3X DAILY • POST-PRANDIAL', duration: '7 DAYS', color: AppColors.primary),
+        _MedicationModule(name: 'Paracetamol 500mg', instructions: '1 TABLET • AS REQUIRED • PAIN MANAGEMENT', duration: '5 DAYS', color: AppColors.info),
+        _MedicationModule(name: 'Cetirizine 10mg', instructions: '1 TABLET • 1X DAILY • NOCTURNAL', duration: '7 DAYS', color: AppColors.primary),
       ],
     );
   }
@@ -195,7 +195,7 @@ class _MedicationModule extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
           Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)), child: Icon(Icons.medication_rounded, color: color, size: 22)),
@@ -204,13 +204,13 @@ class _MedicationModule extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.3)),
+                Text(name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.3)),
                 const SizedBox(height: 4),
-                Text(instructions, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                Text(instructions, style: TextStyle(fontSize: 10, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w800, letterSpacing: 0.5)),
               ],
             ),
           ),
-          Text(duration, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFCBD5E1), letterSpacing: 0.5)),
+          Text(duration, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textTertiaryOf(context), letterSpacing: 0.5)),
         ],
       ),
     );
@@ -223,10 +223,10 @@ class _ObservationModule extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
-      child: const Text(
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
+      child: Text(
         'Presenting symptoms indicate a mild upper respiratory tract infection. Essential to maintain high hydration levels and strict adherence to the antimicrobial regimen. Re-evaluate if clinical status remains unchanged after 5 days.',
-        style: TextStyle(fontSize: 14, color: Color(0xFF475569), height: 1.6, fontWeight: FontWeight.w600),
+        style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), height: 1.6, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -249,7 +249,7 @@ class _FollowUpHub extends StatelessWidget {
               children: [
                 Text('NEXT EVALUATION', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: primaryColor, letterSpacing: 1)),
                 const SizedBox(height: 6),
-                const Text('Scheduled in 7 days to monitor clinical trajectory.', style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w700, height: 1.4)),
+                Text('Scheduled in 7 days to monitor clinical trajectory.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700, height: 1.4)),
               ],
             ),
           ),
@@ -270,10 +270,10 @@ class _FeedbackModule extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(5, (index) => Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 32))),
+        children: List.generate(5, (index) => Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.star_rounded, color: AppColors.warning, size: 32))),
       ),
     );
   }
@@ -301,7 +301,7 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: () => context.go('/account-conversion'),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E293B), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimaryOf(context), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
             child: const Text('DISMISS REPORT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 0.5)),
           ),
         ),
@@ -319,13 +319,13 @@ class _SecondaryAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 60,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderOf(context))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF64748B)),
+          Icon(icon, size: 20, color: AppColors.textSecondaryOf(context)),
           const SizedBox(width: 12),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF64748B), fontSize: 12, letterSpacing: 0.5)),
+          Text(label, style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), fontSize: 12, letterSpacing: 0.5)),
         ],
       ),
     );

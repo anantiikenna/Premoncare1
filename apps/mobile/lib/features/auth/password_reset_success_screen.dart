@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 
 class PasswordResetSuccessScreen extends StatelessWidget {
   const PasswordResetSuccessScreen({super.key});
@@ -7,7 +8,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -15,16 +16,15 @@ class PasswordResetSuccessScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 12),
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
+                    icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context)),
                     onPressed: () => context.pop(),
                     style: IconButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: Colors.grey.shade200),
+                      backgroundColor: AppColors.surfaceOf(context),
+                      side: BorderSide(color: AppColors.borderOf(context)),
                       padding: const EdgeInsets.all(12),
                     ),
                   ),
@@ -32,52 +32,46 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 60),
-
-              // Success Illustration
               const _SuccessIllustration(),
               const SizedBox(height: 40),
-
-              // Title & Description
-              const Text(
+              Text(
                 'Password Reset!',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF111827),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Your password has been successfully\nreset. You can now sign in with your\nnew password.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF6B7280),
+                  color: AppColors.textSecondaryOf(context),
                   height: 1.5,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 32),
-
-              // Security Info
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
+                  color: AppColors.successLightOf(context),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFDCFCE7)),
+                  border: Border.all(color: AppColors.successLightOf(context)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surfaceOf(context),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.verified_user_outlined,
-                        color: Color(0xFF16A34A),
+                        color: AppColors.success,
                         size: 24,
                       ),
                     ),
@@ -91,7 +85,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
-                              color: Color(0xFF15803D),
+                              color: AppColors.success,
                             ),
                           ),
                           SizedBox(height: 4),
@@ -99,7 +93,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                             'We\'ve sent a confirmation email to your inbox.',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF166534),
+                              color: AppColors.success,
                             ),
                           ),
                         ],
@@ -109,8 +103,6 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-
-              // Action Buttons
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -118,58 +110,54 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                   icon: const Icon(Icons.login_rounded, size: 20),
                   label: const Text('Go to Sign In'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F62FE),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.textInverse,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 4,
-                    shadowColor: const Color(0xFF0F62FE).withValues(alpha: 0.4),
+                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
                     textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-
               Row(
                 children: [
-                  Expanded(child: Divider(color: Colors.grey.shade200)),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                  Expanded(child: Divider(color: AppColors.borderOf(context))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       'OR',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: AppColors.textTertiaryOf(context),
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  Expanded(child: Divider(color: Colors.grey.shade200)),
+                  Expanded(child: Divider(color: AppColors.borderOf(context))),
                 ],
               ),
               const SizedBox(height: 24),
-
               TextButton.icon(
                 onPressed: () => context.go('/'),
                 icon: const Icon(Icons.home_outlined, size: 20),
                 label: const Text('Back to Home'),
                 style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF4F46E5),
+                  foregroundColor: AppColors.primary,
                   textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                 ),
               ),
               const SizedBox(height: 40),
-
-              // Didn't receive email banner
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: AppColors.surfaceAltOf(context),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.mark_email_read_outlined, color: Color(0xFF4F46E5), size: 32),
+                    const Icon(Icons.mark_email_read_outlined, color: AppColors.primary, size: 32),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
@@ -181,7 +169,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                           ),
                           Text(
                             'Check your spam folder or resend the email.',
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12),
                           ),
                         ],
                       ),
@@ -195,8 +183,8 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                       },
                       child: const Row(
                         children: [
-                          Text('Resend Email', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF4F46E5))),
-                          Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF4F46E5)),
+                          Text('Resend Email', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                          Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.primary),
                         ],
                       ),
                     ),
@@ -204,17 +192,15 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-
-              // Footer
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.lock_rounded, size: 14, color: Color(0xFF6B7280)),
+                  Icon(Icons.lock_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 8),
                   Text(
                     'Your information is secure and encrypted',
                     style: TextStyle(
-                      color: Colors.grey.shade600,
+                      color: AppColors.textSecondaryOf(context),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -238,20 +224,20 @@ class _EmergencyBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
+        color: AppColors.errorLightOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFEE2E2)),
+        border: Border.all(color: AppColors.errorLightOf(context)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceOf(context),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.emergency_rounded, color: Colors.red, size: 24),
+            child: const Icon(Icons.emergency_rounded, color: AppColors.error, size: 24),
           ),
           const SizedBox(width: 12),
           const Column(
@@ -263,7 +249,7 @@ class _EmergencyBadge extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
-                  color: Colors.red,
+                  color: AppColors.error,
                 ),
               ),
               Text(
@@ -271,7 +257,7 @@ class _EmergencyBadge extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF7F1D1D),
+                  color: AppColors.error,
                 ),
               ),
             ],
@@ -294,38 +280,35 @@ class _SuccessIllustration extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Sparkles
           Positioned(
             left: 40,
             top: 40,
-            child: Icon(Icons.auto_awesome_rounded, color: Colors.green.withValues(alpha: 0.3), size: 24),
+            child: Icon(Icons.auto_awesome_rounded, color: AppColors.success.withValues(alpha: 0.3), size: 24),
           ),
           Positioned(
             right: 40,
             top: 50,
-            child: Icon(Icons.auto_awesome_rounded, color: Colors.green.withValues(alpha: 0.3), size: 20),
+            child: Icon(Icons.auto_awesome_rounded, color: AppColors.success.withValues(alpha: 0.3), size: 20),
           ),
           Positioned(
             left: 50,
             bottom: 30,
-            child: Icon(Icons.star_rounded, color: const Color(0xFF4F46E5).withValues(alpha: 0.2), size: 16),
+            child: Icon(Icons.star_rounded, color: AppColors.primary.withValues(alpha: 0.2), size: 16),
           ),
           Positioned(
             right: 60,
             bottom: 40,
-            child: CircleAvatar(radius: 3, backgroundColor: Colors.orange.withValues(alpha: 0.3)),
+            child: CircleAvatar(radius: 3, backgroundColor: AppColors.warning.withValues(alpha: 0.3)),
           ),
-
-          // Circle background
           Container(
             width: 140,
             height: 140,
             decoration: BoxDecoration(
-              color: const Color(0xFFF0FDF4),
+              color: AppColors.successLightOf(context),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: AppColors.success.withValues(alpha: 0.1),
                   blurRadius: 40,
                   offset: const Offset(0, 10),
                 ),
@@ -336,22 +319,20 @@ class _SuccessIllustration extends StatelessWidget {
             width: 110,
             height: 110,
             decoration: const BoxDecoration(
-              color: Color(0xFFDCFCE7),
+              color: AppColors.successLight,
               shape: BoxShape.circle,
             ),
           ),
-
-          // Checkmark
           Container(
             width: 80,
             height: 80,
             decoration: const BoxDecoration(
-              color: Color(0xFF22C55E),
+              color: AppColors.success,
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.check_rounded,
-              color: Colors.white,
+              color: AppColors.textInverse,
               size: 48,
             ),
           ),

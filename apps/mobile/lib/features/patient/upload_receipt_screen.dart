@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import '../../core/app_colors.dart';
+
 class UploadReceiptScreen extends ConsumerStatefulWidget {
   const UploadReceiptScreen({super.key});
 
@@ -27,30 +29,30 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
+          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
         centerTitle: true,
-        title: const Column(
+        title: Column(
           children: [
             Text(
               'Upload Payment Receipt',
-              style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900),
+              style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900),
             ),
             Text(
               'Upload your payment proof for verification',
-              style: TextStyle(color: Colors.grey, fontSize: 11),
+              style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline_rounded, color: Colors.black54),
+            icon: Icon(Icons.help_outline_rounded, color: AppColors.textSecondaryOf(context)),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Upload your payment receipt for verification')),
@@ -68,9 +70,9 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 40),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9F5FF),
+                color: AppColors.surfaceAltOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFD6BBFB), style: BorderStyle.solid, width: 1.5),
+                border: Border.all(color: AppColors.borderOf(context), style: BorderStyle.solid, width: 1.5),
               ),
               child: _selectedFile != null
                   ? Column(
@@ -96,7 +98,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                           children: [
                             TextButton(
                               onPressed: _pickFile,
-                              child: const Text('Change File', style: TextStyle(color: Color(0xFF7F56D9), fontWeight: FontWeight.bold)),
+                              child: Text('Change File', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
                             ),
                             TextButton(
                               onPressed: () {
@@ -104,7 +106,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                                   _selectedFile = null;
                                 });
                               },
-                              child: const Text('Remove', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                              child: Text('Remove', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
@@ -114,17 +116,17 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
-                          child: const Icon(Icons.cloud_upload_outlined, color: Color(0xFF7F56D9), size: 32),
+                          decoration: BoxDecoration(color: AppColors.surfaceOf(context), shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
+                          child: Icon(Icons.cloud_upload_outlined, color: AppColors.primary, size: 32),
                         ),
                         const SizedBox(height: 16),
                         const Text('Upload Receipt', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const Text('JPG, PNG or PDF (Max 5MB)', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        Text('JPG, PNG or PDF (Max 5MB)', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 12)),
                         const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: _pickFile,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6941C6),
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -135,9 +137,9 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.lock_outline_rounded, size: 14, color: Colors.grey.shade400),
+                            Icon(Icons.lock_outline_rounded, size: 14, color: AppColors.textTertiaryOf(context)),
                             const SizedBox(width: 4),
-                            Text('Your data is secure and encrypted', style: TextStyle(color: Colors.grey.shade400, fontSize: 10)),
+                            Text('Your data is secure and encrypted', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
                           ],
                         ),
                       ],
@@ -163,15 +165,15 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                     return;
                   }
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content: Text('Receipt submitted for verification. We\'ll review it shortly.'),
-                      backgroundColor: Color(0xFF10B981),
+                      backgroundColor: AppColors.success,
                     ),
                   );
                   Navigator.of(context).maybePop();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6941C6),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -183,25 +185,25 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9F5FF),
+                color: AppColors.surfaceAltOf(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFD6BBFB).withValues(alpha: 0.3)),
+                border: Border.all(color: AppColors.borderOf(context)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline_rounded, color: Color(0xFF6941C6), size: 24),
+                  Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 24),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Tips for faster verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF6941C6))),
-                        Text('• Make sure the amount is clearly visible', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                        Text('• Use a clear, well-lit image of the receipt', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                        Text('Tips for faster verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary)),
+                        Text('• Make sure the amount is clearly visible', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
+                        Text('• Use a clear, well-lit image of the receipt', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
                       ],
                     ),
                   ),
-                  Image.network('https://cdn-icons-png.flaticon.com/512/1007/1007929.png', width: 40, height: 40, errorBuilder: (context, error, stackTrace) => const Icon(Icons.receipt_long_rounded, size: 40, color: Color(0xFFD6BBFB))),
+                  Image.network('https://cdn-icons-png.flaticon.com/512/1007/1007929.png', width: 40, height: 40, errorBuilder: (context, error, stackTrace) => Icon(Icons.receipt_long_rounded, size: 40, color: AppColors.borderOf(context))),
                 ],
               ),
             ),
@@ -209,17 +211,17 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Uploaded Receipts', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                Text('Uploaded Receipts', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
                 TextButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Receipt history will be available after your first upload')),
                     );
                   },
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text('View All', style: TextStyle(color: Color(0xFF6941C6), fontWeight: FontWeight.bold)),
-                      Icon(Icons.chevron_right_rounded, color: Color(0xFF6941C6), size: 20),
+                      Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 20),
                     ],
                   ),
                 ),
@@ -233,7 +235,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
               ref: '8827362819',
               status: 'Pending',
               statusLabel: 'Under review',
-              statusColor: Colors.orange,
+              statusColor: AppColors.warning,
               icon: Icons.access_time_rounded,
             ),
             _HistoryTile(
@@ -243,7 +245,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
               ref: '7726352810',
               status: 'Approved',
               statusLabel: 'Time added: 45 mins',
-              statusColor: Colors.green,
+              statusColor: AppColors.success,
               icon: Icons.check_circle_rounded,
             ),
             _HistoryTile(
@@ -253,7 +255,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
               ref: '6638272910',
               status: 'Rejected',
               statusLabel: 'Amount mismatch',
-              statusColor: Colors.red,
+              statusColor: AppColors.error,
               icon: Icons.cancel_rounded,
             ),
             const SizedBox(height: 40),
@@ -267,18 +269,18 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
         const SizedBox(height: 8),
         TextField(
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+            hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+            fillColor: AppColors.surfaceOf(context),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
           ),
         ),
       ],
@@ -289,14 +291,14 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: AppColors.borderOf(context)),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -307,7 +309,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                   value: val,
                   child: Row(
                     children: [
-                      const Icon(Icons.account_balance_rounded, size: 18, color: Colors.grey),
+                      Icon(Icons.account_balance_rounded, size: 18, color: AppColors.textTertiaryOf(context)),
                       const SizedBox(width: 12),
                       Text(val, style: const TextStyle(fontSize: 14)),
                     ],
@@ -353,9 +355,9 @@ class _HistoryTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
@@ -369,9 +371,9 @@ class _HistoryTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$date • $time', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                Text(amount, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
-                Text('Ref: $ref', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                Text('$date • $time', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
+                Text(amount, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+                Text('Ref: $ref', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
               ],
             ),
           ),
@@ -384,11 +386,11 @@ class _HistoryTile extends StatelessWidget {
                 child: Text(status, style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 4),
-              Text(statusLabel, style: TextStyle(color: Colors.grey.shade500, fontSize: 10)),
+              Text(statusLabel, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
             ],
           ),
           const SizedBox(width: 8),
-          Icon(Icons.chevron_right_rounded, color: Colors.grey.shade300),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context)),
         ],
       ),
     );

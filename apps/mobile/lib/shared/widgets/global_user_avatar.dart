@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/app_colors.dart';
 import '../../core/providers.dart';
 
 class GlobalUserAvatar extends ConsumerWidget {
@@ -16,18 +17,18 @@ class GlobalUserAvatar extends ConsumerWidget {
         final avatarUrl = profile?['avatar_url'] as String?;
         return CircleAvatar(
           radius: radius,
-          backgroundColor: const Color(0xFFE2E8F0),
+          backgroundColor: AppColors.borderOf(context),
           backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
               ? NetworkImage(avatarUrl)
               : null,
           child: avatarUrl == null || avatarUrl.isEmpty
-              ? const Icon(Icons.person, color: Color(0xFF94A3B8))
+              ? Icon(Icons.person, color: AppColors.textTertiaryOf(context))
               : null,
         );
       },
       loading: () => CircleAvatar(
         radius: radius,
-        backgroundColor: const Color(0xFFF1F5F9),
+        backgroundColor: AppColors.borderLightOf(context),
         child: const SizedBox(
           width: 16,
           height: 16,
@@ -36,8 +37,8 @@ class GlobalUserAvatar extends ConsumerWidget {
       ),
       error: (err, stack) => CircleAvatar(
         radius: radius,
-        backgroundColor: const Color(0xFFFEE2E2),
-        child: const Icon(Icons.error_outline, color: Color(0xFFEF4444)),
+        backgroundColor: AppColors.errorLightOf(context),
+        child: Icon(Icons.error_outline, color: AppColors.error),
       ),
     );
   }

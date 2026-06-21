@@ -194,7 +194,7 @@ class _HeaderStatsCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('Across $activeDoctors Active Doctors', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.w600)),
+                    Text('Across $activeDoctors Active Doctors', style: TextStyle(color: AppColors.textTertiary, fontSize: 11, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),

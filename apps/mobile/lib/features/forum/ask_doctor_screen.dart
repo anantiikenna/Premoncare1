@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../core/app_colors.dart';
 import 'forum_provider.dart';
 import 'forum_utils.dart';
 
@@ -24,10 +25,10 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F2042)),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Ask a Doctor', style: TextStyle(color: Color(0xFF0F2042), fontWeight: FontWeight.bold)),
+        title: Text('Ask a Doctor', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 40),
@@ -56,7 +57,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Ask a Doctor', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF0F2042))),
+          Text('Ask a Doctor', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
           const SizedBox(height: 4),
           Text('Get answers from verified healthcare professionals.', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
         ],
@@ -90,7 +91,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF0F62FE), width: 1.5),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
                 ),
               ),
             ),
@@ -102,12 +103,12 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
 
   Widget _buildCategoriesStrip() {
     final categories = [
-      {'name': 'All', 'icon': null, 'color': const Color(0xFF0F62FE), 'bg': const Color(0xFF0F62FE), 'text': Colors.white},
-      {'name': 'Heart Health', 'icon': Icons.favorite_border, 'color': Colors.red, 'bg': Colors.white, 'text': const Color(0xFF0F2042)},
-      {'name': 'Mental Health', 'icon': Icons.psychology_outlined, 'color': Colors.purple, 'bg': Colors.white, 'text': const Color(0xFF0F2042)},
-      {'name': 'Nutrition', 'icon': Icons.apple_outlined, 'color': Colors.orange, 'bg': Colors.white, 'text': const Color(0xFF0F2042)},
-      {'name': 'Pregnancy', 'icon': Icons.pregnant_woman_outlined, 'color': Colors.pink, 'bg': Colors.white, 'text': const Color(0xFF0F2042)},
-      {'name': 'General Health', 'icon': Icons.health_and_safety_outlined, 'color': Colors.teal, 'bg': Colors.white, 'text': const Color(0xFF0F2042)},
+      {'name': 'All', 'icon': null, 'color': AppColors.primary, 'bg': AppColors.primary, 'text': Colors.white},
+      {'name': 'Heart Health', 'icon': Icons.favorite_border, 'color': Colors.red, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'Mental Health', 'icon': Icons.psychology_outlined, 'color': Colors.purple, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'Nutrition', 'icon': Icons.apple_outlined, 'color': Colors.orange, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'Pregnancy', 'icon': Icons.pregnant_woman_outlined, 'color': Colors.pink, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'General Health', 'icon': Icons.health_and_safety_outlined, 'color': Colors.teal, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
     ];
 
     return SizedBox(
@@ -172,19 +173,19 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0F62FE), Color(0xFF00B4D8)],
+          colors: [AppColors.primary, AppColors.info],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5))],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: const Icon(Icons.medical_services_outlined, color: Color(0xFF0F62FE), size: 32),
+            child: const Icon(Icons.medical_services_outlined, color: AppColors.primary, size: 32),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -202,7 +203,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
             onPressed: () => context.push('/forum/create'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF0F62FE),
+              foregroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               elevation: 0,
@@ -297,15 +298,15 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: const Color(0xFF0F62FE).withValues(alpha: 0.1),
-                  child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F62FE))),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: Text(authorInitial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(post.authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F2042))),
+                      Text(post.authorName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
                       Text(timeAgo, style: TextStyle(color: Colors.grey[500], fontSize: 11)),
                     ],
                   ),
@@ -325,7 +326,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(post.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F2042))),
+            Text(post.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 6),
             Text(post.content, style: TextStyle(color: Colors.grey[600], fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 12),
@@ -352,14 +353,14 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: AppColors.backgroundOf(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.blue[50]!),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.verified_user, color: Color(0xFF0F62FE), size: 16),
+            const Icon(Icons.verified_user, color: AppColors.primary, size: 16),
             const SizedBox(height: 8),
             Text(
               'Forum responses are for educational purposes and do not replace professional consultations.',

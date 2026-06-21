@@ -20,6 +20,8 @@ class AppColors {
   static const Color errorLight    = Color(0xFFFEE2E2);
   static const Color info          = Color(0xFF00B4D8);
   static const Color infoLight     = Color(0xFFE0F7FA);
+  static const Color pink          = Color(0xFFEC4899);
+  static const Color teal          = Color(0xFF14B8A6);
 
   // ─── Neutral (Slate) ────────────────────────────────────────────
   static const Color slate900      = Color(0xFF0F172A);

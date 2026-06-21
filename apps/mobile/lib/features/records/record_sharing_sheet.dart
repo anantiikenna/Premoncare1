@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/app_colors.dart';
 import '../patient/patient_providers.dart';
 import 'records_provider.dart';
 
@@ -19,9 +20,9 @@ class RecordSharingSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Only authorized doctors can view and decrypt this record.',
-              style: TextStyle(color: Colors.grey, fontSize: 13),
+              style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13),
             ),
             const SizedBox(height: 20),
             doctorsAsync.when(
@@ -48,10 +49,9 @@ class RecordSharingSheet extends ConsumerWidget {
                         subtitle: Text(doc['specialty'] ?? 'Healthcare Provider'),
                         trailing: Switch(
                           value: isAuthorized,
-                          activeThumbColor: const Color(0xFF10B981),
+                          activeThumbColor: AppColors.success,
                           onChanged: (val) async {
                             await RecordsService.toggleAuthorization(record.id, doc['id'], val);
-                            // The stream provider will automatically rebuild the UI
                           },
                         ),
                       );

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/app_colors.dart';
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -24,7 +26,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       text: 'Find and book trusted doctors in just a few taps.',
       image: 'assets/onboarding_1.png',
       icon: Icons.verified_rounded,
-      color: Color(0xFF0F62FE),
+      color: AppColors.primary,
     ),
     _OnboardingItem(
       title: 'Secure video\nconsultations',
@@ -32,7 +34,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       text: 'Talk to your doctor securely from the comfort of your home.',
       image: 'assets/onboarding_2.png',
       icon: Icons.videocam_rounded,
-      color: Color(0xFF0F62FE),
+      color: AppColors.primary,
     ),
     _OnboardingItem(
       title: 'Pay with\ntime credits',
@@ -40,7 +42,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       text: 'Use time credits for consultations - simple, transparent, and fair.',
       image: 'assets/onboarding_3.png',
       icon: Icons.access_time_filled_rounded,
-      color: Color(0xFF0F62FE),
+      color: AppColors.primary,
     ),
   ];
 
@@ -76,16 +78,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     final page = _pages[_currentPage];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       body: Stack(
         children: [
-          const Positioned.fill(
+          Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFFF8FBFF), Colors.white],
+                  colors: [AppColors.backgroundOf(context), AppColors.surfaceOf(context)],
                 ),
               ),
             ),
@@ -110,9 +112,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         onPressed: () => _goTo('/login'),
                         label: const Text(
                           'Skip',
-                          style: TextStyle(color: Color(0xFF0F62FE), fontSize: 16, fontWeight: FontWeight.w800),
+                          style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w800),
                         ),
-                        icon: const Icon(Icons.arrow_forward_rounded, color: Color(0xFF0F62FE), size: 18),
+                        icon: const Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 18),
                         iconAlignment: IconAlignment.end,
                       ),
                     ],
@@ -221,8 +223,8 @@ class _OnboardingSlide extends StatelessWidget {
             child: Text(
               item.text,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFF64748B),
+              style: TextStyle(
+                color: AppColors.textSecondaryOf(context),
                 fontSize: 16,
                 height: 1.45,
                 fontWeight: FontWeight.w600,
@@ -246,8 +248,8 @@ class _HighlightedTitle extends StatelessWidget {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-        style: const TextStyle(
-          color: Color(0xFF0F172A),
+        style: TextStyle(
+          color: AppColors.textPrimaryOf(context),
           fontSize: 30,
           height: 1.18,
           fontWeight: FontWeight.w900,
@@ -282,7 +284,7 @@ class _PageDots extends StatelessWidget {
           width: active ? 10 : 8,
           height: active ? 10 : 8,
           decoration: BoxDecoration(
-            color: active ? activeColor : const Color(0xFFD6E0F0),
+            color: active ? activeColor : AppColors.borderLightOf(context),
             shape: BoxShape.circle,
           ),
         );
@@ -321,9 +323,9 @@ class _PrimaryAction extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(colors: [const Color(0xFF0F62FE), color]),
+            gradient: LinearGradient(colors: [AppColors.primary, color]),
             boxShadow: [
-              BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.22), blurRadius: 22, offset: const Offset(0, 12)),
+              BoxShadow(color: AppColors.primary.withValues(alpha: 0.22), blurRadius: 22, offset: const Offset(0, 12)),
             ],
           ),
           child: Container(
@@ -335,7 +337,7 @@ class _PrimaryAction extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.96), shape: BoxShape.circle),
-                  child: Icon(icon, color: const Color(0xFF0F62FE), size: 22),
+                  child: Icon(icon, color: AppColors.primary, size: 22),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -367,8 +369,8 @@ class _LoginAction extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Color(0xFFB8CCFF), width: 1.4),
-          backgroundColor: Colors.white.withValues(alpha: 0.9),
+          side: BorderSide(color: AppColors.borderOf(context), width: 1.4),
+          backgroundColor: AppColors.surfaceOf(context).withValues(alpha: 0.9),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(horizontal: 18),
         ),
@@ -376,13 +378,13 @@ class _LoginAction extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 19,
-              backgroundColor: Color(0xFFEAF1FF),
-              child: Icon(Icons.person_rounded, color: Color(0xFF0F62FE), size: 21),
+              backgroundColor: AppColors.infoLight,
+              child: Icon(Icons.person_rounded, color: AppColors.primary, size: 21),
             ),
             SizedBox(width: 18),
             Text(
               'Login',
-              style: TextStyle(color: Color(0xFF0F62FE), fontSize: 17, fontWeight: FontWeight.w900),
+              style: TextStyle(color: AppColors.primary, fontSize: 17, fontWeight: FontWeight.w900),
             ),
           ],
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../core/app_colors.dart';
 
 class SubscriptionManagementScreen extends StatefulWidget {
   const SubscriptionManagementScreen({super.key});
@@ -15,22 +15,22 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimaryOf(context), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Subscription Management',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w800, fontSize: 18),
+          style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w800, fontSize: 18),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline_rounded, color: Color(0xFF1E293B)),
+            icon: Icon(Icons.help_outline_rounded, color: AppColors.textPrimaryOf(context)),
             onPressed: () => context.push('/help-support'),
           ),
           const SizedBox(width: 8),
@@ -54,10 +54,10 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Center(
+        Center(
           child: Text(
             'Manage your plan, billing and benefits',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500),
+            style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
           ),
         ),
         const SizedBox(height: 24),
@@ -85,8 +85,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
         // Manage Subscription Actions
         _buildSectionHeader('Manage Subscription'),
         const SizedBox(height: 16),
-        _buildActionTile(Icons.upgrade_rounded, 'Upgrade Plan', 'Get more benefits and features', const Color(0xFF0F62FE), () => setState(() => isExploring = true)),
-        _buildActionTile(Icons.pause_circle_outline_rounded, 'Pause Subscription', 'Pause your plan for a while', const Color(0xFF6366F1), () {
+        _buildActionTile(Icons.upgrade_rounded, 'Upgrade Plan', 'Get more benefits and features', AppColors.primary, () => setState(() => isExploring = true)),
+        _buildActionTile(Icons.pause_circle_outline_rounded, 'Pause Subscription', 'Pause your plan for a while', AppColors.primary, () {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
@@ -105,7 +105,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             ),
           );
         }),
-        _buildActionTile(Icons.cancel_outlined, 'Cancel Subscription', 'Cancel your plan and stop future billing', const Color(0xFFEF4444), () {
+        _buildActionTile(Icons.cancel_outlined, 'Cancel Subscription', 'Cancel your plan and stop future billing', AppColors.error, () {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
@@ -138,14 +138,14 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F62FE), Color(0xFF0EA5E9)],
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.info],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10)),
         ],
       ),
       child: Stack(
@@ -159,11 +159,11 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 child: const Text('Current Plan', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 16),
-              const Row(
+              Row(
                 children: [
-                  Text('Premium Plan', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900)),
-                  SizedBox(width: 8),
-                  Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E), size: 24),
+                  const Text('Premium Plan', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900)),
+                  const SizedBox(width: 8),
+                  Icon(Icons.check_circle_rounded, color: AppColors.success, size: 24),
                 ],
               ),
               const SizedBox(height: 8),
@@ -235,12 +235,12 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: const Color(0xFF0F62FE).withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: Icon(icon, color: const Color(0xFF0F62FE), size: 22),
+            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(icon, color: AppColors.primary, size: 22),
           ),
           const SizedBox(height: 8),
-          Text(title, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 11, fontWeight: FontWeight.w800)),
-          Text(sub, style: const TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.w500)),
+          Text(title, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
+          Text(sub, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 9, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -250,9 +250,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 15, fontWeight: FontWeight.w800)),
+        Text(title, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.w800)),
         if (trailing != null)
-          Text(trailing, style: TextStyle(color: trailing.contains('History') ? const Color(0xFF0F62FE) : const Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w700)),
+          Text(trailing, style: TextStyle(color: trailing.contains('History') ? AppColors.primary : AppColors.textTertiaryOf(context), fontSize: 12, fontWeight: FontWeight.w700)),
       ],
     );
   }
@@ -260,11 +260,11 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
   Widget _buildBillingInfo() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
           _buildBillingRow(Icons.description_outlined, 'Billing Cycle', 'Monthly', amount: '₦15,000'),
-          const Divider(height: 32, color: Color(0xFFF1F5F9)),
+          Divider(height: 32, color: AppColors.borderLightOf(context)),
           _buildBillingRow(Icons.credit_card_rounded, 'Payment Method', '•••• 4242', isDefault: true, trailingIcon: Icons.chevron_right_rounded),
         ],
       ),
@@ -274,27 +274,27 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
   Widget _buildBillingRow(IconData icon, String label, String value, {String? amount, bool isDefault = false, IconData? trailingIcon}) {
     return Row(
       children: [
-        Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: const Color(0xFF0F62FE), size: 20)),
+        Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: AppColors.primary, size: 20)),
         const SizedBox(width: 16),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
             Row(
               children: [
-                Text(value, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14, fontWeight: FontWeight.w800)),
+                Text(value, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w800)),
                 if (isDefault) ...[
                   const SizedBox(width: 8),
-                  Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6)), child: const Text('Default', style: TextStyle(color: Color(0xFF166534), fontSize: 9, fontWeight: FontWeight.bold))),
+                  Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(6)), child: Text('Default', style: TextStyle(color: AppColors.success, fontSize: 9, fontWeight: FontWeight.bold))),
                 ]
               ],
             ),
           ],
         ),
         const Spacer(),
-        if (amount != null) Text(amount, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14, fontWeight: FontWeight.w900)),
-        if (trailingIcon != null) Icon(trailingIcon, color: const Color(0xFF94A3B8), size: 20),
+        if (amount != null) Text(amount, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w900)),
+        if (trailingIcon != null) Icon(trailingIcon, color: AppColors.textTertiaryOf(context), size: 20),
       ],
     );
   }
@@ -322,18 +322,18 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
               child: CircularProgressIndicator(
                 value: progress,
                 strokeWidth: 6,
-                backgroundColor: const Color(0xFFF1F5F9),
-                valueColor: AlwaysStoppedAnimation(const Color(0xFF0F62FE)),
+                backgroundColor: AppColors.borderLightOf(context),
+                valueColor: AlwaysStoppedAnimation(AppColors.primary),
               ),
             ),
-            Icon(icon, color: const Color(0xFF0F62FE), size: 18),
+            Icon(icon, color: AppColors.primary, size: 18),
           ],
         ),
         const SizedBox(height: 12),
-        Text(val, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.w800)),
+        Text(val, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 12, fontWeight: FontWeight.w800)),
         const SizedBox(height: 2),
-        Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.w600)),
-        Text(sub, style: TextStyle(color: sub.contains('Unlimited') ? const Color(0xFF22C55E) : const Color(0xFF94A3B8), fontSize: 8, fontWeight: FontWeight.w700)),
+        Text(label, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 9, fontWeight: FontWeight.w600)),
+        Text(sub, style: TextStyle(color: sub.contains('Unlimited') ? AppColors.success : AppColors.textTertiaryOf(context), fontSize: 8, fontWeight: FontWeight.w700)),
       ],
     );
   }
@@ -347,9 +347,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
           tileColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(icon, color: color, size: 20)),
-          title: Text(title, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14, fontWeight: FontWeight.w800)),
-          subtitle: Text(sub, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w500)),
-          trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
+          title: Text(title, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w800)),
+          subtitle: Text(sub, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w500)),
+          trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context)),
         ),
         if (!isLast) const SizedBox(height: 12),
       ],
@@ -359,18 +359,18 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
   Widget _buildSupportCard() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFDCFCE7))),
+      decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.successLightOf(context))),
       child: Row(
         children: [
-          const Icon(Icons.headset_mic_rounded, color: Color(0xFF22C55E), size: 30),
+          Icon(Icons.headset_mic_rounded, color: AppColors.success, size: 30),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Need Help?', style: TextStyle(color: Color(0xFF166534), fontSize: 15, fontWeight: FontWeight.w800)),
+                Text('Need Help?', style: TextStyle(color: AppColors.success, fontSize: 15, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
-                const Text('Our support team is here to help you.', style: TextStyle(color: Color(0xFF166534), fontSize: 11, fontWeight: FontWeight.w500)),
+                Text('Our support team is here to help you.', style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 SizedBox(
                   height: 40,
@@ -379,8 +379,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email admin@premoncare.com for subscription support')));
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFF0F62FE),
-                      backgroundColor: const Color(0xFFEFF6FF),
+                      foregroundColor: AppColors.primary,
+                      backgroundColor: AppColors.infoLightOf(context),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text('Contact Admin', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
@@ -395,7 +395,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 const SnackBar(content: Text('Contact support@premoncare.com')),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color(0xFF0F62FE), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xFF22C55E), width: 1))),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: AppColors.primary, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: AppColors.success, width: 1))),
             child: const Text('Contact Support', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ],
@@ -408,23 +408,23 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Center(
+        Center(
           child: Text(
             'Choose the plan that works best for you\nand manage your subscription.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500),
+            style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
           ),
         ),
         const SizedBox(height: 24),
         
         // Current Plan Section
-        const Text('Current Plan', style: TextStyle(color: Color(0xFF1E293B), fontSize: 15, fontWeight: FontWeight.w800)),
+        Text('Current Plan', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.w800)),
         const SizedBox(height: 12),
         _buildCurrentPlanExploreCard(),
         
         const SizedBox(height: 32),
         // Choose a Plan Section
-        const Text('Choose a Plan', style: TextStyle(color: Color(0xFF1E293B), fontSize: 15, fontWeight: FontWeight.w800)),
+        Text('Choose a Plan', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.w800)),
         const SizedBox(height: 16),
         _buildPlansCarousel(),
         
@@ -439,14 +439,14 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
   Widget _buildCurrentPlanExploreCard() {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Color(0xFF0F62FE), Color(0xFF22D3EE)]),
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [AppColors.primary, AppColors.info]),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
             ),
             child: Row(
               children: [
@@ -462,12 +462,12 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('₦15,000 / month', style: TextStyle(color: Color(0xFF1E293B), fontSize: 24, fontWeight: FontWeight.w900)),
-                    SizedBox(height: 4),
-                    Text('Renews on May 25, 2025', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text('₦15,000 / month', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 24, fontWeight: FontWeight.w900)),
+                    const SizedBox(height: 4),
+                    Text('Renews on May 25, 2025', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 const Spacer(),
@@ -493,9 +493,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
-          const Icon(Icons.check_rounded, color: Color(0xFF0F62FE), size: 14),
+          Icon(Icons.check_rounded, color: AppColors.primary, size: 14),
           const SizedBox(width: 8),
-          Text(text, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w600)),
+          Text(text, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -535,9 +535,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isPopular ? const Color(0xFF0F62FE) : const Color(0xFFF1F5F9), width: isPopular ? 2 : 1),
+        border: Border.all(color: isPopular ? AppColors.primary : AppColors.borderLightOf(context), width: isPopular ? 2 : 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,7 +546,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: const Color(0xFF0EA5E9), borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: AppColors.info, borderRadius: BorderRadius.circular(10)),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -559,19 +559,19 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             ),
             const SizedBox(height: 12),
           ],
-          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFF0F62FE).withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(icon, color: const Color(0xFF0F62FE), size: 20)),
+          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(icon, color: AppColors.primary, size: 20)),
           const SizedBox(height: 16),
-          Text(name, style: const TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w900)),
+          Text(name, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900)),
           const SizedBox(height: 4),
-          Text('$price / month', style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13, fontWeight: FontWeight.w800)),
+          Text('$price / month', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 13, fontWeight: FontWeight.w800)),
           const SizedBox(height: 20),
           ...perks.map((p) => Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
-                Icon(Icons.check_circle_rounded, color: p.contains('N/A') ? Colors.grey.shade300 : const Color(0xFF22C55E), size: 14),
+                Icon(Icons.check_circle_rounded, color: p.contains('N/A') ? Colors.grey.shade300 : AppColors.success, size: 14),
                 const SizedBox(width: 8),
-                Expanded(child: Text(p, style: TextStyle(color: p.contains('N/A') ? Colors.grey.shade400 : const Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.w600))),
+                Expanded(child: Text(p, style: TextStyle(color: p.contains('N/A') ? Colors.grey.shade400 : AppColors.textSecondaryOf(context), fontSize: 9, fontWeight: FontWeight.w600))),
               ],
             ),
           )),
@@ -583,10 +583,10 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plan selected! Contact support@premoncare.com to complete your upgrade.')));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: isCurrent ? const Color(0xFF0F62FE) : Colors.white,
-                foregroundColor: isCurrent ? Colors.white : const Color(0xFF0F62FE),
+                backgroundColor: isCurrent ? AppColors.primary : Colors.white,
+                foregroundColor: isCurrent ? Colors.white : AppColors.primary,
                 elevation: 0,
-                side: BorderSide(color: isCurrent ? Colors.transparent : const Color(0xFF0F62FE)),
+                side: BorderSide(color: isCurrent ? Colors.transparent : AppColors.primary),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(isCurrent ? 'Current Plan' : 'Choose Plan', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
@@ -600,18 +600,18 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
   Widget _buildSecurityFooter() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(24)),
       child: Row(
         children: [
           _buildShieldWithLock(),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Secure & Hassle-free', style: TextStyle(color: Color(0xFF166534), fontSize: 15, fontWeight: FontWeight.w800)),
-                SizedBox(height: 4),
-                Text('Your payment is encrypted and your data is always protected.', style: TextStyle(color: Color(0xFF166534), fontSize: 11, fontWeight: FontWeight.w500)),
+                Text('Secure & Hassle-free', style: TextStyle(color: AppColors.success, fontSize: 15, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
+                Text('Your payment is encrypted and your data is always protected.', style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -624,8 +624,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     return Stack(
       alignment: Alignment.center,
       children: [
-        Container(width: 50, height: 50, decoration: BoxDecoration(color: const Color(0xFFDCFCE7), shape: BoxShape.circle)),
-        const Icon(Icons.shield_rounded, color: Color(0xFF22C55E), size: 30),
+        Container(width: 50, height: 50, decoration: BoxDecoration(color: AppColors.successLightOf(context), shape: BoxShape.circle)),
+        Icon(Icons.shield_rounded, color: AppColors.success, size: 30),
         const Icon(Icons.lock_rounded, color: Colors.white, size: 12),
       ],
     );

@@ -108,7 +108,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
     final doctorsAsync = ref.watch(searchableDoctorsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       body: SafeArea(
         child: doctorsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
@@ -135,10 +135,10 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
               slivers: [
                 SliverToBoxAdapter(child: _buildHeader()),
                 SliverToBoxAdapter(child: _buildSearchRow()),
-                SliverToBoxAdapter(child: const SizedBox(height: 12)),
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
                 SliverToBoxAdapter(child: _buildEmergencyBanner()),
                 SliverToBoxAdapter(child: _buildCategoryStrip()),
-                SliverToBoxAdapter(child: const SizedBox(height: 16)),
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
                 if (_isEmergencyMode)
                   SliverToBoxAdapter(child: _buildEmergencyDoctorsSection(filtered))
                 else ...[
@@ -149,7 +149,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                       () {},
                     ),
                   ),
-                  SliverToBoxAdapter(child: const SizedBox(height: 8)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
                   if (filtered.isEmpty)
                     SliverToBoxAdapter(child: _buildEmptyState())
                   else
@@ -204,10 +204,10 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
   Widget _buildSearchField() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _searchFocusNode.hasFocus ? AppColors.primary : AppColors.border,
+          color: _searchFocusNode.hasFocus ? AppColors.primary : AppColors.borderOf(context),
         ),
         boxShadow: [
           BoxShadow(
@@ -239,9 +239,9 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderOf(context)),
           boxShadow: [
             BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4)),
           ],
@@ -265,7 +265,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
@@ -363,10 +363,10 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _isEmergencyMode ? AppColors.error.withValues(alpha: 0.1) : AppColors.surface,
+            color: _isEmergencyMode ? AppColors.error.withValues(alpha: 0.1) : AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: _isEmergencyMode ? AppColors.error : AppColors.border,
+              color: _isEmergencyMode ? AppColors.error : AppColors.borderOf(context),
               width: _isEmergencyMode ? 2 : 1,
             ),
           ),
@@ -453,8 +453,8 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
     switch (category) {
       case 'All': return AppColors.primary;
       case 'General\nPhysician': return AppColors.success;
-      case 'Pediatrician': return const Color(0xFFA855F7);
-      case 'Gynecologist': return const Color(0xFFEC4899);
+      case 'Pediatrician': return AppColors.primary;
+      case 'Gynecologist': return AppColors.primary;
       case 'Dermatologist': return AppColors.warning;
       case 'Cardiologist': return AppColors.error;
       default: return AppColors.textSecondary;
@@ -606,9 +606,9 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderOf(context)),
           boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Row(
@@ -717,9 +717,9 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderOf(context)),
         ),
         child: Row(
           children: [

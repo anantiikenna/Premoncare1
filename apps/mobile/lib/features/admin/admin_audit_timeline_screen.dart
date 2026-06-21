@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
 
 class AdminAuditTimelineScreen extends ConsumerStatefulWidget {
@@ -150,11 +151,11 @@ class _AdminAuditTimelineScreenState
   Color _severityColor(String severity) {
     switch (severity) {
       case 'high':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       case 'moderate':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       default:
-        return const Color(0xFF10B981);
+        return AppColors.success;
     }
   }
 
@@ -187,15 +188,15 @@ class _AdminAuditTimelineScreenState
   Color _actionColor(String actionType) {
     switch (actionType) {
       case 'verification':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'financial':
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case 'security':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       case 'system':
-        return const Color(0xFF8B5CF6);
+        return AppColors.primary;
       default:
-        return const Color(0xFF64748B);
+        return AppColors.textSecondary;
     }
   }
 
@@ -204,10 +205,10 @@ class _AdminAuditTimelineScreenState
     return AdminScaffold(
       selectedIndex: 4,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF0F62FE)))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
               onRefresh: _loadData,
-              color: const Color(0xFF0F62FE),
+              color: AppColors.primary,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
@@ -255,14 +256,14 @@ class _AdminAuditTimelineScreenState
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Icon(Icons.document_scanner_rounded,
-              color: Color(0xFF8B5CF6), size: 28),
+              color: AppColors.primary, size: 28),
         ),
         const SizedBox(width: 16),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -271,16 +272,16 @@ class _AdminAuditTimelineScreenState
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimaryOf(context),
                     letterSpacing: -0.5),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 'Track and review all system activities\nin real-time',
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondaryOf(context),
                     height: 1.3),
               ),
             ],
@@ -292,10 +293,10 @@ class _AdminAuditTimelineScreenState
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFFECFDF5),
+                color: AppColors.successLightOf(context),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.2)),
+                    color: AppColors.success.withValues(alpha: 0.2)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -304,12 +305,12 @@ class _AdminAuditTimelineScreenState
                     width: 6,
                     height: 6,
                     decoration: const BoxDecoration(
-                        color: Color(0xFF10B981), shape: BoxShape.circle),
+                        color: AppColors.success, shape: BoxShape.circle),
                   ),
                   const SizedBox(width: 6),
                   const Text('LIVE',
                       style: TextStyle(
-                          color: Color(0xFF10B981),
+                          color: AppColors.success,
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.5)),
@@ -317,9 +318,9 @@ class _AdminAuditTimelineScreenState
               ),
             ),
             const SizedBox(height: 6),
-            const Text('Monitoring Active',
+            Text('Monitoring Active',
                 style: TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondaryOf(context),
                     fontSize: 9,
                     fontWeight: FontWeight.w600)),
           ],
@@ -335,16 +336,16 @@ class _AdminAuditTimelineScreenState
       child: Row(
         children: [
           _buildStatCard('$_totalCount', 'Admin Actions', 'All Time',
-              Icons.person_outline_rounded, const Color(0xFF3B82F6)),
+              Icons.person_outline_rounded, AppColors.info),
           const SizedBox(width: 12),
           _buildStatCard('$_securityCount', 'Security Alerts', 'High Severity',
-              Icons.verified_user_outlined, const Color(0xFF10B981)),
+              Icons.verified_user_outlined, AppColors.success),
           const SizedBox(width: 12),
           _buildStatCard('$_financialCount', 'Financial Reviews', 'Financial Actions',
-              Icons.account_balance_wallet_outlined, const Color(0xFFF59E0B)),
+              Icons.account_balance_wallet_outlined, AppColors.warning),
           const SizedBox(width: 12),
           _buildStatCard('$_infoCount', 'Info Actions', 'Low Severity',
-              Icons.info_outline_rounded, const Color(0xFF8B5CF6)),
+              Icons.info_outline_rounded, AppColors.primary),
         ],
       ),
     );
@@ -356,12 +357,12 @@ class _AdminAuditTimelineScreenState
       width: 140,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: AppColors.shadowLight,
               blurRadius: 10,
               offset: const Offset(0, 4)),
         ],
@@ -377,22 +378,22 @@ class _AdminAuditTimelineScreenState
           ),
           const SizedBox(height: 16),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B))),
+                  color: AppColors.textPrimaryOf(context))),
           const SizedBox(height: 2),
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B))),
+                  color: AppColors.textPrimaryOf(context))),
           const SizedBox(height: 2),
           Text(subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF94A3B8))),
+                  color: AppColors.textTertiaryOf(context))),
         ],
       ),
     );
@@ -428,16 +429,16 @@ class _AdminAuditTimelineScreenState
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color:
-                    isSelected ? const Color(0xFF0F62FE) : Colors.white,
+                    isSelected ? AppColors.primary : AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                     color: isSelected
-                        ? const Color(0xFF0F62FE)
-                        : const Color(0xFFF1F5F9)),
+                        ? AppColors.primary
+                        : AppColors.borderLightOf(context)),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                            color: const Color(0xFF0F62FE)
+                            color: AppColors.primary
                                 .withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2)),
@@ -448,8 +449,8 @@ class _AdminAuditTimelineScreenState
                 filter,
                 style: TextStyle(
                   color: isSelected
-                      ? Colors.white
-                      : const Color(0xFF64748B),
+                      ? AppColors.textInverse
+                      : AppColors.textSecondaryOf(context),
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 ),
@@ -471,22 +472,22 @@ class _AdminAuditTimelineScreenState
                 ? _formatDateHeader(
                     DateTime.parse(_filteredLogs.first['created_at']))
                 : 'No Logs',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B))),
+                    color: AppColors.textPrimaryOf(context))),
             const SizedBox(width: 8),
             Container(
                 width: 4,
                 height: 4,
-                decoration: const BoxDecoration(
-                    color: Color(0xFFCBD5E1), shape: BoxShape.circle)),
+                decoration: BoxDecoration(
+                    color: AppColors.borderOf(context), shape: BoxShape.circle)),
             const SizedBox(width: 8),
             Text('${_filteredLogs.length} events',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B))),
+                    color: AppColors.textSecondaryOf(context))),
           ],
         ),
         const Row(
@@ -495,10 +496,10 @@ class _AdminAuditTimelineScreenState
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F62FE))),
+                    color: AppColors.primary)),
             SizedBox(width: 4),
             Icon(Icons.swap_vert_rounded,
-                color: Color(0xFF0F62FE), size: 16),
+                color: AppColors.primary, size: 16),
           ],
         ),
       ],
@@ -513,19 +514,19 @@ class _AdminAuditTimelineScreenState
           child: Column(
             children: [
               Icon(Icons.history_rounded,
-                  size: 48, color: const Color(0xFFCBD5E1)),
+                  size: 48, color: AppColors.textTertiaryOf(context)),
               const SizedBox(height: 16),
-              const Text('No audit logs found',
+              Text('No audit logs found',
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF64748B))),
+                      color: AppColors.textSecondaryOf(context))),
               const SizedBox(height: 4),
-              const Text('Pull down to refresh',
+              Text('Pull down to refresh',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF94A3B8))),
+                      color: AppColors.textTertiaryOf(context))),
             ],
           ),
         ),
@@ -599,16 +600,16 @@ class _AdminAuditTimelineScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(time,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B))),
+                        color: AppColors.textPrimaryOf(context))),
                 const SizedBox(height: 2),
                 Text(relativeTime,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B))),
+                        color: AppColors.textSecondaryOf(context))),
               ],
             ),
           ),
@@ -627,7 +628,7 @@ class _AdminAuditTimelineScreenState
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: const Color(0xFFF1F5F9),
+                      color: AppColors.borderLightOf(context),
                     ),
                   ),
               ],
@@ -656,12 +657,12 @@ class _AdminAuditTimelineScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: AppColors.shadowLight,
               blurRadius: 10,
               offset: const Offset(0, 4)),
         ],
@@ -690,10 +691,10 @@ class _AdminAuditTimelineScreenState
                       children: [
                         Expanded(
                           child: Text(title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w900,
-                                  color: Color(0xFF1E293B),
+                                  color: AppColors.textPrimaryOf(context),
                                   height: 1.2)),
                         ),
                         Container(
@@ -730,10 +731,10 @@ class _AdminAuditTimelineScreenState
                     ),
                     const SizedBox(height: 6),
                     Text(description,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondaryOf(context),
                             height: 1.4)),
                   ],
                 ),
@@ -754,36 +755,36 @@ class _AdminAuditTimelineScreenState
                         children: [
                           if (meta.label.isNotEmpty)
                             Text('${meta.label} ',
-                                style: const TextStyle(
-                                    color: Color(0xFF94A3B8),
+                                style: TextStyle(
+                                    color: AppColors.textTertiaryOf(context),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600)),
                           if (meta.value != null)
                             Text(meta.value!,
-                                style: const TextStyle(
-                                    color: Color(0xFF1E293B),
+                                style: TextStyle(
+                                    color: AppColors.textPrimaryOf(context),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800)),
                           if (meta.icon != null) ...[
                             if (meta.label.isNotEmpty || meta.value != null)
                               const SizedBox(width: 4),
                             Icon(meta.icon,
-                                color: const Color(0xFF94A3B8), size: 12),
+                                color: AppColors.textTertiaryOf(context), size: 12),
                           ],
                           if (meta != metaData.last)
                             Container(
                               margin: const EdgeInsets.only(left: 12),
                               width: 1,
                               height: 10,
-                              color: const Color(0xFFE2E8F0),
+                              color: AppColors.borderOf(context),
                             ),
                         ],
                       );
                     }).toList(),
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded,
-                    color: Color(0xFFCBD5E1), size: 20),
+                Icon(Icons.chevron_right_rounded,
+                    color: AppColors.textTertiaryOf(context), size: 20),
               ],
             ),
           ],
@@ -796,20 +797,20 @@ class _AdminAuditTimelineScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: AppColors.infoLightOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFDBEAFE)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
           const Icon(Icons.security_rounded,
-              color: Color(0xFF3B82F6), size: 24),
+              color: AppColors.info, size: 24),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
               'All audit activities are securely stored for compliance and investigation purposes.',
               style: TextStyle(
-                  color: Color(0xFF1E3A8A),
+                  color: AppColors.textPrimaryOf(context),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1.4),
@@ -819,12 +820,12 @@ class _AdminAuditTimelineScreenState
             children: const [
               Text('Learn more',
                   style: TextStyle(
-                      color: Color(0xFF2563EB),
+                      color: AppColors.info,
                       fontSize: 12,
                       fontWeight: FontWeight.w800)),
               SizedBox(width: 4),
               Icon(Icons.chevron_right_rounded,
-                  color: Color(0xFF2563EB), size: 16),
+                  color: AppColors.info, size: 16),
             ],
           ),
         ],

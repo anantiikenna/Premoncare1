@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 
 class GenericUserAvatar extends StatelessWidget {
   final String? avatarUrl;
@@ -14,12 +15,12 @@ class GenericUserAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: const Color(0xFFE2E8F0),
+      backgroundColor: AppColors.borderOf(context),
       backgroundImage: avatarUrl != null && avatarUrl!.isNotEmpty
           ? NetworkImage(avatarUrl!)
           : null,
       child: avatarUrl == null || avatarUrl!.isEmpty
-          ? const Icon(Icons.person, color: Color(0xFF94A3B8))
+          ? Icon(Icons.person, color: AppColors.textTertiaryOf(context))
           : null,
     );
   }

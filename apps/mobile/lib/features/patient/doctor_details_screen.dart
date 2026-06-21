@@ -66,14 +66,14 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
-        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      return Scaffold(
+        backgroundColor: AppColors.backgroundOf(context),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
       );
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
           SafeArea(
@@ -129,7 +129,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           children: [
             GestureDetector(
               onTap: () => context.pop(),
-              child: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary, size: 24),
+              child: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 24),
             ),
             Row(
               children: [
@@ -166,26 +166,26 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           children: [
             Row(
               children: [
-                const Text('Doctor Public Profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
+                Text('Doctor Public Profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
                 const SizedBox(width: 8),
-                const Icon(Icons.verified_user_outlined, color: AppColors.textSecondary, size: 18),
+                Icon(Icons.verified_user_outlined, color: AppColors.textSecondaryOf(context), size: 18),
               ],
             ),
             const SizedBox(height: 4),
             if (_isVerified)
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.verified_rounded, color: AppColors.success, size: 14),
-                  SizedBox(width: 4),
-                  Text('Verified Healthcare Professional', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
+                  const Icon(Icons.verified_rounded, color: AppColors.success, size: 14),
+                  const SizedBox(width: 4),
+                  const Text('Verified Healthcare Professional', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
                 ],
               )
             else
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.pending_outlined, color: AppColors.warning, size: 14),
-                  SizedBox(width: 4),
-                  Text('Verification Pending', style: TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
+                  const Icon(Icons.pending_outlined, color: AppColors.warning, size: 14),
+                  const SizedBox(width: 4),
+                  const Text('Verification Pending', style: TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
                 ],
               ),
           ],
@@ -199,15 +199,15 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.borderOf(context)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.share_outlined, color: AppColors.textPrimary, size: 14),
-                SizedBox(width: 6),
-                Text('Share Profile', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                Icon(Icons.share_outlined, color: AppColors.textPrimaryOf(context), size: 14),
+                const SizedBox(width: 6),
+                Text('Share Profile', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimaryOf(context))),
               ],
             ),
           ),
@@ -222,7 +222,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
-          colors: [Color(0xFF032B69), Color(0xFF0A47A5)],
+          colors: [AppColors.primaryDark, AppColors.primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -267,7 +267,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surfaceOf(context),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -291,7 +291,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                           Flexible(child: Text('Dr. ${_displayName.replaceFirst('Dr. ', '')}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
                           if (_isVerified) ...[
                             const SizedBox(width: 6),
-                            const Icon(Icons.verified_rounded, color: Color(0xFF3B82F6), size: 18),
+                            const Icon(Icons.verified_rounded, color: AppColors.info, size: 18),
                           ],
                         ],
                       ),
@@ -340,7 +340,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       child: Row(
         children: [
           _buildInfoCard(Icons.videocam_rounded, 'Video Consultation', _isOnline ? 'Available' : 'Unavailable', AppColors.primary),
-          _buildInfoCard(Icons.chat_bubble_rounded, 'Chat Support', _isOnline ? 'Available' : 'Unavailable', const Color(0xFFA855F7)),
+          _buildInfoCard(Icons.chat_bubble_rounded, 'Chat Support', _isOnline ? 'Available' : 'Unavailable', AppColors.primary),
           _buildInfoCard(Icons.access_time_rounded, 'Response Time', _isOnline ? '~5 min' : 'N/A', AppColors.warning),
         ],
       ),
@@ -353,7 +353,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
       ),
@@ -362,7 +362,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
         children: [
           Icon(icon, color: color, size: 28),
           const SizedBox(height: 12),
-          Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimary, height: 1.2)),
+          Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context), height: 1.2)),
           const SizedBox(height: 4),
           Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _isOnline ? AppColors.success : AppColors.textTertiary)),
         ],
@@ -378,21 +378,21 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: Colors.white,
-            child: Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 20),
+            backgroundColor: AppColors.surfaceOf(context),
+            child: const Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 20),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Verified & Trusted', style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.bold, fontSize: 14)),
-                SizedBox(height: 4),
-                Text("This doctor's license and qualifications have been verified by Premon Care.", style: TextStyle(color: AppColors.textSecondary, fontSize: 11, height: 1.4)),
+                const Text('Verified & Trusted', style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.bold, fontSize: 14)),
+                const SizedBox(height: 4),
+                Text("This doctor's license and qualifications have been verified by Premon Care.", style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, height: 1.4)),
               ],
             ),
           ),
@@ -408,7 +408,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   Widget _buildAboutSection() {
     return Text(
       _about,
-      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
+      style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, height: 1.5),
     );
   }
 
@@ -436,24 +436,24 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   }
 
   Widget _buildPatientRating() {
-    return const Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('4.9', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: AppColors.textPrimary, letterSpacing: -1)),
+            Text('4.9', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
             Row(
-              children: [
-                Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
-                Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
-                Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
-                Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
-                Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
+              children: const [
+                Icon(Icons.star_rounded, color: AppColors.warning, size: 18),
+                Icon(Icons.star_rounded, color: AppColors.warning, size: 18),
+                Icon(Icons.star_rounded, color: AppColors.warning, size: 18),
+                Icon(Icons.star_rounded, color: AppColors.warning, size: 18),
+                Icon(Icons.star_rounded, color: AppColors.warning, size: 18),
               ],
             ),
-            SizedBox(height: 8),
-            Text('Patient Rating', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+            const SizedBox(height: 8),
+            Text('Patient Rating', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
           ],
         ),
       ],
@@ -468,9 +468,9 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: const Offset(0, -5))],
-          border: const Border(top: BorderSide(color: AppColors.borderLight)),
+          border: Border(top: BorderSide(color: AppColors.borderLightOf(context))),
         ),
         child: Row(
           children: [
@@ -482,7 +482,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(

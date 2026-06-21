@@ -7,6 +7,7 @@ import 'package:mobile/core/supabase_locator.dart';
 import '../../core/providers.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'package:mobile/features/doctor/propose_followup_dialog.dart';
+import '../../core/app_colors.dart';
 
 class DoctorDashboard extends ConsumerStatefulWidget {
   const DoctorDashboard({super.key});
@@ -61,10 +62,8 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
 
   void _startHeartbeat() {
     _heartbeatTimer?.cancel();
-    // Immediately send first heartbeat ping
     _sendHeartbeatPing();
     
-    // Set 60-second periodic heartbeat ping
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 60), (timer) {
       _sendHeartbeatPing();
     });
@@ -109,17 +108,17 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
         if (newStatus) {
           _startHeartbeat();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('You are now active for emergency consult requests.'),
-              backgroundColor: Color(0xFF10B981),
+            SnackBar(
+              content: const Text('You are now active for emergency consult requests.'),
+              backgroundColor: AppColors.success,
             ),
           );
         } else {
           _stopHeartbeat();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Emergency presence turned off.'),
-              backgroundColor: Color(0xFF475569),
+            SnackBar(
+              content: const Text('Emergency presence turned off.'),
+              backgroundColor: AppColors.slate600,
             ),
           );
         }
@@ -139,13 +138,12 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
+    const primaryColor = AppColors.primary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          // Deep immersive mesh background
           Positioned(
             top: -150,
             right: -100,
@@ -172,7 +170,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                   const SizedBox(height: 32),
                   _buildSectionTitle('PERFORMANCE METRICS'),
                   const SizedBox(height: 20),
-                  _buildMetricsGrid(ref, primaryColor),
+                  _buildMetricsGrid(context, ref, primaryColor),
                   const SizedBox(height: 32),
                   _buildSectionTitle('CLINICAL WORKFLOW'),
                   const SizedBox(height: 20),
@@ -180,7 +178,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                   const SizedBox(height: 32),
                   _buildSectionTitle('UPCOMING SESSIONS'),
                   const SizedBox(height: 20),
-                  _buildScheduleList(ref, primaryColor),
+                  _buildScheduleList(context, ref, primaryColor),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -192,7 +190,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
+    return Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
   }
 
   Widget _buildHeader() {
@@ -204,11 +202,11 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('PRACTITIONER HUB', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+              Text('PRACTITIONER HUB', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
               const SizedBox(height: 8),
               Text(
                 doctorName,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -253,19 +251,19 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        const Color(0xFFEF4444).withValues(alpha: 0.08),
-                        const Color(0xFFFEE2E2).withValues(alpha: 0.3),
+                        AppColors.error.withValues(alpha: 0.08),
+                        AppColors.errorLight.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                    border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: const BoxDecoration(
-                          color: Color(0xFFEF4444),
+                          color: AppColors.error,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
@@ -277,17 +275,17 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                           children: [
                             const Text(
                               'EMERGENCY REQUEST',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFEF4444), letterSpacing: 1),
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 1),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '$patientName • ${duration}min • ₦$amount',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context)),
                             ),
                             if (timeAgo.isNotEmpty)
                               Text(
                                 timeAgo,
-                                style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                                style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context)),
                               ),
                           ],
                         ),
@@ -295,7 +293,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981),
+                          color: AppColors.success,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Text(
@@ -328,12 +326,12 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.borderOf(context)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F62FE).withValues(alpha: _isOnline ? 0.05 : 0),
+            color: AppColors.primary.withValues(alpha: _isOnline ? 0.05 : 0),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -346,7 +344,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
             width: 8,
             height: 8,
             decoration: BoxDecoration(
-              color: _isOnline ? const Color(0xFF10B981) : const Color(0xFF64748B),
+              color: _isOnline ? AppColors.success : AppColors.textSecondaryOf(context),
               shape: BoxShape.circle,
             ),
           ),
@@ -356,7 +354,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w900,
-              color: _isOnline ? const Color(0xFF10B981) : const Color(0xFF64748B),
+              color: _isOnline ? AppColors.success : AppColors.textSecondaryOf(context),
               letterSpacing: 0.5,
             ),
           ),
@@ -366,7 +364,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
             width: 52,
             child: Switch.adaptive(
               value: _isOnline,
-              activeTrackColor: const Color(0xFF10B981),
+              activeTrackColor: AppColors.success,
               onChanged: _loading ? null : (val) => _togglePresence(val),
             ),
           ),
@@ -381,7 +379,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFF0F62FE), Color(0xFF0EA5E9)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [primaryColor, AppColors.info], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(32),
         boxShadow: [BoxShadow(color: primaryColor.withValues(alpha: 0.2), blurRadius: 30, offset: const Offset(0, 15))],
       ),
@@ -414,7 +412,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           const SizedBox(height: 24),
           Row(
             children: [
-              _buildMainCardChip(Icons.trending_up_rounded, '18.6% Growth', Colors.green),
+              _buildMainCardChip(Icons.trending_up_rounded, '18.6% Growth', AppColors.success),
               const Spacer(),
               _buildGlassButton('Analytics', Icons.bar_chart_rounded, () => context.push('/doctor/earnings')),
             ],
@@ -430,7 +428,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF22C55E), size: 14),
+          Icon(icon, color: color, size: 14),
           const SizedBox(width: 6),
           Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900)),
         ],
@@ -455,16 +453,16 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     );
   }
 
-  Widget _buildMetricsGrid(WidgetRef ref, Color primaryColor) {
+  Widget _buildMetricsGrid(BuildContext context, WidgetRef ref, Color primaryColor) {
     final metricsAsync = ref.watch(userProfileProvider);
 
     return metricsAsync.when(
       data: (metrics) {
         if (metrics == null) return const SizedBox.shrink();
         final patientsHelped = metrics['patients_helped']?.toString() ?? '0';
-        final todaySessions = '0'; // Real count needs appointments query for today, leaving dummy/0 for now or compute later
+        final todaySessions = '0';
         final pendingInvites = '0';
-        final rating = '4.9'; // Need a review aggregation or column, dummy for now
+        final rating = '4.9';
 
         return GridView.count(
           crossAxisCount: 2,
@@ -474,10 +472,10 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           crossAxisSpacing: 16,
           childAspectRatio: 1.3,
           children: [
-            _buildMetricCard(patientsHelped, 'Total Patients', primaryColor, Icons.people_rounded),
-            _buildMetricCard(todaySessions, 'Today Sessions', const Color(0xFF10B981), Icons.calendar_today_rounded),
-            _buildMetricCard(pendingInvites, 'Pending Invites', const Color(0xFFF59E0B), Icons.hourglass_empty_rounded),
-            _buildMetricCard(rating, 'Clinical Rating', const Color(0xFF6366F1), Icons.star_rounded),
+            _buildMetricCard(context, patientsHelped, 'Total Patients', primaryColor, Icons.people_rounded),
+            _buildMetricCard(context, todaySessions, 'Today Sessions', AppColors.success, Icons.calendar_today_rounded),
+            _buildMetricCard(context, pendingInvites, 'Pending Invites', AppColors.warning, Icons.hourglass_empty_rounded),
+            _buildMetricCard(context, rating, 'Clinical Rating', AppColors.primary, Icons.star_rounded),
           ],
         );
       },
@@ -486,22 +484,22 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     );
   }
 
-  Widget _buildMetricCard(String value, String label, Color color, IconData icon) {
+  Widget _buildMetricCard(BuildContext context, String value, String label, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xFFF1F5F9)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(value, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+              Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
               Icon(icon, color: color.withValues(alpha: 0.4), size: 20),
             ],
           ),
           const Spacer(),
-          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w800)),
+          Text(label, style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w800)),
         ],
       ),
     );
@@ -512,19 +510,19 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildActionItem(Icons.calendar_month_rounded, 'Schedule', primaryColor, onTap: () => context.push('/doctor/schedule')),
-          _buildActionItem(Icons.person_add_rounded, 'Requests', const Color(0xFF10B981), onTap: () => context.push('/appointments')),
-          _buildActionItem(Icons.history_edu_rounded, 'Follow-up', const Color(0xFFF59E0B), onTap: () {
+          _buildActionItem(context, Icons.calendar_month_rounded, 'Schedule', primaryColor, onTap: () => context.push('/doctor/schedule')),
+          _buildActionItem(context, Icons.person_add_rounded, 'Requests', AppColors.success, onTap: () => context.push('/appointments')),
+          _buildActionItem(context, Icons.history_edu_rounded, 'Follow-up', AppColors.warning, onTap: () {
             showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (ctx) => const ProposeFollowupDialog());
           }),
-          _buildActionItem(Icons.medication_rounded, 'Prescribe', const Color(0xFF6366F1), onTap: () => context.push('/appointments')),
-          _buildActionItem(Icons.verified_user_rounded, 'Compliance', const Color(0xFF3B82F6), onTap: () => context.push('/doctor/subscription')),
+          _buildActionItem(context, Icons.medication_rounded, 'Prescribe', AppColors.primary, onTap: () => context.push('/appointments')),
+          _buildActionItem(context, Icons.verified_user_rounded, 'Compliance', AppColors.info, onTap: () => context.push('/doctor/subscription')),
         ],
       ),
     );
   }
 
-  Widget _buildActionItem(IconData icon, String label, Color color, {VoidCallback? onTap}) {
+  Widget _buildActionItem(BuildContext context, IconData icon, String label, Color color, {VoidCallback? onTap}) {
     return Container(
       width: 90,
       margin: const EdgeInsets.only(right: 12),
@@ -534,23 +532,23 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           children: [
             Container(width: 64, height: 64, decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withValues(alpha: 0.15))), child: Icon(icon, color: color, size: 28)),
             const SizedBox(height: 12),
-            Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context))),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildScheduleList(WidgetRef ref, Color primaryColor) {
+  Widget _buildScheduleList(BuildContext context, WidgetRef ref, Color primaryColor) {
     final appointmentsAsync = ref.watch(upcomingAppointmentsProvider);
 
     return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       padding: const EdgeInsets.all(24),
       child: appointmentsAsync.when(
         data: (appointments) {
           if (appointments.isEmpty) {
-            return const Center(child: Text('No upcoming sessions.', style: TextStyle(color: Color(0xFF64748B))));
+            return Center(child: Text('No upcoming sessions.', style: TextStyle(color: AppColors.textSecondaryOf(context))));
           }
           return Column(
             children: appointments.asMap().entries.map((entry) {
@@ -567,8 +565,8 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
 
               return Column(
                 children: [
-                  _buildScheduleItem(time, patientName, 'CONSULTATION', isConfirmed, primaryColor),
-                  if (!isLast) const Divider(height: 32, color: Color(0xFFF1F5F9)),
+                  _buildScheduleItem(context, time, patientName, 'CONSULTATION', isConfirmed, primaryColor),
+                  if (!isLast) Divider(height: 32, color: AppColors.borderLightOf(context)),
                 ],
               );
             }).toList(),
@@ -580,15 +578,15 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     );
   }
 
-  Widget _buildScheduleItem(String time, String patient, String type, bool isConfirmed, Color primaryColor) {
+  Widget _buildScheduleItem(BuildContext context, String time, String patient, String type, bool isConfirmed, Color primaryColor) {
     return Row(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(time, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+            Text(time, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 4),
-            Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: (isConfirmed ? const Color(0xFF10B981) : const Color(0xFF94A3B8)).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)), child: Text(isConfirmed ? 'CONFIRMED' : 'PENDING', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: isConfirmed ? const Color(0xFF10B981) : const Color(0xFF94A3B8), letterSpacing: 0.5))),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: (isConfirmed ? AppColors.success : AppColors.textTertiaryOf(context)).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)), child: Text(isConfirmed ? 'CONFIRMED' : 'PENDING', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: isConfirmed ? AppColors.success : AppColors.textTertiaryOf(context), letterSpacing: 0.5))),
           ],
         ),
         const SizedBox(width: 20),
@@ -601,9 +599,9 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(patient, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+              Text(patient, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
               const SizedBox(height: 2),
-              Text(type, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 0.5)),
+              Text(type, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
             ],
           ),
         ),

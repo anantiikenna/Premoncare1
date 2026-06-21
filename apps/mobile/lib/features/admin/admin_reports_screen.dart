@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import 'admin_scaffold.dart';
 
@@ -197,7 +198,6 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         (sum, p) => sum + ((p['amount'] as num?)?.toDouble() ?? 0),
       );
 
-      // Top doctors by appointment count
       final Map<String, int> doctorCountMap = {};
       for (final appt in doctorAppointments) {
         final docId = appt['doctor_id'] as String?;
@@ -230,7 +230,6 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         }).toList();
       }
 
-      // Growth calculations
       _usersGrowthPct = _calcGrowth(currentUsers, prevUsers);
       _doctorsGrowthPct = _calcGrowth(currentDoctors, prevDoctors);
       _appointmentsGrowthPct = _calcGrowth(
@@ -369,23 +368,23 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
   }
 
   Widget _buildLoadingState() {
-    return const SizedBox(
+    return SizedBox(
       height: 400,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
-              color: Color(0xFF0F62FE),
+            const CircularProgressIndicator(
+              color: AppColors.primary,
               strokeWidth: 2.5,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Loading reports...',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF94A3B8),
+                color: AppColors.textTertiaryOf(context),
               ),
             ),
           ],
@@ -398,31 +397,31 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFECDD3)),
+        border: Border.all(color: AppColors.errorLightOf(context)),
       ),
       child: Center(
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
-              color: Color(0xFFEF4444),
+              color: AppColors.error,
               size: 40,
             ),
             const SizedBox(height: 12),
             Text(
               'Failed to load data',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               _error ?? 'Unknown error',
-              style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+              style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -434,7 +433,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F62FE),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Text(
@@ -457,7 +456,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -465,17 +464,17 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimaryOf(context),
                 letterSpacing: -0.5,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Track performance, usage and key metrics in real-time',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondaryOf(context),
               ),
             ),
           ],
@@ -483,27 +482,27 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderOf(context)),
           ),
           child: Row(
-            children: const [
-              Icon(Icons.ios_share_rounded, size: 16, color: Color(0xFF64748B)),
-              SizedBox(width: 6),
+            children: [
+              Icon(Icons.ios_share_rounded, size: 16, color: AppColors.textSecondaryOf(context)),
+              const SizedBox(width: 6),
               Text(
                 'Export Report',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Icon(
                 Icons.chevron_right_rounded,
                 size: 16,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondaryOf(context),
               ),
             ],
           ),
@@ -532,19 +531,17 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF0F62FE) : Colors.white,
+                  color: isSelected ? AppColors.primary : AppColors.surfaceOf(context),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
-                        ? const Color(0xFF0F62FE)
-                        : const Color(0xFFF1F5F9),
+                        ? AppColors.primary
+                        : AppColors.borderLightOf(context),
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(
-                              0xFF0F62FE,
-                            ).withValues(alpha: 0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -554,7 +551,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 child: Text(
                   range,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF64748B),
+                    color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   ),
@@ -565,22 +562,22 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Row(
-              children: const [
+              children: [
                 Icon(
                   Icons.calendar_today_outlined,
                   size: 14,
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondaryOf(context),
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   'Custom Range',
                   style: TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondaryOf(context),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -607,28 +604,28 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           _formatNumber(_totalUsers),
           _usersGrowthPct,
           Icons.group_outlined,
-          const Color(0xFF10B981),
+          AppColors.success,
         ),
         _buildKpiCard(
           'Active Doctors',
           _formatNumber(_totalDoctors),
           _doctorsGrowthPct,
           Icons.medical_services_outlined,
-          const Color(0xFF3B82F6),
+          AppColors.info,
         ),
         _buildKpiCard(
           'Total Appointments',
           _formatNumber(_totalAppointments),
           _appointmentsGrowthPct,
           Icons.calendar_month_outlined,
-          const Color(0xFF8B5CF6),
+          AppColors.primary,
         ),
         _buildKpiCard(
           'Total Revenue',
           _formatCurrency(_totalRevenue),
           _revenueGrowthPct,
           Icons.account_balance_wallet_outlined,
-          const Color(0xFFF59E0B),
+          AppColors.warning,
         ),
       ],
     );
@@ -645,9 +642,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -671,18 +668,18 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           const SizedBox(height: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           Row(
@@ -692,8 +689,8 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     ? Icons.arrow_upward_rounded
                     : Icons.arrow_downward_rounded,
                 color: isPositive
-                    ? const Color(0xFF10B981)
-                    : const Color(0xFFEF4444),
+                    ? AppColors.success
+                    : AppColors.error,
                 size: 12,
               ),
               const SizedBox(width: 2),
@@ -703,17 +700,17 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: isPositive
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFEF4444),
+                      ? AppColors.success
+                      : AppColors.error,
                 ),
               ),
               const SizedBox(width: 4),
               Text(
                 'vs ${_previousPeriodLabel()}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiaryOf(context),
                 ),
               ),
             ],
@@ -741,9 +738,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -759,19 +756,19 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
+                children: [
                   Text(
                     'Appointments Overview',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.textPrimaryOf(context),
                     ),
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Icon(
                     Icons.info_outline_rounded,
-                    color: Color(0xFFCBD5E1),
+                    color: AppColors.borderOf(context),
                     size: 16,
                   ),
                 ],
@@ -780,12 +777,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           ),
           const SizedBox(height: 24),
           if (total == 0)
-            const SizedBox(
+            SizedBox(
               height: 160,
               child: Center(
                 child: Text(
                   'No appointments in this period',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                  style: TextStyle(fontSize: 13, color: AppColors.textTertiaryOf(context)),
                 ),
               ),
             )
@@ -793,17 +790,17 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             Row(
               children: [
                 _buildLegendDot(
-                  const Color(0xFF3B82F6),
+                  AppColors.info,
                   'Completed ($_completedAppointments)',
                 ),
                 const SizedBox(width: 16),
                 _buildLegendDot(
-                  const Color(0xFFEF4444),
+                  AppColors.error,
                   'Cancelled ($_cancelledAppointments)',
                 ),
                 const SizedBox(width: 16),
                 _buildLegendDot(
-                  const Color(0xFF10B981),
+                  AppColors.success,
                   'Rescheduled ($_rescheduledAppointments)',
                 ),
               ],
@@ -817,21 +814,21 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     'Completed',
                     completedPct,
                     _completedAppointments,
-                    const Color(0xFF3B82F6),
+                    AppColors.info,
                   ),
                   const SizedBox(height: 12),
                   _buildBarSegment(
                     'Cancelled',
                     cancelledPct,
                     _cancelledAppointments,
-                    const Color(0xFFEF4444),
+                    AppColors.error,
                   ),
                   const SizedBox(height: 12),
                   _buildBarSegment(
                     'Rescheduled',
                     rescheduledPct,
                     _rescheduledAppointments,
-                    const Color(0xFF10B981),
+                    AppColors.success,
                   ),
                 ],
               ),
@@ -851,18 +848,18 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondaryOf(context),
               ),
             ),
             Text(
               '$count (${pct.toStringAsFixed(1)}%)',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
           ],
@@ -892,10 +889,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF64748B),
+            color: AppColors.textSecondaryOf(context),
           ),
         ),
       ],
@@ -906,40 +903,40 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
                 'Top Performing Doctors',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
           if (_topDoctors.isEmpty)
-            const SizedBox(
+            SizedBox(
               height: 120,
               child: Center(
                 child: Text(
                   'No doctor appointments in this period',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                  style: TextStyle(fontSize: 13, color: AppColors.textTertiaryOf(context)),
                 ),
               ),
             )
           else ...[
             Row(
-              children: const [
+              children: [
                 Expanded(
                   flex: 4,
                   child: Text(
@@ -947,7 +944,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.textTertiaryOf(context),
                     ),
                   ),
                 ),
@@ -959,11 +956,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.textTertiaryOf(context),
                     ),
                   ),
                 ),
-                SizedBox(width: 24),
+                const SizedBox(width: 24),
               ],
             ),
             const SizedBox(height: 12),
@@ -981,9 +978,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     index,
                   ),
                   if (index < _topDoctors.length - 1)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Divider(height: 1, color: AppColors.borderLightOf(context)),
                     ),
                 ],
               );
@@ -1008,13 +1005,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(
-                  0xFF0F62FE,
-                ).withValues(alpha: 0.15),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
                 child: Text(
                   initial,
-                  style: const TextStyle(
-                    color: Color(0xFF0F62FE),
+                  style: TextStyle(
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 11,
                   ),
@@ -1027,19 +1022,19 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   children: [
                     Text(
                       name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimaryOf(context),
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       'Rank #${rank + 1}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondaryOf(context),
                       ),
                     ),
                   ],
@@ -1054,18 +1049,18 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             children: [
               Text(
                 appointments.toString(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
-              const Text(
+              Text(
                 'appointments',
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiaryOf(context),
                 ),
               ),
             ],
@@ -1080,19 +1075,19 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Platform Activity',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           const SizedBox(height: 16),
@@ -1103,7 +1098,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   'Forum Posts',
                   _formatNumber(_forumPostsCount),
                   Icons.forum_outlined,
-                  const Color(0xFF8B5CF6),
+                  AppColors.primary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1112,7 +1107,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   'Active Doctors',
                   _formatNumber(_totalDoctors),
                   Icons.medical_services_outlined,
-                  const Color(0xFF3B82F6),
+                  AppColors.info,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1121,7 +1116,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   'Completed',
                   '${_totalAppointments > 0 ? (_completedAppointments / _totalAppointments * 100).toStringAsFixed(0) : 0}%',
                   Icons.check_circle_outline,
-                  const Color(0xFF10B981),
+                  AppColors.success,
                 ),
               ),
             ],
@@ -1160,10 +1155,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondaryOf(context),
             ),
           ),
         ],
@@ -1175,12 +1170,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Reports Shortcuts',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         const SizedBox(height: 16),
@@ -1193,31 +1188,31 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 'User Analytics',
                 'Detailed user insights',
                 Icons.bar_chart_rounded,
-                const Color(0xFF10B981),
+                AppColors.success,
               ),
               _buildShortcutCard(
                 'Doctor Performance',
                 'Track doctor metrics',
                 Icons.group_outlined,
-                const Color(0xFF3B82F6),
+                AppColors.info,
               ),
               _buildShortcutCard(
                 'Financial Reports',
                 'Revenue & transactions',
                 Icons.account_balance_wallet_outlined,
-                const Color(0xFFF59E0B),
+                AppColors.warning,
               ),
               _buildShortcutCard(
                 'Appointment Reports',
                 'Booking & trends',
                 Icons.calendar_today_outlined,
-                const Color(0xFF8B5CF6),
+                AppColors.primary,
               ),
               _buildShortcutCard(
                 'System Reports',
                 'System & audit logs',
                 Icons.settings_system_daydream_outlined,
-                const Color(0xFF6366F1),
+                AppColors.primary,
               ),
             ],
           ),
@@ -1237,9 +1232,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1255,19 +1250,19 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondaryOf(context),
             ),
           ),
         ],
@@ -1279,23 +1274,23 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: AppColors.infoLightOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFDBEAFE)),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.security_rounded,
-            color: Color(0xFF3B82F6),
+            color: AppColors.info,
             size: 24,
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
               'All reports are updated in real-time and data is securely encrypted.',
               style: TextStyle(
-                color: Color(0xFF1E3A8A),
+                color: AppColors.textPrimaryOf(context),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 height: 1.4,
@@ -1303,19 +1298,19 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 'Learn more',
                 style: TextStyle(
-                  color: Color(0xFF2563EB),
+                  color: AppColors.primary,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Icon(
                 Icons.chevron_right_rounded,
-                color: Color(0xFF2563EB),
+                color: AppColors.primary,
                 size: 16,
               ),
             ],

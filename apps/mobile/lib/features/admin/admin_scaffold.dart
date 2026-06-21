@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'admin_dashboard.dart';
@@ -55,18 +56,18 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
       isScrollControlled: true,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Account Section', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+            Text('Account Section', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.person_rounded, color: Color(0xFF0F62FE)),
+              leading: Icon(Icons.person_rounded, color: AppColors.primary),
               title: const Text('Admin Profile', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -74,7 +75,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFF0F62FE)),
+              leading: Icon(Icons.admin_panel_settings_rounded, color: AppColors.primary),
               title: const Text('Permissions / Role', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -82,7 +83,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.security_rounded, color: Color(0xFF0F62FE)),
+              leading: Icon(Icons.security_rounded, color: AppColors.primary),
               title: const Text('Security Settings', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -90,7 +91,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.devices_rounded, color: Color(0xFF0F62FE)),
+              leading: Icon(Icons.devices_rounded, color: AppColors.primary),
               title: const Text('Device Sessions', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -99,7 +100,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             ),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.help_center_rounded, color: Color(0xFF0F62FE)),
+              leading: Icon(Icons.help_center_rounded, color: AppColors.primary),
               title: const Text('Help & Support', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
@@ -107,8 +108,8 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Colors.red),
-              title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              leading: const Icon(Icons.logout_rounded, color: AppColors.error),
+              title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
                 await supabase.auth.signOut();
@@ -128,16 +129,16 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Operational Modules', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
+              Text('Operational Modules', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
               const SizedBox(height: 16),
               _buildMoreTile(context, Icons.analytics_outlined, 'Reports & Insights', '/admin/reports'),
               _buildMoreTile(context, Icons.monetization_on_outlined, 'P2P Monitoring', '/admin/p2p-monitoring'),
@@ -156,10 +157,10 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: const Color(0xFF0F62FE)),
+        child: Icon(icon, color: AppColors.primary),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       onTap: () {
@@ -171,12 +172,12 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
 
   Widget _buildDrawerItem(BuildContext context, IconData icon, String title, String route, {bool isCurrent = false}) {
     return ListTile(
-      leading: Icon(icon, color: isCurrent ? const Color(0xFF0F62FE) : const Color(0xFF64748B)),
+      leading: Icon(icon, color: isCurrent ? AppColors.primary : AppColors.textSecondaryOf(context)),
       title: Text(
         title,
         style: TextStyle(
           fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
-          color: isCurrent ? const Color(0xFF0F62FE) : const Color(0xFF1E293B),
+          color: isCurrent ? AppColors.primary : AppColors.textPrimaryOf(context),
         ),
       ),
       selected: isCurrent,
@@ -189,24 +190,23 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
     final activeIndex = _isShell ? _currentIndex : widget.selectedIndex;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu_rounded, color: Color(0xFF1E293B), size: 28),
+            icon: Icon(Icons.menu_rounded, color: AppColors.textPrimaryOf(context), size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Premon Care Admin',
           style: TextStyle(
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.w900,
             fontSize: 18,
             letterSpacing: -0.5,
@@ -215,7 +215,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B), size: 28),
+            icon: Icon(Icons.notifications_none_rounded, color: AppColors.textPrimaryOf(context), size: 28),
             onPressed: () => context.push('/notifications'),
           ),
           Padding(
@@ -234,8 +234,8 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               Container(
                 padding: const EdgeInsets.all(24),
                 alignment: Alignment.centerLeft,
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: AppColors.borderLightOf(context))),
                 ),
                 child: Row(
                   children: [
@@ -243,7 +243,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                       width: 36,
                       height: 36,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF0F62FE),
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
@@ -251,11 +251,11 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Premon Care Admin', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E293B))),
-                        Text('System Controller', style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
+                        Text('Premon Care Admin', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context))),
+                        Text('System Controller', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ],
@@ -292,43 +292,43 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
           : widget.body!,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: const Color(0xFFF1F5F9))),
+          color: AppColors.surfaceOf(context),
+          border: Border(top: BorderSide(color: AppColors.borderLightOf(context))),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         child: SafeArea(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(context, Icons.home_rounded, 'Dashboard', isSelected: activeIndex == 0, activeColor: primaryColor, onTap: () {
+              _buildNavItem(context, Icons.home_rounded, 'Dashboard', isSelected: activeIndex == 0, activeColor: AppColors.primary, onTap: () {
                 if (_isShell) {
                   setState(() => _currentIndex = 0);
                 } else {
                   context.go('/admin-dashboard');
                 }
               }),
-              _buildNavItem(context, Icons.people_alt_rounded, 'Users', isSelected: activeIndex == 1, activeColor: primaryColor, onTap: () {
+              _buildNavItem(context, Icons.people_alt_rounded, 'Users', isSelected: activeIndex == 1, activeColor: AppColors.primary, onTap: () {
                 if (_isShell) {
                   setState(() => _currentIndex = 1);
                 } else {
                   context.go('/admin/user-management');
                 }
               }),
-              _buildNavItem(context, Icons.medical_services_rounded, 'Doctors', isSelected: activeIndex == 2, activeColor: primaryColor, onTap: () {
+              _buildNavItem(context, Icons.medical_services_rounded, 'Doctors', isSelected: activeIndex == 2, activeColor: AppColors.primary, onTap: () {
                 if (_isShell) {
                   setState(() => _currentIndex = 2);
                 } else {
                   context.go('/admin/doctor-verification');
                 }
               }),
-              _buildNavItem(context, Icons.forum_rounded, 'Forum', isSelected: activeIndex == 3, activeColor: primaryColor, onTap: () {
+              _buildNavItem(context, Icons.forum_rounded, 'Forum', isSelected: activeIndex == 3, activeColor: AppColors.primary, onTap: () {
                 if (_isShell) {
                   setState(() => _currentIndex = 3);
                 } else {
                   context.go('/admin/forum-moderation');
                 }
               }),
-              _buildNavItem(context, Icons.more_horiz_rounded, 'More', isSelected: activeIndex == 4, activeColor: primaryColor, onTap: () => _showMoreSheet(context)),
+              _buildNavItem(context, Icons.more_horiz_rounded, 'More', isSelected: activeIndex == 4, activeColor: AppColors.primary, onTap: () => _showMoreSheet(context)),
             ],
           ),
         ),
@@ -343,12 +343,12 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: isSelected ? activeColor : const Color(0xFF94A3B8), size: 26),
+          Icon(icon, color: isSelected ? activeColor : AppColors.textTertiaryOf(context), size: 26),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? activeColor : const Color(0xFF94A3B8),
+              color: isSelected ? activeColor : AppColors.textTertiaryOf(context),
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             ),

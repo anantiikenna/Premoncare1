@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 
@@ -20,7 +21,6 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
   String? _conversionEmail;
   Timer? _resendTimer;
 
-  // Controllers & Form States
   final List<TextEditingController> _otpControllers = List.generate(8, (index) => TextEditingController());
   final List<FocusNode> _otpFocusNodes = List.generate(8, (index) => FocusNode());
   
@@ -80,7 +80,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email address'), backgroundColor: Colors.red),
+        SnackBar(content: const Text('Please enter a valid email address'), backgroundColor: AppColors.error),
       );
       return;
     }
@@ -92,14 +92,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         setState(() => _currentStep = 3);
         _startResendTimer();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('OTP sent to $email'), backgroundColor: const Color(0xFF10B981)),
+          SnackBar(content: Text('OTP sent to $email'), backgroundColor: AppColors.success),
         );
       }
     } catch (e, st) {
       logHandledError('Send OTP failed', e, st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'Failed to send OTP. Please try again.')), backgroundColor: Colors.red),
+          SnackBar(content: Text(userFacingError(e, fallback: 'Failed to send OTP. Please try again.')), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -124,7 +124,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Email verified successfully'), backgroundColor: Color(0xFF10B981)),
+          SnackBar(content: const Text('Email verified successfully'), backgroundColor: AppColors.success),
         );
         _nextStep();
       }
@@ -132,14 +132,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
       logHandledError('OTP verify failed', e, st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'Invalid code. Please try again.')), backgroundColor: Colors.red),
+          SnackBar(content: Text(userFacingError(e, fallback: 'Invalid code. Please try again.')), backgroundColor: AppColors.error),
         );
       }
     } catch (e, st) {
       logHandledError('OTP verify failed', e, st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Verification failed. Please try again.'), backgroundColor: Colors.red),
+          SnackBar(content: const Text('Verification failed. Please try again.'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -176,20 +176,20 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leadingWidth: 70,
         leading: Padding(
           padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
           child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFF1F5F9),
+            decoration: BoxDecoration(
+              color: AppColors.backgroundOf(context),
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
+              icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 20),
               onPressed: () {
                 if (_currentStep > 1) {
                   _prevStep();
@@ -207,7 +207,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               width: 24,
               height: 24,
               decoration: const BoxDecoration(
-                color: Color(0xFF0F62FE),
+                color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.healing_rounded, color: Colors.white, size: 14),
@@ -216,7 +216,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             const Text(
               'Premon Care',
               style: TextStyle(
-                color: Color(0xFF0F62FE),
+                color: AppColors.primary,
                 fontWeight: FontWeight.w900,
                 fontSize: 18,
                 letterSpacing: -0.5,
@@ -229,7 +229,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             alignment: Alignment.topRight,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined, color: Color(0xFF64748B)),
+                icon: Icon(Icons.notifications_outlined, color: AppColors.textSecondaryOf(context)),
                 onPressed: () => context.push('/notifications'),
               ),
               Positioned(
@@ -237,7 +237,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 top: 8,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
                   child: const Text(
                     '8',
                     style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
@@ -254,14 +254,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 children: [
                   const CircleAvatar(
                     radius: 18,
-                    backgroundColor: Color(0xFF0F62FE),
+                    backgroundColor: AppColors.primary,
                     child: Text('S', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14)),
                   ),
                   Container(
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF10B981),
+                      color: AppColors.success,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 1.5),
                     ),
@@ -279,7 +279,6 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero Title & Subtitle + Illustration Row
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -293,10 +292,10 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                               : (_currentStep == 3 
                                   ? 'Create Your Profile' 
                                   : (_currentStep == 4 ? 'Account Created\nSuccessfully!' : 'Emergency Guest\nConversion Flow')),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimaryOf(context),
                             height: 1.2,
                             letterSpacing: -0.8,
                           ),
@@ -310,8 +309,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                                   : (_currentStep == 4 
                                       ? 'Welcome to Premon Care. You can now access all features, track your health and manage your care.'
                                       : 'Convert emergency guest users to verified accounts for continuity of care and better support.')),
-                          style: const TextStyle(
-                            color: Color(0xFF64748B),
+                          style: TextStyle(
+                            color: AppColors.textSecondaryOf(context),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             height: 1.4,
@@ -332,12 +331,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-
-              // 4-Step Stepper
               _ConversionStepper(currentStep: _currentStep),
               const SizedBox(height: 32),
-
-              // Animated Transition Container for Steps
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 transitionBuilder: (Widget child, Animation<double> animation) {
@@ -380,14 +375,13 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     }
   }
 
-  // STEP 1: START
   Widget _buildStep1Start() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.backgroundOf(context),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFEDF2F7)),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Column(
         children: [
@@ -401,16 +395,16 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                      color: AppColors.info.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: const Icon(Icons.person_rounded, color: Color(0xFF3B82F6), size: 30),
+                    child: Icon(Icons.person_rounded, color: AppColors.info, size: 30),
                   ),
                   Container(
                     width: 18,
                     height: 18,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF59E0B),
+                      color: AppColors.warning,
                       shape: BoxShape.circle,
                     ),
                     child: const Center(
@@ -428,22 +422,22 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Guest Emergency Session\nDetected',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimaryOf(context),
                         height: 1.2,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'This user accessed emergency care as a guest.\nComplete a few quick steps to create an account.',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondaryOf(context),
                       ),
                     ),
                   ],
@@ -457,38 +451,38 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   children: [
                     const Text(
                       'Session ID',
-                      style: TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textTertiary, fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
                     const Text(
                       'EMG-2025-0518-7821',
-                      style: TextStyle(color: Color(0xFF1E293B), fontSize: 10, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: AppColors.textPrimary, fontSize: 10, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 12),
                     const Text(
                       'Access Time',
-                      style: TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textTertiary, fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
                     const Text(
                       '18 May 2025, 10:24 AM',
-                      style: TextStyle(color: Color(0xFF1E293B), fontSize: 10, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: AppColors.textPrimary, fontSize: 10, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 12),
                     const Text(
                       'Reason',
-                      style: TextStyle(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textTertiary, fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFE4E6),
+                        color: AppColors.errorLightOf(context),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
                         'Critical Condition',
-                        style: TextStyle(color: Color(0xFFEF4444), fontSize: 8, fontWeight: FontWeight.w900),
+                        style: TextStyle(color: AppColors.error, fontSize: 8, fontWeight: FontWeight.w900),
                       ),
                     ),
                   ],
@@ -497,7 +491,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             ],
           ),
           const SizedBox(height: 32),
-          const Divider(color: Color(0xFFE2E8F0), height: 1),
+          Divider(color: AppColors.borderOf(context), height: 1),
           const SizedBox(height: 32),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,34 +499,34 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               const Expanded(
                 child: _FeatureColumn(
                   icon: Icons.favorite_rounded,
-                  color: Color(0xFF3B82F6),
+                  color: AppColors.info,
                   title: 'Continue Care',
                   description: 'Access your medical history anytime',
                 ),
               ),
-              Container(width: 1, height: 60, color: const Color(0xFFE2E8F0)),
+              Container(width: 1, height: 60, color: AppColors.borderOf(context)),
               const Expanded(
                 child: _FeatureColumn(
                   icon: Icons.lock_rounded,
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                   title: 'Secure & Private',
                   description: 'Your data is encrypted and protected',
                 ),
               ),
-              Container(width: 1, height: 60, color: const Color(0xFFE2E8F0)),
+              Container(width: 1, height: 60, color: AppColors.borderOf(context)),
               const Expanded(
                 child: _FeatureColumn(
                   icon: Icons.history_rounded,
-                  color: Color(0xFF8B5CF6),
+                  color: AppColors.primary,
                   title: 'Faster Next Time',
                   description: 'Skip long forms and get help quicker',
                 ),
               ),
-              Container(width: 1, height: 60, color: const Color(0xFFE2E8F0)),
+              Container(width: 1, height: 60, color: AppColors.borderOf(context)),
               const Expanded(
                 child: _FeatureColumn(
                   icon: Icons.headset_mic_rounded,
-                  color: Color(0xFFF59E0B),
+                  color: AppColors.warning,
                   title: 'Better Support',
                   description: 'We can support you more efficiently',
                 ),
@@ -545,7 +539,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             child: ElevatedButton(
               onPressed: _nextStep,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F62FE),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -569,47 +563,45 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     );
   }
 
-  // STEP 2: VERIFY (Matching design exactly)
   Widget _buildStep2Verify() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Green Banner
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFECFDF5),
+            color: AppColors.successLightOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFA7F3D0)),
+            border: Border.all(color: AppColors.successLightOf(context)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_rounded, color: Colors.white, size: 16),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Emergency Session Completed Successfully',
                       style: TextStyle(
-                        color: Color(0xFF065F46),
+                        color: AppColors.success,
                         fontWeight: FontWeight.w900,
                         fontSize: 12,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       'Continue creating your secure healthcare account to get the best care experience.',
                       style: TextStyle(
-                        color: Color(0xFF065F46),
+                        color: AppColors.success,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -621,19 +613,17 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 24),
-
-        // Phone Number Row Box
-        const Text(
+        Text(
           'Phone Number',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderOf(context)),
           ),
           child: Row(
             children: [
@@ -646,36 +636,32 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               const SizedBox(width: 8),
               const Text(
                 '+234',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
-              const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF64748B), size: 16),
+              Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondaryOf(context), size: 16),
               const SizedBox(width: 12),
-              Container(width: 1, height: 20, color: const Color(0xFFCBD5E1)),
+              Container(width: 1, height: 20, color: AppColors.borderOf(context)),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Check your email for the verification code',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context)),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(color: Color(0xFFD1FAE5), shape: BoxShape.circle),
-                child: const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 12),
+                decoration: BoxDecoration(color: AppColors.successLightOf(context), shape: BoxShape.circle),
+                child: Icon(Icons.check_rounded, color: AppColors.success, size: 12),
               ),
             ],
           ),
         ),
         const SizedBox(height: 24),
-
-        // Enter Verification Code Title
-        const Text(
+        Text(
           'Enter Verification Code',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 12, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-
-        // 8 OTP Box Inputs
         Center(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -693,10 +679,10 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     width: boxWidth,
                     height: boxHeight,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isActive ? const Color(0xFF0F62FE) : const Color(0xFFE2E8F0),
+                        color: isActive ? AppColors.primary : AppColors.borderOf(context),
                         width: isActive ? 2 : 1,
                       ),
                     ),
@@ -707,7 +693,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
                         maxLength: 1,
-                        style: TextStyle(fontSize: boxWidth * 0.53, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B)),
+                        style: TextStyle(fontSize: boxWidth * 0.53, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)),
                         decoration: const InputDecoration(
                           counterText: '',
                           border: InputBorder.none,
@@ -723,8 +709,6 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 16),
-
-        // Resend Timer Row
         Center(
           child: Column(
             children: [
@@ -732,19 +716,19 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 _resendSeconds > 0
                     ? 'Resend code in ${(_resendSeconds ~/ 60).toString().padLeft(2, '0')}:${(_resendSeconds % 60).toString().padLeft(2, '0')}'
                     : 'Code expired',
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600),
+                style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Didn\'t receive code? ', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('Didn\'t receive code? ', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
                   GestureDetector(
                     onTap: _resendSeconds > 0 ? null : _sendOtp,
                     child: Text(
                       'Resend Code',
                       style: TextStyle(
-                        color: _resendSeconds > 0 ? const Color(0xFF94A3B8) : const Color(0xFF0F62FE),
+                        color: _resendSeconds > 0 ? AppColors.textTertiaryOf(context) : AppColors.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -756,39 +740,36 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 32),
-
-        // Why verify your number section
-        const Text(
+        Text(
           'Why verify your number?',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 14, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Expanded(
+          children: const [
+            Expanded(
               child: _VerifyBenefitColumn(
                 icon: Icons.local_hospital_rounded,
-                color: Color(0xFF10B981),
+                color: AppColors.success,
                 title: 'Continue Care',
                 description: 'Access your emergency consultation history.',
               ),
             ),
-            const SizedBox(width: 8),
-            const Expanded(
+            SizedBox(width: 8),
+            Expanded(
               child: _VerifyBenefitColumn(
                 icon: Icons.notifications_rounded,
-                color: Color(0xFF8B5CF6),
+                color: AppColors.primary,
                 title: 'Follow-up Updates',
                 description: 'Receive doctor updates and appointment alerts.',
               ),
             ),
-            const SizedBox(width: 8),
-            const Expanded(
+            SizedBox(width: 8),
+            Expanded(
               child: _VerifyBenefitColumn(
                 icon: Icons.security_rounded,
-                color: Color(0xFF3B82F6),
+                color: AppColors.info,
                 title: 'Secure Records',
                 description: 'Protect your medical information.',
               ),
@@ -796,14 +777,12 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ],
         ),
         const SizedBox(height: 32),
-
-        // Verify & Continue Button
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: _isSendingOtp || _isVerifyingOtp ? null : (_currentStep == 2 ? _sendOtp : _verifyOtp),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0D9488),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -825,15 +804,13 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
-        // Skip Button
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
             onPressed: _nextStep,
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF0F62FE),
-              side: const BorderSide(color: Color(0xFFCBD5E1)),
+              foregroundColor: AppColors.primary,
+              side: BorderSide(color: AppColors.borderOf(context)),
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
@@ -841,45 +818,41 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 20),
-
-        // Warning Banner
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFFBEB),
+            color: AppColors.warningLightOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFEF3C7)),
+            border: Border.all(color: AppColors.warningLightOf(context)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: AppColors.warning, shape: BoxShape.circle),
                 child: const Icon(Icons.priority_high_rounded, color: Colors.white, size: 14),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Skipping verification may limit access to your consultation records and future healthcare services.',
-                  style: TextStyle(color: Color(0xFF92400E), fontSize: 11, fontWeight: FontWeight.bold, height: 1.4),
+                  style: TextStyle(color: AppColors.warning, fontSize: 11, fontWeight: FontWeight.bold, height: 1.4),
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 24),
-
-        // Privacy note
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.shield_outlined, color: Color(0xFF64748B), size: 16),
-            SizedBox(width: 8),
+          children: [
+            Icon(Icons.shield_outlined, color: AppColors.textSecondaryOf(context), size: 16),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Your information is encrypted and protected under healthcare privacy standards.',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -888,47 +861,45 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     );
   }
 
-  // STEP 3: CREATE PROFILE (Matching Step 3 Mockup exactly)
   Widget _buildStep3Profile() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Blue Info Alert Banner
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: AppColors.infoLightOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFDBEAFE)),
+            border: Border.all(color: AppColors.infoLightOf(context)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF3B82F6),
+                  color: AppColors.info,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 16),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'You’re almost there!',
+                      'You\'re almost there!',
                       style: TextStyle(
-                        color: Color(0xFF1E40AF),
+                        color: AppColors.primary,
                         fontWeight: FontWeight.w900,
                         fontSize: 13,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       'Just a few more details to create your secure account.',
                       style: TextStyle(
-                        color: Color(0xFF1E40AF),
+                        color: AppColors.primary,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -940,45 +911,39 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 24),
-
-        // Main Personal Information Card
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderOf(context)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Personal Information',
-                style: TextStyle(color: Color(0xFF1E293B), fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-
-              // Full Name
-              const Text('Full Name', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text('Full Name', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.person_outline_rounded, size: 18),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Date of Birth & Gender Row
               Row(
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Date of Birth', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w800)),
+                        Text('Date of Birth', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _dobController,
@@ -987,7 +952,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                             prefixIcon: const Icon(Icons.calendar_today_rounded, size: 16),
                             suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
                           ),
                         ),
                       ],
@@ -998,7 +963,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Gender', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w800)),
+                        Text('Gender', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
                           initialValue: _selectedGender.isEmpty ? null : _selectedGender,
@@ -1013,7 +978,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.person_outline_rounded, size: 16),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
                           ),
                         ),
                       ],
@@ -1022,34 +987,28 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Email Address
-              const Text('Email Address (Optional)', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text('Email Address (Optional)', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.mail_outline_rounded, size: 18),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'We\'ll use this for important updates and notifications.',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w600),
+                style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 24),
-
-              // Location Section
-              const Text(
+              Text(
                 'Location',
-                style: TextStyle(color: Color(0xFF1E293B), fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-
-              // City
-              const Text('City', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text('City', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               TextField(
                 controller: _cityController,
@@ -1057,13 +1016,11 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   prefixIcon: const Icon(Icons.location_on_outlined, size: 18),
                   suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Emergency Contact (Optional)
-              const Text('Emergency Contact (Optional)', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text('Emergency Contact (Optional)', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -1071,15 +1028,15 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     width: 90,
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppColors.backgroundOf(context),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFCBD5E1)),
+                      border: Border.all(color: AppColors.borderOf(context)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text('+234', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-                        Icon(Icons.keyboard_arrow_down_rounded, size: 16),
+                      children: [
+                        Text('+234', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context))),
+                        const Icon(Icons.keyboard_arrow_down_rounded, size: 16),
                       ],
                     ),
                   ),
@@ -1090,38 +1047,36 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.phone_outlined, size: 18),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.borderOf(context))),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-
-              // Health data protected banner
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
+                  color: AppColors.successLightOf(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFA7F3D0)),
+                  border: Border.all(color: AppColors.successLightOf(context)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.lock_rounded, color: Color(0xFF10B981), size: 18),
+                    Icon(Icons.lock_rounded, color: AppColors.success, size: 18),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Your health data is protected',
-                            style: TextStyle(color: Color(0xFF065F46), fontWeight: FontWeight.w900, fontSize: 11),
+                            style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w900, fontSize: 11),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             'We use advanced encryption to keep your information safe and private.',
-                            style: TextStyle(color: Color(0xFF065F46), fontSize: 9, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: AppColors.success, fontSize: 9, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -1133,14 +1088,12 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 32),
-
-        // Continue Button
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: _nextStep,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0D9488),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -1157,15 +1110,13 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
-        // Skip/Do this later button
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
             onPressed: _nextStep,
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF0F62FE),
-              side: const BorderSide(color: Color(0xFFCBD5E1)),
+              foregroundColor: AppColors.primary,
+              side: BorderSide(color: AppColors.borderOf(context)),
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
@@ -1173,16 +1124,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 20),
-
-        // Bottom privacy note
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.lock_outline_rounded, color: Color(0xFF64748B), size: 14),
-            SizedBox(width: 6),
+          children: [
+            Icon(Icons.lock_outline_rounded, color: AppColors.textSecondaryOf(context), size: 14),
+            const SizedBox(width: 6),
             Text(
               'You can update this information anytime in your profile settings.',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.bold),
+              style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -1190,20 +1139,18 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     );
   }
 
-  // STEP 4: COMPLETE (Matching Step 4 Mockup exactly!)
   Widget _buildStep4Complete() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Your Account is Ready Card
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFD1FAE5), width: 1.5), // green outline
+            border: Border.all(color: AppColors.successLightOf(context), width: 1.5),
             boxShadow: [
-              BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.03), blurRadius: 16, offset: const Offset(0, 8)),
+              BoxShadow(color: AppColors.success.withValues(alpha: 0.03), blurRadius: 16, offset: const Offset(0, 8)),
             ],
           ),
           child: Row(
@@ -1218,19 +1165,17 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(color: Color(0xFFD1FAE5), shape: BoxShape.circle),
-                          child: const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 14),
+                          decoration: BoxDecoration(color: AppColors.successLightOf(context), shape: BoxShape.circle),
+                          child: Icon(Icons.check_rounded, color: AppColors.success, size: 14),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'Your Account is Ready',
-                          style: TextStyle(color: Color(0xFF065F46), fontSize: 14, fontWeight: FontWeight.w900),
+                          style: TextStyle(color: AppColors.success, fontSize: 14, fontWeight: FontWeight.w900),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-
-                    // Phone row
                     _buildAccountSummaryItem(
                       icon: Icons.phone_outlined,
                       label: 'Phone Number',
@@ -1238,8 +1183,6 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                       tagText: 'Verified',
                     ),
                     const SizedBox(height: 16),
-
-                    // Email row
                     _buildAccountSummaryItem(
                       icon: Icons.mail_outline_rounded,
                       label: 'Email Address',
@@ -1247,8 +1190,6 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                       tagText: 'Added',
                     ),
                     const SizedBox(height: 16),
-
-                    // Location row
                     _buildAccountSummaryItem(
                       icon: Icons.location_on_outlined,
                       label: 'Full Name',
@@ -1259,7 +1200,6 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // Right side shield column
               Expanded(
                 flex: 2,
                 child: Column(
@@ -1269,7 +1209,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                       width: 65,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
+                        color: AppColors.infoLightOf(context),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(20),
                           bottomRight: Radius.circular(20),
@@ -1277,16 +1217,16 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                           topRight: Radius.circular(8),
                         ),
                         boxShadow: [
-                          BoxShadow(color: const Color(0xFF3B82F6).withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4)),
+                          BoxShadow(color: AppColors.info.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4)),
                         ],
                       ),
-                      child: const Icon(Icons.security_rounded, color: Color(0xFF3B82F6), size: 36),
+                      child: Icon(Icons.security_rounded, color: AppColors.info, size: 36),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'Your information is\nsecure and encrypted.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.bold, height: 1.4),
+                      style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 9, fontWeight: FontWeight.bold, height: 1.4),
                     ),
                   ],
                 ),
@@ -1295,21 +1235,18 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 32),
-
-        // What you can do next Section
-        const Text(
+        Text(
           'What you can do next',
-          style: TextStyle(color: Color(0xFF1E293B), fontSize: 14, fontWeight: FontWeight.w900),
+          style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 16),
-
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Expanded(
               child: _NextActionCard(
                 icon: Icons.folder_shared_outlined,
-                color: Color(0xFF10B981),
+                color: AppColors.success,
                 title: 'View Health\nRecords',
                 description: 'Access your emergency consultation and health history.',
               ),
@@ -1318,7 +1255,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             Expanded(
               child: _NextActionCard(
                 icon: Icons.calendar_today_outlined,
-                color: Color(0xFF8B5CF6),
+                color: AppColors.primary,
                 title: 'Book\nAppointments',
                 description: 'Schedule consultations with trusted doctors.',
               ),
@@ -1327,7 +1264,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             Expanded(
               child: _NextActionCard(
                 icon: Icons.notifications_none_rounded,
-                color: Color(0xFFF59E0B),
+                color: AppColors.warning,
                 title: 'Get Health\nReminders',
                 description: 'Receive medication reminders and follow-ups.',
               ),
@@ -1336,7 +1273,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             Expanded(
               child: _NextActionCard(
                 icon: Icons.chat_bubble_outline_rounded,
-                color: Color(0xFF3B82F6),
+                color: AppColors.info,
                 title: 'Chat with\nDoctors',
                 description: 'Connect with doctors anytime for follow-up care.',
               ),
@@ -1344,54 +1281,49 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ],
         ),
         const SizedBox(height: 32),
-
-        // Your Health Matters Banner
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: AppColors.infoLightOf(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFDBEAFE)),
+            border: Border.all(color: AppColors.infoLightOf(context)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(color: Color(0xFF0F62FE), shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                 child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Your Health Matters',
-                      style: TextStyle(color: Color(0xFF0F62FE), fontSize: 13, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w900),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'We\'re here to support you on your health journey. Thank you for choosing Premon Care.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold, height: 1.4),
+                      style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.bold, height: 1.4),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              // Hand heart small icon
-              const Icon(Icons.healing_rounded, color: Color(0xFFBFDBFE), size: 36),
+              Icon(Icons.healing_rounded, color: AppColors.infoLightOf(context), size: 36),
             ],
           ),
         ),
         const SizedBox(height: 32),
-
-        // Go to Dashboard Button
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () => context.go('/patient_dashboard'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0D9488),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -1408,15 +1340,13 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
-        // View My Health Record Button
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
             onPressed: () => context.push('/vault'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF0F62FE),
-              side: const BorderSide(color: Color(0xFFCBD5E1)),
+              foregroundColor: AppColors.primary,
+              side: BorderSide(color: AppColors.borderOf(context)),
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
@@ -1424,16 +1354,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           ),
         ),
         const SizedBox(height: 24),
-
-        // Footer
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.shield_outlined, color: Color(0xFF64748B), size: 16),
-            SizedBox(width: 8),
+          children: [
+            Icon(Icons.shield_outlined, color: AppColors.textSecondaryOf(context), size: 16),
+            const SizedBox(width: 8),
             Text(
               'Your health. Your data. Always protected.',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.bold),
+              style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -1449,15 +1377,15 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF64748B)),
+        Icon(icon, size: 16, color: AppColors.textSecondaryOf(context)),
         const SizedBox(width: 8),
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.bold),
               children: [
                 TextSpan(text: '$label:  '),
-                TextSpan(text: value, style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w900)),
+                TextSpan(text: value, style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w900)),
               ],
             ),
           ),
@@ -1466,12 +1394,12 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFFD1FAE5),
+            color: AppColors.successLightOf(context),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             tagText,
-            style: const TextStyle(color: Color(0xFF10B981), fontSize: 8, fontWeight: FontWeight.w900),
+            style: TextStyle(color: AppColors.success, fontSize: 8, fontWeight: FontWeight.w900),
           ),
         ),
       ],
@@ -1497,7 +1425,7 @@ class _HeroIllustration extends StatelessWidget {
               width: 55,
               height: 65,
               decoration: BoxDecoration(
-                color: const Color(0xFF0F62FE).withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
@@ -1505,7 +1433,7 @@ class _HeroIllustration extends StatelessWidget {
                   topRight: Radius.circular(10),
                 ),
               ),
-              child: const Icon(Icons.add_moderator_rounded, color: Color(0xFF0F62FE), size: 28),
+              child: const Icon(Icons.add_moderator_rounded, color: AppColors.primary, size: 28),
             ),
           ),
           Positioned(
@@ -1517,7 +1445,7 @@ class _HeroIllustration extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                border: Border.all(color: AppColors.borderOf(context), width: 1.5),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.03),
@@ -1535,28 +1463,28 @@ class _HeroIllustration extends StatelessWidget {
                       width: 16,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF94A3B8),
+                        color: AppColors.textTertiaryOf(context),
                         borderRadius: BorderRadius.circular(2.5),
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Container(width: 32, height: 3, decoration: BoxDecoration(color: const Color(0xFF0F62FE).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 32, height: 3, decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(1.5))),
                   const SizedBox(height: 4),
-                  Container(width: 20, height: 3, decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 20, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                   const SizedBox(height: 4),
-                  Container(width: 26, height: 3, decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 26, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Container(
                         width: 12,
                         height: 12,
-                        decoration: const BoxDecoration(color: Color(0xFFEEF2FF), shape: BoxShape.circle),
-                        child: const Icon(Icons.person_rounded, size: 8, color: Color(0xFF0F62FE)),
+                        decoration: BoxDecoration(color: AppColors.primaryLight.withValues(alpha: 0.1), shape: BoxShape.circle),
+                        child: const Icon(Icons.person_rounded, size: 8, color: AppColors.primary),
                       ),
                       const SizedBox(width: 4),
-                      Container(width: 12, height: 2, decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(1))),
+                      Container(width: 12, height: 2, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1))),
                     ],
                   ),
                 ],
@@ -1573,16 +1501,16 @@ class _HeroIllustration extends StatelessWidget {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
-                  child: const Icon(Icons.person_rounded, color: Color(0xFF10B981), size: 16),
+                  child: const Icon(Icons.person_rounded, color: AppColors.success, size: 16),
                 ),
                 Container(
                   width: 10,
                   height: 10,
-                  decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
                   child: const Icon(Icons.check_rounded, color: Colors.white, size: 7),
                 ),
               ],
@@ -1614,14 +1542,14 @@ class _VerifyIllustration extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                border: Border.all(color: AppColors.borderOf(context), width: 1.5),
               ),
               child: Column(
                 children: [
                   const SizedBox(height: 4),
-                  Container(width: 12, height: 3, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 12, height: 3, decoration: BoxDecoration(color: AppColors.slate300, borderRadius: BorderRadius.circular(1.5))),
                   const Spacer(),
-                  Container(width: 18, height: 2, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(1))),
+                  Container(width: 18, height: 2, decoration: BoxDecoration(color: AppColors.slate300, borderRadius: BorderRadius.circular(1))),
                   const SizedBox(height: 3),
                 ],
               ),
@@ -1634,7 +1562,7 @@ class _VerifyIllustration extends StatelessWidget {
               width: 38,
               height: 44,
               decoration: BoxDecoration(
-                color: const Color(0xFF0F62FE),
+                color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
@@ -1642,7 +1570,7 @@ class _VerifyIllustration extends StatelessWidget {
                   topRight: Radius.circular(6),
                 ),
                 boxShadow: [
-                  BoxShadow(color: const Color(0xFF0F62FE).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3)),
+                  BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3)),
                 ],
               ),
               child: const Icon(Icons.shield_rounded, color: Colors.white, size: 20),
@@ -1653,9 +1581,9 @@ class _VerifyIllustration extends StatelessWidget {
             top: 10,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981),
-                borderRadius: BorderRadius.circular(6),
+              decoration: const BoxDecoration(
+                color: AppColors.success,
+                borderRadius: BorderRadius.all(Radius.circular(6)),
               ),
               child: const Text(
                 '****',
@@ -1673,16 +1601,16 @@ class _VerifyIllustration extends StatelessWidget {
                   width: 26,
                   height: 26,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
+                    color: AppColors.infoLight,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 1.5),
                   ),
-                  child: const Icon(Icons.person_rounded, color: Color(0xFF3B82F6), size: 14),
+                  child: const Icon(Icons.person_rounded, color: AppColors.info, size: 14),
                 ),
                 Container(
                   width: 9,
                   height: 9,
-                  decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
                   child: const Icon(Icons.check_rounded, color: Colors.white, size: 6),
                 ),
               ],
@@ -1714,7 +1642,7 @@ class _ProfileIllustration extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                border: Border.all(color: AppColors.borderOf(context), width: 1.5),
                 boxShadow: [
                   BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
                 ],
@@ -1722,18 +1650,13 @@ class _ProfileIllustration extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 12),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: const BoxDecoration(color: Color(0xFFEFF6FF), shape: BoxShape.circle),
-                    child: const Icon(Icons.person_rounded, size: 16, color: Color(0xFF3B82F6)),
-                  ),
+                  const BoxDecoration(color: AppColors.infoLight, shape: BoxShape.circle),
                   const SizedBox(height: 8),
-                  Container(width: 32, height: 3, decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 32, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                   const SizedBox(height: 4),
-                  Container(width: 24, height: 3, decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 24, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                   const SizedBox(height: 4),
-                  Container(width: 28, height: 3, decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 28, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                 ],
               ),
             ),
@@ -1745,7 +1668,7 @@ class _ProfileIllustration extends StatelessWidget {
               width: 20,
               height: 8,
               decoration: BoxDecoration(
-                color: const Color(0xFF94A3B8),
+                color: AppColors.textTertiaryOf(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1757,7 +1680,7 @@ class _ProfileIllustration extends StatelessWidget {
               width: 34,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6),
+                color: AppColors.info,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(14),
                   bottomRight: Radius.circular(14),
@@ -1765,7 +1688,7 @@ class _ProfileIllustration extends StatelessWidget {
                   topRight: Radius.circular(5),
                 ),
                 boxShadow: [
-                  BoxShadow(color: const Color(0xFF3B82F6).withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 3)),
+                  BoxShadow(color: AppColors.info.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 3)),
                 ],
               ),
               child: const Icon(Icons.add, color: Colors.white, size: 18),
@@ -1793,29 +1716,29 @@ class _CompleteIllustration extends StatelessWidget {
             width: 55,
             height: 55,
             decoration: BoxDecoration(
-              color: const Color(0xFF10B981),
+              color: AppColors.success,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
+                BoxShadow(color: AppColors.success.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
               ],
             ),
             child: const Icon(Icons.check_rounded, color: Colors.white, size: 30),
           ),
           Positioned(
             left: 10, top: 10,
-            child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFF59E0B), shape: BoxShape.circle)),
+            child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.warning, shape: BoxShape.circle)),
           ),
           Positioned(
             right: 15, top: 5,
-            child: Container(width: 6, height: 10, decoration: BoxDecoration(color: const Color(0xFF3B82F6), borderRadius: BorderRadius.circular(2))),
+            child: Container(width: 6, height: 10, decoration: BoxDecoration(color: AppColors.info, borderRadius: BorderRadius.circular(2))),
           ),
           Positioned(
             left: 15, bottom: 15,
-            child: Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle)),
+            child: Container(width: 7, height: 7, decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle)),
           ),
           Positioned(
             right: 10, bottom: 20,
-            child: Container(width: 8, height: 4, decoration: BoxDecoration(color: const Color(0xFF8B5CF6), borderRadius: BorderRadius.circular(1))),
+            child: Container(width: 8, height: 4, decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(1))),
           ),
         ],
       ),
@@ -1844,14 +1767,14 @@ class _ConversionStepper extends StatelessWidget {
         final isCompleted = stepNum < currentStep;
 
         final bubbleColor = isCompleted 
-            ? const Color(0xFF10B981) 
-            : (isActive ? const Color(0xFF0F62FE) : Colors.white);
+            ? AppColors.success
+            : (isActive ? AppColors.primary : AppColors.surfaceOf(context));
             
-        final iconColor = (isActive || isCompleted) ? Colors.white : const Color(0xFF64748B);
+        final iconColor = (isActive || isCompleted) ? Colors.white : AppColors.textSecondaryOf(context);
         
         final textColor = isCompleted 
-            ? const Color(0xFF10B981) 
-            : (isActive ? const Color(0xFF0F62FE) : const Color(0xFF64748B));
+            ? AppColors.success
+            : (isActive ? AppColors.primary : AppColors.textSecondaryOf(context));
 
         return Expanded(
           child: Row(
@@ -1868,14 +1791,14 @@ class _ConversionStepper extends StatelessWidget {
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isCompleted 
-                              ? const Color(0xFF10B981) 
-                              : (isActive ? const Color(0xFF0F62FE) : const Color(0xFFE2E8F0)),
+                              ? AppColors.success
+                              : (isActive ? AppColors.primary : AppColors.borderOf(context)),
                           width: 2,
                         ),
                         boxShadow: isActive
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFF0F62FE).withValues(alpha: 0.15),
+                                  color: AppColors.primary.withValues(alpha: 0.15),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
                                 ),
@@ -1912,7 +1835,7 @@ class _ConversionStepper extends StatelessWidget {
                   width: 24,
                   height: 3,
                   margin: const EdgeInsets.only(bottom: 24),
-                  color: (index + 1) < currentStep ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                  color: (index + 1) < currentStep ? AppColors.success : AppColors.borderOf(context),
                 ),
             ],
           ),
@@ -1960,7 +1883,7 @@ class _FeatureColumn extends StatelessWidget {
           style: const TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 4),
@@ -1970,7 +1893,7 @@ class _FeatureColumn extends StatelessWidget {
           style: const TextStyle(
             fontSize: 8,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF64748B),
+            color: AppColors.textSecondary,
             height: 1.3,
           ),
         ),
@@ -2014,12 +1937,12 @@ class _VerifyBenefitColumn extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
             description,
-            style: const TextStyle(fontSize: 9, color: Color(0xFF64748B), height: 1.3),
+            style: const TextStyle(fontSize: 9, color: AppColors.textSecondary, height: 1.3),
           ),
         ],
       ),
@@ -2045,9 +1968,9 @@ class _NextActionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.01), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -2066,12 +1989,12 @@ class _NextActionCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), height: 1.3),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textPrimary, height: 1.3),
           ),
           const SizedBox(height: 8),
           Text(
             description,
-            style: const TextStyle(fontSize: 8, color: Color(0xFF64748B), height: 1.4, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 8, color: AppColors.textSecondary, height: 1.4, fontWeight: FontWeight.w600),
           ),
         ],
       ),

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
 import 'admin_providers.dart';
-
-const primaryColor = Color(0xFF0F62FE);
 
 final _channelConfigsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final response = await Supabase.instance.client
@@ -73,8 +72,8 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
       body: Scaffold(
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _showSendNotificationDialog(),
-          backgroundColor: const Color(0xFF0F62FE),
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.textInverse,
           icon: const Icon(Icons.send_rounded, size: 20),
           label: const Text(
             'Send Notification',
@@ -137,7 +136,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       borderRadius: BorderRadius.circular(14),
                     ),
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: AppColors.surfaceAlt,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -151,7 +150,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       borderRadius: BorderRadius.circular(14),
                     ),
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: AppColors.surfaceAlt,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -163,7 +162,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       borderRadius: BorderRadius.circular(14),
                     ),
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: AppColors.surfaceAlt,
                   ),
                   items: const [
                     DropdownMenuItem(value: 'all', child: Text('All Users')),
@@ -182,10 +181,10 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text(
+              child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondaryOf(ctx),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -216,7 +215,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                           messenger.showSnackBar(
                             const SnackBar(
                               content: Text('Notification sent successfully'),
-                              backgroundColor: Color(0xFF10B981),
+                              backgroundColor: AppColors.success,
                             ),
                           );
                         }
@@ -226,15 +225,15 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                           messenger.showSnackBar(
                             SnackBar(
                               content: Text('Failed to send: $e'),
-                              backgroundColor: const Color(0xFFEF4444),
+                              backgroundColor: AppColors.error,
                             ),
                           );
                         }
                       }
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F62FE),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.textInverse,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -246,7 +245,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        color: AppColors.textInverse,
                       ),
                     )
                   : const Text(
@@ -275,25 +274,25 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           _NotifyStatCard(
             title: 'Total Sent',
             value: '${stats['total'] ?? 0}',
-            color: const Color(0xFF3B82F6),
+            color: AppColors.info,
             icon: Icons.send_rounded,
           ),
           _NotifyStatCard(
             title: 'Today',
             value: '${stats['today'] ?? 0}',
-            color: const Color(0xFF10B981),
+            color: AppColors.success,
             icon: Icons.today_rounded,
           ),
           _NotifyStatCard(
             title: 'Read',
             value: '${stats['read'] ?? 0}',
-            color: const Color(0xFF8B5CF6),
+            color: AppColors.primary,
             icon: Icons.mark_email_read_rounded,
           ),
           _NotifyStatCard(
             title: 'Unread',
             value: '${stats['unread'] ?? 0}',
-            color: const Color(0xFFEF4444),
+            color: AppColors.error,
             icon: Icons.mark_email_unread_rounded,
           ),
         ],
@@ -318,13 +317,13 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _TabItem(label: 'Channels', isSelected: true, primaryColor: primaryColor),
+          _TabItem(label: 'Channels', isSelected: true),
           const SizedBox(width: 12),
-          _TabItem(label: 'Templates', isSelected: false, primaryColor: primaryColor),
+          _TabItem(label: 'Templates', isSelected: false),
           const SizedBox(width: 12),
-          _TabItem(label: 'Scheduled', isSelected: false, primaryColor: primaryColor),
+          _TabItem(label: 'Scheduled', isSelected: false),
           const SizedBox(width: 12),
-          _TabItem(label: 'History', isSelected: false, primaryColor: primaryColor),
+          _TabItem(label: 'History', isSelected: false),
         ],
       ),
     );
@@ -339,14 +338,14 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           return Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'No notification channels configured',
-                style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w700),
+                style: TextStyle(color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700),
               ),
             ),
           );
@@ -354,9 +353,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
         return Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: Column(
             children: [
@@ -371,7 +370,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                   onToggle: (value) => _toggleChannel(channels[i]['id'] as String, value),
                 ),
                 if (i < channels.length - 1)
-                  const Divider(height: 32, color: Color(0xFFF1F5F9)),
+                  Divider(height: 32, color: AppColors.dividerOf(context)),
               ],
             ],
           ),
@@ -401,7 +400,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Channel ${_formatChannelLabel(channelId)} ${value ? "enabled" : "disabled"}'),
-            backgroundColor: const Color(0xFF10B981),
+            backgroundColor: AppColors.success,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -412,7 +411,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to update channel: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -428,14 +427,14 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           return Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'No recent notifications',
-                style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w700),
+                style: TextStyle(color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700),
               ),
             ),
           );
@@ -475,9 +474,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
@@ -502,10 +501,10 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                   notification['title'] as String? ?? 'Untitled',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 14,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimaryOf(context),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -513,8 +512,8 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                   notification['message'] as String? ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF64748B),
+                  style: TextStyle(
+                    color: AppColors.textSecondaryOf(context),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -528,16 +527,16 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
             children: [
               Text(
                 type.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 11,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiaryOf(context),
                 ),
               ),
               Text(
                 dateStr,
                 style: const TextStyle(
-                  color: Color(0xFFCBD5E1),
+                  color: AppColors.slate300,
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                 ),
@@ -546,13 +545,13 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isRead ? const Color(0xFF10B981) : const Color(0xFF3B82F6)).withValues(alpha: 0.1),
+                  color: (isRead ? AppColors.success : AppColors.info).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   isRead ? 'Read' : 'Sent',
                   style: TextStyle(
-                    color: isRead ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+                    color: isRead ? AppColors.success : AppColors.info,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
                   ),
@@ -614,19 +613,19 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
   Color _getChannelColor(String id) {
     switch (id) {
       case 'in_app':
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case 'email':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'sms':
-        return const Color(0xFF8B5CF6);
+        return AppColors.primary;
       case 'push':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'telegram':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       case 'whatsapp':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       default:
-        return const Color(0xFF64748B);
+        return AppColors.textSecondary;
     }
   }
 
@@ -652,15 +651,15 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
   Color _getNotificationTypeColor(String type) {
     switch (type) {
       case 'appointment':
-        return const Color(0xFF8B5CF6);
+        return AppColors.primary;
       case 'payment':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'message':
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case 'emergency':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       default:
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
     }
   }
 
@@ -688,10 +687,10 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimaryOf(context),
                 letterSpacing: -0.5,
               ),
             ),
@@ -701,7 +700,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                 child: const Text(
                   'View All',
                   style: TextStyle(
-                    color: Color(0xFF0F62FE),
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -713,8 +712,8 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Color(0xFF64748B),
+            style: TextStyle(
+              color: AppColors.textSecondaryOf(context),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -743,9 +742,9 @@ class _NotifyStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -764,19 +763,19 @@ class _NotifyStatCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimaryOf(context),
                   letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -791,11 +790,10 @@ class _NotifyStatCard extends StatelessWidget {
 class _TabItem extends StatelessWidget {
   final String label;
   final bool isSelected;
-  final Color primaryColor;
+
   const _TabItem({
     required this.label,
     required this.isSelected,
-    required this.primaryColor,
   });
 
   @override
@@ -803,16 +801,16 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+        color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isSelected ? primaryColor.withValues(alpha: 0.5) : const Color(0xFFF1F5F9),
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.5) : AppColors.borderLightOf(context),
         ),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? primaryColor : const Color(0xFF64748B),
+          color: isSelected ? AppColors.primary : AppColors.textSecondaryOf(context),
           fontSize: 13,
           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
         ),
@@ -859,17 +857,17 @@ class _ChannelTile extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 14,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 sub,
-                style: const TextStyle(
-                  color: Color(0xFF94A3B8),
+                style: TextStyle(
+                  color: AppColors.textTertiaryOf(context),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -880,8 +878,8 @@ class _ChannelTile extends StatelessWidget {
         Switch(
           value: isEnabled,
           onChanged: onToggle,
-          activeThumbColor: const Color(0xFF10B981),
-          activeTrackColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+          activeThumbColor: AppColors.success,
+          activeTrackColor: AppColors.success.withValues(alpha: 0.2),
         ),
       ],
     );

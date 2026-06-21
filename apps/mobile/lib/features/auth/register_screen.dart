@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 
@@ -35,7 +36,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  // Password strength: 0=empty, 1=weak, 2=fair, 3=good, 4=strong
   int _getPasswordStrength(String password) {
     if (password.isEmpty) return 0;
     int score = 0;
@@ -60,12 +60,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   Color _getPasswordStrengthColor(int strength) {
     switch (strength) {
-      case 0: return const Color(0xFFE2E8F0);
-      case 1: return const Color(0xFFEF4444);
-      case 2: return const Color(0xFFF59E0B);
-      case 3: return const Color(0xFF3B82F6);
-      case 4: return const Color(0xFF10B981);
-      default: return const Color(0xFFE2E8F0);
+      case 0: return AppColors.border;
+      case 1: return AppColors.error;
+      case 2: return AppColors.warning;
+      case 3: return AppColors.info;
+      case 4: return AppColors.success;
+      default: return AppColors.border;
     }
   }
 
@@ -134,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       logHandledError('Registration failed', e, stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'We could not complete registration. Please review your details and try again.')), backgroundColor: Colors.red),
+          SnackBar(content: Text(userFacingError(e, fallback: 'We could not complete registration. Please review your details and try again.')), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -144,14 +144,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF0F62FE);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          Positioned(top: -150, right: -100, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.05), size: 400)),
+          Positioned(top: -150, right: -100, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.1), size: 500)),
+          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.05), size: 400)),
 
           SafeArea(
             child: GestureDetector(
@@ -159,19 +157,19 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
               behavior: HitTestBehavior.translucent,
               child: Column(
                 children: [
-                  _buildAppBar(context, primaryColor),
+                  _buildAppBar(context),
                   Expanded(
                     child: PageView(
                       controller: _pageController,
                       physics: const NeverScrollableScrollPhysics(),
                       onPageChanged: (index) => setState(() => _currentStep = index),
                       children: [
-                        _buildStepIdentity(primaryColor),
-                        _buildStepTerms(primaryColor),
+                        _buildStepIdentity(context),
+                        _buildStepTerms(context),
                       ],
                     ),
                   ),
-                  _buildBottomBar(primaryColor),
+                  _buildBottomBar(context),
                 ],
               ),
             ),
@@ -181,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     );
   }
 
-  Widget _buildAppBar(BuildContext context, Color primaryColor) {
+  Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Row(
@@ -189,27 +187,27 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         children: [
           GestureDetector(
             onTap: () => _currentStep > 0 ? _previousPage() : context.go('/onboarding'),
-            child: Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))), child: Icon(_currentStep > 0 ? Icons.arrow_back_rounded : Icons.close_rounded, color: const Color(0xFF1E293B), size: 20)),
+            child: Container(width: 48, height: 48, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))), child: Icon(_currentStep > 0 ? Icons.arrow_back_rounded : Icons.close_rounded, color: AppColors.textPrimaryOf(context), size: 20)),
           ),
-          _buildStepIndicator(primaryColor),
+          _buildStepIndicator(context),
           const SizedBox(width: 48),
         ],
       ),
     );
   }
 
-  Widget _buildStepIndicator(Color primaryColor) {
+  Widget _buildStepIndicator(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _IndicatorDot(isActive: _currentStep >= 0, primaryColor: primaryColor),
-        Container(width: 30, height: 2, margin: const EdgeInsets.symmetric(horizontal: 8), decoration: BoxDecoration(color: _currentStep >= 1 ? primaryColor : const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2))),
-        _IndicatorDot(isActive: _currentStep >= 1, primaryColor: primaryColor),
+        _IndicatorDot(isActive: _currentStep >= 0),
+        Container(width: 30, height: 2, margin: const EdgeInsets.symmetric(horizontal: 8), decoration: BoxDecoration(color: _currentStep >= 1 ? AppColors.primary : AppColors.borderOf(context), borderRadius: BorderRadius.circular(2))),
+        _IndicatorDot(isActive: _currentStep >= 1),
       ],
     );
   }
 
-  Widget _buildStepIdentity(Color primaryColor) {
+  Widget _buildStepIdentity(BuildContext context) {
     final strength = _getPasswordStrength(_passwordController.text);
     final strengthLabel = _getPasswordStrengthLabel(strength);
     final strengthColor = _getPasswordStrengthColor(strength);
@@ -221,23 +219,20 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text('CLINICAL IDENTITY', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          Text('CLINICAL IDENTITY', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          const Text('Your Identity', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+          Text('Your Identity', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
           const SizedBox(height: 8),
-          const Text('Join the Premoncare ecosystem and access\nworld-class clinical specialists.', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
+          Text('Join the Premoncare ecosystem and access\nworld-class clinical specialists.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
           const SizedBox(height: 40),
 
-          // Full Name
-          _ClinicalInput(controller: _fullNameController, hint: 'Full Legal Name', icon: Icons.person_rounded, primaryColor: primaryColor),
+          _ClinicalInput(controller: _fullNameController, hint: 'Full Legal Name', icon: Icons.person_rounded),
           const SizedBox(height: 16),
 
-          // Email
-          _ClinicalInput(controller: _emailController, hint: 'Clinical Email Address', icon: Icons.mail_rounded, keyboardType: TextInputType.emailAddress, primaryColor: primaryColor),
+          _ClinicalInput(controller: _emailController, hint: 'Clinical Email Address', icon: Icons.mail_rounded, keyboardType: TextInputType.emailAddress),
           const SizedBox(height: 20),
 
-          // Password Section
-          const Text('PASSWORD', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+          Text('PASSWORD', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
             key: ValueKey('password_$_isPasswordVisible'),
@@ -246,13 +241,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             icon: Icons.lock_rounded,
             isPassword: true,
             obscureText: !_isPasswordVisible,
-            suffixIcon: Icon(_isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: const Color(0xFF94A3B8), size: 20),
+            suffixIcon: Icon(_isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: AppColors.textTertiaryOf(context), size: 20),
             onSuffixTap: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-            primaryColor: primaryColor,
             onChanged: (_) => setState(() {}),
           ),
 
-          // Password strength indicator
           if (_passwordController.text.isNotEmpty) ...[
             const SizedBox(height: 10),
             Row(
@@ -266,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                           height: 4,
                           margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
                           decoration: BoxDecoration(
-                            color: isActive ? strengthColor : const Color(0xFFE2E8F0),
+                            color: isActive ? strengthColor : AppColors.borderOf(context),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -279,13 +272,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
               ],
             ),
             const SizedBox(height: 6),
-            Text('Min 8 characters. Use uppercase, numbers & symbols for a stronger password.', style: TextStyle(fontSize: 10, color: strength >= 3 ? const Color(0xFF10B981) : const Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+            Text('Min 8 characters. Use uppercase, numbers & symbols for a stronger password.', style: TextStyle(fontSize: 10, color: strength >= 3 ? AppColors.success : AppColors.textTertiaryOf(context), fontWeight: FontWeight.w600)),
           ],
 
           const SizedBox(height: 16),
 
-          // Confirm Password Section
-          const Text('CONFIRM PASSWORD', style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+          Text('CONFIRM PASSWORD', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
             key: ValueKey('confirmPassword_$_isConfirmPasswordVisible'),
@@ -294,14 +286,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             icon: Icons.verified_user_rounded,
             isPassword: true,
             obscureText: !_isConfirmPasswordVisible,
-            suffixIcon: Icon(_isConfirmPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: const Color(0xFF94A3B8), size: 20),
+            suffixIcon: Icon(_isConfirmPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: AppColors.textTertiaryOf(context), size: 20),
             onSuffixTap: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
-            primaryColor: primaryColor,
             onChanged: (_) => setState(() {}),
             hasError: _passwordsMismatch && _submitted,
           ),
 
-          // Match/mismatch feedback
           if (_confirmPasswordController.text.isNotEmpty) ...[
             const SizedBox(height: 8),
             Row(
@@ -309,7 +299,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                 Icon(
                   _passwordsMatch ? Icons.check_circle_rounded : Icons.cancel_rounded,
                   size: 16,
-                  color: _passwordsMatch ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                  color: _passwordsMatch ? AppColors.success : AppColors.error,
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -317,7 +307,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: _passwordsMatch ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                    color: _passwordsMatch ? AppColors.success : AppColors.error,
                   ),
                 ),
               ],
@@ -330,7 +320,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     );
   }
 
-  Widget _buildStepTerms(Color primaryColor) {
+  Widget _buildStepTerms(BuildContext context) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -338,15 +328,15 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text('LEGAL FRAMEWORK', style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          Text('LEGAL FRAMEWORK', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          const Text('Our Terms', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+          Text('Our Terms', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
           const SizedBox(height: 8),
-          const Text('Review our clinical commitments and data\nsecurity protocols before proceeding.', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
+          Text('Review our clinical commitments and data\nsecurity protocols before proceeding.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
           const SizedBox(height: 40),
           Container(
             padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFF1F5F9))),
+            decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -368,9 +358,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
               onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
               child: Row(
                 children: [
-                  Container(width: 24, height: 24, decoration: BoxDecoration(color: _agreeToTerms ? primaryColor : Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: _agreeToTerms ? primaryColor : const Color(0xFFE2E8F0))), child: _agreeToTerms ? const Icon(Icons.check_rounded, color: Colors.white, size: 16) : null),
+                  Container(width: 24, height: 24, decoration: BoxDecoration(color: _agreeToTerms ? AppColors.primary : AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(8), border: Border.all(color: _agreeToTerms ? AppColors.primary : AppColors.borderOf(context))), child: _agreeToTerms ? const Icon(Icons.check_rounded, color: Colors.white, size: 16) : null),
                   const SizedBox(width: 16),
-                  const Expanded(child: Text('I acknowledge the Terms & Conditions, HIPAA Privacy Policy, and Non-Disclosure Agreement (NDA)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)))),
+                  Expanded(child: Text('I acknowledge the Terms & Conditions, HIPAA Privacy Policy, and Non-Disclosure Agreement (NDA)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context)))),
                 ],
               ),
             ),
@@ -380,23 +370,23 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     );
   }
 
-  Widget _buildBottomBar(Color primaryColor) {
+  Widget _buildBottomBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(32)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 30, offset: const Offset(0, -10))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: const BorderRadius.vertical(top: Radius.circular(32)), boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 30, offset: const Offset(0, -10))]),
       child: SizedBox(
         width: double.infinity,
         height: 64,
         child: ElevatedButton(
           onPressed: _isLoading ? null : _nextPage,
           style: ElevatedButton.styleFrom(
-            backgroundColor: primaryColor,
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.textInverse,
             elevation: 10,
-            shadowColor: primaryColor.withValues(alpha: 0.3),
+            shadowColor: AppColors.primary.withValues(alpha: 0.3),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
-          child: _isLoading ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 3) : Row(
+          child: _isLoading ? const CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 3) : Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(_currentStep == 1 ? 'AUTHORIZE & FINALIZE' : 'CONTINUE', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
@@ -420,9 +410,9 @@ class _TermItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF1E293B))),
+        Text(title, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
         const SizedBox(height: 8),
-        Text(description, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.5, fontWeight: FontWeight.w500)),
+        Text(description, style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), height: 1.5, fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -430,12 +420,11 @@ class _TermItem extends StatelessWidget {
 
 class _IndicatorDot extends StatelessWidget {
   final bool isActive;
-  final Color primaryColor;
-  const _IndicatorDot({required this.isActive, required this.primaryColor});
+  const _IndicatorDot({required this.isActive});
 
   @override
   Widget build(BuildContext context) {
-    return Container(width: 12, height: 12, decoration: BoxDecoration(color: isActive ? primaryColor : const Color(0xFFE2E8F0), shape: BoxShape.circle, border: Border.all(color: isActive ? primaryColor.withValues(alpha: 0.2) : Colors.transparent, width: 4)));
+    return Container(width: 12, height: 12, decoration: BoxDecoration(color: isActive ? AppColors.primary : AppColors.borderOf(context), shape: BoxShape.circle, border: Border.all(color: isActive ? AppColors.primary.withValues(alpha: 0.2) : Colors.transparent, width: 4)));
   }
 }
 
@@ -448,7 +437,6 @@ class _ClinicalInput extends StatelessWidget {
   final Widget? suffixIcon;
   final VoidCallback? onSuffixTap;
   final TextInputType? keyboardType;
-  final Color primaryColor;
   final ValueChanged<String>? onChanged;
   final bool hasError;
 
@@ -462,14 +450,13 @@ class _ClinicalInput extends StatelessWidget {
     this.suffixIcon,
     this.onSuffixTap,
     this.keyboardType,
-    required this.primaryColor,
     this.onChanged,
     this.hasError = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = hasError ? const Color(0xFFEF4444) : const Color(0xFFF1F5F9);
+    final borderColor = hasError ? AppColors.error : AppColors.borderLightOf(context);
 
     return Semantics(
       label: hint,
@@ -477,7 +464,7 @@ class _ClinicalInput extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: borderColor, width: hasError ? 1.5 : 1),
         ),
@@ -486,11 +473,11 @@ class _ClinicalInput extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           onChanged: onChanged,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF1E293B)),
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimaryOf(context)),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14, fontWeight: FontWeight.w600),
-            prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: primaryColor.withValues(alpha: 0.6), size: 20)),
+            hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600),
+            prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: AppColors.primary.withValues(alpha: 0.6), size: 20)),
             suffixIcon: suffixIcon != null
                 ? GestureDetector(onTap: onSuffixTap, child: Container(padding: const EdgeInsets.all(12), alignment: Alignment.center, child: suffixIcon))
                 : null,
