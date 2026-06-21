@@ -357,7 +357,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
         children: [
           Row(
             children: [
-              Text('₹14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 24, fontWeight: FontWeight.w900)),
+              Text('₦14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 24, fontWeight: FontWeight.w900)),
               const SizedBox(width: 8),
               Icon(Icons.arrow_upward_rounded, color: AppColors.success, size: 16),
               Text('18.6%', style: TextStyle(color: AppColors.success, fontSize: 14, fontWeight: FontWeight.w800)),
@@ -396,7 +396,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('₹14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w900)),
+                    Text('₦14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w900)),
                     Text('Total', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
                   ],
                 ),

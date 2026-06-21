@@ -68,11 +68,16 @@ async function emailHandler(req: NextRequest, sessionUser?: any) {
     }
 
     if (emailContent) {
-        await sendEmail({
-            to: profile.email,
-            subject: emailContent.subject,
-            html: emailContent.html
-        })
+        try {
+            await sendEmail({
+                to: profile.email,
+                subject: emailContent.subject,
+                html: emailContent.html
+            })
+        } catch (emailError) {
+            console.error('Email send failed:', emailError)
+            return NextResponse.json({ success: false, error: 'Email delivery failed' }, { status: 500 })
+        }
     }
 
     return NextResponse.json({ success: true })

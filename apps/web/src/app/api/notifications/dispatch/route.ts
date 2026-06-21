@@ -40,13 +40,19 @@ async function dispatchHandler(req: NextRequest) {
   }
 
   // 2. Send Push Notification (always attempt if it's a dispatch)
-  const pushResult = await sendPush({
-    user_id: userId,
-    title,
-    message,
-    type,
-    link,
-  });
+  let pushResult = null;
+  try {
+    pushResult = await sendPush({
+      user_id: userId,
+      title,
+      message,
+      type,
+      link,
+    });
+  } catch (pushError) {
+    console.error('Push notification failed:', pushError);
+    // Continue — push failure should not block the entire dispatch
+  }
 
   // 3. Optional: Send Email
   let emailResult = null;
@@ -64,11 +70,16 @@ async function dispatchHandler(req: NextRequest) {
     }
 
     if (emailContent) {
-        emailResult = await sendEmail({
-            to: profile.email,
-            subject: emailContent.subject,
-            html: emailContent.html
-        });
+        try {
+            emailResult = await sendEmail({
+                to: profile.email,
+                subject: emailContent.subject,
+                html: emailContent.html
+            });
+        } catch (emailError) {
+            console.error('Email send failed in dispatch:', emailError);
+            // Email failure is non-fatal
+        }
     }
   }
 

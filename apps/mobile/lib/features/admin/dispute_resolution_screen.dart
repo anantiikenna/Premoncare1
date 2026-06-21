@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -78,7 +79,7 @@ class _DisputeResolutionScreenState
         });
       }
     } catch (e) {
-      debugPrint('Error loading dispute stats: $e');
+      if (kDebugMode) debugPrint('Error loading dispute stats: $e');
     }
   }
 
@@ -100,7 +101,7 @@ class _DisputeResolutionScreenState
         });
       }
     } catch (e) {
-      debugPrint('Error loading disputes: $e');
+      if (kDebugMode) debugPrint('Error loading disputes: $e');
       if (mounted) {
         setState(() {
           _disputes = [];

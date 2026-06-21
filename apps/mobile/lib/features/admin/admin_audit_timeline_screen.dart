@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -75,7 +76,7 @@ class _AdminAuditTimelineScreenState
         });
       }
     } catch (e) {
-      debugPrint('Error loading audit stats: $e');
+      if (kDebugMode) debugPrint('Error loading audit stats: $e');
     }
   }
 
@@ -96,7 +97,7 @@ class _AdminAuditTimelineScreenState
         });
       }
     } catch (e) {
-      debugPrint('Error loading audit logs: $e');
+      if (kDebugMode) debugPrint('Error loading audit logs: $e');
       if (mounted) {
         setState(() {
           _logs = [];

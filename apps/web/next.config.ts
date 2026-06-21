@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   logging: {
-    browserToTerminal: true,
+    fetches: {
+      fullUrl: true,
+    },
   },
   async headers() {
     return [
@@ -11,7 +13,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload', // Use HTTPS everywhere (Host agnostic)
+            value: 'max-age=63072000; includeSubDomains; preload',
           },
           {
             key: 'X-Content-Type-Options',
@@ -28,7 +30,15 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
-          }
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';",
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
         ],
       },
     ]

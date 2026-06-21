@@ -4,7 +4,7 @@ import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
 
-final emergencyRequestsProvider =
+final adminEmergencyRequestsProvider =
     StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   return supabase
       .from('appointments')
@@ -93,7 +93,7 @@ class _AdminEmergencyQueueScreenState
 
   @override
   Widget build(BuildContext context) {
-    final requestsAsync = ref.watch(emergencyRequestsProvider);
+    final requestsAsync = ref.watch(adminEmergencyRequestsProvider);
     final acceptedAsync = ref.watch(emergencyAcceptedProvider);
 
     return AdminScaffold(
@@ -115,7 +115,7 @@ class _AdminEmergencyQueueScreenState
                       color: AppColors.textPrimary)),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () => ref.invalidate(emergencyRequestsProvider),
+                onPressed: () => ref.invalidate(adminEmergencyRequestsProvider),
                 child: const Text('Retry'),
               ),
             ],
