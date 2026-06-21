@@ -6,7 +6,7 @@ import '../../../core/app_colors.dart';
 import '../verification_provider.dart';
 
 class FacialStep extends ConsumerWidget {
-  FacialStep({super.key});
+  const FacialStep({super.key});
 
   Future<void> _pickImage(WidgetRef ref, ImageSource source) async {
     final picker = ImagePicker();
@@ -18,11 +18,13 @@ class FacialStep extends ConsumerWidget {
 
     if (image != null) {
       final file = File(image.path);
-      await ref.read(verificationProvider.notifier).uploadFile(
-        file, 
-        VerificationField.selfie, 
-        'live_selfie_${DateTime.now().millisecondsSinceEpoch}',
-      );
+      await ref
+          .read(verificationProvider.notifier)
+          .uploadFile(
+            file,
+            VerificationField.selfie,
+            'live_selfie_${DateTime.now().millisecondsSinceEpoch}',
+          );
     }
   }
 
@@ -48,7 +50,11 @@ class FacialStep extends ConsumerWidget {
                   color: AppColors.borderLightOf(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 24),
+                child: const Icon(
+                  Icons.verified_user_outlined,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -66,12 +72,20 @@ class FacialStep extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       'We use facial biometrics to verify you are the person on your identity document.',
-                      style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), height: 1.4),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondaryOf(context),
+                        height: 1.4,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.face_retouching_natural_outlined, size: 60, color: AppColors.primaryLight),
+              const Icon(
+                Icons.face_retouching_natural_outlined,
+                size: 60,
+                color: AppColors.primaryLight,
+              ),
             ],
           ),
         ),
@@ -82,13 +96,20 @@ class FacialStep extends ConsumerWidget {
             children: [
               Text(
                 'Take a live selfie',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimaryOf(context)),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppColors.textPrimaryOf(context),
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Position your face in the center of the frame and follow the instructions to capture your photo.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondaryOf(context),
+                ),
               ),
             ],
           ),
@@ -101,11 +122,15 @@ class FacialStep extends ConsumerWidget {
             height: 320,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              image: state.selfieUrl != null ? null : const DecorationImage(
-                image: NetworkImage('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop'),
-                fit: BoxFit.cover,
-                opacity: 0.8,
-              ),
+              image: state.selfieUrl != null
+                  ? null
+                  : const DecorationImage(
+                      image: NetworkImage(
+                        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop',
+                      ),
+                      fit: BoxFit.cover,
+                      opacity: 0.8,
+                    ),
               color: Colors.black,
             ),
             child: Stack(
@@ -115,16 +140,33 @@ class FacialStep extends ConsumerWidget {
                     top: 16,
                     left: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         children: [
-                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.success,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          const Text('Camera ready', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Camera ready',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -134,8 +176,15 @@ class FacialStep extends ConsumerWidget {
                     right: 16,
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
-                      child: const Icon(Icons.flash_off_rounded, color: Colors.white, size: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.flash_off_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ),
                   Center(
@@ -143,8 +192,14 @@ class FacialStep extends ConsumerWidget {
                       width: 180,
                       height: 240,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.5, style: BorderStyle.solid),
-                        borderRadius: const BorderRadius.all(Radius.elliptical(180, 240)),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          width: 1.5,
+                          style: BorderStyle.solid,
+                        ),
+                        borderRadius: const BorderRadius.all(
+                          Radius.elliptical(180, 240),
+                        ),
                       ),
                     ),
                   ),
@@ -157,7 +212,9 @@ class FacialStep extends ConsumerWidget {
                         value: 0.7,
                         strokeWidth: 4,
                         backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.success),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.success,
+                        ),
                       ),
                     ),
                   ),
@@ -169,12 +226,18 @@ class FacialStep extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.3),
-                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(24),
+                        ),
                       ),
                       child: const Text(
                         'Position your face inside the oval',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -183,9 +246,19 @@ class FacialStep extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.check_circle_rounded, color: AppColors.success, size: 80),
+                        Icon(
+                          Icons.check_circle_rounded,
+                          color: AppColors.success,
+                          size: 80,
+                        ),
                         SizedBox(height: 16),
-                        Text('Selfie Captured Successfully', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Selfie Captured Successfully',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -212,12 +285,20 @@ class FacialStep extends ConsumerWidget {
                       color: AppColors.borderLightOf(context),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.lightbulb_outline_rounded, color: AppColors.primary, size: 18),
+                    child: const Icon(
+                      Icons.lightbulb_outline_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Text(
                     'Tips for best results',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context)),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppColors.textPrimaryOf(context),
+                    ),
                   ),
                 ],
               ),
@@ -238,7 +319,10 @@ class FacialStep extends ConsumerWidget {
                     child: Column(
                       children: [
                         _buildTipRow(context, 'Keep a neutral expression'),
-                        _buildTipRow(context, 'Ensure your face is clearly visible'),
+                        _buildTipRow(
+                          context,
+                          'Ensure your face is clearly visible',
+                        ),
                       ],
                     ),
                   ),
@@ -252,23 +336,45 @@ class FacialStep extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildControlButton(context, Icons.refresh_rounded, 'Retake', () => _pickImage(ref, ImageSource.camera)),
+            _buildControlButton(
+              context,
+              Icons.refresh_rounded,
+              'Retake',
+              () => _pickImage(ref, ImageSource.camera),
+            ),
             GestureDetector(
-              onTap: state.isUploading ? null : () => _pickImage(ref, ImageSource.camera),
+              onTap: state.isUploading
+                  ? null
+                  : () => _pickImage(ref, ImageSource.camera),
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 4),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    width: 4,
+                  ),
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                  child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 32),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    color: Colors.white,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
-            _buildControlButton(context, Icons.image_outlined, 'Upload', () => _pickImage(ref, ImageSource.gallery)),
+            _buildControlButton(
+              context,
+              Icons.image_outlined,
+              'Upload',
+              () => _pickImage(ref, ImageSource.gallery),
+            ),
           ],
         ),
       ],
@@ -280,12 +386,19 @@ class FacialStep extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_outline_rounded, color: AppColors.success, size: 16),
+          const Icon(
+            Icons.check_circle_outline_rounded,
+            color: AppColors.success,
+            size: 16,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context)),
+              style: TextStyle(
+                fontSize: 11,
+                color: AppColors.textSecondaryOf(context),
+              ),
             ),
           ),
         ],
@@ -293,7 +406,12 @@ class FacialStep extends ConsumerWidget {
     );
   }
 
-  Widget _buildControlButton(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+  Widget _buildControlButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     return Column(
       children: [
         Container(
@@ -307,7 +425,14 @@ class FacialStep extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.textSecondaryOf(context),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }

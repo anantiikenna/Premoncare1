@@ -39,7 +39,8 @@ This document serves as the absolute inventory of all visual interfaces, process
 | **Overlay** | `Forum Guidelines` | 1. Mandatory Read -> 2. Rule Consent (Checkbox) -> 3. Profile "Community Access" Unlock. |
 | **Overlay** | `Doctor Review` | 1. Star Rating (1-5) -> 2. Text Review -> 3. Tip Option -> 4. Verification & Publish. |
 | **Overlay** | `Prescription Detail` | 1. View Rx Metadata -> 2. Dosage Guide -> 3. Doctor Notes -> 4. Print/Download PDF. |
-| **Section** | `Virtual Meeting Room` | 1. Mic/Cam Test -> 2. Secure Handshake -> 3. Peer-to-Peer Stream -> 4. Clinical Recording Opt-in. |
+| **Section** | `Virtual Meeting Room` | **Web**: Jitsi Iframe API with mic/cam test, secure handshake, peer-to-peer stream. **Mobile**: Native Jitsi SDK (`jitsi_meet_flutter_sdk`) with real-time controls (mute, camera, chat, screen share, end call), timer display, loading/error states. |
+| **Section** | `Mobile Consultation Room` | Native Jitsi SDK integration. Controls: mute, camera, chat, screen share, end call. Timer display with doctor info. Loading state while connecting. Error state with retry. Navigates to consultation summary on end. |
 
 ---
 
@@ -109,3 +110,25 @@ This document serves as the absolute inventory of all visual interfaces, process
 
 ---
 *Last Updated: June 2026 (Emergency Handshake Flow, P2P-Only Payments)*
+
+## ⚙️ 6. Settings & Privacy Screens (Mobile)
+
+All 15 settings sub-screens are fully wired with real data and persistence:
+
+| Screen | Key Controls | Data Source |
+| :--- | :--- | :--- |
+| `notification_preferences_screen.dart` | 8 notification toggles | `SharedPreferences` |
+| `biometric_privacy_screen.dart` | 5 privacy/security toggles | `SharedPreferences` |
+| `accessibility_settings_screen.dart` | Text scale slider, 3 display toggles | `SharedPreferences` |
+| `health_preferences_screen.dart` | 4 unit/format selectors | `SharedPreferences` |
+| `language_region_screen.dart` | Language, region, currency selectors | `SharedPreferences` |
+| `login_security_screen.dart` | Password change, email, forgot password | Supabase Auth |
+| `about_screen.dart` | Version, tappable website/email | `url_launcher` |
+| `device_sessions_screen.dart` | Current device, logout all | `Platform.isAndroid`/`Platform.isIOS`, Supabase Auth |
+| `personal_info_screen.dart` | Name, email, phone, address, avatar | Supabase `profiles` table |
+| `settings_privacy_screen.dart` | Navigation hub to all sub-screens | N/A |
+| `help_support_screen.dart` | FAQ, email/phone support, live chat | `url_launcher` |
+| `credits_screen.dart` | Balance, transaction history | Supabase `credits` table |
+| `pricing_plans_screen.dart` | Subscription tier selection | Supabase `subscription_plans` |
+| `verify_practitioner_screen.dart` | Verification wizard entry | Supabase `profiles.verification_status` |
+| `notifications_screen.dart` | Notification history | Supabase `notifications` table |

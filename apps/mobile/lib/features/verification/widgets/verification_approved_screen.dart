@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/app_colors.dart';
 
 class VerificationApprovedScreen extends StatelessWidget {
-  VerificationApprovedScreen({super.key});
+  const VerificationApprovedScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,8 +11,22 @@ class VerificationApprovedScreen extends StatelessWidget {
       backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          Positioned(top: -150, left: -100, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, right: -50, child: _MeshCircle(color: AppColors.success.withValues(alpha: 0.05), size: 400)),
+          Positioned(
+            top: -150,
+            left: -100,
+            child: _MeshCircle(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              size: 500,
+            ),
+          ),
+          Positioned(
+            bottom: -100,
+            right: -50,
+            child: _MeshCircle(
+              color: AppColors.success.withValues(alpha: 0.05),
+              size: 400,
+            ),
+          ),
 
           SafeArea(
             child: SingleChildScrollView(
@@ -49,7 +63,7 @@ class VerificationApprovedScreen extends StatelessWidget {
 }
 
 class _CelebrationHeader extends StatelessWidget {
-  _CelebrationHeader();
+  const _CelebrationHeader();
 
   @override
   Widget build(BuildContext context) {
@@ -60,21 +74,52 @@ class _CelebrationHeader extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.success.withValues(alpha: 0.1),
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: AppColors.success.withValues(alpha: 0.2), blurRadius: 40, spreadRadius: 0)],
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.success.withValues(alpha: 0.2),
+                blurRadius: 40,
+                spreadRadius: 0,
+              ),
+            ],
           ),
-          child: const Icon(Icons.verified_rounded, color: AppColors.success, size: 64),
+          child: const Icon(
+            Icons.verified_rounded,
+            color: AppColors.success,
+            size: 64,
+          ),
         ),
         const SizedBox(height: 32),
-        Text('Congratulations!', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
+        Text(
+          'Congratulations!',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+            letterSpacing: -1.0,
+          ),
+        ),
         const SizedBox(height: 8),
-        Text('Verified Practitioner Status Active', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.success, letterSpacing: -0.5)),
+        Text(
+          'Verified Practitioner Status Active',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: AppColors.success,
+            letterSpacing: -0.5,
+          ),
+        ),
         const SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
             'Your professional credentials have been validated. You now have full clinical authority on the Premon Care platform.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), height: 1.5, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondaryOf(context),
+              height: 1.5,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
@@ -83,20 +128,40 @@ class _CelebrationHeader extends StatelessWidget {
 }
 
 class _StatusTimeline extends StatelessWidget {
-  _StatusTimeline();
+  const _StatusTimeline();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _StatusStep(label: 'Profile', status: 'COMPLETE', color: AppColors.success),
-          _StatusStep(label: 'Documents', status: 'VERIFIED', color: AppColors.success),
-          _StatusStep(label: 'Biometrics', status: 'MATCHED', color: AppColors.success),
-          _StatusStep(label: 'Clinical Board', status: 'APPROVED', color: AppColors.success),
+          _StatusStep(
+            label: 'Profile',
+            status: 'COMPLETE',
+            color: AppColors.success,
+          ),
+          _StatusStep(
+            label: 'Documents',
+            status: 'VERIFIED',
+            color: AppColors.success,
+          ),
+          _StatusStep(
+            label: 'Biometrics',
+            status: 'MATCHED',
+            color: AppColors.success,
+          ),
+          _StatusStep(
+            label: 'Clinical Board',
+            status: 'APPROVED',
+            color: AppColors.success,
+          ),
         ],
       ),
     );
@@ -108,31 +173,63 @@ class _StatusStep extends StatelessWidget {
   final String status;
   final Color color;
 
-  const _StatusStep({required this.label, required this.status, required this.color});
+  const _StatusStep({
+    required this.label,
+    required this.status,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: color, shape: BoxShape.circle), child: const Icon(Icons.check_rounded, color: Colors.white, size: 10)),
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          child: const Icon(Icons.check_rounded, color: Colors.white, size: 10),
+        ),
         const SizedBox(height: 8),
-        Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: 0.5)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+            letterSpacing: 0.5,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(status, style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: color, letterSpacing: 0.5)),
+        Text(
+          status,
+          style: TextStyle(
+            fontSize: 8,
+            fontWeight: FontWeight.w900,
+            color: color,
+            letterSpacing: 0.5,
+          ),
+        ),
       ],
     );
   }
 }
 
 class _UnlockedFeaturesFeed extends StatelessWidget {
-  _UnlockedFeaturesFeed();
+  const _UnlockedFeaturesFeed();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('UNLOCKED CAPABILITIES', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+        Text(
+          'UNLOCKED CAPABILITIES',
+          style: TextStyle(
+            color: AppColors.textSecondaryOf(context),
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+          ),
+        ),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -142,10 +239,30 @@ class _UnlockedFeaturesFeed extends StatelessWidget {
           crossAxisSpacing: 16,
           childAspectRatio: 1.3,
           children: const [
-            _FeatureCard(icon: Icons.dashboard_customize_rounded, title: 'Clinical Console', subtitle: 'Manage schedule & workflow', color: AppColors.success),
-            _FeatureCard(icon: Icons.groups_rounded, title: 'Patient Hub', subtitle: 'Direct patient management', color: AppColors.success),
-            _FeatureCard(icon: Icons.payments_rounded, title: 'Revenue Vault', subtitle: 'Track clinical earnings', color: AppColors.success),
-            _FeatureCard(icon: Icons.videocam_rounded, title: 'Telehealth', subtitle: 'Conduct video consults', color: AppColors.success),
+            _FeatureCard(
+              icon: Icons.dashboard_customize_rounded,
+              title: 'Clinical Console',
+              subtitle: 'Manage schedule & workflow',
+              color: AppColors.success,
+            ),
+            _FeatureCard(
+              icon: Icons.groups_rounded,
+              title: 'Patient Hub',
+              subtitle: 'Direct patient management',
+              color: AppColors.success,
+            ),
+            _FeatureCard(
+              icon: Icons.payments_rounded,
+              title: 'Revenue Vault',
+              subtitle: 'Track clinical earnings',
+              color: AppColors.success,
+            ),
+            _FeatureCard(
+              icon: Icons.videocam_rounded,
+              title: 'Telehealth',
+              subtitle: 'Conduct video consults',
+              color: AppColors.success,
+            ),
           ],
         ),
       ],
@@ -159,21 +276,46 @@ class _FeatureCard extends StatelessWidget {
   final String subtitle;
   final Color color;
 
-  const _FeatureCard({required this.icon, required this.title, required this.subtitle, required this.color});
+  const _FeatureCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 24),
           const SizedBox(height: 12),
-          Text(title, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.textPrimaryOf(context), letterSpacing: -0.3)),
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 13,
+              color: AppColors.textPrimaryOf(context),
+              letterSpacing: -0.3,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(subtitle, style: TextStyle(fontSize: 9, color: AppColors.textSecondaryOf(context), height: 1.2, fontWeight: FontWeight.w700)),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 9,
+              color: AppColors.textSecondaryOf(context),
+              height: 1.2,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );
@@ -181,19 +323,39 @@ class _FeatureCard extends StatelessWidget {
 }
 
 class _SpecialistOnboardingCard extends StatelessWidget {
-  _SpecialistOnboardingCard();
+  const _SpecialistOnboardingCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.primary.withValues(alpha: 0.1))),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('READY TO COMMENCE PRACTICE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+          Text(
+            'READY TO COMMENCE PRACTICE',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              color: AppColors.textPrimaryOf(context),
+              letterSpacing: -0.5,
+            ),
+          ),
           const SizedBox(height: 12),
-          Text('Activate Doctor Mode to explore your professional console and initiate patient engagements.', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), height: 1.5, fontWeight: FontWeight.w600)),
+          Text(
+            'Activate Doctor Mode to explore your professional console and initiate patient engagements.',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondaryOf(context),
+              height: 1.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 24),
           const _CheckRow(text: 'Public profile now discoverable'),
           const _CheckRow(text: 'Configurable availability & rates'),
@@ -214,9 +376,20 @@ class _CheckRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 16),
+          const Icon(
+            Icons.check_circle_rounded,
+            color: AppColors.success,
+            size: 16,
+          ),
           const SizedBox(width: 12),
-          Text(text, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondaryOf(context),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );
@@ -224,7 +397,7 @@ class _CheckRow extends StatelessWidget {
 }
 
 class _ActionHub extends StatelessWidget {
-  _ActionHub();
+  const _ActionHub();
 
   @override
   Widget build(BuildContext context) {
@@ -235,13 +408,28 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: () => context.go('/doctor_dashboard'),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, elevation: 15, shadowColor: AppColors.primary.withValues(alpha: 0.3), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 15,
+              shadowColor: AppColors.primary.withValues(alpha: 0.3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+              ),
+            ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.sync_rounded, size: 20),
                 SizedBox(width: 12),
-                Text('SWITCH TO DOCTOR MODE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
+                Text(
+                  'SWITCH TO DOCTOR MODE',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ],
             ),
           ),
@@ -252,8 +440,21 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: OutlinedButton(
             onPressed: () => context.go('/patient_dashboard'),
-            style: OutlinedButton.styleFrom(foregroundColor: AppColors.primary, side: const BorderSide(color: AppColors.primary, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
-            child: const Text('PATIENT DASHBOARD', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary, width: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+              ),
+            ),
+            child: const Text(
+              'PATIENT DASHBOARD',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 14,
+                letterSpacing: 0.5,
+              ),
+            ),
           ),
         ),
       ],
@@ -267,9 +468,20 @@ class _SecurityNotice extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.lock_outline_rounded, color: AppColors.textTertiaryOf(context), size: 14),
+        Icon(
+          Icons.lock_outline_rounded,
+          color: AppColors.textTertiaryOf(context),
+          size: 14,
+        ),
         const SizedBox(width: 12),
-        Text('256-bit AES Encryption Secure Storage', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700)),
+        Text(
+          '256-bit AES Encryption Secure Storage',
+          style: TextStyle(
+            fontSize: 11,
+            color: AppColors.textTertiaryOf(context),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ],
     );
   }

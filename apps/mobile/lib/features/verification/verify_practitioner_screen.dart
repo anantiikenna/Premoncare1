@@ -81,8 +81,8 @@ class VerifyPractitionerScreen extends ConsumerWidget {
 
           SafeArea(
             child: isApproved
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: VerificationApprovedScreen(),
                   )
                 : isRejected
@@ -94,8 +94,8 @@ class VerifyPractitionerScreen extends ConsumerWidget {
                         ),
                       )
                     : isPending
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: VerificationPendingScreen(),
                           )
                         : Column(
@@ -331,13 +331,13 @@ class VerifyPractitionerScreen extends ConsumerWidget {
   Widget _buildCurrentStep(VerificationStep step) {
     switch (step) {
       case VerificationStep.professional:
-        return const ProfessionalStep();
+        return ProfessionalStep();
       case VerificationStep.identity:
-        return const IdentityStep();
+        return IdentityStep();
       case VerificationStep.facial:
-        return const FacialStep();
+        return FacialStep();
       case VerificationStep.review:
-        return const ReviewStep();
+        return ReviewStep();
     }
   }
 }

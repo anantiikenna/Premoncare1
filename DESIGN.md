@@ -10,17 +10,27 @@ Premoncare is built on three core principles:
 > This document defines the *Visual Identity* and *Philosophy*. For a complete technical inventory of all Web Pages, Modals, and Sections, refer to [UI_ARCHITECTURE.md](file:///c:/Users/Ikenna/Codesss/premoncare/UI_ARCHITECTURE.md).
 
 🎨 **Visual Identity**
-### 🌈 Color System
-| Role | Color | Usage |
-| :--- | :--- | :--- |
-| **Primary** | #0F62FE | Buttons, links, active states (Premon Indigo) |
-| **Secondary** | #00C2A8 | Success, highlights |
-| **Danger** | #FF4D4F | Errors, critical alerts |
-| **Warning** | #FFA940 | Pending states |
-| **Background** | #F8FAFC | Main app background |
-| **Surface** | #FFFFFF | Cards, modals |
-| **Text Primary** | #1F2937 | Headings |
-| **Text Secondary** | #6B7280 | Descriptions |
+### 🌈 Color System (AppColors)
+| Role | Light | Dark | Usage |
+| :--- | :--- | :--- | :--- |
+| **Primary** | #0F62FE | #0F62FE | Buttons, links, active states |
+| **Primary Light** | #818CF8 | #818CF8 | Light accents |
+| **Primary Dark** | #1E3A8A | #1E3A8A | Dark accents |
+| **Success** | #10B981 | #10B981 | Confirmations, verified states |
+| **Error** | #EF4444 | #EF4444 | Errors, critical alerts |
+| **Warning** | #F59E0B | #F59E0B | Pending states, caution |
+| **Info** | #00B4D8 | #00B4D8 | Informational, links |
+| **Pink** | #EC4899 | #EC4899 | Forum category accent |
+| **Teal** | #14B8A6 | #14B8A6 | Forum category accent |
+| **Background** | #F8FAFC | #0F172A | Main app background |
+| **Surface** | #FFFFFF | #1E293B | Cards, modals |
+| **Text Primary** | #0F172A | #F1F5F9 | Headings |
+| **Text Secondary** | #64748B | #94A3B8 | Descriptions |
+| **Text Tertiary** | #94A3B8 | #64748B | Hints, captions |
+| **Border** | #E2E8F0 | #334155 | Card borders |
+| **Border Light** | #F1F5F9 | #1E293B | Dividers, subtle borders |
+
+> All colors are defined in `AppColors` class (`core/app_colors.dart`). Use `AppColors.primary` for static access or `AppColors.surfaceOf(context)` for theme-aware access.
 
 ### 🧱 Typography
 - **Font**: Inter (Primary), Outfit (Headings)
@@ -51,15 +61,18 @@ Premoncare is built on three core principles:
 🔐 **Authentication & Access Flow**
 ### 1. Registration (Patient First Rule)
 - **Step 1**: Basic Info (Name, Email, Phone).
-- **Step 2**: Role Selection (Default: Patient). *Note: Doctors must register as patients first.*
-- **Step 3**: Terms & Privacy Consent (Toggle switches).
-- **Step 4**: OTP Verification (Email/SMS).
-  - **Logic**: 8-digit code entry, resend timer (60s), success animation.
+- **Step 2**: Password with **4-bar strength indicator** (Weak/Fair/Good/Strong) and requirements hint ("Min 8 characters. Use uppercase, numbers & symbols").
+- **Step 3**: Confirm Password with **real-time match feedback** (green ✓ "Passwords match" or red ✗ "Passwords do not match"). Suffix icon changes based on match state.
+- **Step 4**: Terms & Privacy Consent (Toggle switches).
+- **Step 5**: OTP Verification (8-digit code, 60s resend timer).
+- **Minimum Length**: Passwords under 8 characters are rejected.
+- **Button Text**: "CONTINUE" (simplified from "CONTINUE ENROLLMENT").
 
 ### 2. Login & Security
-- **View**: Minimalist login with "Vibrant Indigo" accents.
-- **Password Recovery**: Email entry -> Success message -> Reset link -> New password (with strength meter).
+- **View**: Minimalist login with "Vibrant Indigo" accents. Emergency card at bottom.
+- **Password Recovery**: Email entry -> Success message -> Reset link -> New password (with strength meter and match feedback).
 - **Session Management**: Secure persistent sessions with "Session Expired" modal.
+- **Password Visibility**: Independent visibility toggle for each password field (current, new, confirm).
 
 ---
 

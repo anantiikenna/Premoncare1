@@ -92,9 +92,10 @@ The platform supports a high-urgency flow for critical health situations:
 - **Tiered Platform Subscriptions**: Doctors pay the platform for access. They can choose to subscribe for **1, 3, 6, or 12 months** based on a negotiated monthly rate.
 - **Automated Activation**: Upon admin verification of a doctor's platform fee, their dashboard is automatically unlocked or extended.
 
-### Telemedicine (Zero-Config)
-- **Integrated Video**: Secure video consultations via Jitsi Meet API.
-- **Automatic Room Creation**: No external accounts required; rooms are dynamically generated per appointment ID.
+### Telemedicine
+- **Web**: Secure video consultations via Jitsi Meet Iframe API (`8x8.vc`). Dynamic room creation per appointment ID.
+- **Mobile**: Native Jitsi SDK (`jitsi_meet_flutter_sdk: ^12.1.3`). Real-time mute/video toggle synced to Jitsi. Controls: mute, camera, chat, screen share, end call.
+- **Automatic Room Creation**: No external accounts required; rooms are dynamically generated as `PremiumHealthcare-{appointmentId}`.
 
 ### 💬 Real-Time Clinical Communications (Mobile & Web)
 - **Secure Messaging**: End-to-end HIPAA-conscious messaging via Supabase Realtime.
@@ -144,20 +145,41 @@ To prevent unauthorized access, the platform enforces a strict cryptographic bou
 
 ---
 
+## ⚙️ 8. Settings & Privacy Center (Mobile)
+
+All settings persist to `SharedPreferences` and survive app restarts.
+
+| Category | Controls | Persistence |
+| :--- | :--- | :--- |
+| **Notification Preferences** | Push, email, appointment, payment, clinical, forum, emergency, marketing toggles | `SharedPreferences` keys: `notif_push`, `notif_email`, etc. |
+| **Biometric & Privacy** | Biometric lock, profile visibility, online status, research data sharing, crash reporting | `SharedPreferences` keys: `privacy_biometric`, `privacy_profile_visible`, etc. |
+| **Accessibility** | Text scale (0.8x–1.5x), high contrast, reduce animations, screen reader hints | `SharedPreferences` keys: `access_text_scale`, `access_high_contrast`, etc. |
+| **Health Preferences** | Weight (kg/lbs), height (cm/ft/in), temperature (°C/°F), date format | `SharedPreferences` keys: `health_weight_unit`, etc. |
+| **Language & Region** | 6 languages, 6 regions, 6 currencies | `SharedPreferences` keys: `locale_language`, `locale_region`, `locale_currency` |
+| **Login & Security** | Change password (current + new + confirm), email verification, forgot password | Supabase `auth.updateUser` |
+| **About** | Version info, tappable website (`www.premoncare.com`), tappable email (`hello@premoncare.com`) | `url_launcher` for links |
+| **Device Sessions** | Current device (real platform name via `Platform.isAndroid`/`Platform.isIOS`), logout all | Supabase `auth.signOut` |
+
+---
+
 ## 🛠️ 6. Technical Stack
 
 | Category | Technology |
 | :--- | :--- |
-| **Frontend** | Next.js 15+ (App Router), TypeScript, Tailwind CSS |
+| **Frontend** | Next.js 16.2.2 (App Router), TypeScript, Tailwind CSS v4 |
+| **Mobile** | Flutter 3.x, Riverpod 3.3.2, go_router 17.3.0 |
 | **Backend** | Supabase (Auth, Database, Storage) |
 | **Currency** | Optimized for Naira (₦) |
 | **Time Tracking** | Custom balance-minute logic for P2P consultations |
 | **Audit Log** | Real-time `audit_logs` engine with Web/Mobile visualization |
 | **Device Security** | Persistent `device_sessions` tracking and revocation |
-| **Video** | Jitsi Meet Iframe API |
+| **Video (Web)** | Jitsi Meet Iframe API (`8x8.vc`) |
+| **Video (Mobile)** | `jitsi_meet_flutter_sdk: ^12.1.3` (native SDK) |
 | **Email** | Nodemailer with Gmail SMTP & Branded HTML Templates |
 | **Push Notifications** | Firebase Cloud Messaging (FCM) via Admin SDK |
-| **UI Components** | Radix UI (shadcn/ui), Lucide Icons |
+| **Settings Persistence** | `shared_preferences` (Mobile) |
+| **Tappable Links** | `url_launcher` (Mobile) |
+| **UI Components** | Radix UI (shadcn/ui), Lucide Icons (Web); AppColors + AppTypography (Mobile) |
 
 ---
 

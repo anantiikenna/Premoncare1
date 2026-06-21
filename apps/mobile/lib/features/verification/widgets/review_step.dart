@@ -4,7 +4,7 @@ import '../../../core/app_colors.dart';
 import '../verification_provider.dart';
 
 class ReviewStep extends ConsumerWidget {
-  ReviewStep({super.key});
+  const ReviewStep({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,8 +72,16 @@ class ReviewStep extends ConsumerWidget {
           onEdit: () => notifier.goToStep(VerificationStep.professional),
           children: [
             _buildDetailRow(context, 'Medical Specialty', state.specialty),
-            _buildDetailRow(context, 'Years of Experience', '${state.experience} Years'),
-            _buildDetailRow(context, 'Medical License Number', state.licenseNumber),
+            _buildDetailRow(
+              context,
+              'Years of Experience',
+              '${state.experience} Years',
+            ),
+            _buildDetailRow(
+              context,
+              'Medical License Number',
+              state.licenseNumber,
+            ),
             _buildDetailRow(
               context,
               'Uploaded License',
@@ -181,7 +189,10 @@ class ReviewStep extends ConsumerWidget {
               const SizedBox(width: 8),
               Text(
                 'Your information is 256-bit encrypted and securely stored.',
-                style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context)),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textTertiaryOf(context),
+                ),
               ),
             ],
           ),
@@ -266,7 +277,10 @@ class ReviewStep extends ConsumerWidget {
             flex: 2,
             child: Text(
               label,
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context)),
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondaryOf(context),
+              ),
             ),
           ),
           Expanded(
@@ -292,7 +306,9 @@ class ReviewStep extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.borderLightOf(context)),
+                      border: Border.all(
+                        color: AppColors.borderLightOf(context),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,

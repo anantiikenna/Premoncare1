@@ -57,11 +57,42 @@ Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a we
 - **Mobile Notifications & Alerts**: Mobile uses a dedicated `Notification Center` with sticky emergency alerts and categorized tabs for clinical, appointment, and payment events.
 - **Mobile Administration**: The mobile platform supports full administrative parity, including a `DoctorVerificationPanel`, `FinancialModerationScreen`, and `DisputeResolutionCenter` for on-the-go mediation between patients and doctors.
 - **Medical Records Sharing**: Privacy is default. Records uploaded to private buckets use a join table `record_permissions` to track which `doctor_id` has access to which `file_id`. Mobile uses `record_sharing_sheet.dart` to manage access.
-- **Design System**: Premoncare enforces a **Modern Glassmorphism** aesthetic. Use `GlassCard` (with backdrop filters) on Mobile and `.glass-panel` utilities on Web. Primary color is Indigo (`#0F62FE`).
+- **Design System**: Premoncare enforces a **Modern Glassmorphism** aesthetic. Use `GlassCard` (with backdrop filters) on Mobile and `.glass-panel` utilities on Web. Primary color is Indigo (`#0F62FE`). All colors are centralized in `AppColors` (`core/app_colors.dart`) with theme-aware methods for dark mode support.
 - **Flavor-Based App Deployment**: The mobile app uses **Flutter Flavors** to generate distinct binaries:
     - **User App (`user`)**: For Patients and Doctors (`com.premoncare.app`).
     - **Admin App (`admin`)**: For Platform Administrators (`com.premoncare.admin`).
     - Core logic is shared, but entry points (`main_user.dart` vs `main_admin.dart`) and UI flows are isolated.
+
+## Video Consultation (Mobile)
+- **Native SDK**: Mobile uses `jitsi_meet_flutter_sdk: ^12.1.3` for real-time video consultations (not iframe).
+- **API**: `JitsiMeet().join(options, listener)` with `JitsiMeetEventListener` callbacks.
+- **Room Naming**: `PremiumHealthcare-{appointmentId}` on server `https://8x8.vc`.
+- **Event Callbacks**: `conferenceJoined`, `conferenceTerminated`, `audioMutedChanged`, `videoMutedChanged`, `readyToClose`.
+- **Controls**: Mute, camera toggle, chat, screen share, end call.
+- **Navigation**: Appointment detail screen passes `doctorName`, `specialty`, `durationMinutes` as extras to the consultation route.
+
+## Design System — AppColors & Dark Mode
+- **Single Source of Truth**: `apps/mobile/lib/core/app_colors.dart` — all colors defined as `AppColors` static constants.
+- **Static Constants**: `primary`, `success`, `error`, `warning`, `info`, `pink`, `teal`, `slate800`–`slate50`, etc.
+- **Theme-Aware Methods**: 12 methods (`surfaceOf`, `backgroundOf`, `textPrimaryOf`, `textSecondaryOf`, `textTertiaryOf`, `borderOf`, `borderLightOf`, `dividerOf`, `successLightOf`, `warningLightOf`, `errorLightOf`, `infoLightOf`) that switch between light/dark palettes based on `Theme.of(context).brightness`.
+- **Dark Mode**: `ThemeModeNotifier` (Riverpod `Notifier<ThemeMode>`) + `themeModeProvider`, persists via `SharedPreferences`.
+- **Typography**: `AppTypography` with `h1`–`h4`, `bodyLarge/Medium/Small`, `labelLarge/Medium/Small`, `caption`, `overline` + theme-aware `Of(context)` variants.
+- **Migration**: All 2,046 inline `Color(0xFF...)` values migrated to `AppColors` tokens.
+
+## Settings & Privacy Persistence
+- **Notification Preferences**: 8 toggles (push, email, appointments, payments, clinical, forum, emergency, marketing) persist to `SharedPreferences`.
+- **Biometric & Privacy**: 5 toggles (biometric lock, profile visibility, online status, research data, crash reporting) persist to `SharedPreferences`.
+- **Accessibility**: Text scale slider, high contrast, reduce animations, screen reader hints — all persist.
+- **Health Preferences**: Weight/height/temperature units, date format — all persist.
+- **Language & Region**: 6 languages, 6 regions, 6 currencies — all persist.
+- **Login & Security**: Confirm password has independent visibility toggle (`_obscureConfirm`). Password change via Supabase `updateUser`.
+- **About**: Website (`www.premoncare.com`) and email (`hello@premoncare.com`) are tappable via `url_launcher`.
+- **Device Sessions**: Real platform name via `Platform.isAndroid`/`Platform.isIOS` (not hardcoded "Mobile App").
+
+## Admin Access Blocking
+- **Mobile (3 layers)**: Login screen rejects admin with signout + error; splash screen signs out admin on startup; router redirect catches any admin that slips through.
+- **Web (3 layers)**: Middleware redirects admin from `/doctor/*` and `/patient/*` to `/admin/dashboard`; login form rejects admin with signout + error; login/register routes redirect admin to admin dashboard.
+- **Enforcement**: Admin users cannot access patient/doctor APK or web portal under any circumstances.
 
 ## Presence, Online heartbeats, & Live Operations
 - **Interactive Toggles**: Doctors manually toggle their clinical availability via dynamic sliders on their dashboards (Web & Mobile), writing `profiles.is_online = true` and updating `profiles.last_seen`.

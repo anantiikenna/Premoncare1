@@ -1650,7 +1650,7 @@ class _ProfileIllustration extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 12),
-                  const BoxDecoration(color: AppColors.infoLight, shape: BoxShape.circle),
+                  Container(width: 48, height: 48, decoration: const BoxDecoration(color: AppColors.infoLight, shape: BoxShape.circle)),
                   const SizedBox(height: 8),
                   Container(width: 32, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                   const SizedBox(height: 4),

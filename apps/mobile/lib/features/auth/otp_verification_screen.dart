@@ -7,7 +7,6 @@ import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 
-
 class OTPVerificationScreen extends StatefulWidget {
   final String email;
   final bool isEmergency;
@@ -25,7 +24,10 @@ class OTPVerificationScreen extends StatefulWidget {
 }
 
 class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
-  final List<TextEditingController> _controllers = List.generate(8, (index) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    8,
+    (index) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(8, (index) => FocusNode());
   int _secondsRemaining = 60;
   Timer? _timer;
@@ -115,7 +117,13 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(userFacingError(e, fallback: 'That code could not be verified. Please check it and try again.')),
+            content: Text(
+              userFacingError(
+                e,
+                fallback:
+                    'That code could not be verified. Please check it and try again.',
+              ),
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -141,8 +149,22 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          Positioned(top: -150, right: -100, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.05), size: 400)),
+          Positioned(
+            top: -150,
+            right: -100,
+            child: _MeshCircle(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              size: 500,
+            ),
+          ),
+          Positioned(
+            bottom: -100,
+            left: -50,
+            child: _MeshCircle(
+              color: AppColors.primary.withValues(alpha: 0.05),
+              size: 400,
+            ),
+          ),
 
           SafeArea(
             child: Column(
@@ -156,11 +178,35 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
-                        Text('IDENTITY VERIFICATION', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                        Text(
+                          'IDENTITY VERIFICATION',
+                          style: TextStyle(
+                            color: AppColors.textSecondaryOf(context),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
                         const SizedBox(height: 10),
-                        Text('Verify Your Email', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+                        Text(
+                          'Verify Your Email',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimaryOf(context),
+                            letterSpacing: -0.5,
+                          ),
+                        ),
                         const SizedBox(height: 6),
-                        Text('Enter the 8-digit code sent to', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600, height: 1.4)),
+                        Text(
+                          'Enter the 8-digit code sent to',
+                          style: TextStyle(
+                            color: AppColors.textSecondaryOf(context),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            height: 1.4,
+                          ),
+                        ),
                         const SizedBox(height: 24),
 
                         Center(
@@ -168,21 +214,28 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                             builder: (context, constraints) {
                               final availableWidth = constraints.maxWidth;
                               final spacing = 6.0;
-                              final boxWidth = ((availableWidth - (spacing * 7)) / 8).floorToDouble().clamp(28.0, 40.0);
-                              final boxHeight = (boxWidth * 1.35).floorToDouble();
+                              final boxWidth =
+                                  ((availableWidth - (spacing * 7)) / 8)
+                                      .floorToDouble()
+                                      .clamp(28.0, 40.0);
+                              final boxHeight = (boxWidth * 1.35)
+                                  .floorToDouble();
                               return Wrap(
                                 spacing: spacing,
                                 runSpacing: 12,
                                 alignment: WrapAlignment.center,
-                                children: List.generate(8, (index) => _OTPBox(
-                                  index: index,
-                                  controller: _controllers[index],
-                                  focusNode: _focusNodes[index],
-                                  onChanged: (v) => _onOtpChanged(index, v),
-                                  onPaste: index == 0 ? _onPaste : null,
-                                  boxWidth: boxWidth,
-                                  boxHeight: boxHeight,
-                                )),
+                                children: List.generate(
+                                  8,
+                                  (index) => _OTPBox(
+                                    index: index,
+                                    controller: _controllers[index],
+                                    focusNode: _focusNodes[index],
+                                    onChanged: (v) => _onOtpChanged(index, v),
+                                    onPaste: index == 0 ? _onPaste : null,
+                                    boxWidth: boxWidth,
+                                    boxHeight: boxHeight,
+                                  ),
+                                ),
                               );
                             },
                           ),
@@ -192,7 +245,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         _EmailInfoCard(email: widget.email),
                         const SizedBox(height: 20),
 
-                        _TimerModule(secondsRemaining: _secondsRemaining, onResend: _resendOtp),
+                        _TimerModule(
+                          secondsRemaining: _secondsRemaining,
+                          onResend: _resendOtp,
+                        ),
                         const SizedBox(height: 20),
 
                         _SecurityNotice(),
@@ -204,18 +260,38 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                           child: ElevatedButton.icon(
                             onPressed: _isLoading ? null : _verifyOtp,
                             icon: _isLoading
-                                ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                                : const Icon(Icons.verified_user_rounded, size: 22),
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.verified_user_rounded,
+                                    size: 22,
+                                  ),
                             label: Text(
-                              _isLoading ? 'VERIFYING...' : 'AUTHORIZE & CONTINUE',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                              _isLoading
+                                  ? 'VERIFYING...'
+                                  : 'AUTHORIZE & CONTINUE',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               elevation: 10,
-                              shadowColor: AppColors.primary.withValues(alpha: 0.3),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              shadowColor: AppColors.primary.withValues(
+                                alpha: 0.3,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                             ),
                           ),
                         ),
@@ -223,9 +299,21 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.lock_rounded, size: 14, color: AppColors.textTertiaryOf(context)),
+                            Icon(
+                              Icons.lock_rounded,
+                              size: 14,
+                              color: AppColors.textTertiaryOf(context),
+                            ),
                             const SizedBox(width: 10),
-                            Text('256-BIT ENCRYPTED CLINICAL AUTHENTICATION', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                            Text(
+                              '256-BIT ENCRYPTED CLINICAL AUTHENTICATION',
+                              style: TextStyle(
+                                color: AppColors.textTertiaryOf(context),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 40),
@@ -249,7 +337,20 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         children: [
           GestureDetector(
             onTap: () => context.pop(),
-            child: Container(width: 48, height: 48, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))), child: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 20)),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceOf(context),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderOf(context)),
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.textPrimaryOf(context),
+                size: 20,
+              ),
+            ),
           ),
           if (widget.isEmergency) _EmergencyBadge(),
         ],
@@ -263,24 +364,32 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     setState(() => _isLoading = true);
     try {
       if (widget.isSignup) {
-        await supabase.auth.resend(
-          type: OtpType.signup,
-          email: widget.email,
-        );
+        await supabase.auth.resend(type: OtpType.signup, email: widget.email);
       } else {
         await supabase.auth.signInWithOtp(email: widget.email);
       }
       _startTimer();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('A new verification code has been sent')),
+          const SnackBar(
+            content: Text('A new verification code has been sent'),
+          ),
         );
       }
     } on AuthException catch (e, stackTrace) {
       logHandledError('OTP resend failed', e, stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'We could not resend the code. Please wait a moment and try again.')), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text(
+              userFacingError(
+                e,
+                fallback:
+                    'We could not resend the code. Please wait a moment and try again.',
+              ),
+            ),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     } finally {
@@ -291,25 +400,56 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
 
 class _EmailInfoCard extends StatelessWidget {
   final String email;
-  _EmailInfoCard({required this.email});
+  const _EmailInfoCard({required this.email});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: Icon(Icons.mail_outline_rounded, color: AppColors.primary, size: 22),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.mail_outline_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(email, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.3), overflow: TextOverflow.ellipsis),
+            child: Text(
+              email,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+                letterSpacing: -0.3,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          TextButton(onPressed: () => context.pop(), child: Text('EDIT', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5))),
+          TextButton(
+            onPressed: () => context.pop(),
+            child: Text(
+              'EDIT',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -321,12 +461,26 @@ class _SecurityNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(color: AppColors.errorLightOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.errorLight)),
+      decoration: BoxDecoration(
+        color: AppColors.errorLightOf(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.errorLight),
+      ),
       child: Row(
         children: [
           Icon(Icons.shield_rounded, color: AppColors.error, size: 20),
           const SizedBox(width: 12),
-          Expanded(child: Text('SECURITY PROTOCOL: Do not disclose this clinical access code to any third party.', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.error, height: 1.4))),
+          Expanded(
+            child: Text(
+              'SECURITY PROTOCOL: Do not disclose this clinical access code to any third party.',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.error,
+                height: 1.4,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -342,7 +496,15 @@ class _OTPBox extends StatelessWidget {
   final double boxWidth;
   final double boxHeight;
 
-  _OTPBox({required this.index, required this.controller, required this.focusNode, required this.onChanged, this.onPaste, this.boxWidth = 36, this.boxHeight = 48});
+  const _OTPBox({
+    required this.index,
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+    this.onPaste,
+    this.boxWidth = 36,
+    this.boxHeight = 48,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -362,14 +524,26 @@ class _OTPBox extends StatelessWidget {
         width: boxWidth,
         height: boxHeight,
         decoration: BoxDecoration(
-          color: hasValue ? AppColors.primary.withValues(alpha: 0.05) : AppColors.surfaceOf(context),
+          color: hasValue
+              ? AppColors.primary.withValues(alpha: 0.05)
+              : AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: hasFocus ? AppColors.primary : hasValue ? AppColors.primary.withValues(alpha: 0.4) : AppColors.slate300,
+            color: hasFocus
+                ? AppColors.primary
+                : hasValue
+                ? AppColors.primary.withValues(alpha: 0.4)
+                : AppColors.slate300,
             width: hasFocus ? 2.5 : 2,
           ),
           boxShadow: hasFocus
-              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.15), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : [],
         ),
         child: Center(
@@ -379,8 +553,17 @@ class _OTPBox extends StatelessWidget {
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             maxLength: 1,
-            style: TextStyle(fontSize: boxWidth * 0.67, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context)),
-            decoration: InputDecoration(counterText: '', border: InputBorder.none, hintText: '•', hintStyle: TextStyle(color: AppColors.textTertiaryOf(context))),
+            style: TextStyle(
+              fontSize: boxWidth * 0.67,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+            decoration: InputDecoration(
+              counterText: '',
+              border: InputBorder.none,
+              hintText: '•',
+              hintStyle: TextStyle(color: AppColors.textTertiaryOf(context)),
+            ),
             onChanged: onChanged,
           ),
         ),
@@ -401,13 +584,32 @@ class _TimerModule extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceAltOf(context),
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.timer_rounded, size: 16, color: secondsRemaining < 10 ? AppColors.error : AppColors.textSecondaryOf(context)),
+              Icon(
+                Icons.timer_rounded,
+                size: 16,
+                color: secondsRemaining < 10
+                    ? AppColors.error
+                    : AppColors.textSecondaryOf(context),
+              ),
               const SizedBox(width: 8),
-              Text('EXPIRES IN: ${'${secondsRemaining ~/ 60}'.padLeft(2, '0')}:${'${secondsRemaining % 60}'.padLeft(2, '0')}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: secondsRemaining < 10 ? AppColors.error : AppColors.textPrimaryOf(context), letterSpacing: 0.5)),
+              Text(
+                'EXPIRES IN: ${'${secondsRemaining ~/ 60}'.padLeft(2, '0')}:${'${secondsRemaining % 60}'.padLeft(2, '0')}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: secondsRemaining < 10
+                      ? AppColors.error
+                      : AppColors.textPrimaryOf(context),
+                  letterSpacing: 0.5,
+                ),
+              ),
             ],
           ),
         ),
@@ -415,11 +617,27 @@ class _TimerModule extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('MISSING THE DISPATCH?', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w800)),
+            Text(
+              'MISSING THE DISPATCH?',
+              style: TextStyle(
+                color: AppColors.textSecondaryOf(context),
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
             const SizedBox(width: 8),
             GestureDetector(
               onTap: canResend ? onResend : null,
-              child: Text('RESEND CODE', style: TextStyle(color: canResend ? AppColors.primary : AppColors.textTertiaryOf(context), fontWeight: FontWeight.w900, fontSize: 12)),
+              child: Text(
+                'RESEND CODE',
+                style: TextStyle(
+                  color: canResend
+                      ? AppColors.primary
+                      : AppColors.textTertiaryOf(context),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                ),
+              ),
             ),
           ],
         ),
@@ -433,12 +651,24 @@ class _EmergencyBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(color: AppColors.errorLightOf(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.errorLight)),
+      decoration: BoxDecoration(
+        color: AppColors.errorLightOf(context),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.errorLight),
+      ),
       child: Row(
         children: [
           Icon(Icons.bolt_rounded, color: AppColors.error, size: 16),
           const SizedBox(width: 8),
-          Text('PRIORITY CARE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 0.5)),
+          Text(
+            'PRIORITY CARE',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: AppColors.error,
+              letterSpacing: 0.5,
+            ),
+          ),
         ],
       ),
     );

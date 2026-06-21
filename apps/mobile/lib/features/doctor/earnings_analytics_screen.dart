@@ -210,15 +210,15 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          const SizedBox(
+          Container(
             width: 100,
             height: 70,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primaryDark,
               borderRadius: BorderRadius.all(Radius.circular(16)),
               boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
             ),
-            child: Center(
+            child: const Center(
               child: Icon(Icons.payments_rounded, color: Colors.white30, size: 40),
             ),
           ),

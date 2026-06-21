@@ -127,7 +127,7 @@ class _CorrectionCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.error.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)), child: const Icon(icon, color: AppColors.error, size: 20)),
+          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.error.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)), child: Icon(icon, color: AppColors.error, size: 20)),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
@@ -150,7 +150,7 @@ class _ActionTileFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         _ActionTile(icon: Icons.help_center_rounded, title: 'View Requirements', subtitle: 'Detailed guide on clinical standards'),
         _ActionTile(icon: Icons.support_agent_rounded, title: 'Contact Support', subtitle: 'Speak with clinical onboarding'),
@@ -174,7 +174,7 @@ class _ActionTile extends StatelessWidget {
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: const Icon(icon, color: AppColors.primary, size: 20)),
+          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: Icon(icon, color: AppColors.primary, size: 20)),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
