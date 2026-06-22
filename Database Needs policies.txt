@@ -1,0 +1,25 @@
+Database Needs policies
+RLS Enable
+UI/UX Design before APP Building
+.md files like Agents very important
+.md UI Architecture
+.md System Walkthrough
+.m Installation or Running Guide
+
+Check Database light for Errors, Warnings, and Suggestions
+Database Trigger Highly important(like new user triggers)
+Audit Everything(Triggers, Relationship, Realtime action or event, UI/UX, )
+
+{{
+That setting requires Supabase Pro plan ($25/month). If you're on the free tier, it's not available.
+
+Options:
+
+Upgrade to Pro — enables leaked password protection + point-in-time recovery + daily backups
+Skip it for now — the password strength indicator in the registration flow already catches weak passwords client-side
+Add a custom check — use the HIBP API directly in the app to check passwords against the breached password list before allowing signup
+Which approach do you want to take?
+}}
+
+Ensure your changes is reflected or triggers in the database or corresponding areas in the app
+{audit for more similar wrong flow in every part of the app ensure the flows for every actions the Patient take flow well according to their role same with Verified Doctors and Admin}
