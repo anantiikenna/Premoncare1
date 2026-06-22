@@ -261,7 +261,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Today', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
-                        Text('${todayAppointments} appointments', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
+                        Text('$todayAppointments appointments', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
                       ],
                     ),
                   ],
@@ -321,7 +321,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           Expanded(child: Container(height: 200, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24)))),
         ],
       ),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
