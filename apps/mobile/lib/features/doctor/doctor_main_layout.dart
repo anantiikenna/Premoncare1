@@ -99,6 +99,14 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.payments_rounded, color: AppColors.primary),
+              title: const Text('Payment Approvals', style: TextStyle(fontWeight: FontWeight.bold)),
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/doctor/payments');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.settings_outlined, color: AppColors.primary),
               title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {

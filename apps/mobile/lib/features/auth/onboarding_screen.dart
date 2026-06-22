@@ -194,48 +194,46 @@ class _OnboardingSlide extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageHeight = math.min(viewportHeight * 0.42, 390.0);
 
-    return Expanded(
-      child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.bottomCenter,
-                children: [
-                  AnimatedBuilder(
-                    animation: animation,
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, 8 * math.sin(animation.value * 2 * math.pi)),
-                        child: child,
-                      );
-                    },
-                    child: Image.asset(item.image, height: imageHeight, fit: BoxFit.contain, errorBuilder: (context, error, stackTrace) => Icon(item.icon, size: 80, color: item.color)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              _HighlightedTitle(item: item),
-              const SizedBox(height: 14),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 330),
-                child: Text(
-                  item.text,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.textSecondaryOf(context),
-                    fontSize: 16,
-                    height: 1.45,
-                    fontWeight: FontWeight.w600,
-                  ),
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.bottomCenter,
+              children: [
+                AnimatedBuilder(
+                  animation: animation,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 8 * math.sin(animation.value * 2 * math.pi)),
+                      child: child,
+                    );
+                  },
+                  child: Image.asset(item.image, height: imageHeight, fit: BoxFit.contain, errorBuilder: (context, error, stackTrace) => Icon(item.icon, size: 80, color: item.color)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _HighlightedTitle(item: item),
+            const SizedBox(height: 14),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 330),
+              child: Text(
+                item.text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textSecondaryOf(context),
+                  fontSize: 16,
+                  height: 1.45,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

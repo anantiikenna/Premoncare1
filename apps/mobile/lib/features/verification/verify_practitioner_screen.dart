@@ -3,14 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import 'verification_provider.dart';
-import 'package:mobile/features/verification/widgets/professional_step.dart';
-import 'package:mobile/features/verification/widgets/identity_step.dart';
-import 'package:mobile/features/verification/widgets/facial_step.dart';
-import 'package:mobile/features/verification/widgets/review_step.dart';
-
-import 'package:mobile/features/verification/widgets/verification_pending_screen.dart';
-import 'package:mobile/features/verification/widgets/verification_approved_screen.dart';
-import 'package:mobile/features/verification/widgets/verification_rejected_screen.dart';
+import 'widgets/professional_step.dart';
+import 'widgets/identity_step.dart';
+import 'widgets/facial_step.dart';
+import 'widgets/review_step.dart';
+import 'widgets/verification_pending_screen.dart';
+import 'widgets/verification_approved_screen.dart';
+import 'widgets/verification_rejected_screen.dart';
 
 class VerifyPractitionerScreen extends ConsumerWidget {
   const VerifyPractitionerScreen({super.key});

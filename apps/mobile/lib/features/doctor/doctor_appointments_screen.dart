@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 
@@ -45,6 +46,7 @@ class DoctorAppointmentsScreen extends ConsumerStatefulWidget {
 class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   DateTime _selectedDate = DateTime.now();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -55,6 +57,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -140,17 +143,51 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
             ],
           ),
           const Spacer(),
-          _buildCircleIconButton(Icons.search_rounded),
+          _buildSearchButton(context),
         ],
       ),
     );
   }
 
-  Widget _buildCircleIconButton(IconData icon) {
-    return Container(
-      width: 48, height: 48,
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
-      child: Icon(icon, color: AppColors.textPrimaryOf(context), size: 20),
+  Widget _buildSearchButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showSearchDialog(context),
+      child: Container(
+        width: 48, height: 48,
+        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
+        child: Icon(Icons.search_rounded, color: AppColors.textPrimaryOf(context), size: 20),
+      ),
+    );
+  }
+
+  void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: const Text('Search Appointments'),
+        content: TextField(
+          controller: _searchController,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: 'Search by patient name...',
+            prefixIcon: const Icon(Icons.search_rounded),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Searching for "${_searchController.text}"...')),
+              );
+            },
+            child: const Text('Search'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -262,9 +299,23 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
   }
 
   Widget _buildTimeline(List<Map<String, dynamic>> allAppointments) {
-    final filtered = allAppointments.where((a) {
+    List<Map<String, dynamic>> filtered = allAppointments.where((a) {
       final d = DateTime.parse(a['appointment_date']);
-      return d.year == _selectedDate.year && d.month == _selectedDate.month && d.day == _selectedDate.day;
+      final matchesDate = d.year == _selectedDate.year && d.month == _selectedDate.month && d.day == _selectedDate.day;
+      if (_tabController.index == 0) return matchesDate; // TODAY
+      if (_tabController.index == 1) {
+        // UPCOMING: future dates
+        return d.isAfter(DateTime.now());
+      }
+      if (_tabController.index == 2) {
+        // PENDING
+        return a['status'] == 'pending' || a['status'] == 'emergency_request';
+      }
+      if (_tabController.index == 3) {
+        // PAST
+        return a['status'] == 'completed' || a['status'] == 'cancelled';
+      }
+      return matchesDate;
     }).toList();
 
     if (filtered.isEmpty) {
@@ -295,6 +346,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
               filtered[i]['consultation_mode'] ?? 'consultation',
               filtered[i]['status'],
               _statusColor(filtered[i]['status']),
+              appointmentId: filtered[i]['id'],
               isFirst: i == 0,
               isLast: i == filtered.length - 1,
             ),
@@ -303,7 +355,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     );
   }
 
-  Widget _buildTimelineItem(String time, String name, String type, String status, Color color, {bool isFirst = false, bool isLast = false}) {
+  Widget _buildTimelineItem(String time, String name, String type, String status, Color color, {String? appointmentId, bool isFirst = false, bool isLast = false}) {
     final statusLabel = _statusLabel(status);
 
     return Row(
@@ -318,34 +370,41 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         ),
         const SizedBox(width: 20),
         Expanded(
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 24),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: color.withValues(alpha: 0.1),
-                  child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-                      const SizedBox(height: 2),
-                      Text(type.toUpperCase(), style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-                    ],
+          child: GestureDetector(
+            onTap: () {
+              if (appointmentId != null) {
+                context.push('/appointments/$appointmentId');
+              }
+            },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: color.withValues(alpha: 0.1),
+                    child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                  child: Text(statusLabel, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900)),
-                ),
-              ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+                        const SizedBox(height: 2),
+                        Text(type.toUpperCase(), style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                    child: Text(statusLabel, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900)),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

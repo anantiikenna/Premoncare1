@@ -1,20 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math' as math;
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 
+final earningsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
+  final user = supabase.auth.currentUser;
+  if (user == null) return {'totalEarnings': 0.0, 'consultations': 0, 'rating': 0.0, 'patientsHelped': 0};
 
-class EarningsAnalyticsScreen extends StatefulWidget {
+  final payments = await supabase
+      .from('payments')
+      .select('amount, status, created_at')
+      .eq('recipient_id', user.id);
+
+  final profile = await supabase
+      .from('profiles')
+      .select('rating, patients_helped, consultation_counts')
+      .eq('id', user.id)
+      .single();
+
+  double total = 0;
+  for (final p in payments) {
+    if (p['status'] == 'approved' || p['status'] == 'completed') {
+      total += (p['amount'] as num?)?.toDouble() ?? 0;
+    }
+  }
+
+  return {
+    'totalEarnings': total,
+    'consultations': profile['consultation_counts'] ?? 0,
+    'rating': (profile['rating'] as num?)?.toDouble() ?? 0.0,
+    'patientsHelped': profile['patients_helped'] ?? 0,
+  };
+});
+
+class EarningsAnalyticsScreen extends ConsumerStatefulWidget {
   const EarningsAnalyticsScreen({super.key});
 
   @override
-  State<EarningsAnalyticsScreen> createState() => _EarningsAnalyticsScreenState();
+  ConsumerState<EarningsAnalyticsScreen> createState() => _EarningsAnalyticsScreenState();
 }
 
-class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
+class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScreen> {
   String selectedFilter = 'This Week';
 
   @override
   Widget build(BuildContext context) {
+    final earningsAsync = ref.watch(earningsProvider);
+    final totalEarnings = earningsAsync.when(data: (d) => d['totalEarnings'] as double, loading: () => 0.0, error: (_, __) => 0.0);
+    final consultationCount = earningsAsync.when(data: (d) => (d['consultations'] as num).toInt(), loading: () => 0, error: (_, __) => 0);
+    final rating = earningsAsync.when(data: (d) => (d['rating'] as num).toDouble(), loading: () => 0.0, error: (_, __) => 0.0);
+    final patientsHelped = earningsAsync.when(data: (d) => (d['patientsHelped'] as num).toInt(), loading: () => 0, error: (_, __) => 0);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
@@ -66,15 +103,15 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
             _buildTimeFilters(),
             const SizedBox(height: 24),
 
-            _buildTotalEarningsCard(),
+            _buildTotalEarningsCard(totalEarnings),
             const SizedBox(height: 24),
 
-            _buildStatsGrid(),
+            _buildStatsGrid(totalEarnings, consultationCount, rating, patientsHelped),
             const SizedBox(height: 24),
 
             _buildSectionHeader('Earnings Overview', hasDot: true),
             const SizedBox(height: 16),
-            _buildEarningsChart(),
+            _buildEarningsChart(totalEarnings),
             const SizedBox(height: 24),
 
             _buildSectionHeader('Earnings Breakdown', trailing: 'View Details'),
@@ -137,7 +174,8 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     );
   }
 
-  Widget _buildTotalEarningsCard() {
+  Widget _buildTotalEarningsCard(double totalEarnings) {
+    final formatted = '₦${totalEarnings.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -166,9 +204,9 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
                 style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
-              const Text(
-                '₦14,560',
-                style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900),
+              Text(
+                formatted,
+                style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 16),
               Container(
@@ -251,29 +289,29 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(double totalEarnings, int consultations, double rating, int patientsHelped) {
     return Column(
       children: [
         Row(
           children: [
-            Expanded(child: _buildStatCard('Consultations', '42', '12%', Icons.account_balance_wallet_rounded, AppColors.primary)),
+            Expanded(child: _buildStatCard('Consultations', consultations.toString(), Icons.account_balance_wallet_rounded, AppColors.primary)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard('Hours Spent', '28h 15m', '8%', Icons.access_time_filled_rounded, AppColors.info)),
+            Expanded(child: _buildStatCard('Patients', patientsHelped.toString(), Icons.person_add_alt_1_rounded, AppColors.info)),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildStatCard('New Patients', '18', '20%', Icons.person_add_alt_1_rounded, AppColors.primary)),
+            Expanded(child: _buildStatCard('Earnings', '₦${totalEarnings.toStringAsFixed(0)}', Icons.payments_rounded, AppColors.success)),
             const SizedBox(width: 16),
-            Expanded(child: _buildStatCard('Rating', '4.9', '100%', Icons.stars_rounded, AppColors.warning)),
+            Expanded(child: _buildStatCard('Rating', rating.toStringAsFixed(1), Icons.stars_rounded, AppColors.warning)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, String percent, IconData icon, Color color) {
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -295,20 +333,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
           const SizedBox(height: 12),
           Text(label, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Row(
-            children: [
-              Text(value, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w800)),
-              const Spacer(),
-              if (label == 'Rating') 
-                Icon(Icons.star_rounded, color: AppColors.warning, size: 16)
-              else ...[
-                Icon(Icons.arrow_upward_rounded, color: AppColors.success, size: 12),
-                Text(percent, style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w800)),
-              ]
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text('vs last week', style: TextStyle(color: AppColors.textSecondaryOf(context).withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w600)),
+          Text(value, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w800)),
         ],
       ),
     );
@@ -343,7 +368,8 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     );
   }
 
-  Widget _buildEarningsChart() {
+  Widget _buildEarningsChart(double totalEarnings) {
+    final formatted = '₦${totalEarnings.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
     return Container(
       width: double.infinity,
       height: 220,
@@ -357,10 +383,10 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
         children: [
           Row(
             children: [
-              Text('₦14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 24, fontWeight: FontWeight.w900)),
+              Text(formatted, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 24, fontWeight: FontWeight.w900)),
               const SizedBox(width: 8),
               Icon(Icons.arrow_upward_rounded, color: AppColors.success, size: 16),
-              Text('18.6%', style: TextStyle(color: AppColors.success, fontSize: 14, fontWeight: FontWeight.w800)),
+              const Text('All time', style: TextStyle(color: AppColors.success, fontSize: 14, fontWeight: FontWeight.w800)),
             ],
           ),
           const Expanded(child: _LineChartPainterWidget()),
@@ -396,8 +422,8 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('₦14,560', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w900)),
-                    Text('Total', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
+                    const Text('Earnings', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
+                    const Text('Total', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],
@@ -407,10 +433,9 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
           Expanded(
             child: Column(
               children: [
-                _buildBreakdownItem('Video Consultations', '₦8,640', '59%', AppColors.primary),
-                _buildBreakdownItem('Chat Consultations', '₦3,840', '26%', AppColors.info),
-                _buildBreakdownItem('Follow-ups', '₦1,760', '12%', AppColors.primary),
-                _buildBreakdownItem('Other Services', '₦320', '3%', AppColors.warning),
+                _buildBreakdownItem('Consultations', 'Primary', AppColors.primary),
+                _buildBreakdownItem('Follow-ups', 'Follow-up', AppColors.info),
+                _buildBreakdownItem('Other', 'Other', AppColors.warning),
               ],
             ),
           ),
@@ -419,7 +444,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
     );
   }
 
-  Widget _buildBreakdownItem(String label, String amount, String percent, Color color) {
+  Widget _buildBreakdownItem(String label, String sublabel, Color color) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -432,13 +457,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
               style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w600, overflow: TextOverflow.ellipsis),
             ),
           ),
-          Text(amount, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(4)),
-            child: Text(percent, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w800)),
-          ),
+          Text(sublabel, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
         ],
       ),
     );
@@ -467,7 +486,7 @@ class _EarningsAnalyticsScreenState extends State<EarningsAnalyticsScreen> {
                 Text('Great progress!', style: TextStyle(color: AppColors.success, fontSize: 16, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
                 Text(
-                  'Your earnings increased by 18.6%\ncompared to last week.',
+                  'You\'re making great progress.\nKeep up the excellent work!',
                   style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
                 ),
               ],
