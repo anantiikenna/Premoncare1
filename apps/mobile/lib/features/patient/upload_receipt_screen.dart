@@ -5,9 +5,16 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
+
+final uploadReceiptLoadingProvider = StateProvider<bool>((ref) => false);
 
 class UploadReceiptScreen extends ConsumerStatefulWidget {
-  const UploadReceiptScreen({super.key});
+  final String? appointmentId;
+  final String? doctorId;
+  final double? amount;
+
+  const UploadReceiptScreen({super.key, this.appointmentId, this.doctorId, this.amount});
 
   @override
   ConsumerState<UploadReceiptScreen> createState() => _UploadReceiptScreenState();
@@ -16,50 +23,100 @@ class UploadReceiptScreen extends ConsumerStatefulWidget {
 class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
   XFile? _selectedFile;
   final ImagePicker _picker = ImagePicker();
+  final _amountController = TextEditingController();
+  final _refController = TextEditingController();
+  final _descController = TextEditingController();
+  String _paymentMethod = 'Bank Transfer';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.amount != null) {
+      _amountController.text = widget.amount!.toStringAsFixed(0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _refController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickFile() async {
-    final file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) {
-      setState(() {
-        _selectedFile = file;
+    final file = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    if (file != null) setState(() => _selectedFile = file);
+  }
+
+  Future<void> _submitReceipt() async {
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a receipt image first')));
+      return;
+    }
+    if (_amountController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter the amount paid')));
+      return;
+    }
+
+    ref.read(uploadReceiptLoadingProvider.notifier).state = true;
+
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('Not authenticated');
+
+      final fileExt = _selectedFile!.path.split('.').last;
+      final fileName = '${user.id}/${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      final fileBytes = await File(_selectedFile!.path).readAsBytes();
+
+      await supabase.storage.from('payment-receipts').uploadBinary(fileName, fileBytes);
+      final publicUrl = supabase.storage.from('payment-receipts').getPublicUrl(fileName);
+
+      await supabase.from('payments').insert({
+        'user_id': user.id,
+        if (widget.doctorId != null) 'recipient_id': widget.doctorId,
+        'amount': double.parse(_amountController.text.replaceAll(RegExp(r'[^\d.]'), '')),
+        'method': 'manual',
+        'receipt_url': publicUrl,
+        'status': 'pending',
+        if (_refController.text.isNotEmpty) 'transaction_id': _refController.text,
+        if (widget.appointmentId != null) 'duration_minutes': 0,
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: const Text('Receipt submitted for verification'), backgroundColor: AppColors.success),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    } finally {
+      ref.read(uploadReceiptLoadingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(uploadReceiptLoadingProvider);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context)),
-          onPressed: () => context.pop(),
-        ),
+        leading: IconButton(icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context)), onPressed: () => context.pop()),
         centerTitle: true,
         title: Column(
           children: [
-            Text(
-              'Upload Payment Receipt',
-              style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900),
-            ),
-            Text(
-              'Upload your payment proof for verification',
-              style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11),
-            ),
+            Text('Upload Payment Receipt', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900)),
+            Text('Upload your payment proof for verification', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.help_outline_rounded, color: AppColors.textSecondaryOf(context)),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Upload your payment receipt for verification')),
-              );
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -72,42 +129,20 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
               decoration: BoxDecoration(
                 color: AppColors.surfaceAltOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.borderOf(context), style: BorderStyle.solid, width: 1.5),
+                border: Border.all(color: AppColors.borderOf(context), width: 1.5),
               ),
               child: _selectedFile != null
                   ? Column(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.file(
-                            File(_selectedFile!.path),
-                            height: 160,
-                            width: 200,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.file(File(_selectedFile!.path), height: 160, width: 200, fit: BoxFit.cover)),
                         const SizedBox(height: 16),
-                        Text(
-                          _selectedFile!.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          textAlign: TextAlign.center,
-                        ),
+                        Text(_selectedFile!.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), textAlign: TextAlign.center),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            TextButton(
-                              onPressed: _pickFile,
-                              child: Text('Change File', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedFile = null;
-                                });
-                              },
-                              child: Text('Remove', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
-                            ),
+                            TextButton(onPressed: _pickFile, child: Text('Change File', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
+                            TextButton(onPressed: () => setState(() => _selectedFile = null), child: Text('Remove', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold))),
                           ],
                         ),
                       ],
@@ -125,12 +160,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                         const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: _pickFile,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: AppColors.textInverse,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
+                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                           child: const Text('Choose File', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(height: 16),
@@ -146,49 +176,28 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                     ),
             ),
             const SizedBox(height: 32),
-            _buildTextField(label: 'Amount Paid (₦)', hint: '18,000'),
+            _buildTextField(label: 'Amount Paid (₦)', hint: '18000', controller: _amountController, keyboardType: TextInputType.number),
             const SizedBox(height: 20),
-            _buildDropdownField(label: 'Payment Method', value: 'Bank Transfer'),
+            _buildDropdownField(),
             const SizedBox(height: 20),
-            _buildTextField(label: 'Transaction Reference (Optional)', hint: 'e.g. 1234567890'),
+            _buildTextField(label: 'Transaction Reference (Optional)', hint: 'e.g. 1234567890', controller: _refController),
             const SizedBox(height: 20),
-            _buildTextField(label: 'Description (Optional)', hint: 'Add any additional information about this payment', maxLines: 3),
+            _buildTextField(label: 'Description (Optional)', hint: 'Add any additional information about this payment', controller: _descController, maxLines: 3),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  if (_selectedFile == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please select a receipt image first')),
-                    );
-                    return;
-                  }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Receipt submitted for verification. We\'ll review it shortly.'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                  Navigator.of(context).maybePop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.textInverse,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Submit for Verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                onPressed: isLoading ? null : _submitReceipt,
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                child: isLoading
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text('Submit for Verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             ),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceAltOf(context),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.borderOf(context)),
-              ),
+              decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
               child: Row(
                 children: [
                   Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 24),
@@ -203,76 +212,25 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                       ],
                     ),
                   ),
-                  Image.network('https://cdn-icons-png.flaticon.com/512/1007/1007929.png', width: 40, height: 40, errorBuilder: (context, error, stackTrace) => Icon(Icons.receipt_long_rounded, size: 40, color: AppColors.borderOf(context))),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Uploaded Receipts', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
-                TextButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Receipt history will be available after your first upload')),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                      Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 20),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _HistoryTile(
-              date: 'May 16, 2024',
-              time: '10:32 AM',
-              amount: '₦18,000',
-              ref: '8827362819',
-              status: 'Pending',
-              statusLabel: 'Under review',
-              statusColor: AppColors.warning,
-              icon: Icons.access_time_rounded,
-            ),
-            _HistoryTile(
-              date: 'May 10, 2024',
-              time: '02:15 PM',
-              amount: '₦10,000',
-              ref: '7726352810',
-              status: 'Approved',
-              statusLabel: 'Time added: 45 mins',
-              statusColor: AppColors.success,
-              icon: Icons.check_circle_rounded,
-            ),
-            _HistoryTile(
-              date: 'May 8, 2024',
-              time: '11:45 AM',
-              amount: '₦5,000',
-              ref: '6638272910',
-              status: 'Rejected',
-              statusLabel: 'Amount mismatch',
-              statusColor: AppColors.error,
-              icon: Icons.cancel_rounded,
-            ),
-            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField({required String label, required String hint, int maxLines = 1}) {
+  Widget _buildTextField({required String label, required String hint, required TextEditingController controller, int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
           maxLines: maxLines,
+          keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
@@ -287,112 +245,33 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     );
   }
 
-  Widget _buildDropdownField({required String label, required String value}) {
+  Widget _buildDropdownField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
+        Text('Payment Method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceOf(context),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.borderOf(context)),
-          ),
+          decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderOf(context))),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: value,
+              value: _paymentMethod,
               isExpanded: true,
               items: ['Bank Transfer', 'P2P Transfer'].map((String val) {
-                return DropdownMenuItem<String>(
-                  value: val,
-                  child: Row(
-                    children: [
-                      Icon(Icons.account_balance_rounded, size: 18, color: AppColors.textTertiaryOf(context)),
-                      const SizedBox(width: 12),
-                      Text(val, style: const TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                );
+                return DropdownMenuItem<String>(value: val, child: Row(
+                  children: [
+                    Icon(Icons.account_balance_rounded, size: 18, color: AppColors.textTertiaryOf(context)),
+                    const SizedBox(width: 12),
+                    Text(val, style: const TextStyle(fontSize: 14)),
+                  ],
+                ));
               }).toList(),
-              onChanged: (val) {
-                if (val != null) {
-                }
-              },
+              onChanged: (val) { if (val != null) setState(() => _paymentMethod = val); },
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _HistoryTile extends StatelessWidget {
-  final String date;
-  final String time;
-  final String amount;
-  final String ref;
-  final String status;
-  final String statusLabel;
-  final Color statusColor;
-  final IconData icon;
-
-  const _HistoryTile({
-    required this.date,
-    required this.time,
-    required this.amount,
-    required this.ref,
-    required this.status,
-    required this.statusLabel,
-    required this.statusColor,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderLightOf(context)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-            child: Icon(icon, color: statusColor, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('$date • $time', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
-                Text(amount, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-                Text('Ref: $ref', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                child: Text(status, style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(height: 4),
-              Text(statusLabel, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
-            ],
-          ),
-          const SizedBox(width: 8),
-          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context)),
-        ],
-      ),
     );
   }
 }

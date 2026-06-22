@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../core/providers.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 
-class DoctorEmergencyRequestScreen extends StatefulWidget {
+class DoctorEmergencyRequestScreen extends ConsumerStatefulWidget {
   final String appointmentId;
   final String patientId;
   final String patientName;
@@ -25,10 +27,10 @@ class DoctorEmergencyRequestScreen extends StatefulWidget {
   });
 
   @override
-  State<DoctorEmergencyRequestScreen> createState() => _DoctorEmergencyRequestScreenState();
+  ConsumerState<DoctorEmergencyRequestScreen> createState() => _DoctorEmergencyRequestScreenState();
 }
 
-class _DoctorEmergencyRequestScreenState extends State<DoctorEmergencyRequestScreen>
+class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRequestScreen>
     with SingleTickerProviderStateMixin {
   late Timer _countdownTimer;
   late AnimationController _pulseController;
@@ -127,6 +129,9 @@ class _DoctorEmergencyRequestScreenState extends State<DoctorEmergencyRequestScr
           .from('appointments')
           .update({'status': newStatus, 'is_doctor_approved': accept})
           .eq('id', widget.appointmentId);
+
+      ref.invalidate(emergencyRequestsProvider);
+      ref.invalidate(upcomingAppointmentsProvider);
 
       // Notify patient
       try {

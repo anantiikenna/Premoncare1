@@ -1,6 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
+
+final doctorAppointmentsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  final user = supabase.auth.currentUser;
+  if (user == null) return [];
+
+  final data = await supabase
+      .from('appointments')
+      .select('id, appointment_date, status, reason, consultation_mode, duration_minutes, is_emergency, total_amount, metadata, patient_id')
+      .eq('doctor_id', user.id)
+      .order('appointment_date', ascending: false);
+
+  if (data.isEmpty) return [];
+
+  final patientIds = data.map((e) => e['patient_id'] as String?).whereType<String>().toSet().toList();
+  if (patientIds.isEmpty) return data;
+
+  final patientsResult = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .inFilter('id', patientIds);
+
+  final patientMap = {for (final p in patientsResult) p['id'] as String: p};
+
+  return data.map((item) {
+    final patientData = patientMap[item['patient_id'] as String?];
+    return {
+      ...item,
+      'patient_name': patientData?['full_name'] ?? 'Guest',
+      'patient_avatar': patientData?['avatar_url'],
+    };
+  }).toList();
+});
 
 class DoctorAppointmentsScreen extends ConsumerStatefulWidget {
   const DoctorAppointmentsScreen({super.key});
@@ -11,7 +45,7 @@ class DoctorAppointmentsScreen extends ConsumerStatefulWidget {
 
 class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  DateTime _selectedDate = DateTime(2025, 5, 28);
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -25,31 +59,19 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     super.dispose();
   }
 
-  void _previousDay() {
-    setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)));
-  }
-
-  void _nextDay() {
-    setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)));
-  }
+  void _previousDay() => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)));
+  void _nextDay() => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)));
 
   @override
   Widget build(BuildContext context) {
+    final appointmentsAsync = ref.watch(doctorAppointmentsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          Positioned(
-            top: -150,
-            right: -100,
-            child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.08), size: 500),
-          ),
-          Positioned(
-            bottom: -100,
-            left: -50,
-            child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.03), size: 300),
-          ),
-
+          Positioned(top: -150, right: -100, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.08), size: 500)),
+          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.03), size: 300)),
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,26 +80,39 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
                 _buildHeader(),
                 const SizedBox(height: 32),
                 Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildStatsHeader(),
-                        const SizedBox(height: 32),
-                        _buildSectionTitle('SCHEDULE NAVIGATION'),
-                        const SizedBox(height: 16),
-                        _buildTabNavigation(),
-                        const SizedBox(height: 32),
-                        _buildDateSelector(),
-                        const SizedBox(height: 24),
-                        _buildTimeline(),
-                        const SizedBox(height: 32),
-                        _buildPerformanceCard(),
-                        const SizedBox(height: 40),
-                      ],
-                    ),
+                  child: appointmentsAsync.when(
+                    data: (appointments) {
+                      final today = DateTime.now();
+                      final todayAppts = appointments.where((a) {
+                        final d = DateTime.parse(a['appointment_date']);
+                        return d.year == today.year && d.month == today.day;
+                      }).toList();
+                      final pending = appointments.where((a) => a['status'] == 'pending' || a['status'] == 'emergency_request').toList();
+
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildStatsHeader(todayCount: todayAppts.length, pendingCount: pending.length),
+                            const SizedBox(height: 32),
+                            _buildSectionTitle('SCHEDULE NAVIGATION'),
+                            const SizedBox(height: 16),
+                            _buildTabNavigation(),
+                            const SizedBox(height: 32),
+                            _buildDateSelector(),
+                            const SizedBox(height: 24),
+                            _buildTimeline(appointments),
+                            const SizedBox(height: 32),
+                            _buildPerformanceCard(appointments),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Center(child: Text('Error: $e', style: TextStyle(color: AppColors.error))),
                   ),
                 ),
               ],
@@ -114,19 +149,18 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
 
   Widget _buildCircleIconButton(IconData icon) {
     return Container(
-      width: 48,
-      height: 48,
+      width: 48, height: 48,
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
       child: Icon(icon, color: AppColors.textPrimaryOf(context), size: 20),
     );
   }
 
-  Widget _buildStatsHeader() {
+  Widget _buildStatsHeader({required int todayCount, required int pendingCount}) {
     return Row(
       children: [
-        _buildStatCard('TODAY', '8', AppColors.primary, Icons.calendar_today_rounded),
+        _buildStatCard('TODAY', '$todayCount', AppColors.primary, Icons.calendar_today_rounded),
         const SizedBox(width: 16),
-        _buildStatCard('PENDING', '5', AppColors.warning, Icons.hourglass_empty_rounded),
+        _buildStatCard('PENDING', '$pendingCount', AppColors.warning, Icons.hourglass_empty_rounded),
       ],
     );
   }
@@ -192,38 +226,80 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     );
   }
 
-  Widget _buildTimeline() {
-    final appointments = [
-      {'time': '09:30 AM', 'name': 'Sarah Johnson', 'type': 'VIDEO CONSULTATION', 'status': 'COMPLETED', 'color': AppColors.success},
-      {'time': '10:45 AM', 'name': 'Emily Davis', 'type': 'CLINICAL REVIEW', 'status': 'UPCOMING', 'color': AppColors.primary},
-      {'time': '12:00 PM', 'name': 'CLINICAL BREAK', 'type': '', 'status': 'BREAK', 'color': AppColors.warning},
-      {'time': '02:15 PM', 'name': 'Michael Brown', 'type': 'FOLLOW-UP', 'status': 'UPCOMING', 'color': AppColors.primary},
-      {'time': '04:30 PM', 'name': 'Jessica Lee', 'type': 'NEW CONSULTATION', 'status': 'UPCOMING', 'color': AppColors.primary},
-    ];
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'completed': return AppColors.success;
+      case 'confirmed': return AppColors.primary;
+      case 'ongoing': return AppColors.info;
+      case 'pending': return AppColors.warning;
+      case 'emergency_request': return AppColors.error;
+      case 'emergency_accepted': return AppColors.success;
+      case 'emergency_declined': return AppColors.error;
+      case 'cancelled': return AppColors.textTertiaryOf(context);
+      default: return AppColors.textSecondaryOf(context);
+    }
+  }
+
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'completed': return 'COMPLETED';
+      case 'confirmed': return 'CONFIRMED';
+      case 'ongoing': return 'ONGOING';
+      case 'pending': return 'PENDING';
+      case 'emergency_request': return 'EMERGENCY';
+      case 'emergency_accepted': return 'ACCEPTED';
+      case 'emergency_declined': return 'DECLINED';
+      case 'cancelled': return 'CANCELLED';
+      case 'rescheduled': return 'RESCHEDULED';
+      default: return status.toUpperCase();
+    }
+  }
+
+  Widget _buildTimeline(List<Map<String, dynamic>> allAppointments) {
+    final filtered = allAppointments.where((a) {
+      final d = DateTime.parse(a['appointment_date']);
+      return d.year == _selectedDate.year && d.month == _selectedDate.month && d.day == _selectedDate.day;
+    }).toList();
+
+    if (filtered.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(40),
+        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(Icons.event_available_rounded, size: 48, color: AppColors.textTertiaryOf(context)),
+              const SizedBox(height: 16),
+              Text('No appointments for this day', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
-          for (int i = 0; i < appointments.length; i++)
+          for (int i = 0; i < filtered.length; i++)
             _buildTimelineItem(
-              '${appointments[i]['time']}',
-              '${appointments[i]['name']}',
-              '${appointments[i]['type']}',
-              '${appointments[i]['status']}',
-              appointments[i]['color'] as Color,
-              AppColors.primary,
+              DateFormat('hh:mm a').format(DateTime.parse(filtered[i]['appointment_date'])),
+              filtered[i]['patient_name'] ?? 'Guest',
+              filtered[i]['consultation_mode'] ?? 'consultation',
+              filtered[i]['status'],
+              _statusColor(filtered[i]['status']),
               isFirst: i == 0,
-              isLast: i == appointments.length - 1,
-              isBreak: appointments[i]['status'] == 'BREAK',
+              isLast: i == filtered.length - 1,
             ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineItem(String time, String name, String type, String status, Color color, Color primaryColor, {bool isFirst = false, bool isLast = false, bool isBreak = false}) {
+  Widget _buildTimelineItem(String time, String name, String type, String status, Color color, {bool isFirst = false, bool isLast = false}) {
+    final statusLabel = _statusLabel(status);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -231,7 +307,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         Column(
           children: [
             Container(width: 12, height: 12, decoration: BoxDecoration(color: AppColors.surfaceOf(context), shape: BoxShape.circle, border: Border.all(color: color, width: 3))),
-            if (!isLast) Container(width: 2, height: isBreak ? 50 : 90, color: AppColors.borderLightOf(context)),
+            if (!isLast) Container(width: 2, height: 90, color: AppColors.borderLightOf(context)),
           ],
         ),
         const SizedBox(width: 20),
@@ -239,37 +315,44 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
           child: Container(
             margin: const EdgeInsets.only(bottom: 24),
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: isBreak ? AppColors.warningLightOf(context) : AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: isBreak ? AppColors.warningLightOf(context) : AppColors.borderLightOf(context))),
-            child: isBreak
-                ? Row(children: [Icon(Icons.coffee_rounded, color: AppColors.warning, size: 16), const SizedBox(width: 12), Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.textPrimaryOf(context)))])
-                : Row(
+            decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: color.withValues(alpha: 0.1),
+                  child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: AppColors.primary,
-                        child: Text('P', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-                            const SizedBox(height: 2),
-                            Text(type, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-                          ],
-                        ),
-                      ),
-                      Container(width: 36, height: 36, decoration: BoxDecoration(color: (status == 'COMPLETED' ? AppColors.success : primaryColor).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: Icon(status == 'COMPLETED' ? Icons.check_rounded : Icons.videocam_rounded, color: status == 'COMPLETED' ? AppColors.success : primaryColor, size: 18)),
+                      Text(name, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+                      const SizedBox(height: 2),
+                      Text(type.toUpperCase(), style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                     ],
                   ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                  child: Text(statusLabel, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900)),
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPerformanceCard() {
+  Widget _buildPerformanceCard(List<Map<String, dynamic>> allAppointments) {
+    final total = allAppointments.length;
+    final completed = allAppointments.where((a) => a['status'] == 'completed').length;
+    final pct = total > 0 ? ((completed / total) * 100).round() : 0;
+    final remaining = total - completed;
+
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(color: AppColors.slate800, borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: AppColors.slate800.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))]),
@@ -281,9 +364,12 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
               children: [
                 const Text('DAILY PROGRESS', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                 const SizedBox(height: 8),
-                const Text('37% Completed', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                Text('$pct% Completed', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
                 const SizedBox(height: 4),
-                const Text('Keep going! You have 5 more clinical sessions today.', style: TextStyle(color: Colors.white60, fontSize: 12, height: 1.4, fontWeight: FontWeight.w500)),
+                Text(
+                  remaining > 0 ? 'Keep going! You have $remaining more clinical sessions today.' : 'All sessions completed for today!',
+                  style: const TextStyle(color: Colors.white60, fontSize: 12, height: 1.4, fontWeight: FontWeight.w500),
+                ),
               ],
             ),
           ),
@@ -291,8 +377,17 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
           Stack(
             alignment: Alignment.center,
             children: [
-              SizedBox(width: 70, height: 70, child: CircularProgressIndicator(value: 0.37, strokeWidth: 8, backgroundColor: Colors.white.withValues(alpha: 0.1), valueColor: const AlwaysStoppedAnimation(AppColors.success), strokeCap: StrokeCap.round)),
-              const Text('37%', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900)),
+              SizedBox(
+                width: 70, height: 70,
+                child: CircularProgressIndicator(
+                  value: total > 0 ? completed / total : 0,
+                  strokeWidth: 8,
+                  backgroundColor: Colors.white.withValues(alpha: 0.1),
+                  valueColor: const AlwaysStoppedAnimation(AppColors.success),
+                  strokeCap: StrokeCap.round,
+                ),
+              ),
+              Text('$pct%', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900)),
             ],
           ),
         ],
@@ -309,12 +404,8 @@ class _MeshCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: color, blurRadius: 80, spreadRadius: 40)],
-      ),
+      width: size, height: size,
+      decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: color, blurRadius: 80, spreadRadius: 40)]),
     );
   }
 }

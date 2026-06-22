@@ -106,7 +106,8 @@ final goRouter = GoRouter(
       '/session-expired',
     }.contains(state.matchedLocation);
     final extra = state.extra;
-    final isEmergencyAccess = state.uri.queryParameters['emergency'] == 'true' ||
+    final isEmergencyAccess =
+        state.uri.queryParameters['emergency'] == 'true' ||
         (extra is Map<String, dynamic> && extra['isEmergency'] == true);
 
     final isAdminLogin = state.matchedLocation == '/admin-login';
@@ -128,8 +129,9 @@ final goRouter = GoRouter(
 
     if (!loggedIn) {
       if (isSplash || isOnboarding || isPublicAuthRoute) return null;
-      
-      final allowsGuestEmergency = isEmergencyAccess &&
+
+      final allowsGuestEmergency =
+          isEmergencyAccess &&
           {
             '/doctor-search',
             '/doctor-details',
@@ -138,10 +140,10 @@ final goRouter = GoRouter(
             '/booking-confirmed',
           }.contains(state.matchedLocation);
       if (allowsGuestEmergency) return null;
-      
+
       final prefs = await SharedPreferences.getInstance();
       final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
-      
+
       if (!hasSeenOnboarding) {
         return isSplash ? null : '/onboarding';
       }
@@ -154,13 +156,13 @@ final goRouter = GoRouter(
       await supabase.auth.signOut();
       return '/login';
     }
-    
+
     if (isLoggingIn || isOnboarding || isRegistering || isSplash) {
       return role == 'doctor' ? '/doctor_dashboard' : '/patient_dashboard';
     }
 
     final location = state.matchedLocation;
-    
+
     if (location == '/doctor_dashboard' && role == 'patient') {
       return '/patient_dashboard';
     }
@@ -169,7 +171,7 @@ final goRouter = GoRouter(
       final profileData = await supabase
           .from('profiles')
           .select('verification_status')
-          .eq('id', session!.user.id)
+          .eq('id', session.user.id)
           .maybeSingle();
       final status = profileData?['verification_status'] as String?;
       if (status != 'approved') {
@@ -192,10 +194,7 @@ final goRouter = GoRouter(
       path: '/admin-login',
       builder: (context, state) => const AdminLoginScreen(),
     ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(
       path: '/forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
@@ -426,10 +425,7 @@ final goRouter = GoRouter(
       path: '/privacy-policy',
       builder: (context, state) => const PrivacyPolicyScreen(),
     ),
-    GoRoute(
-      path: '/about',
-      builder: (context, state) => const AboutScreen(),
-    ),
+    GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
     GoRoute(
       path: '/admin/audit-timeline',
       builder: (context, state) => const AdminAuditTimelineScreen(),
@@ -600,9 +596,6 @@ final goRouter = GoRouter(
       path: '/pricing-plans',
       builder: (context, state) => const PricingPlansScreen(),
     ),
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashScreen(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
   ],
 );

@@ -7,20 +7,20 @@ create extension if not exists "uuid-ossp";
 
 -- Create Enums
 create type user_role as enum ('patient', 'doctor', 'admin');
-create type verification_status as enum ('unsubmitted', 'pending', 'approved', 'rejected');
+create type verification_status as enum ('unsubmitted', 'pending', 'under_review', 'approved', 'rejected');
 create type subscription_status as enum ('inactive', 'active', 'expiring_soon', 'expired', 'overdue', 'suspended');
 create type fee_status as enum ('none', 'awaiting_admin_proposal', 'awaiting_doctor_approval', 'active');
 create type forum_post_status as enum ('approved', 'pending', 'rejected');
 create type forum_report_status as enum ('pending', 'reviewed', 'action_taken', 'dismissed');
 create type account_status as enum ('active', 'suspended', 'banned');
-create type payment_status as enum ('pending', 'approved', 'rejected');
+create type payment_status as enum ('pending', 'approved', 'rejected', 'disputed');
 create type payment_method as enum ('digital', 'manual');
 create type record_type as enum ('lab_result', 'prescription', 'imaging', 'immunization', 'clinical_note', 'other');
 create type audit_action_type as enum ('verification', 'financial', 'security', 'system');
 create type audit_severity as enum ('info', 'moderate', 'high');
 create type payout_status as enum ('pending', 'approved', 'rejected', 'failed');
 create type refund_status as enum ('pending', 'approved', 'rejected');
-create type dispute_status as enum ('open', 'under_review', 'resolved', 'dismissed');
+create type dispute_status as enum ('open', 'in_review', 'under_review', 'resolved', 'dismissed');
 
 -- Profiles table
 create table profiles (
@@ -139,10 +139,10 @@ on conflict (id) do nothing;
 create table appointments (
   id uuid default uuid_generate_v4() primary key,
   created_at timestamp with time zone default now(),
-  patient_id uuid references profiles(id), 
-  doctor_id uuid references profiles(id) not null,
+  patient_id uuid references profiles(id) on delete set null,
+  doctor_id uuid references profiles(id) on delete cascade not null,
   appointment_date timestamp with time zone not null,
-  status text default 'pending' check (status in ('pending', 'emergency_pending', 'emergency_request', 'emergency_accepted', 'emergency_declined', 'confirmed', 'cancelled', 'completed', 'ongoing')),
+  status text default 'pending' check (status in ('pending', 'emergency_pending', 'emergency_request', 'emergency_accepted', 'emergency_declined', 'confirmed', 'cancelled', 'completed', 'ongoing', 'rescheduled')),
   reason text,
   consultation_mode text check (consultation_mode in ('video', 'audio', 'text', 'in_person')),
   duration_minutes integer default 15,
@@ -160,19 +160,19 @@ create table appointments (
 create table payments (
   id uuid default uuid_generate_v4() primary key,
   created_at timestamp with time zone default now(),
-  user_id uuid references profiles(id) not null,
+  user_id uuid references profiles(id) on delete cascade not null,
   amount numeric not null,
   status payment_status default 'pending',
   method payment_method not null,
   receipt_url text,
   transaction_id text,
-  processed_by uuid references profiles(id),
-  recipient_id uuid references profiles(id),
+  processed_by uuid references profiles(id) on delete set null,
+  recipient_id uuid references profiles(id) on delete set null,
   duration_minutes integer,
   rejection_reason text
 );
 
-alter table appointments add foreign key (payment_id) references payments(id);
+alter table appointments add foreign key (payment_id) references payments(id) on delete set null;
 
 -- Consultation Credits / Time Balances
 create table time_balances (
@@ -713,7 +713,46 @@ CREATE TRIGGER on_doctor_promotion
   FOR EACH ROW
   EXECUTE PROCEDURE public.initialize_doctor_schedule();
 
--- (Other triggers for handle_new_user, handle_verification_upload etc. would be here)
+-- Trigger: increment review_count on INSERT/DELETE from reviews
+CREATE OR REPLACE FUNCTION public.update_doctor_review_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE profiles SET review_count = review_count + 1 WHERE id = NEW.doctor_id;
+    UPDATE profiles SET rating = (
+      SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE doctor_id = NEW.doctor_id
+    ) WHERE id = NEW.doctor_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE profiles SET review_count = review_count - 1 WHERE id = OLD.doctor_id;
+    UPDATE profiles SET rating = (
+      SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE doctor_id = OLD.doctor_id
+    ) WHERE id = OLD.doctor_id;
+  END IF;
+  RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE TRIGGER on_review_change
+  AFTER INSERT OR DELETE ON public.reviews
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.update_doctor_review_count();
+
+-- Trigger: increment consultation_counts when appointment status changes to 'completed'
+CREATE OR REPLACE FUNCTION public.update_doctor_consultation_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.status = 'completed' AND (OLD.status IS NULL OR OLD.status != 'completed') THEN
+    UPDATE profiles SET consultation_counts = consultation_counts + 1 WHERE id = NEW.doctor_id;
+    UPDATE profiles SET patients_helped = patients_helped + 1 WHERE id = NEW.doctor_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE TRIGGER on_appointment_completed
+  AFTER UPDATE OF status ON public.appointments
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.update_doctor_consultation_count();
 
 CREATE OR REPLACE FUNCTION increment_time_balance(
     p_patient_id UUID,

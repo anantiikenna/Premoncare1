@@ -157,6 +157,192 @@ GRANT EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) TO 
 -- ============================================================
 
 -- ============================================================
+-- FIX: Add missing enum values
+-- ============================================================
+
+-- verification_status: add 'under_review' (used by doctor_verification_panel.dart)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'under_review' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'verification_status')) THEN
+    ALTER TYPE public.verification_status ADD VALUE 'under_review' AFTER 'pending';
+  END IF;
+END $$;
+
+-- dispute_status: add 'in_review' (used by dispute_resolution_screen.dart and financial_moderation_screen.dart)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'in_review' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'dispute_status')) THEN
+    ALTER TYPE public.dispute_status ADD VALUE 'in_review' AFTER 'open';
+  END IF;
+END $$;
+
+-- payment_status: add 'disputed' (used for dispute workflows)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'disputed' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'payment_status')) THEN
+    ALTER TYPE public.payment_status ADD VALUE 'disputed' AFTER 'rejected';
+  END IF;
+END $$;
+
+-- ============================================================
+-- FIX: Update appointments status CHECK to include 'rescheduled'
+-- (used by admin_reports_screen.dart)
+-- ============================================================
+ALTER TABLE public.appointments DROP CONSTRAINT IF EXISTS appointments_status_check;
+ALTER TABLE public.appointments
+  ADD CONSTRAINT appointments_status_check
+  CHECK (status IN (
+    'pending',
+    'emergency_pending',
+    'emergency_request',
+    'emergency_accepted',
+    'emergency_declined',
+    'confirmed',
+    'cancelled',
+    'completed',
+    'ongoing',
+    'rescheduled'
+  ));
+
+-- ============================================================
+-- FIX: Add missing RLS INSERT/UPDATE policies for appointments
+-- ============================================================
+DROP POLICY IF EXISTS "Patients can create own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Doctors can update own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Patients can update own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Admins can manage all appointments" ON public.appointments;
+
+CREATE POLICY "Patients can create own appointments"
+  ON public.appointments FOR INSERT
+  WITH CHECK (auth.uid() = patient_id);
+
+CREATE POLICY "Doctors can update own appointments"
+  ON public.appointments FOR UPDATE
+  USING (auth.uid() = doctor_id)
+  WITH CHECK (auth.uid() = doctor_id);
+
+CREATE POLICY "Patients can update own appointments"
+  ON public.appointments FOR UPDATE
+  USING (auth.uid() = patient_id)
+  WITH CHECK (auth.uid() = patient_id);
+
+CREATE POLICY "Admins can manage all appointments"
+  ON public.appointments FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- ============================================================
+-- FIX: Add missing RLS policies for time_balances
+-- ============================================================
+DROP POLICY IF EXISTS "Patients can update own time balances" ON public.time_balances;
+DROP POLICY IF EXISTS "Doctors can update own time balances" ON public.time_balances;
+
+CREATE POLICY "Patients can update own time balances"
+  ON public.time_balances FOR UPDATE
+  USING (auth.uid() = patient_id)
+  WITH CHECK (auth.uid() = patient_id);
+
+CREATE POLICY "Doctors can update own time balances"
+  ON public.time_balances FOR UPDATE
+  USING (auth.uid() = doctor_id)
+  WITH CHECK (auth.uid() = doctor_id);
+
+-- ============================================================
+-- FIX: Add missing RLS policies for reviews
+-- ============================================================
+DROP POLICY IF EXISTS "Patients can delete own reviews" ON public.reviews;
+
+CREATE POLICY "Patients can delete own reviews"
+  ON public.reviews FOR DELETE
+  USING (auth.uid() = patient_id);
+
+-- ============================================================
+-- PERFORMANCE INDEXES
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles (role);
+CREATE INDEX IF NOT EXISTS idx_profiles_verification_status ON public.profiles (verification_status);
+CREATE INDEX IF NOT EXISTS idx_profiles_is_online ON public.profiles (is_online) WHERE is_online = true;
+CREATE INDEX IF NOT EXISTS idx_profiles_is_emergency ON public.profiles (is_emergency) WHERE is_emergency = true;
+
+CREATE INDEX IF NOT EXISTS idx_appointments_patient_id ON public.appointments (patient_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_status ON public.appointments (status);
+CREATE INDEX IF NOT EXISTS idx_appointments_doctor_id ON public.appointments (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_created_at ON public.appointments (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_payments_user_id ON public.payments (user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON public.payments (status);
+CREATE INDEX IF NOT EXISTS idx_payments_recipient_id ON public.payments (recipient_id);
+
+CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages (sender_id);
+CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON public.messages (receiver_id);
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.messages (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications (user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON public.notifications (is_read) WHERE is_read = false;
+
+CREATE INDEX IF NOT EXISTS idx_medical_records_patient_id ON public.medical_records (patient_id);
+
+CREATE INDEX IF NOT EXISTS idx_time_balances_patient_id ON public.time_balances (patient_id);
+CREATE INDEX IF NOT EXISTS idx_time_balances_doctor_id ON public.time_balances (doctor_id);
+
+CREATE INDEX IF NOT EXISTS idx_forum_posts_category_id ON public.forum_posts (category_id);
+CREATE INDEX IF NOT EXISTS idx_forum_posts_author_id ON public.forum_posts (author_id);
+CREATE INDEX IF NOT EXISTS idx_forum_replies_post_id ON public.forum_replies (post_id);
+CREATE INDEX IF NOT EXISTS idx_forum_replies_author_id ON public.forum_replies (author_id);
+
+CREATE INDEX IF NOT EXISTS idx_disputes_status ON public.disputes (status);
+CREATE INDEX IF NOT EXISTS idx_disputes_user_id ON public.disputes (user_id);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_admin_id ON public.audit_logs (admin_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON public.audit_logs (created_at DESC);
+
+-- ============================================================
+-- MISSING TRIGGERS: review_count, consultation_counts, time_balances
+-- ============================================================
+
+-- Trigger: increment review_count on INSERT/DELETE from reviews
+CREATE OR REPLACE FUNCTION public.update_doctor_review_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE profiles SET review_count = review_count + 1 WHERE id = NEW.doctor_id;
+    UPDATE profiles SET rating = (
+      SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE doctor_id = NEW.doctor_id
+    ) WHERE id = NEW.doctor_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE profiles SET review_count = review_count - 1 WHERE id = OLD.doctor_id;
+    UPDATE profiles SET rating = (
+      SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE doctor_id = OLD.doctor_id
+    ) WHERE id = OLD.doctor_id;
+  END IF;
+  RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS on_review_change ON public.reviews;
+CREATE TRIGGER on_review_change
+  AFTER INSERT OR DELETE ON public.reviews
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.update_doctor_review_count();
+
+-- Trigger: increment consultation_counts when appointment status changes to 'completed'
+CREATE OR REPLACE FUNCTION public.update_doctor_consultation_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.status = 'completed' AND (OLD.status IS NULL OR OLD.status != 'completed') THEN
+    UPDATE profiles SET consultation_counts = consultation_counts + 1 WHERE id = NEW.doctor_id;
+    UPDATE profiles SET patients_helped = patients_helped + 1 WHERE id = NEW.doctor_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS on_appointment_completed ON public.appointments;
+CREATE TRIGGER on_appointment_completed
+  AFTER UPDATE OF status ON public.appointments
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.update_doctor_consultation_count();
+
+-- ============================================================
 -- NOTE: auth_leaked_password_protection
 -- Enable in Supabase Dashboard → Auth → Settings → Password
 -- Toggle "Leaked password protection" ON

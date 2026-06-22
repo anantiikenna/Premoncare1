@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,8 +8,9 @@ import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
+import 'patient_providers.dart';
 
-class ConfirmBookingScreen extends StatefulWidget {
+class ConfirmBookingScreen extends ConsumerStatefulWidget {
   final String doctorId;
   final String doctorName;
   final int durationMinutes;
@@ -25,10 +27,10 @@ class ConfirmBookingScreen extends StatefulWidget {
   });
 
   @override
-  State<ConfirmBookingScreen> createState() => _ConfirmBookingScreenState();
+  ConsumerState<ConfirmBookingScreen> createState() => _ConfirmBookingScreenState();
 }
 
-class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
+class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   bool _isLoading = false;
   String? _error;
 
@@ -74,6 +76,8 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
 
       final insertResponse = await supabase.from('appointments').insert(insertPayload).select('id').single();
       final appointmentId = insertResponse['id'] as String;
+
+      ref.invalidate(patientAppointmentsProvider);
 
       try {
         await supabase.from('notifications').insert({

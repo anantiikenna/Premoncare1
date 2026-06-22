@@ -148,6 +148,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
                   .update({'is_read': true})
                   .eq('user_id', user.id)
                   .eq('is_read', false);
+              ref.invalidate(notificationsProvider);
             },
             child: Text('Mark all read', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
           ),
@@ -218,6 +219,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
                         .from('notifications')
                         .update({'is_read': true})
                         .eq('id', notif['id']);
+                    ref.invalidate(notificationsProvider);
                   }
                 },
                 child: Container(
