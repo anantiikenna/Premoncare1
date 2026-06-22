@@ -112,8 +112,25 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
-                await supabase.auth.signOut();
-                if (context.mounted) context.go('/admin-login');
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Log Out'),
+                    content: const Text('Are you sure you want to log out?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                        child: const Text('Log Out'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed == true) {
+                  await supabase.auth.signOut();
+                  if (context.mounted) context.go('/admin-login');
+                }
               },
             ),
             const SizedBox(height: 24),
