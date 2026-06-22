@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -53,6 +54,7 @@ function getExpiryText(doctor: Profile): string {
 }
 
 export default function AdminSubscriptionsPage() {
+    const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [doctors, setDoctors] = useState<Profile[]>([])
     const [searchTerm, setSearchTerm] = useState('')
@@ -218,12 +220,12 @@ export default function AdminSubscriptionsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" className="rounded-2xl border-slate-200 shadow-sm h-12 px-6 font-bold text-slate-600 gap-2"
-                        onClick={() => toast.info('Comprehensive subscription analytics are being developed. Use the overview cards to track key metrics.')}>
+                        onClick={() => router.push('/admin/reports')}>
                         <BarChart3 className="h-4 w-4" />
                         Full Analytics
                     </Button>
                     <Button className="rounded-2xl shadow-lg shadow-primary/20 h-12 px-8 font-black uppercase tracking-widest text-[11px] gap-2"
-                        onClick={() => toast.info('Billing configuration is being developed. Manage subscriptions directly from the table below.')}>
+                        onClick={() => router.push('/admin/settings')}>
                         <CreditCard className="h-4 w-4" />
                         Billing Settings
                     </Button>
@@ -237,7 +239,7 @@ export default function AdminSubscriptionsPage() {
                     { label: 'Active', val: stats.active, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50', trend: stats.totalSubscribers ? `${((stats.active / stats.totalSubscribers) * 100).toFixed(1)}%` : '0%', sub: 'of total' },
                     { label: 'Expiring Soon', val: stats.expiringSoon, icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50', trend: 'Next 7 days', sub: 'Action required' },
                     { label: 'Expired / Overdue', val: stats.expired + stats.overdue, icon: AlertCircle, color: 'text-rose-500', bg: 'bg-rose-50', trend: 'Overdue', sub: 'Requires attention' },
-                    { label: 'Revenue (Est.)', val: `₦${(stats.active * 25000).toLocaleString()}`, icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10', trend: 'This month', sub: 'Based on active' },
+                    { label: 'Revenue (Est.)', val: `₦${stats.active > 0 ? '—' : '0'}`, icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10', trend: 'Per plan', sub: 'Set via billing' },
                 ].map((stat, i) => (
                     <Card key={i} className="rounded-[2rem] border-slate-100 shadow-sm hover:shadow-xl transition-all group">
                         <CardContent className="p-8 space-y-4">
@@ -469,7 +471,7 @@ export default function AdminSubscriptionsPage() {
                                 key={i}
                                 variant="ghost"
                                 className="h-20 w-full justify-start rounded-[2rem] bg-white border border-slate-100 hover:border-primary/20 hover:shadow-lg transition-all p-6 group"
-                                onClick={() => toast.info(`Navigating to ${action.title}...`)}
+                                onClick={() => router.push(action.route)}
                             >
                                 <div className={`h-10 w-10 rounded-xl ${action.bg} flex items-center justify-center ${action.color} group-hover:scale-110 transition-transform`}>
                                     <action.icon className="h-5 w-5" />

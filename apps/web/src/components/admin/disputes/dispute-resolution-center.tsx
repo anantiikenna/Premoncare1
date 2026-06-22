@@ -462,7 +462,7 @@ export function DisputeResolutionCenter() {
                         <p className="font-bold text-slate-900 leading-snug mb-4">
                             We ensure fair, secure and transparent resolution for all parties involved.
                         </p>
-                        <button className="text-indigo-600 font-bold flex items-center gap-1 hover:text-indigo-700">
+                        <button className="text-indigo-600 font-bold flex items-center gap-1 hover:text-indigo-700" onClick={() => window.open('https://www.premoncare.com/disputes', '_blank')}>
                             Learn more <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>

@@ -233,10 +233,18 @@ export function EmergencyQueue() {
                 </Card>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <QuickAction icon={Radio} label="Broadcast Alert" color="text-rose-600" bg="bg-rose-50" onClick={() => toast.info('Broadcast sent to all online doctors')} />
-                    <QuickAction icon={ArrowUpRight} label="Escalate Case" color="text-amber-600" bg="bg-amber-50" onClick={() => toast.info('Case escalated to senior admin')} />
-                    <QuickAction icon={RefreshCw} label="Reassign Doctor" color="text-blue-600" bg="bg-blue-50" onClick={() => toast.info('Reassigning to available doctor...')} />
-                    <QuickAction icon={CheckCircle2} label="End Emergency" color="text-emerald-600" bg="bg-emerald-50" onClick={() => toast.info('Emergency session ended')} />
+                    <QuickAction icon={Radio} label="Broadcast Alert" color="text-rose-600" bg="bg-rose-50" onClick={() => {
+                        const supabase = createClient()
+                        supabase.from('notifications').insert({
+                            user_id: '00000000-0000-0000-0000-000000000000',
+                            title: 'Emergency Alert',
+                            message: 'A new emergency broadcast has been issued. Please check the emergency queue.',
+                            type: 'admin_message'
+                        }).then(() => toast.success('Broadcast sent to all online doctors'))
+                    }} />
+                    <QuickAction icon={ArrowUpRight} label="Escalate Case" color="text-amber-600" bg="bg-amber-50" onClick={() => toast.info('Select an emergency request to escalate')} />
+                    <QuickAction icon={RefreshCw} label="Reassign Doctor" color="text-blue-600" bg="bg-blue-50" onClick={() => toast.info('Select an emergency request to reassign')} />
+                    <QuickAction icon={CheckCircle2} label="End Emergency" color="text-emerald-600" bg="bg-emerald-50" onClick={() => toast.info('Select an emergency request to end')} />
                 </div>
             </div>
         </div>

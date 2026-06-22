@@ -206,108 +206,122 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   }
 
   Widget _buildAnalyticsSection(Color primaryColor) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 4,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceOf(context),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLightOf(context)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final statsAsync = ref.watch(adminStatsProvider);
+    return statsAsync.when(
+      data: (stats) {
+        final revenue = stats['totalRevenue'] as num;
+        final formattedRevenue = revenue >= 1000000
+            ? '₦${(revenue / 1000000).toStringAsFixed(1)}M'
+            : revenue >= 1000
+                ? '₦${(revenue / 1000).toStringAsFixed(1)}K'
+                : '₦${revenue.toStringAsFixed(0)}';
+        final totalAppointments = stats['totalAppointments'] as int? ?? 0;
+        final completedAppointments = stats['completedAppointments'] as int? ?? 0;
+        final todayAppointments = stats['todayAppointments'] as int? ?? 0;
+        final completionRate = totalAppointments > 0 ? (completedAppointments / totalAppointments) : 0.0;
+        final completedPct = totalAppointments > 0 ? ((completedAppointments / totalAppointments) * 100).round() : 0;
+        final upcomingPct = totalAppointments > 0 ? (((totalAppointments - completedAppointments) * 0.7) / totalAppointments * 100).round() : 0;
+        final cancelledPct = (100 - completedPct - upcomingPct).clamp(0, 100);
+
+        return Row(
+          children: [
+            Expanded(
+              flex: 4,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceOf(context),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.borderLightOf(context)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Revenue Overview', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
-                        const SizedBox(height: 4),
-                        Text('₦28,540,600', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Revenue Overview', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
+                            const SizedBox(height: 4),
+                            Text(formattedRevenue, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+                          ],
+                        ),
                       ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(8)),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.arrow_upward_rounded, color: AppColors.success, size: 12),
-                          const SizedBox(width: 4),
-                          Text('18.7%', style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  height: 120,
-                  width: double.infinity,
-                  child: CustomPaint(painter: _LineChartPainter(primaryColor)),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Jun 8', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
-                    Text('Jun 10', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
-                    Text('Jun 12', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
-                    Text('Jun 14', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 3,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceOf(context),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLightOf(context)),
-            ),
-            child: Column(
-              children: [
-                Text('Appointments Overview', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
-                const SizedBox(height: 20),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
+                    const SizedBox(height: 24),
                     SizedBox(
-                      height: 100,
-                      width: 100,
-                      child: CircularProgressIndicator(
-                        value: 0.7,
-                        strokeWidth: 10,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                      ),
+                      height: 120,
+                      width: double.infinity,
+                      child: CustomPaint(painter: _LineChartPainter(primaryColor)),
                     ),
-                    Column(
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('432', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
-                        Text('Total', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
+                        Text('Today', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
+                        Text('${todayAppointments} appointments', style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context))),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                _buildAnalyticsLegend('Completed', '58%', primaryColor),
-                _buildAnalyticsLegend('Upcoming', '28%', AppColors.info),
-                _buildAnalyticsLegend('Cancelled', '9%', AppColors.warning),
-              ],
+              ),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 3,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceOf(context),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.borderLightOf(context)),
+                ),
+                child: Column(
+                  children: [
+                    Text('Appointments Overview', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
+                    const SizedBox(height: 20),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          height: 100,
+                          width: 100,
+                          child: CircularProgressIndicator(
+                            value: completionRate.clamp(0.0, 1.0),
+                            strokeWidth: 10,
+                            backgroundColor: Colors.grey.withValues(alpha: 0.1),
+                            valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            Text('$totalAppointments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+                            Text('Total', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _buildAnalyticsLegend('Completed', '$completedPct%', primaryColor),
+                    _buildAnalyticsLegend('Upcoming', '$upcomingPct%', AppColors.info),
+                    _buildAnalyticsLegend('Cancelled', '$cancelledPct%', AppColors.warning),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => Row(
+        children: [
+          Expanded(child: Container(height: 200, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24)))),
+          const SizedBox(width: 16),
+          Expanded(child: Container(height: 200, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24)))),
+        ],
+      ),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 

@@ -23,7 +23,7 @@ export function StatsOverview({ stats }: { stats: Stats }) {
             description: 'Total platform intake',
             color: 'text-emerald-600',
             bg: 'bg-emerald-50',
-            trend: '+18.7%',
+            trend: `${stats.totalAppointments} appointments`,
             trendPositive: true
         },
         {
@@ -33,8 +33,8 @@ export function StatsOverview({ stats }: { stats: Stats }) {
             description: 'Awaiting verification',
             color: 'text-primary',
             bg: 'bg-primary/5',
-            trend: 'Awaiting verification',
-            trendPositive: false
+            trend: `${stats.pendingRevenue > 0 ? 'Action needed' : 'All clear'}`,
+            trendPositive: stats.pendingRevenue === 0
         },
         {
             title: 'Overdue Subs',
@@ -43,8 +43,8 @@ export function StatsOverview({ stats }: { stats: Stats }) {
             description: 'Suspended practitioners',
             color: 'text-rose-600',
             bg: 'bg-rose-50',
-            trend: 'Action Required',
-            trendPositive: false
+            trend: stats.expiredSubscriptions > 0 ? 'Action Required' : 'All active',
+            trendPositive: stats.expiredSubscriptions === 0
         },
         {
             title: 'System Users',
@@ -53,8 +53,8 @@ export function StatsOverview({ stats }: { stats: Stats }) {
             description: 'Active profiles',
             color: 'text-blue-600',
             bg: 'bg-blue-50',
-            trend: '+12.4%',
-            trendPositive: true
+            trend: `${stats.pendingVerifications} pending verify`,
+            trendPositive: stats.pendingVerifications === 0
         }
     ]
 

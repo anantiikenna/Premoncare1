@@ -12,7 +12,7 @@ import {
     Loader2, Search, MoreHorizontal, ShieldCheck, 
     UserX, ShieldAlert, RefreshCcw, Eye, 
     Filter, ArrowUpRight, TrendingUp, Users,
-    Stethoscope, User, Clock, AlertCircle
+    Stethoscope, User, Clock, AlertCircle, Download
 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -31,6 +31,8 @@ export function UserManagement() {
     const [users, setUsers] = useState<any[]>([])
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedRole, setSelectedRole] = useState('all')
+    const [accountStatusFilter, setAccountStatusFilter] = useState<string | null>(null)
+    const [verificationFilter, setVerificationFilter] = useState<string | null>(null)
     const [stats, setStats] = useState({
         total: 0,
         doctors: 0,
@@ -47,6 +49,14 @@ export function UserManagement() {
             
             if (selectedRole !== 'all') {
                 query = query.eq('role', selectedRole)
+            }
+            
+            if (accountStatusFilter) {
+                query = query.eq('account_status', accountStatusFilter)
+            }
+            
+            if (verificationFilter) {
+                query = query.eq('verification_status', verificationFilter)
             }
             
             if (searchTerm) {
@@ -74,7 +84,7 @@ export function UserManagement() {
         } finally {
             setLoading(false)
         }
-    }, [supabase, selectedRole, searchTerm])
+    }, [supabase, selectedRole, searchTerm, accountStatusFilter, verificationFilter])
 
     useEffect(() => {
         fetchUsers()
@@ -119,11 +129,11 @@ export function UserManagement() {
         <div className="space-y-8">
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <StatCard label="Total Users" value={stats.total} icon={Users} color="text-blue-600" bg="bg-blue-50" trend="+18.6%" />
-                <StatCard label="Doctors" value={stats.doctors} icon={Stethoscope} color="text-emerald-600" bg="bg-emerald-50" trend="+14.2%" />
-                <StatCard label="Patients" value={stats.patients} icon={User} color="text-violet-600" bg="bg-violet-50" trend="+19.3%" />
-                <StatCard label="Pending" value={stats.pending} icon={Clock} color="text-amber-600" bg="bg-amber-50" trend="-6.1%" />
-                <StatCard label="Suspended" value={stats.suspended} icon={AlertCircle} color="text-rose-600" bg="bg-rose-50" trend="-3.4%" />
+                <StatCard label="Total Users" value={stats.total} icon={Users} color="text-blue-600" bg="bg-blue-50" />
+                <StatCard label="Doctors" value={stats.doctors} icon={Stethoscope} color="text-emerald-600" bg="bg-emerald-50" />
+                <StatCard label="Patients" value={stats.patients} icon={User} color="text-violet-600" bg="bg-violet-50" />
+                <StatCard label="Pending" value={stats.pending} icon={Clock} color="text-amber-600" bg="bg-amber-50" />
+                <StatCard label="Suspended" value={stats.suspended} icon={AlertCircle} color="text-rose-600" bg="bg-rose-50" />
             </div>
 
             {/* Filters & Search */}
@@ -149,11 +159,23 @@ export function UserManagement() {
                     </div>
                     <Button
                         variant="outline"
-                        className="h-12 rounded-xl px-4 border-slate-200"
-                        onClick={() => toast.info('Advanced filtering options are being developed. Use the search bar to find users.')}
+                        className={`h-12 rounded-xl px-4 border-slate-200 ${accountStatusFilter || verificationFilter ? 'bg-primary/5 border-primary/20 text-primary' : ''}`}
+                        onClick={() => {
+                            if (accountStatusFilter || verificationFilter) {
+                                setAccountStatusFilter(null)
+                                setVerificationFilter(null)
+                                toast.success('Filters cleared')
+                            } else {
+                                setAccountStatusFilter('suspended')
+                                toast.info('Showing suspended accounts. Click again to clear.')
+                            }
+                        }}
                     >
                         <Filter className="h-4 w-4 mr-2" />
                         Filters
+                        {(accountStatusFilter || verificationFilter) && (
+                            <span className="ml-2 h-5 w-5 rounded-full bg-primary text-white text-[10px] font-black flex items-center justify-center">1</span>
+                        )}
                     </Button>
                 </div>
             </div>
@@ -228,7 +250,9 @@ export function UserManagement() {
                                         <td className="p-6">
                                             <div className="flex flex-col gap-1">
                                                 <span className="text-xs font-bold text-slate-600">Joined: {new Date(user.created_at).toLocaleDateString()}</span>
-                                                <span className="text-[10px] font-medium text-slate-400 italic">Last login: 2 days ago</span>
+                                                {user.last_seen && (
+                                                    <span className="text-[10px] font-medium text-slate-400">Last active: {new Date(user.last_seen).toLocaleDateString()}</span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="p-6 text-right">
@@ -258,7 +282,7 @@ export function UserManagement() {
                                                     <DropdownMenuLabel className="text-[10px] font-black uppercase text-slate-400 px-3 py-2">System Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem
                                                         className="rounded-xl px-3 py-2.5 text-sm font-bold gap-3"
-                                                        onClick={() => toast.info('Direct profile editing from this panel is under development. Use the user\'s profile page to make changes.')}
+                                                        onClick={() => toast.info(`View ${user.full_name}'s profile via the user detail drawer`)}
                                                     >
                                                         <RefreshCcw className="h-4 w-4 text-primary" />
                                                         Edit Profile Info
@@ -291,21 +315,12 @@ export function UserManagement() {
     )
 }
 
-function StatCard({ label, value, icon: Icon, color, bg, trend }: { label: string, value: number, icon: any, color: string, bg: string, trend: string }) {
-    const isPositive = trend.startsWith('+')
-    
+function StatCard({ label, value, icon: Icon, color, bg }: { label: string, value: number, icon: any, color: string, bg: string }) {
     return (
         <div className="bg-white p-6 rounded-[2rem] border shadow-sm group hover:shadow-xl transition-all duration-500">
             <div className="flex justify-between items-start">
                 <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110", bg)}>
                     <Icon className={cn("h-6 w-6", color)} />
-                </div>
-                <div className={cn(
-                    "flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-black",
-                    isPositive ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-                )}>
-                    {isPositive ? <TrendingUp className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
-                    {trend}
                 </div>
             </div>
             <div className="mt-4">

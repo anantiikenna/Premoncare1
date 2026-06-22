@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 export default function AdminEmergencyQueuePage() {
     const router = useRouter()
     const [loading, setLoading] = useState(true)
+    const [autoAssigning, setAutoAssigning] = useState(false)
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -24,6 +25,57 @@ export default function AdminEmergencyQueuePage() {
         }
         checkAuth()
     }, [router])
+
+    const handleRefresh = () => {
+        window.location.reload()
+    }
+
+    const handleAutoAssignAll = async () => {
+        setAutoAssigning(true)
+        try {
+            const supabase = createClient()
+            const { data: pending } = await supabase
+                .from('appointments')
+                .select('id')
+                .eq('type', 'emergency')
+                .eq('status', 'emergency_request')
+                .is('doctor_id', null)
+                .limit(10)
+
+            if (!pending || pending.length === 0) {
+                toast.info('No unassigned emergency requests found')
+                return
+            }
+
+            const { data: onlineDoctors } = await supabase
+                .from('profiles')
+                .select('id, full_name')
+                .eq('role', 'doctor')
+                .eq('is_online', true)
+
+            if (!onlineDoctors || onlineDoctors.length === 0) {
+                toast.error('No doctors currently online')
+                return
+            }
+
+            let assigned = 0
+            for (let i = 0; i < Math.min(pending.length, onlineDoctors.length); i++) {
+                const { error } = await supabase
+                    .from('appointments')
+                    .update({ doctor_id: onlineDoctors[i].id, status: 'confirmed' })
+                    .eq('id', pending[i].id)
+                if (!error) assigned++
+            }
+
+            if (assigned > 0) {
+                toast.success(`Auto-assigned ${assigned} emergency request(s)`)
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Auto-assign failed')
+        } finally {
+            setAutoAssigning(false)
+        }
+    }
 
     return (
         <div className="space-y-8 animate-in-fade">
@@ -43,13 +95,13 @@ export default function AdminEmergencyQueuePage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-3 relative z-10">
-                    <Button variant="outline" onClick={() => toast.success('Feed refreshed')} className="rounded-2xl h-12 px-6 font-bold shadow-sm bg-white hover:bg-slate-50 transition-all">
+                    <Button variant="outline" onClick={handleRefresh} className="rounded-2xl h-12 px-6 font-bold shadow-sm bg-white hover:bg-slate-50 transition-all">
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh Live Feed
                     </Button>
-                    <Button className="rounded-2xl h-12 px-6 font-black bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-200 transition-all hover:scale-105 active:scale-95" onClick={() => toast.info('Auto-assign is processing...')}>
+                    <Button className="rounded-2xl h-12 px-6 font-black bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-200 transition-all hover:scale-105 active:scale-95" onClick={handleAutoAssignAll} disabled={autoAssigning}>
                         <Zap className="h-4 w-4 mr-2" />
-                        Auto-Assign Active
+                        {autoAssigning ? 'Assigning...' : 'Auto-Assign Active'}
                     </Button>
                 </div>
             </div>
