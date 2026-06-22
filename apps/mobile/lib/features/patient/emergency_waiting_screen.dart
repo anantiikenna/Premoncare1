@@ -254,7 +254,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border),
         boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: const Offset(0, 10))],
@@ -435,7 +435,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('Find Another Doctor', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white)),
+            child: const Text('Find Another Doctor', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.textInverse)),
           ),
         ),
         const SizedBox(height: 12),

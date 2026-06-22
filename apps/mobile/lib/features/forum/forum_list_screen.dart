@@ -45,7 +45,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -117,7 +117,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
           const SizedBox(height: 4),
           Text(
             'Ask questions, share experiences and learn from others',
-            style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.w500),
+            style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
           Row(
@@ -133,18 +133,18 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                   decoration: InputDecoration(
                     hintText: 'Search topics, questions or keywords...',
-                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13, fontWeight: FontWeight.w500),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 20),
+                    hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
+                    prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 20),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: AppColors.surfaceOf(context),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[200]!),
+                      borderSide: BorderSide(color: AppColors.borderOf(context)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[200]!),
+                      borderSide: BorderSide(color: AppColors.borderOf(context)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -160,13 +160,13 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey[200]!),
+                    color: AppColors.surfaceOf(context),
+                    border: Border.all(color: AppColors.borderOf(context)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.filter_list, color: Colors.grey[700], size: 20),
+                      Icon(Icons.filter_list, color: AppColors.textSecondaryOf(context), size: 20),
                       const SizedBox(width: 8),
                       const Text('Filter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     ],
@@ -183,7 +183,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
   void _showSortBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.all(24),
@@ -259,7 +259,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                         height: 60,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[50],
+                          color: isSelected ? color.withValues(alpha: 0.1) : AppColors.borderLightOf(context),
                           border: Border.all(
                             color: isSelected ? color.withValues(alpha: 0.3) : Colors.transparent,
                             width: 2,
@@ -274,7 +274,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          color: isSelected ? AppColors.textPrimaryOf(context) : Colors.grey[600],
+                          color: isSelected ? AppColors.textPrimaryOf(context) : AppColors.textSecondaryOf(context),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -360,11 +360,11 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[100]!),
+          border: Border.all(color: AppColors.borderOf(context)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4)),
           ],
         ),
         child: Column(
@@ -409,15 +409,15 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(post.authorName, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                      Text(timeAgo, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+                      Text(timeAgo, style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context))),
                     ],
                   ),
                 ),
                 Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 14, color: Colors.grey[400]),
+                    Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.textTertiaryOf(context)),
                     const SizedBox(width: 4),
-                    Text('${post.replyCount}', style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                    Text('${post.replyCount}', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
                   ],
                 )
               ],
@@ -434,7 +434,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
         Container(
           margin: const EdgeInsets.only(top: 24, left: 20, right: 20),
           decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+            border: Border(bottom: BorderSide(color: AppColors.borderOf(context))),
           ),
           child: Row(
             children: [
@@ -462,7 +462,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-            color: isSelected ? AppColors.primary : Colors.grey[500],
+            color: isSelected ? AppColors.primary : AppColors.textTertiaryOf(context),
           ),
         ),
       ),
@@ -479,7 +479,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
+          border: Border(bottom: BorderSide(color: AppColors.borderLightOf(context))),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,9 +499,9 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: Colors.teal,
+                        color: AppColors.teal,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: AppColors.surfaceOf(context), width: 2),
                       ),
                     ),
                   )
@@ -525,14 +525,14 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () => _showPostOptions(post),
-                        child: Icon(Icons.more_vert, size: 18, color: Colors.grey[400]),
+                        child: Icon(Icons.more_vert, size: 18, color: AppColors.textTertiaryOf(context)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
                     post.content,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 13, height: 1.4),
+                    style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, height: 1.4),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -558,22 +558,22 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                     children: [
                       Text(
                         '$authorName • $timeAgo',
-                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context)),
                       ),
                       const Spacer(),
                       Row(
                         children: [
-                          Icon(Icons.visibility_outlined, size: 14, color: Colors.grey[400]),
+                          Icon(Icons.visibility_outlined, size: 14, color: AppColors.textTertiaryOf(context)),
                           const SizedBox(width: 4),
-                          Text('${post.viewCount}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                          Text('${post.viewCount}', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
                           const SizedBox(width: 12),
-                          Icon(Icons.chat_bubble_outline, size: 14, color: Colors.grey[400]),
+                          Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.textTertiaryOf(context)),
                           const SizedBox(width: 4),
-                          Text('${post.replyCount}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                          Text('${post.replyCount}', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
                           const SizedBox(width: 12),
-                          Icon(Icons.favorite_border, size: 14, color: Colors.red[300]),
+                          Icon(Icons.favorite_border, size: 14, color: AppColors.error),
                           const SizedBox(width: 4),
-                          Text('${post.upvotes}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                          Text('${post.upvotes}', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
                         ],
                       )
                     ],
@@ -590,7 +590,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
   void _showPostOptions(ForumPost post) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => SafeArea(
         child: Padding(
@@ -607,7 +607,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                     await ForumService.toggleSavePost(post.id);
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post saved'), backgroundColor: AppColors.success));
                   } catch (e) {
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }
                 },
               ),
@@ -620,15 +620,15 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.flag_outlined, color: Colors.red),
-                title: const Text('Report Post', style: TextStyle(color: Colors.red)),
+                leading: const Icon(Icons.flag_outlined, color: AppColors.error),
+                title: const Text('Report Post', style: TextStyle(color: AppColors.error)),
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
                     await ForumService.report(postId: post.id, reason: 'Reported by user');
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post reported'), backgroundColor: AppColors.success));
                   } catch (e) {
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }
                 },
               ),

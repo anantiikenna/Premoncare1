@@ -190,9 +190,9 @@ class _SubscriptionPlanControlState
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Retry',
+              child: Text('Retry',
                   style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+                      color: AppColors.textInverse, fontWeight: FontWeight.bold)),
             ),
           ],
         ),

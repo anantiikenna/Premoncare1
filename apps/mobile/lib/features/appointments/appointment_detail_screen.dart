@@ -142,14 +142,14 @@ class _HeaderSection extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: const Offset(0, 10))]),
       child: Column(
         children: [
           Stack(
             alignment: Alignment.bottomRight,
             children: [
               Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle), child: CircleAvatar(radius: 50, backgroundColor: AppColors.primary.withValues(alpha: 0.15), child: Text(appointment.doctorName.isNotEmpty ? appointment.doctorName[0].toUpperCase() : 'D', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.primary)))),
-              Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.success, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3)), child: const Icon(Icons.verified_rounded, color: Colors.white, size: 16)),
+              Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: AppColors.success, shape: BoxShape.circle, border: Border.all(color: AppColors.surfaceOf(context), width: 3)), child: Icon(Icons.verified_rounded, color: AppColors.textInverse, size: 16)),
             ],
           ),
           const SizedBox(height: 24),
@@ -233,7 +233,7 @@ class _VideoCallAction extends StatelessWidget {
         label: const Text('JOIN CLINICAL SESSION', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.textInverse,
           elevation: 10,
           shadowColor: AppColors.primary.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

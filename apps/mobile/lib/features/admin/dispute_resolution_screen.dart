@@ -210,7 +210,7 @@ class _DisputeResolutionScreenState
   Color _statusColor(String status) {
     switch (status) {
       case 'open':
-        return Colors.orange;
+        return AppColors.warning;
       case 'in_review':
         return AppColors.warning;
       case 'resolved':
@@ -240,15 +240,15 @@ class _DisputeResolutionScreenState
   Color _categoryIconColor(String category) {
     switch (category) {
       case 'payment':
-        return Colors.orange;
+        return AppColors.warning;
       case 'consultation':
-        return Colors.blue;
+        return AppColors.info;
       case 'refund':
         return AppColors.success;
       case 'fraud':
         return AppColors.error;
       case 'behavior':
-        return Colors.purple;
+        return AppColors.pink;
       default:
         return AppColors.slate500;
     }
@@ -385,7 +385,7 @@ class _DisputeResolutionScreenState
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           border: Border.all(color: AppColors.slate200),
           borderRadius: BorderRadius.circular(10),
         ),
@@ -403,7 +403,7 @@ class _DisputeResolutionScreenState
             'Open Disputes',
             _openCount.toString(),
             Icons.warning_amber,
-            Colors.orange,
+            AppColors.warning,
           ),
           const SizedBox(width: 16),
           _buildStatCard(
@@ -441,7 +441,7 @@ class _DisputeResolutionScreenState
       width: 150,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.slate200),
         boxShadow: [
@@ -508,7 +508,7 @@ class _DisputeResolutionScreenState
               backgroundColor: AppColors.slate100,
               selectedColor: AppColors.primary,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.white : AppColors.slate600,
+                color: isSelected ? AppColors.textInverse : AppColors.slate600,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
               shape: RoundedRectangleBorder(
@@ -527,7 +527,7 @@ class _DisputeResolutionScreenState
       return Container(
         padding: const EdgeInsets.all(48),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.slate200),
         ),
@@ -573,7 +573,7 @@ class _DisputeResolutionScreenState
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? AppColors.primary : AppColors.slate200,
@@ -853,7 +853,7 @@ class _DisputeResolutionScreenState
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.slate200),
               ),
@@ -874,7 +874,7 @@ class _DisputeResolutionScreenState
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.slate200),
             boxShadow: [
@@ -923,7 +923,7 @@ class _DisputeResolutionScreenState
               ),
               const SizedBox(height: 32),
               _buildInsightLegendRow(
-                Colors.orange,
+                AppColors.warning,
                 'Open',
                 '$_openCount ($openPct%)',
               ),
@@ -958,7 +958,7 @@ class _DisputeResolutionScreenState
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surfaceOf(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -1041,7 +1041,7 @@ class _DisputeResolutionScreenState
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.slate200),
             boxShadow: [
@@ -1182,7 +1182,7 @@ class _DisputeResolutionScreenState
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.slate200),
               boxShadow: [
@@ -1217,7 +1217,7 @@ class _DisputeResolutionScreenState
                     label: const Text('Mark as In Review'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.warning,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textInverse,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1239,7 +1239,7 @@ class _DisputeResolutionScreenState
                         label: const Text('Resolve'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
-                          foregroundColor: Colors.white,
+                          foregroundColor: AppColors.textInverse,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1259,7 +1259,7 @@ class _DisputeResolutionScreenState
                         label: const Text('Close'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.slate600,
-                          foregroundColor: Colors.white,
+                          foregroundColor: AppColors.textInverse,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1334,7 +1334,7 @@ class _DisputeResolutionScreenState
                   : targetStatus == 'closed'
                   ? AppColors.slate600
                   : AppColors.warning,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textInverse,
             ),
             child: const Text('Confirm'),
           ),
@@ -1444,7 +1444,7 @@ class DonutChartPainter extends CustomPainter {
 
     final segments = [
       {'color': AppColors.success, 'count': resolvedCount},
-      {'color': Colors.orange, 'count': openCount},
+      {'color': AppColors.warning, 'count': openCount},
       {'color': AppColors.warning, 'count': inReviewCount},
       {'color': AppColors.error, 'count': highRiskCount},
     ];

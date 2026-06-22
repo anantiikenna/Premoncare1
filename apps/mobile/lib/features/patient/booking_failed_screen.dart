@@ -65,7 +65,7 @@ class BookingFailedScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: AppColors.shadowLight,
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -180,7 +180,7 @@ class BookingFailedScreen extends StatelessWidget {
                 border: Border.all(color: AppColors.borderOf(context)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: AppColors.shadowLight,
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),

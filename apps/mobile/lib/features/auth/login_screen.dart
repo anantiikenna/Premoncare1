@@ -188,12 +188,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           onPressed: _isLoading ? null : (_isEmailTab ? _login : _loginWithOtp),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.textInverse,
                             elevation: 10,
                             shadowColor: AppColors.primary.withValues(alpha: 0.3),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           ),
-                          child: _isLoading ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 3) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(_isEmailTab ? 'INITIATE SESSION' : 'SEND OTP CODE', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5)), const SizedBox(width: 12), const Icon(Icons.arrow_forward_rounded, size: 20)]),
+                          child: _isLoading ? const CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 3) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(_isEmailTab ? 'INITIATE SESSION' : 'SEND OTP CODE', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5)), const SizedBox(width: 12), const Icon(Icons.arrow_forward_rounded, size: 20)]),
                         ),
                       ),
 
@@ -262,7 +262,7 @@ class _EmergencyBanner extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
-              child: const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
+              child: Icon(Icons.bolt_rounded, color: AppColors.textInverse, size: 18),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -315,7 +315,7 @@ class _TabButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(color: isSelected ? AppColors.surfaceOf(context) : Colors.transparent, borderRadius: BorderRadius.circular(14), boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))] : []),
+          decoration: BoxDecoration(color: isSelected ? AppColors.surfaceOf(context) : Colors.transparent, borderRadius: BorderRadius.circular(14), boxShadow: isSelected ? [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))] : []),
           child: Center(child: Text(label, style: TextStyle(color: isSelected ? AppColors.primary : AppColors.textSecondaryOf(context), fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5))),
         ),
       ),

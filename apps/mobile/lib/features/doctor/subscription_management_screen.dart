@@ -344,7 +344,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
         ListTile(
           onTap: onTap,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          tileColor: Colors.white,
+          tileColor: AppColors.surfaceOf(context),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(icon, color: color, size: 20)),
           title: Text(title, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w800)),
@@ -395,7 +395,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 const SnackBar(content: Text('Contact support@premoncare.com')),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: AppColors.primary, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: AppColors.success, width: 1))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.surfaceOf(context), foregroundColor: AppColors.primary, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: AppColors.success, width: 1))),
             child: const Text('Contact Support', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ],
@@ -569,9 +569,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
-                Icon(Icons.check_circle_rounded, color: p.contains('N/A') ? Colors.grey.shade300 : AppColors.success, size: 14),
+                Icon(Icons.check_circle_rounded, color: p.contains('N/A') ? AppColors.textTertiaryOf(context) : AppColors.success, size: 14),
                 const SizedBox(width: 8),
-                Expanded(child: Text(p, style: TextStyle(color: p.contains('N/A') ? Colors.grey.shade400 : AppColors.textSecondaryOf(context), fontSize: 9, fontWeight: FontWeight.w600))),
+                Expanded(child: Text(p, style: TextStyle(color: p.contains('N/A') ? AppColors.textTertiaryOf(context) : AppColors.textSecondaryOf(context), fontSize: 9, fontWeight: FontWeight.w600))),
               ],
             ),
           )),
@@ -583,8 +583,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plan selected! Contact support@premoncare.com to complete your upgrade.')));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: isCurrent ? AppColors.primary : Colors.white,
-                foregroundColor: isCurrent ? Colors.white : AppColors.primary,
+                backgroundColor: isCurrent ? AppColors.primary : AppColors.surfaceOf(context),
+                foregroundColor: isCurrent ? AppColors.textInverse : AppColors.primary,
                 elevation: 0,
                 side: BorderSide(color: isCurrent ? Colors.transparent : AppColors.primary),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

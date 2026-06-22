@@ -40,7 +40,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
                 return IconButton(
                   icon: Icon(
                     starIndex <= _rating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
+                    color: AppColors.warning,
                     size: 32,
                   ),
                   onPressed: () => setState(() => _rating = starIndex),
@@ -68,10 +68,10 @@ class _ReviewDialogState extends State<ReviewDialog> {
           onPressed: _isSubmitting ? null : _handleReviewSubmit,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.textInverse,
           ),
           child: _isSubmitting 
-            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
             : const Text('Submit Review'),
         ),
       ],

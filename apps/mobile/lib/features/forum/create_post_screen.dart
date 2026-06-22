@@ -60,13 +60,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title'), backgroundColor: Colors.orange),
+        const SnackBar(content: Text('Please enter a title'), backgroundColor: AppColors.warning),
       );
       return;
     }
     if (body.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please describe your question'), backgroundColor: Colors.orange),
+        const SnackBar(content: Text('Please describe your question'), backgroundColor: AppColors.warning),
       );
       return;
     }
@@ -93,7 +93,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Failed to post: $e'), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -104,9 +104,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
@@ -128,12 +128,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
           children: [
             Text('Create a Post', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 4),
-            Text('Ask a question, share your experience or start a discussion.', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+            Text('Ask a question, share your experience or start a discussion.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
             const SizedBox(height: 32),
 
             Text.rich(TextSpan(children: [
               TextSpan(text: '1. Select Category ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-              const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+              const TextSpan(text: '*', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 16),
             _buildCategoryPicker(),
@@ -141,14 +141,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
             Text.rich(TextSpan(children: [
               TextSpan(text: '2. Post Title ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-              const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+              const TextSpan(text: '*', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey[200]!),
+                color: AppColors.surfaceOf(context),
+                border: Border.all(color: AppColors.borderOf(context)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextField(
@@ -156,10 +156,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 maxLength: 100,
                 decoration: InputDecoration(
                   hintText: 'Write a clear and short title for your post',
-                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                   border: InputBorder.none,
                   counterText: '',
-                  suffix: Text('${_titleController.text.length}/100', style: TextStyle(color: Colors.grey[400], fontSize: 11)),
+                  suffix: Text('${_titleController.text.length}/100', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
                 ),
               ),
             ),
@@ -167,14 +167,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
             Text.rich(TextSpan(children: [
               TextSpan(text: '3. Describe Your Question or Topic ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-              const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+              const TextSpan(text: '*', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey[200]!),
+                color: AppColors.surfaceOf(context),
+                border: Border.all(color: AppColors.borderOf(context)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -185,12 +185,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     maxLines: 6,
                     decoration: InputDecoration(
                       hintText: 'Provide more details about your question or topic.',
-                      hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14, height: 1.5),
+                      hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, height: 1.5),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
-                  Text('${_bodyController.text.length}/2000', style: TextStyle(color: Colors.grey[400], fontSize: 11)),
+                  Text('${_bodyController.text.length}/2000', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
                 ],
               ),
             ),
@@ -212,39 +212,39 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
             Text.rich(TextSpan(children: [
               TextSpan(text: '4. Add Attachments ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-              const TextSpan(text: '(Optional)', style: TextStyle(color: Colors.grey, fontSize: 15)),
+              TextSpan(text: '(Optional)', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 15)),
             ])),
             const SizedBox(height: 4),
-            Text('You can upload images or documents to provide more context.', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text('You can upload images or documents to provide more context.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(child: _buildAttachmentButton(Icons.image_outlined, 'Add Photo', AppColors.primary)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildAttachmentButton(Icons.description_outlined, 'Add Document', Colors.teal)),
+                Expanded(child: _buildAttachmentButton(Icons.description_outlined, 'Add Document', AppColors.teal)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildAttachmentButton(Icons.science_outlined, 'Add Lab Result', Colors.purple)),
+                Expanded(child: _buildAttachmentButton(Icons.science_outlined, 'Add Lab Result', AppColors.pink)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildAttachmentButton(Icons.attach_file, 'Add Other', Colors.grey[600]!)),
+                Expanded(child: _buildAttachmentButton(Icons.attach_file, 'Add Other', AppColors.textSecondaryOf(context))),
               ],
             ),
             const SizedBox(height: 12),
-            Text('Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file', style: TextStyle(color: Colors.grey[500], fontSize: 10)),
+            Text('Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
             const SizedBox(height: 32),
 
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey[100]!),
+                color: AppColors.surfaceOf(context),
+                border: Border.all(color: AppColors.borderLightOf(context)),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: Colors.teal[50], shape: BoxShape.circle),
-                    child: Icon(Icons.shield_outlined, color: Colors.teal[600], size: 20),
+                    decoration: BoxDecoration(color: AppColors.successLightOf(context), shape: BoxShape.circle),
+                    child: Icon(Icons.shield_outlined, color: AppColors.teal, size: 20),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -253,14 +253,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       children: [
                         Text('Post Anonymously', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
                         const SizedBox(height: 2),
-                        Text('Your name will be hidden from other members.', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                        Text('Your name will be hidden from other members.', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
                       ],
                     ),
                   ),
                   Switch(
                     value: _postAnonymously,
                     onChanged: (v) => setState(() => _postAnonymously = v),
-                    activeThumbColor: Colors.teal,
+                    activeThumbColor: AppColors.teal,
                   ),
                 ],
               ),
@@ -287,13 +287,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: _isSubmitting
-                    ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                    ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2.5))
                     : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.send, color: Colors.white, size: 20),
+                          Icon(Icons.send, color: AppColors.textInverse, size: 20),
                           SizedBox(width: 8),
-                          Text('Post Question', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text('Post Question', style: TextStyle(color: AppColors.textInverse, fontSize: 16, fontWeight: FontWeight.bold)),
                         ],
                       ),
               ),
@@ -327,9 +327,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   width: 80,
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : Colors.white,
+                    color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : AppColors.surfaceOf(context),
                     border: Border.all(
-                      color: isSelected ? AppColors.primary : Colors.grey[200]!,
+                      color: isSelected ? AppColors.primary : AppColors.borderOf(context),
                       width: isSelected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -345,7 +345,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          color: isSelected ? AppColors.primary : Colors.grey[800],
+                          color: isSelected ? AppColors.primary : AppColors.textPrimaryOf(context),
                         ),
                       ),
                     ],
@@ -365,16 +365,16 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label: Coming soon'), backgroundColor: Colors.blue),
+          SnackBar(content: Text('$label: Coming soon'), backgroundColor: AppColors.info),
         );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey[100]!),
+          color: AppColors.surfaceOf(context),
+          border: Border.all(color: AppColors.borderLightOf(context)),
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Column(
           children: [

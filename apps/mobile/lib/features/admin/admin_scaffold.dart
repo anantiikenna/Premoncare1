@@ -246,8 +246,8 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                         color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Center(
-                        child: Text('A', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                      child: Center(
+                        child: Text('A', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold, fontSize: 18)),
                       ),
                     ),
                     const SizedBox(width: 12),

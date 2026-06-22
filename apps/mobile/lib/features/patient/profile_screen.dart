@@ -76,7 +76,7 @@ class ProfileScreen extends ConsumerWidget {
             color: AppColors.surfaceOf(context),
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.borderLightOf(context)),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10)],
+            boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10)],
           ),
           child: IconButton(
             icon: Icon(Icons.settings_outlined, color: AppColors.textPrimaryOf(context)),
@@ -103,7 +103,7 @@ class ProfileScreen extends ConsumerWidget {
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: AppColors.borderLightOf(context)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: Row(
         children: [
@@ -122,7 +122,7 @@ class ProfileScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                child: const Icon(Icons.camera_alt_rounded, size: 12, color: Colors.white),
+                child: const Icon(Icons.camera_alt_rounded, size: 12, color: AppColors.textInverse),
               ),
             ],
           ),

@@ -32,10 +32,10 @@ class ChatListScreen extends ConsumerWidget {
               child: conversationsAsync.when(
                 data: (conversations) => Text(
                   '${conversations.where((c) => c.unreadCount > 0).length}',
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                loading: () => const SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
-                error: (_, _) => const Text('0', style: TextStyle(color: Colors.white, fontSize: 12)),
+                loading: () => const SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textInverse)),
+                error: (_, _) => Text('0', style: TextStyle(color: AppColors.textInverse, fontSize: 12)),
               ),
             ),
           ],
@@ -129,7 +129,7 @@ class ChatListScreen extends ConsumerWidget {
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
+              color: isSelected ? AppColors.textInverse : AppColors.textSecondaryOf(context),
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
@@ -139,7 +139,7 @@ class ChatListScreen extends ConsumerWidget {
             Text(
               count.toString(),
               style: TextStyle(
-                color: isSelected ? Colors.white.withValues(alpha: 0.7) : AppColors.textTertiaryOf(context),
+                color: isSelected ? AppColors.textInverse.withValues(alpha: 0.7) : AppColors.textTertiaryOf(context),
                 fontSize: 11,
               ),
             ),
@@ -220,7 +220,7 @@ class _ChatTile extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppColors.success,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2.5),
+                      border: Border.all(color: AppColors.surfaceOf(context), width: 2.5),
                     ),
                   ),
               ],
@@ -265,7 +265,7 @@ class _ChatTile extends StatelessWidget {
                           decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
                           child: Text(
                             contact.unreadCount.toString(),
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900),
+                            style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w900),
                           ),
                         ),
                     ],

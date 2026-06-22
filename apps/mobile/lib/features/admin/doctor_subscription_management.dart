@@ -256,7 +256,7 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
             _MetricCard(label: 'Active', value: '$_activeCount', trend: _totalDoctors > 0 ? '${(_activeCount / _totalDoctors * 100).toStringAsFixed(1)}%' : '0%', trendColor: AppColors.success, icon: Icons.check_circle_outline_rounded, iconColor: AppColors.success),
             _MetricCard(label: 'Expiring Soon', value: '$_expiringSoonCount', trend: 'Next 7 days', trendColor: AppColors.warning, icon: Icons.timer_outlined, iconColor: AppColors.warning),
             _MetricCard(label: 'Expired', value: '$_expiredCount', trend: 'Requires attention', trendColor: AppColors.error, icon: Icons.history_rounded, iconColor: AppColors.error),
-            _MetricCard(label: 'Overdue', value: '$_overdueCount', trend: 'Payment overdue', trendColor: AppColors.error, icon: Icons.account_balance_wallet_outlined, iconColor: Colors.purple),
+            _MetricCard(label: 'Overdue', value: '$_overdueCount', trend: 'Payment overdue', trendColor: AppColors.error, icon: Icons.account_balance_wallet_outlined, iconColor: AppColors.pink),
           ],
         ),
       ),
@@ -471,7 +471,7 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
                             _LegendItem(label: 'Active', value: '($_activeCount)', percentage: '${(activeRatio * 100).toStringAsFixed(1)}%', color: AppColors.primary),
                             _LegendItem(label: 'Expiring Soon', value: '($_expiringSoonCount)', percentage: '${(expiringRatio * 100).toStringAsFixed(1)}%', color: AppColors.warning),
                             _LegendItem(label: 'Expired', value: '($_expiredCount)', percentage: '${(expiredRatio * 100).toStringAsFixed(1)}%', color: AppColors.error),
-                            _LegendItem(label: 'Overdue', value: '($_overdueCount)', percentage: '${(overdueRatio * 100).toStringAsFixed(1)}%', color: Colors.purple),
+                            _LegendItem(label: 'Overdue', value: '($_overdueCount)', percentage: '${(overdueRatio * 100).toStringAsFixed(1)}%', color: AppColors.pink),
                           ],
                         ),
                       ),
@@ -547,7 +547,7 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
                 const SizedBox(height: 16),
                 _ProgressRow(label: 'With Active Sub', value: '$_activeCount', percentage: '$_totalDoctors total', color: AppColors.primary),
                 _ProgressRow(label: 'No Sub (Inactive)', value: '${_totalDoctors - _allSubscriptions.length}', percentage: _totalDoctors > 0 ? '${((_totalDoctors - _allSubscriptions.length) / _totalDoctors * 100).toStringAsFixed(1)}%' : '0%', color: AppColors.slate400),
-                _ProgressRow(label: 'Overdue', value: '$_overdueCount', percentage: total > 0 ? '${(_overdueCount / total * 100).toStringAsFixed(1)}%' : '0%', color: Colors.purple),
+                _ProgressRow(label: 'Overdue', value: '$_overdueCount', percentage: total > 0 ? '${(_overdueCount / total * 100).toStringAsFixed(1)}%' : '0%', color: AppColors.pink),
               ],
             ),
           ),
@@ -561,7 +561,7 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
                 _QuickActionTile(icon: Icons.warning_amber_rounded, label: 'Overdue Payments', color: AppColors.error),
                 _QuickActionTile(icon: Icons.bar_chart_rounded, label: 'Subscription Reports', color: AppColors.primary),
                 _QuickActionTile(icon: Icons.verified_user_rounded, label: 'Payment Verification', color: AppColors.success),
-                _QuickActionTile(icon: Icons.notifications_active_rounded, label: 'Notification Settings', color: Colors.purple),
+                _QuickActionTile(icon: Icons.notifications_active_rounded, label: 'Notification Settings', color: AppColors.pink),
               ],
             ),
           ),
@@ -752,7 +752,7 @@ class _StatusBadge extends StatelessWidget {
         color = AppColors.error;
         break;
       case 'overdue':
-        color = Colors.purple;
+        color = AppColors.pink;
         break;
       case 'suspended':
         color = AppColors.slate500;

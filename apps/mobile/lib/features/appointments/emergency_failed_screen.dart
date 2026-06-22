@@ -67,7 +67,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(30), bottom: Radius.circular(10)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.red.withValues(alpha: 0.4),
+                              color: AppColors.error,
                               blurRadius: 30,
                               spreadRadius: 5,
                             ),
@@ -99,7 +99,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.surfaceOf(context),
                         shape: BoxShape.circle,
-                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10)],
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -432,18 +432,18 @@ class EmergencyFailedScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.lock_outline_rounded, color: Colors.grey.shade400, size: 14),
+                    Icon(Icons.lock_outline_rounded, color: AppColors.textTertiaryOf(context), size: 14),
                     const SizedBox(width: 8),
                     Text(
                       'Your info is safe with us',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondaryOf(context)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'All calls and data are secure and encrypted.',
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade400),
+                  style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context)),
                 ),
               ],
             ),

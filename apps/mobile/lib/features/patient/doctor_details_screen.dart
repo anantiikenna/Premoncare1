@@ -516,14 +516,14 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.videocam_rounded, color: Colors.white, size: 18),
+                    const Icon(Icons.videocam_rounded, color: AppColors.textInverse, size: 18),
                     const SizedBox(width: 8),
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Book Video', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                        Text('₦${_bookingRate.toStringAsFixed(0)}/hr', style: const TextStyle(color: Colors.white, fontSize: 10)),
+                        const Text('Book Video', style: TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text('₦${_bookingRate.toStringAsFixed(0)}/hr', style: const TextStyle(color: AppColors.textInverse, fontSize: 10)),
                       ],
                     ),
                   ],
@@ -551,9 +551,9 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(widget.isEmergency ? Icons.flash_on_rounded : Icons.calendar_today_rounded, color: Colors.white, size: 16),
+                    Icon(widget.isEmergency ? Icons.flash_on_rounded : Icons.calendar_today_rounded, color: AppColors.textInverse, size: 16),
                     const SizedBox(width: 8),
-                    Text(widget.isEmergency ? 'Emergency' : 'Book Appt.', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(widget.isEmergency ? 'Emergency' : 'Book Appt.', style: const TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),

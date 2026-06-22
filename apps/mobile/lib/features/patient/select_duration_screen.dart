@@ -98,7 +98,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                       }),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.slate800,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textInverse,
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
                       ),
@@ -240,12 +240,12 @@ class _DurationSelector extends StatelessWidget {
               child: Column(
                 children: [
                   Text('$mins',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : AppColors.textPrimaryOf(context), letterSpacing: -1)),
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isSelected ? AppColors.textInverse : AppColors.textPrimaryOf(context), letterSpacing: -1)),
                   Text('MINS',
                       style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: isSelected ? Colors.white70 : AppColors.textTertiaryOf(context), letterSpacing: 1)),
                   const SizedBox(height: 16),
                   Text('₦${_price(mins)}',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : primaryColor)),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isSelected ? AppColors.textInverse : primaryColor)),
                 ],
               ),
             ),

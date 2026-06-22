@@ -540,7 +540,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               onPressed: _nextStep,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textInverse,
                 padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 0,
@@ -582,7 +582,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   color: AppColors.success,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_rounded, color: Colors.white, size: 16),
+                child: Icon(Icons.check_rounded, color: AppColors.textInverse, size: 16),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -783,13 +783,13 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             onPressed: _isSendingOtp || _isVerifyingOtp ? null : (_currentStep == 2 ? _sendOtp : _verifyOtp),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textInverse,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
             child: _isSendingOtp || _isVerifyingOtp
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -831,7 +831,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: const BoxDecoration(color: AppColors.warning, shape: BoxShape.circle),
-                child: const Icon(Icons.priority_high_rounded, color: Colors.white, size: 14),
+                child: Icon(Icons.priority_high_rounded, color: AppColors.textInverse, size: 14),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -880,7 +880,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   color: AppColors.info,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 16),
+                child: Icon(Icons.info_outline_rounded, color: AppColors.textInverse, size: 16),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1094,7 +1094,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             onPressed: _nextStep,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textInverse,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
@@ -1324,7 +1324,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             onPressed: () => context.go('/patient_dashboard'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textInverse,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
@@ -1443,12 +1443,12 @@ class _HeroIllustration extends StatelessWidget {
               width: 50,
               height: 70,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.borderOf(context), width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
+                    color: AppColors.shadowLight,
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -1540,7 +1540,7 @@ class _VerifyIllustration extends StatelessWidget {
               width: 50,
               height: 70,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.borderOf(context), width: 1.5),
               ),
@@ -1640,11 +1640,11 @@ class _ProfileIllustration extends StatelessWidget {
               width: 50,
               height: 70,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.borderOf(context), width: 1.5),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                  BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4)),
                 ],
               ),
               child: Column(
@@ -1691,7 +1691,7 @@ class _ProfileIllustration extends StatelessWidget {
                   BoxShadow(color: AppColors.info.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 3)),
                 ],
               ),
-              child: const Icon(Icons.add, color: Colors.white, size: 18),
+              child: Icon(Icons.add, color: AppColors.textInverse, size: 18),
             ),
           ),
         ],
@@ -1722,7 +1722,7 @@ class _CompleteIllustration extends StatelessWidget {
                 BoxShadow(color: AppColors.success.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
               ],
             ),
-            child: const Icon(Icons.check_rounded, color: Colors.white, size: 30),
+            child: Icon(Icons.check_rounded, color: AppColors.textInverse, size: 30),
           ),
           Positioned(
             left: 10, top: 10,
@@ -1770,7 +1770,7 @@ class _ConversionStepper extends StatelessWidget {
             ? AppColors.success
             : (isActive ? AppColors.primary : AppColors.surfaceOf(context));
             
-        final iconColor = (isActive || isCompleted) ? Colors.white : AppColors.textSecondaryOf(context);
+        final iconColor = (isActive || isCompleted) ? AppColors.textInverse : AppColors.textSecondaryOf(context);
         
         final textColor = isCompleted 
             ? AppColors.success
@@ -1972,7 +1972,7 @@ class _NextActionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.01), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(

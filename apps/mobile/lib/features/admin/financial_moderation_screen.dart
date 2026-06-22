@@ -300,7 +300,7 @@ class _FinancialModerationScreenState
                             ),
                             child: const Text('Retry',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textInverse,
                                     fontWeight: FontWeight.bold)),
                           ),
                         ],
@@ -638,7 +638,7 @@ class _FinancialModerationScreenState
                         value: approved / (total > 0 ? total : 1),
                         strokeWidth: 10,
                         backgroundColor:
-                            Colors.grey.withValues(alpha: 0.1),
+                            AppColors.borderLightOf(context),
                         valueColor: const AlwaysStoppedAnimation<Color>(
                             AppColors.primary),
                       ),
@@ -977,7 +977,7 @@ class _FinancialModerationScreenState
             ),
             child: const Text('Approve All',
                 style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
+                    color: AppColors.textInverse, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

@@ -121,7 +121,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             shape: BoxShape.circle,
             boxShadow: [BoxShadow(color: (isEmergency ? AppColors.error : AppColors.success).withValues(alpha: 0.2), blurRadius: 30, offset: const Offset(0, 10))],
           ),
-          child: const Icon(Icons.check_rounded, color: Colors.white, size: 48),
+          child: const Icon(Icons.check_rounded, color: AppColors.textInverse, size: 48),
         ),
         const SizedBox(height: 32),
         Text(
@@ -249,7 +249,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             ),
             child: Text(
               _paymentInstructions ?? 'Contact doctor for payment details',
-              style: const TextStyle(color: Colors.white, fontFamily: 'monospace', fontSize: 13, height: 1.5),
+              style: const TextStyle(color: AppColors.textInverse, fontFamily: 'monospace', fontSize: 13, height: 1.5),
             ),
           ),
           const SizedBox(height: 12),
@@ -331,7 +331,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               onPressed: () => context.push('/account-conversion'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textInverse,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
               ),
@@ -346,7 +346,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             onPressed: () => context.go(isEmergency ? '/login' : '/patient_dashboard'),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textInverse,
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             ),

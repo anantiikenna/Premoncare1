@@ -373,7 +373,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                         child: const Text(
                           'Retry',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textInverse,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -1013,7 +1013,7 @@ class _TabItem extends StatelessWidget {
               child: Text(
                 count!,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textInverse,
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                 ),

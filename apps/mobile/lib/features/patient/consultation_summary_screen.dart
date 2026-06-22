@@ -256,7 +256,7 @@ class _FollowUpHub extends StatelessWidget {
           const SizedBox(width: 16),
           ElevatedButton(
             onPressed: () => context.go('/doctor-search'),
-            style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Colors.white, elevation: 10, shadowColor: primaryColor.withValues(alpha: 0.3), padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+            style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: AppColors.textInverse, elevation: 10, shadowColor: primaryColor.withValues(alpha: 0.3), padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
             child: const Text('SCHEDULE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
           ),
         ],
@@ -301,7 +301,7 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: () => context.go('/account-conversion'),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimaryOf(context), foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimaryOf(context), foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
             child: const Text('DISMISS REPORT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 0.5)),
           ),
         ),

@@ -116,7 +116,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: AppColors.surfaceOf(context), shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
+                          decoration: BoxDecoration(color: AppColors.surfaceOf(context), shape: BoxShape.circle, boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10)]),
                           child: Icon(Icons.cloud_upload_outlined, color: AppColors.primary, size: 32),
                         ),
                         const SizedBox(height: 16),
@@ -127,7 +127,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                           onPressed: _pickFile,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.textInverse,
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -174,7 +174,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textInverse,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

@@ -436,10 +436,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
+                child: Text(
                   'Retry',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textInverse,
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
@@ -551,7 +551,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 child: Text(
                   range,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
+                    color: isSelected ? AppColors.textInverse : AppColors.textSecondaryOf(context),
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   ),
@@ -647,7 +647,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -743,7 +743,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

@@ -264,7 +264,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                                     width: 22,
                                     height: 22,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: AppColors.textInverse,
                                       strokeWidth: 3,
                                     ),
                                   )
@@ -284,7 +284,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
+                              foregroundColor: AppColors.textInverse,
                               elevation: 10,
                               shadowColor: AppColors.primary.withValues(
                                 alpha: 0.3,

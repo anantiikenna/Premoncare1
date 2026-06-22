@@ -341,7 +341,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: Text('Apply Filters', style: AppTypography.labelLarge.copyWith(color: Colors.white)),
+                      child: Text('Apply Filters', style: AppTypography.labelLarge.copyWith(color: AppColors.textInverse)),
                     ),
                   ),
                 ],
@@ -700,7 +700,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                   ),
                   child: Text(
                     (_isEmergencyMode && isEmergency) ? 'SOS' : 'Book',
-                    style: AppTypography.labelSmall.copyWith(color: Colors.white),
+                    style: AppTypography.labelSmall.copyWith(color: AppColors.textInverse),
                   ),
                 ),
               ],

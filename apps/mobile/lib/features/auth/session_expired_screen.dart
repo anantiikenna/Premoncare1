@@ -41,7 +41,7 @@ class SessionExpiredScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.lock_rounded, color: Colors.white, size: 60),
+                      child: Icon(Icons.lock_rounded, color: AppColors.textInverse, size: 60),
                     ),
                     Positioned(
                       bottom: 40,
@@ -51,7 +51,7 @@ class SessionExpiredScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.errorLightOf(context),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 4),
+                          border: Border.all(color: AppColors.surfaceOf(context), width: 4),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.error.withValues(alpha: 0.2),
@@ -143,7 +143,7 @@ class SessionExpiredScreen extends StatelessWidget {
                   onPressed: () => context.go('/login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textInverse,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -254,11 +254,11 @@ class SessionExpiredScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.lock_outline_rounded, color: Colors.grey.shade400, size: 14),
+                      Icon(Icons.lock_outline_rounded, color: AppColors.textTertiaryOf(context), size: 14),
                       const SizedBox(width: 8),
                       Text(
                         'Your data is safe with us',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondaryOf(context)),
                       ),
                     ],
                   ),
@@ -268,7 +268,7 @@ class SessionExpiredScreen extends StatelessWidget {
                     child: Text(
                       'We use industry-standard security to protect your information.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                      style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context)),
                     ),
                   ),
                 ],

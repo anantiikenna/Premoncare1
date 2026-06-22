@@ -20,9 +20,9 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceOf(context),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
@@ -59,7 +59,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
         children: [
           Text('Ask a Doctor', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
           const SizedBox(height: 4),
-          Text('Get answers from verified healthcare professionals.', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          Text('Get answers from verified healthcare professionals.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
         ],
       ),
     );
@@ -76,18 +76,18 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
               decoration: InputDecoration(
                 hintText: 'Search health questions...',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13, fontWeight: FontWeight.w500),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 20),
+                hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
+                prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 20),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: AppColors.surfaceOf(context),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[200]!),
+                  borderSide: BorderSide(color: AppColors.borderOf(context)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[200]!),
+                  borderSide: BorderSide(color: AppColors.borderOf(context)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -104,11 +104,11 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
   Widget _buildCategoriesStrip() {
     final categories = [
       {'name': 'All', 'icon': null, 'color': AppColors.primary, 'bg': AppColors.primary, 'text': Colors.white},
-      {'name': 'Heart Health', 'icon': Icons.favorite_border, 'color': Colors.red, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
-      {'name': 'Mental Health', 'icon': Icons.psychology_outlined, 'color': Colors.purple, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
-      {'name': 'Nutrition', 'icon': Icons.apple_outlined, 'color': Colors.orange, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
-      {'name': 'Pregnancy', 'icon': Icons.pregnant_woman_outlined, 'color': Colors.pink, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
-      {'name': 'General Health', 'icon': Icons.health_and_safety_outlined, 'color': Colors.teal, 'bg': Colors.white, 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'Heart Health', 'icon': Icons.favorite_border, 'color': AppColors.error, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'Mental Health', 'icon': Icons.psychology_outlined, 'color': AppColors.pink, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'Nutrition', 'icon': Icons.apple_outlined, 'color': AppColors.warning, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'Pregnancy', 'icon': Icons.pregnant_woman_outlined, 'color': AppColors.pink, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
+      {'name': 'General Health', 'icon': Icons.health_and_safety_outlined, 'color': AppColors.teal, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
     ];
 
     return SizedBox(
@@ -135,11 +135,11 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: isSelected ? (cat['bg'] as Color) : Colors.white,
+                color: isSelected ? (cat['bg'] as Color) : AppColors.surfaceOf(context),
                 border: Border.all(
                   color: isSelected
                       ? (cat['bg'] as Color)
-                      : (hasIcon ? (cat['color'] as MaterialColor)[100]! : Colors.grey[200]!),
+                      : (hasIcon ? (cat['color'] as MaterialColor)[100]! : AppColors.borderOf(context)),
                 ),
                 borderRadius: BorderRadius.circular(18),
               ),
@@ -246,9 +246,9 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.medical_services_outlined, color: Colors.grey[300], size: 48),
+                  Icon(Icons.medical_services_outlined, color: AppColors.textTertiaryOf(context), size: 48),
                   const SizedBox(height: 12),
-                  Text('No questions for doctors yet', style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+                  Text('No questions for doctors yet', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () => context.push('/forum/create'),
@@ -286,10 +286,10 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[100]!),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+          border: Border.all(color: AppColors.borderLightOf(context)),
+          boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,7 +307,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(post.authorName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
-                      Text(timeAgo, style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                      Text(timeAgo, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
                     ],
                   ),
                 ),
@@ -328,17 +328,17 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
             const SizedBox(height: 12),
             Text(post.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 6),
-            Text(post.content, style: TextStyle(color: Colors.grey[600], fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(post.content, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.chat_bubble_outline, size: 14, color: Colors.grey[400]),
+                Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.textTertiaryOf(context)),
                 const SizedBox(width: 4),
-                Text('${post.replyCount} replies', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text('${post.replyCount} replies', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
                 const SizedBox(width: 16),
-                Icon(Icons.favorite_border, size: 14, color: Colors.red[300]),
+                Icon(Icons.favorite_border, size: 14, color: AppColors.error),
                 const SizedBox(width: 4),
-                Text('${post.upvotes} likes', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text('${post.upvotes} likes', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
               ],
             ),
           ],
@@ -355,7 +355,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
         decoration: BoxDecoration(
           color: AppColors.backgroundOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.blue[50]!),
+          border: Border.all(color: AppColors.infoLightOf(context)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,7 +364,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
             const SizedBox(height: 8),
             Text(
               'Forum responses are for educational purposes and do not replace professional consultations.',
-              style: TextStyle(fontSize: 11, color: Colors.grey[600], height: 1.4),
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), height: 1.4),
             ),
           ],
         ),

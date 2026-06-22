@@ -291,7 +291,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                           child: CircularProgressIndicator(
                             value: completionRate.clamp(0.0, 1.0),
                             strokeWidth: 10,
-                            backgroundColor: Colors.grey.withValues(alpha: 0.1),
+                            backgroundColor: AppColors.borderLightOf(context),
                             valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                           ),
                         ),

@@ -106,7 +106,7 @@ class PermissionScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: AppColors.shadowLight,
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -177,7 +177,7 @@ class PermissionScreen extends StatelessWidget {
                 onPressed: () => _requestAllPermissions(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textInverse,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -331,7 +331,7 @@ class _PermissionItem extends StatelessWidget {
           border: Border.all(color: AppColors.borderLightOf(context)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: AppColors.shadowLight,
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),

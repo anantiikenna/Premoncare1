@@ -328,7 +328,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
-            child: const Text('Retry', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            child: Text('Retry', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w700)),
           ),
           const SizedBox(height: 12),
           TextButton(
@@ -392,7 +392,7 @@ class _EndCallButton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
-            child: const Icon(Icons.call_end_rounded, color: Colors.white, size: 32),
+            child: Icon(Icons.call_end_rounded, color: AppColors.textInverse, size: 32),
           ),
           const SizedBox(height: 8),
           const Text('End', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.error)),

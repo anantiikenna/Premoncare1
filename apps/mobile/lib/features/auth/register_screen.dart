@@ -358,7 +358,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
               onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
               child: Row(
                 children: [
-                  Container(width: 24, height: 24, decoration: BoxDecoration(color: _agreeToTerms ? AppColors.primary : AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(8), border: Border.all(color: _agreeToTerms ? AppColors.primary : AppColors.borderOf(context))), child: _agreeToTerms ? const Icon(Icons.check_rounded, color: Colors.white, size: 16) : null),
+                  Container(width: 24, height: 24, decoration: BoxDecoration(color: _agreeToTerms ? AppColors.primary : AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(8), border: Border.all(color: _agreeToTerms ? AppColors.primary : AppColors.borderOf(context))),                       child: _agreeToTerms ? Icon(Icons.check_rounded, color: AppColors.textInverse, size: 16) : null),
                   const SizedBox(width: 16),
                   Expanded(child: Text('I acknowledge the Terms & Conditions, HIPAA Privacy Policy, and Non-Disclosure Agreement (NDA)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context)))),
                 ],

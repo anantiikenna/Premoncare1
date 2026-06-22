@@ -230,11 +230,11 @@ class _DoctorEmergencyRequestScreenState extends State<DoctorEmergencyRequestScr
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.white, size: 16),
+                        Icon(Icons.warning_amber_rounded, color: AppColors.textInverse, size: 16),
                         SizedBox(width: 8),
                         Text(
                           'EMERGENCY REQUEST',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
+                          style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
                         ),
                       ],
                     ),
@@ -280,7 +280,7 @@ class _DoctorEmergencyRequestScreenState extends State<DoctorEmergencyRequestScr
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
                       boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 20)],
@@ -377,7 +377,7 @@ class _DoctorEmergencyRequestScreenState extends State<DoctorEmergencyRequestScr
                             onPressed: _isProcessing ? null : () => _respondToRequest(true),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.success,
-                              foregroundColor: Colors.white,
+                              foregroundColor: AppColors.textInverse,
                               elevation: 0,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
@@ -385,7 +385,7 @@ class _DoctorEmergencyRequestScreenState extends State<DoctorEmergencyRequestScr
                                 ? const SizedBox(
                                     width: 22,
                                     height: 22,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2),
                                   )
                                 : const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,

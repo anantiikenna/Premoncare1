@@ -648,7 +648,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-            child: const Icon(Icons.verified_user, color: Colors.white, size: 24),
+            child: Icon(Icons.verified_user, color: AppColors.textInverse, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(

@@ -397,7 +397,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
             onPressed: _isLoading ? null : _confirmBooking,
             style: ElevatedButton.styleFrom(
               backgroundColor: _primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textInverse,
               elevation: 0,
               disabledBackgroundColor: _primaryColor.withValues(alpha: 0.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -405,7 +405,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
             child: _isLoading
                 ? const SizedBox(
                     width: 24, height: 24,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                    child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2.5),
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -414,7 +414,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
                       const SizedBox(width: 12),
                       const Text('Confirm Booking', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
                       const SizedBox(width: 12),
-                      Container(width: 1, height: 20, color: Colors.white24),
+                      Container(width: 1, height: 20, color: AppColors.dividerOf(context)),
                       const SizedBox(width: 12),
                       Text('₦$_amountStr', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
                     ],

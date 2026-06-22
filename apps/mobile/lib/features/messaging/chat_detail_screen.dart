@@ -225,7 +225,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))],
+        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, -2))],
       ),
       child: Column(
         children: [
@@ -262,7 +262,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                    child: const Icon(Icons.send, color: Colors.white, size: 20),
+                    child: Icon(Icons.send, color: AppColors.textInverse, size: 20),
                   ),
                 ),
               ],
@@ -353,7 +353,7 @@ class _MessageBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 image: partnerAvatar != null ? DecorationImage(image: NetworkImage(partnerAvatar!), fit: BoxFit.cover) : null,
-                color: Colors.grey.shade200,
+                color: AppColors.borderLightOf(context),
               ),
             ),
             const SizedBox(width: 8),
@@ -369,14 +369,14 @@ class _MessageBubble extends StatelessWidget {
                   bottomLeft: Radius.circular(isMe ? 20 : 4),
                   bottomRight: Radius.circular(isMe ? 4 : 20),
                 ),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+                boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
               ),
               child: Column(
                 crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   Text(
                     message.content,
-                    style: TextStyle(color: isMe ? Colors.white : AppColors.textPrimaryOf(context), fontSize: 13, height: 1.5, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: isMe ? AppColors.textInverse : AppColors.textPrimaryOf(context), fontSize: 13, height: 1.5, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -384,11 +384,11 @@ class _MessageBubble extends StatelessWidget {
                     children: [
                       Text(
                         _formatTime(message.createdAt),
-                        style: TextStyle(color: (isMe ? Colors.white70 : AppColors.textTertiaryOf(context)), fontSize: 9, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: (isMe ? AppColors.textInverse : AppColors.textTertiaryOf(context)), fontSize: 9, fontWeight: FontWeight.bold),
                       ),
                       if (isMe) ...[
                         const SizedBox(width: 4),
-                        Icon(Icons.done_all, size: 12, color: message.isRead ? AppColors.info : Colors.white70),
+                        Icon(Icons.done_all, size: 12, color: message.isRead ? AppColors.info : AppColors.textInverse),
                       ],
                     ],
                   ),

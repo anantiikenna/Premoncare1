@@ -242,8 +242,8 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
                 if (post.categoryName != null)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(color: Colors.teal[50], borderRadius: BorderRadius.circular(6)),
-                    child: Text(post.categoryName!, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.teal[700])),
+                    decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(6)),
+                    child: Text(post.categoryName!, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.teal)),
                   ),
               ],
             ),

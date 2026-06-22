@@ -162,7 +162,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               backgroundColor: AppColors.success,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Approve', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Approve', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -238,7 +238,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               backgroundColor: AppColors.error,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Reject', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Reject', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -315,7 +315,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               backgroundColor: AppColors.warning,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Send Request', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Send Request', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -651,10 +651,10 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                               : status == 'under_review' ? Icons.search_rounded
                               : status == 'approved' ? Icons.check_rounded
                               : Icons.cancel_rounded,
-                          color: Colors.white, size: 10,
+                          color: AppColors.textInverse, size: 10,
                         ),
                         const SizedBox(width: 4),
-                        Text(_statusLabel(status), style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
+                        Text(_statusLabel(status), style: const TextStyle(color: AppColors.textInverse, fontSize: 9, fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ),
@@ -715,7 +715,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: AppColors.borderLight),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 40, offset: const Offset(0, 20))],
+        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 40, offset: const Offset(0, 20))],
       ),
       child: Column(
         children: [
@@ -752,10 +752,10 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                                 : status == 'under_review' ? Icons.search_rounded
                                 : status == 'approved' ? Icons.check_rounded
                                 : Icons.cancel_rounded,
-                            color: Colors.white, size: 10,
+                            color: AppColors.textInverse, size: 10,
                           ),
                           const SizedBox(width: 4),
-                          Text(_statusLabel(status), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                          Text(_statusLabel(status), style: const TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w800)),
                         ],
                       ),
                     ),
@@ -1155,7 +1155,7 @@ class _DocumentCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
-                        child: const Icon(Icons.check, color: Colors.white, size: 10),
+                        child: const Icon(Icons.check, color: AppColors.textInverse, size: 10),
                       ),
                     ),
                 ],

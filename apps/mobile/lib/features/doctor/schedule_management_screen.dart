@@ -284,7 +284,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   minimumSize: const Size.fromHeight(54),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Save Schedule', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+                child: const Text('Save Schedule', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 16)),
               ),
           const SizedBox(height: 40),
                 ],

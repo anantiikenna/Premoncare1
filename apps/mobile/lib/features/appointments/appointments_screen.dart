@@ -120,7 +120,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
         child: TabBar(
           controller: _tabController,
           indicatorSize: TabBarIndicatorSize.tab,
-          indicator: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))]),
+          indicator: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 2))]),
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondaryOf(context),
           labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
@@ -175,7 +175,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                 onPressed: () => context.push('/doctor-search'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textInverse,
                   elevation: 10,
                   shadowColor: AppColors.primary.withValues(alpha: 0.3),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -263,7 +263,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                     onPressed: () => context.push('/appointments/${appointment.id}'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textInverse,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
