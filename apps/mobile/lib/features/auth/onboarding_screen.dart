@@ -107,7 +107,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.asset('assets/logo-symbol.png', height: 42, fit: BoxFit.contain),
+                      Image.asset('assets/logo-symbol.png', height: 42, fit: BoxFit.contain, errorBuilder: (context, error, stackTrace) => Icon(Icons.health_and_safety_rounded, size: 32, color: AppColors.primary)),
                       TextButton.icon(
                         onPressed: () => _goTo('/login'),
                         label: const Text(
@@ -211,7 +211,7 @@ class _OnboardingSlide extends StatelessWidget {
                     child: child,
                   );
                 },
-                child: Image.asset(item.image, height: imageHeight, fit: BoxFit.contain),
+                child: Image.asset(item.image, height: imageHeight, fit: BoxFit.contain, errorBuilder: (context, error, stackTrace) => Icon(item.icon, size: 80, color: item.color)),
               ),
             ],
           ),

@@ -10,7 +10,12 @@ const emailRequestSchema = z.object({
 })
 
 async function emailHandler(req: NextRequest, sessionUser?: any) {
-    const jsonBody = await req.json()
+    let jsonBody: unknown
+    try {
+        jsonBody = await req.json()
+    } catch {
+        return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 })
+    }
     const parsed = emailRequestSchema.safeParse(jsonBody)
 
     if (!parsed.success) {
@@ -23,11 +28,17 @@ async function emailHandler(req: NextRequest, sessionUser?: any) {
     const supabase = await createClient()
 
     // 1. Check if user has email alerts enabled
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('email, full_name, email_alerts_enabled')
-        .eq('id', userId)
-        .single()
+    let profile: any = null
+    try {
+        const result = await supabase
+            .from('profiles')
+            .select('email, full_name, email_alerts_enabled')
+            .eq('id', userId)
+            .single()
+        profile = result.data
+    } catch {
+        return NextResponse.json({ success: false, error: 'Failed to fetch user profile' }, { status: 500 })
+    }
 
     if (!profile || profile.email_alerts_enabled === false) {
         return NextResponse.json({ success: true, message: 'Skipped: User disabled alerts or not found' })

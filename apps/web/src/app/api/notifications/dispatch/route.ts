@@ -17,7 +17,12 @@ const dispatchSchema = z.object({
 });
 
 async function dispatchHandler(req: NextRequest) {
-  const jsonBody = await req.json();
+  let jsonBody: unknown;
+  try {
+    jsonBody = await req.json();
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+  }
   const parsed = dispatchSchema.safeParse(jsonBody);
 
   if (!parsed.success) {
@@ -29,11 +34,17 @@ async function dispatchHandler(req: NextRequest) {
   const supabase = await createClient();
 
   // 1. Fetch user profile for email/settings
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('email, full_name, email_alerts_enabled')
-    .eq('id', userId)
-    .single();
+  let profile: any = null;
+  try {
+    const result = await supabase
+      .from('profiles')
+      .select('email, full_name, email_alerts_enabled')
+      .eq('id', userId)
+      .single();
+    profile = result.data;
+  } catch {
+    return NextResponse.json({ success: false, error: 'Failed to fetch user profile' }, { status: 500 });
+  }
 
   if (!profile) {
     return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });

@@ -374,8 +374,283 @@ alter table record_permissions enable row level security;
 alter table subscription_plans enable row level security;
 alter table doctor_subscriptions enable row level security;
 alter table reviews enable row level security;
+alter table system_settings enable row level security;
 
--- (Policies omitted for brevity in this draft, but would be fully restored in the final file)
+-- ============================================================
+-- PROFILES
+-- ============================================================
+-- Anyone can read profiles (doctor listings, messaging lookups)
+create policy "Anyone can view profiles"
+  on profiles for select
+  using (true);
+
+-- Users can update their own profile
+create policy "Users can update own profile"
+  on profiles for update
+  using (auth.uid() = id)
+  with check (auth.uid() = id);
+
+-- Users can insert their own profile (via trigger, but policy needed for safety)
+create policy "Users can insert own profile"
+  on profiles for insert
+  with check (auth.uid() = id);
+
+-- Admins can update any profile (suspend, verify, etc.)
+create policy "Admins can update any profile"
+  on profiles for update
+  using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- ============================================================
+-- DOCTOR SCHEDULES
+-- ============================================================
+-- Doctors can view their own schedule
+create policy "Doctors can view own schedule"
+  on doctor_schedules for select
+  using (auth.uid() = doctor_id);
+
+-- Any authenticated user can view schedules (for booking)
+create policy "Authenticated users can view doctor schedules"
+  on doctor_schedules for select
+  using (auth.role() = 'authenticated');
+
+-- Doctors can insert their own schedule (for upsert)
+create policy "Doctors can insert own schedule"
+  on doctor_schedules for insert
+  with check (auth.uid() = doctor_id);
+
+-- Doctors can update their own schedule
+create policy "Doctors can update own schedule"
+  on doctor_schedules for update
+  using (auth.uid() = doctor_id)
+  with check (auth.uid() = doctor_id);
+
+-- ============================================================
+-- APPOINTMENTS
+-- ============================================================
+-- Patients can view their own appointments
+create policy "Patients can view own appointments"
+  on appointments for select
+  using (auth.uid() = patient_id);
+
+-- Doctors can view appointments assigned to them
+create policy "Doctors can view their appointments"
+  on appointments for select
+  using (auth.uid() = doctor_id);
+
+-- ============================================================
+-- PAYMENTS
+-- ============================================================
+-- Patients can view their own payments
+create policy "Patients can view own payments"
+  on payments for select
+  using (auth.uid() = user_id);
+
+-- Patients can create payments for themselves
+create policy "Patients can create own payments"
+  on payments for insert
+  with check (auth.uid() = user_id);
+
+-- Doctors can view payments where they are the recipient
+create policy "Doctors can view their received payments"
+  on payments for select
+  using (auth.uid() = recipient_id);
+
+-- Recipients (doctors) can update payment status (approve/reject)
+create policy "Recipients can update payment status"
+  on payments for update
+  using (auth.uid() = recipient_id);
+
+-- Admins can view and manage all payments
+create policy "Admins can manage all payments"
+  on payments for all
+  using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- ============================================================
+-- TIME BALANCES
+-- ============================================================
+-- (policies defined above near the time_balances enable)
+
+-- ============================================================
+-- MESSAGES
+-- ============================================================
+-- Users can view messages they sent
+create policy "Users can view sent messages"
+  on messages for select
+  using (auth.uid() = sender_id);
+
+-- Users can view messages they received
+create policy "Users can view received messages"
+  on messages for select
+  using (auth.uid() = receiver_id);
+
+-- Users can send messages
+create policy "Users can send messages"
+  on messages for insert
+  with check (auth.uid() = sender_id);
+
+-- Users can update their own messages (mark read)
+create policy "Users can update own messages"
+  on messages for update
+  using (auth.uid() = sender_id or auth.uid() = receiver_id);
+
+-- ============================================================
+-- NOTIFICATIONS
+-- ============================================================
+-- Users can view their own notifications
+create policy "Users can view own notifications"
+  on notifications for select
+  using (auth.uid() = user_id);
+
+-- Users can update their own notifications (mark read)
+create policy "Users can update own notifications"
+  on notifications for update
+  using (auth.uid() = user_id);
+
+-- Any authenticated user can insert notifications (e.g., for other users)
+create policy "Authenticated users can create notifications"
+  on notifications for insert
+  with check (auth.role() = 'authenticated');
+
+-- Admins can view all notifications (for admin panel)
+create policy "Admins can view all notifications"
+  on notifications for select
+  using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- ============================================================
+-- MEDICAL RECORDS
+-- ============================================================
+-- Patients can view their own records
+create policy "Patients can view own records"
+  on medical_records for select
+  using (auth.uid() = patient_id);
+
+-- Patients can upload their own records
+create policy "Patients can insert own records"
+  on medical_records for insert
+  with check (auth.uid() = patient_id);
+
+-- Patients can update their own records
+create policy "Patients can update own records"
+  on medical_records for update
+  using (auth.uid() = patient_id)
+  with check (auth.uid() = patient_id);
+
+-- Patients can delete their own records
+create policy "Patients can delete own records"
+  on medical_records for delete
+  using (auth.uid() = patient_id);
+
+-- Doctors can view records shared via authorized_doctors array OR record_permissions
+create policy "Doctors can view shared records"
+  on medical_records for select
+  using (
+    auth.uid() = ANY(authorized_doctors)
+    or exists (
+      select 1 from record_permissions
+      where record_permissions.record_id = medical_records.id
+        and record_permissions.doctor_id = auth.uid()
+    )
+  );
+
+-- Admins can view all medical records (for admin stats)
+create policy "Admins can view all medical records"
+  on medical_records for select
+  using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- ============================================================
+-- RECORD PERMISSIONS
+-- ============================================================
+-- Patients can view permissions on their own records
+create policy "Patients can view own record permissions"
+  on record_permissions for select
+  using (
+    exists (
+      select 1 from medical_records
+      where medical_records.id = record_permissions.record_id
+        and medical_records.patient_id = auth.uid()
+    )
+  );
+
+-- Patients can manage permissions on their own records
+create policy "Patients can manage own record permissions"
+  on record_permissions for all
+  using (
+    exists (
+      select 1 from medical_records
+      where medical_records.id = record_permissions.record_id
+        and medical_records.patient_id = auth.uid()
+    )
+  );
+
+-- Doctors can view permissions granted to them
+create policy "Doctors can view permissions granted to them"
+  on record_permissions for select
+  using (auth.uid() = doctor_id);
+
+-- ============================================================
+-- SUBSCRIPTION PLANS
+-- ============================================================
+-- Anyone can view active subscription plans
+create policy "Anyone can view subscription plans"
+  on subscription_plans for select
+  using (true);
+
+-- ============================================================
+-- DOCTOR SUBSCRIPTIONS
+-- ============================================================
+-- Doctors can view their own subscriptions
+create policy "Doctors can view own subscriptions"
+  on doctor_subscriptions for select
+  using (auth.uid() = doctor_id);
+
+-- Admins can view all subscriptions
+create policy "Admins can view all subscriptions"
+  on doctor_subscriptions for select
+  using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- ============================================================
+-- REVIEWS
+-- ============================================================
+-- Anyone can view reviews
+create policy "Anyone can view reviews"
+  on reviews for select
+  using (true);
+
+-- Patients can create reviews for their completed appointments
+create policy "Patients can create reviews"
+  on reviews for insert
+  with check (auth.uid() = patient_id);
+
+-- Patients can update their own reviews
+create policy "Patients can update own reviews"
+  on reviews for update
+  using (auth.uid() = patient_id)
+  with check (auth.uid() = patient_id);
+
+-- ============================================================
+-- SYSTEM SETTINGS
+-- ============================================================
+-- Anyone can view system settings (public config like pricing)
+create policy "Anyone can view system settings"
+  on system_settings for select
+  using (true);
+
+-- Admins can update system settings
+create policy "Admins can update system settings"
+  on system_settings for update
+  using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
 
 -- ============================================================
 -- FUNCTIONS & TRIGGERS
@@ -392,7 +667,7 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_doctor_promotion
   AFTER UPDATE OF role ON profiles
@@ -415,7 +690,7 @@ BEGIN
         minutes_remaining = time_balances.minutes_remaining + p_minutes,
         updated_at = NOW();
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE OR REPLACE FUNCTION approve_payment(
     p_payment_id UUID,
@@ -479,7 +754,7 @@ BEGIN
         END LOOP;
     END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE OR REPLACE FUNCTION reject_payment(
     p_payment_id UUID,
@@ -498,7 +773,7 @@ BEGIN
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (v_payment.user_id, 'Payment Rejected', 'Your payment of ₦' || v_payment.amount || ' was rejected. Reason: ' || COALESCE(p_reason, 'No reason provided.'), 'payment', '/patient/payments');
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE OR REPLACE FUNCTION public.sweep_offline_doctors() 
 RETURNS void AS $$
@@ -598,7 +873,11 @@ create policy "Doctors can view their own payouts"
   on payouts for select
   using (auth.uid() = doctor_id);
 
-CREATE OR REPLACE VIEW pending_payments_view AS
+DROP VIEW IF EXISTS public.pending_payments_view;
+
+CREATE VIEW pending_payments_view
+  WITH (security_invoker = true)
+AS
 SELECT p.*, u.full_name as patient_name, u.avatar_url as patient_avatar
 FROM payments p JOIN profiles u ON p.user_id = u.id WHERE p.status = 'pending';
 
@@ -713,7 +992,7 @@ begin
     'total_refunds', total_refunds
   );
 end;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 
 -- ============================================================
@@ -804,6 +1083,19 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.admin_notification_settings TO se
 GRANT SELECT ON public.pending_payments_view TO anon;
 GRANT SELECT ON public.pending_payments_view TO authenticated;
 GRANT SELECT ON public.pending_payments_view TO service_role;
+
+-- Revoke EXECUTE from PUBLIC (default), re-grant to authenticated only
+REVOKE EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_admin_financial_stats() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.sweep_offline_doctors() FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_admin_financial_stats() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) TO authenticated;
 
 -- forum_posts & forum_replies grants are in the FORUM ECOSYSTEM section below
 
@@ -1047,7 +1339,7 @@ INSERT INTO storage.buckets (id, name, public) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- avatars
-CREATE POLICY "Anyone can view avatars" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "Anyone can view avatars" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'avatars');
 CREATE POLICY "Users can upload their own avatars" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 

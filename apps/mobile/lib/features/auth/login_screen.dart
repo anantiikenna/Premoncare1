@@ -131,6 +131,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         'assets/logo.png',
                         height: 120,
                         fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Icon(Icons.health_and_safety_rounded, size: 80, color: AppColors.primary),
                       ),
                       const SizedBox(height: 12),
                       Text('SECURE CLINICAL ECOSYSTEM', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
@@ -349,6 +350,7 @@ class _ClinicalInput extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        obscuringCharacter: '•',
         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimaryOf(context)),
         decoration: InputDecoration(
           hintText: hint,

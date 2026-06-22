@@ -11,7 +11,12 @@ const checkoutSchema = z.object({
 })
 
 async function checkoutHandler(request: NextRequest, sessionUser?: any) {
-    const jsonBody = await request.json()
+    let jsonBody: unknown
+    try {
+      jsonBody = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
     const parsed = checkoutSchema.safeParse(jsonBody)
 
     if (!parsed.success) {

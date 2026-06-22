@@ -224,6 +224,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       child: TextField(
         controller: controller,
         obscureText: !isVisible,
+        obscuringCharacter: '•',
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(

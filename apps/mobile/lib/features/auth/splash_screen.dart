@@ -159,6 +159,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           'assets/logo.png',
                           width: size.width * 0.65,
                           fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Icon(Icons.health_and_safety_rounded, size: 80, color: AppColors.primary),
                         ),
                         const SizedBox(height: 12),
                         Text(

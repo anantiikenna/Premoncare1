@@ -286,6 +286,7 @@ class _AdminInput extends StatelessWidget {
         controller: controller,
         focusNode: focusNode,
         obscureText: obscure,
+        obscuringCharacter: '•',
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         onSubmitted: onSubmitted,
