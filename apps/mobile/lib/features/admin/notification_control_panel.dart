@@ -155,7 +155,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  initialValue: targetRole,
+                  value: targetRole,
                   decoration: InputDecoration(
                     labelText: 'Target Audience',
                     border: OutlineInputBorder(

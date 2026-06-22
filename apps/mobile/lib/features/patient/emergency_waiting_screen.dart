@@ -443,7 +443,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
           width: double.infinity,
           height: 56,
           child: OutlinedButton(
-            onPressed: () => context.go('/'),
+            onPressed: () => context.go('/doctor-search'),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.textSecondary,
               side: const BorderSide(color: AppColors.border),

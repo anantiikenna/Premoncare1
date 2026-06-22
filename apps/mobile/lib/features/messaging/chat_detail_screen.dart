@@ -116,11 +116,19 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.phone, color: AppColors.primary, size: 18),
-            onPressed: () => context.push('/appointments'),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Phone call feature - start a consultation to use this.')),
+              );
+            },
           ),
           IconButton(
             icon: Icon(Icons.videocam, color: AppColors.primary, size: 20),
-            onPressed: () => context.push('/appointments'),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Video call feature - start a consultation to use this.')),
+              );
+            },
           ),
           const SizedBox(width: 8),
         ],

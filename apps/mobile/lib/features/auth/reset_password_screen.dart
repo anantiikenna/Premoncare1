@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -12,6 +13,7 @@ class ResetPasswordScreen extends StatefulWidget {
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isSubmitting = false;
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -31,6 +33,39 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _resetPassword() async {
+    if (!_hasMinLength || !_hasUppercase || !_hasNumber || !_hasSpecial) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please meet all password requirements before continuing.')),
+      );
+      return;
+    }
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match.')),
+      );
+      return;
+    }
+    setState(() => _isSubmitting = true);
+    try {
+      await supabase.auth.updateUser(
+        UserAttributes(password: _passwordController.text),
+      );
+      if (mounted) context.push('/password-reset-success');
+    } catch (e, stackTrace) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to reset password: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -171,9 +206,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => context.push('/password-reset-success'),
-                  icon: const Icon(Icons.lock_outline_rounded, size: 20),
-                  label: const Text('Reset Password'),
+                  onPressed: _isSubmitting ? null : _resetPassword,
+                  icon: _isSubmitting
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textInverse))
+                      : const Icon(Icons.lock_outline_rounded, size: 20),
+                  label: Text(_isSubmitting ? 'Resetting...' : 'Reset Password'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.textInverse,

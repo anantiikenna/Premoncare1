@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
-import '../../core/supabase_locator.dart';
+import '../../core/supabase_locator.dart' show supabase, getUserRole, clearRoleCache;
 import '../../core/services/notification_service.dart';
 import '../../core/user_facing_errors.dart';
 
@@ -63,7 +63,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       }
 
       await NotificationService().syncToken();
-      if (mounted) context.go('/');
+      clearRoleCache();
+      if (mounted) context.go(role == 'doctor' ? '/doctor_dashboard' : '/patient_dashboard');
     } catch (e, stackTrace) {
       logHandledError('Login failed', e, stackTrace);
       if (mounted) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import 'admin_scaffold.dart';
@@ -839,26 +840,43 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           icon: Icons.remove_red_eye_outlined,
           label: 'Review Queue',
           color: AppColors.primary,
+          onTap: () => context.go('/admin/reports'),
         ),
         _QuickAction(
           icon: Icons.balance_rounded,
           label: 'Resolve Disputes',
           color: AppColors.error,
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Navigate to Disputes from the sidebar menu.')),
+            );
+          },
         ),
         _QuickAction(
           icon: Icons.person_off_outlined,
           label: 'Block User',
           color: AppColors.warning,
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Select a user first to block them.')),
+            );
+          },
         ),
         _QuickAction(
           icon: Icons.bar_chart_rounded,
           label: 'Transaction Report',
           color: AppColors.info,
+          onTap: () => context.go('/admin/reports'),
         ),
         _QuickAction(
           icon: Icons.security_rounded,
           label: 'Risk Settings',
           color: AppColors.success,
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Risk settings panel is under development.')),
+            );
+          },
         ),
       ],
     );
@@ -1540,37 +1558,42 @@ class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final VoidCallback? onTap;
 
   const _QuickAction({
     required this.icon,
     required this.label,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withValues(alpha: 0.2)),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
+            ),
+            child: Icon(icon, color: color, size: 24),
           ),
-          child: Icon(icon, color: color, size: 24),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w800,
-            color: color,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              color: color,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

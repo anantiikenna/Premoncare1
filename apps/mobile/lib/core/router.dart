@@ -52,6 +52,7 @@ import '../features/doctor/patient_details_layout.dart';
 import '../features/doctor/earnings_analytics_screen.dart';
 import '../features/doctor/subscription_management_screen.dart';
 import '../features/doctor/schedule_management_screen.dart';
+import '../features/doctor/doctor_payments_screen.dart';
 import '../shared/widgets/document_viewer.dart';
 import '../features/admin/admin_dashboard.dart';
 import '../features/admin/doctor_verification_panel.dart';
@@ -531,6 +532,10 @@ final goRouter = GoRouter(
     GoRoute(
       path: '/doctor/earnings',
       builder: (context, state) => const EarningsAnalyticsScreen(),
+    ),
+    GoRoute(
+      path: '/doctor/payments',
+      builder: (context, state) => const DoctorPaymentsScreen(),
     ),
     GoRoute(
       path: '/doctor/subscription',

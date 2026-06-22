@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import 'admin_scaffold.dart';
@@ -886,25 +887,42 @@ class _FinancialModerationScreenState
           color: AppColors.success,
           onTap: () => _showApprovePayoutsDialog(context),
         ),
-        const _QuickAction(
+        _QuickAction(
           icon: Icons.replay_rounded,
           label: 'Review Refunds',
           color: AppColors.error,
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Review Refunds'),
+                content: const Text('Refund review is under development.'),
+                actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
+              ),
+            );
+          },
         ),
-        const _QuickAction(
+        _QuickAction(
           icon: Icons.warning_amber_rounded,
           label: 'Resolve Disputes',
           color: AppColors.warning,
+          onTap: () => context.push('/admin/disputes'),
         ),
-        const _QuickAction(
+        _QuickAction(
           icon: Icons.bar_chart_rounded,
           label: 'Transaction Reports',
           color: AppColors.primary,
+          onTap: () => context.push('/admin/reports'),
         ),
-        const _QuickAction(
+        _QuickAction(
           icon: Icons.settings_outlined,
           label: 'Payout Settings',
           color: AppColors.info,
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Payout settings are under development.')),
+            );
+          },
         ),
       ],
     );

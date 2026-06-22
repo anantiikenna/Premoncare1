@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import 'records_provider.dart';
 import 'upload_record_sheet.dart';
-import 'dart:math' as math;
+
 
 class MedicalVaultScreen extends ConsumerWidget {
   const MedicalVaultScreen({super.key});
@@ -153,36 +153,140 @@ class MedicalVaultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecordsList(BuildContext context, List<dynamic> records) {
+  Widget _buildRecordsList(BuildContext context, List<MedicalRecord> records) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       itemCount: records.length,
-      itemBuilder: (context, index) => _buildRecordTile(records[index]),
+      itemBuilder: (context, index) => _buildRecordTile(context, records[index]),
     );
   }
 
-  Widget _buildRecordTile(dynamic record) {
+  Widget _buildRecordTile(BuildContext context, MedicalRecord record) {
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final dateStr = '${months[record.createdAt.month - 1]} ${record.createdAt.day}, ${record.createdAt.year}';
+    final typeIcon = record.recordType == RecordType.labResult
+        ? Icons.science_rounded
+        : record.recordType == RecordType.prescription
+            ? Icons.medication_rounded
+            : record.recordType == RecordType.imaging
+                ? Icons.image_rounded
+                : record.recordType == RecordType.immunization
+                    ? Icons.vaccines_rounded
+                    : record.recordType == RecordType.clinicalNote
+                        ? Icons.note_alt_rounded
+                        : Icons.description_rounded;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLight)),
-      child: Row(
-        children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.description_rounded, color: AppColors.primary, size: 24)),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Clinical Report #${math.Random().nextInt(10000)}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimary)),
-                const SizedBox(height: 4),
-                const Text('Uploaded Oct 24, 2023 • 2.4 MB', style: TextStyle(color: AppColors.textTertiary, fontSize: 11, fontWeight: FontWeight.w700)),
-              ],
-            ),
+      child: InkWell(
+        onTap: () => _showRecordOptions(context, record),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context))),
+          child: Row(
+            children: [
+              Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: Icon(typeIcon, color: AppColors.primary, size: 24)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(record.title, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+                    const SizedBox(height: 4),
+                    Text('Uploaded $dateStr', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w700)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context)),
+            ],
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.slate300),
+        ),
+      ),
+    );
+  }
+
+  void _showRecordOptions(BuildContext context, MedicalRecord record) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 24),
+            Text(record.title, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: AppColors.textPrimaryOf(context))),
+            const SizedBox(height: 4),
+            Text(record.recordType.name, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
+            const SizedBox(height: 24),
+            _optionTile(ctx, Icons.visibility_rounded, 'View Record', () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Opening ${record.title}...')),
+              );
+            }),
+            _optionTile(ctx, Icons.share_rounded, 'Share with Doctor', () {
+              Navigator.pop(ctx);
+              context.push('/doctor-search?shareRecord=${record.id}');
+            }),
+            _optionTile(ctx, Icons.delete_outline_rounded, 'Delete Record', () {
+              Navigator.pop(ctx);
+              _confirmDelete(context, record);
+            }, isDestructive: true),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, MedicalRecord record) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: const Text('Delete Record'),
+        content: Text('Are you sure you want to delete "${record.title}"? This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await RecordsService.deleteRecord(record);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${record.title} deleted')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to delete: $e'), backgroundColor: AppColors.error),
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _optionTile(BuildContext context, IconData icon, String label, VoidCallback onTap, {bool isDestructive = false}) {
+    return ListTile(
+      leading: Icon(icon, color: isDestructive ? AppColors.error : AppColors.primary),
+      title: Text(label, style: TextStyle(color: isDestructive ? AppColors.error : AppColors.textPrimaryOf(context), fontWeight: FontWeight.w700)),
+      trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context)),
+      onTap: onTap,
     );
   }
 

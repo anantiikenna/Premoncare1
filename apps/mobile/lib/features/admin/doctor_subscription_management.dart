@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
@@ -421,13 +422,21 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
             ],
           ),
           const Spacer(),
-          _BulkActionButton(icon: Icons.send_rounded, label: 'Send Reminder', color: AppColors.primary),
+          _BulkActionButton(icon: Icons.send_rounded, label: 'Send Reminder', color: AppColors.primary, onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select doctors to send reminders.')));
+          }),
           const SizedBox(width: 8),
-          _BulkActionButton(icon: Icons.calendar_today_rounded, label: 'Extend Subscription', color: AppColors.primary),
+          _BulkActionButton(icon: Icons.calendar_today_rounded, label: 'Extend Subscription', color: AppColors.primary, onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select doctors to extend subscriptions.')));
+          }),
           const SizedBox(width: 8),
-          _BulkActionButton(icon: Icons.block_rounded, label: 'Suspend', color: AppColors.error),
+          _BulkActionButton(icon: Icons.block_rounded, label: 'Suspend', color: AppColors.error, onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select doctors to suspend.')));
+          }),
           const SizedBox(width: 8),
-          _BulkActionButton(icon: Icons.file_download_outlined, label: 'Export', color: AppColors.slate500),
+          _BulkActionButton(icon: Icons.file_download_outlined, label: 'Export', color: AppColors.textTertiaryOf(context), onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export is being prepared.')));
+          }),
         ],
       ),
     );
@@ -558,10 +567,21 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               children: [
                 _SectionHeader('Quick Actions'),
                 const SizedBox(height: 16),
-                _QuickActionTile(icon: Icons.warning_amber_rounded, label: 'Overdue Payments', color: AppColors.error),
-                _QuickActionTile(icon: Icons.bar_chart_rounded, label: 'Subscription Reports', color: AppColors.primary),
-                _QuickActionTile(icon: Icons.verified_user_rounded, label: 'Payment Verification', color: AppColors.success),
-                _QuickActionTile(icon: Icons.notifications_active_rounded, label: 'Notification Settings', color: AppColors.pink),
+                _QuickActionTile(icon: Icons.warning_amber_rounded, label: 'Overdue Payments', color: AppColors.error, onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Overdue payments list is under development.')));
+                }),
+                _QuickActionTile(icon: Icons.bar_chart_rounded, label: 'Subscription Reports', color: AppColors.primary, onTap: () => context.push('/admin/reports')),
+                _QuickActionTile(icon: Icons.verified_user_rounded, label: 'Payment Verification', color: AppColors.success, onTap: () => context.push('/admin/financial-moderation')),
+                _QuickActionTile(icon: Icons.notifications_active_rounded, label: 'Notification Settings', color: AppColors.pink, onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Notification Settings'),
+                      content: const Text('Configure subscription notifications.'),
+                      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -772,14 +792,18 @@ class _BulkActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _BulkActionButton({required this.icon, required this.label, required this.color});
+  final VoidCallback? onTap;
+  const _BulkActionButton({required this.icon, required this.label, required this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderLight)),
-      child: Icon(icon, color: color, size: 18),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderLightOf(context))),
+        child: Icon(icon, color: color, size: 18),
+      ),
     );
   }
 }
@@ -933,20 +957,24 @@ class _QuickActionTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _QuickActionTile({required this.icon, required this.label, required this.color});
+  final VoidCallback? onTap;
+  const _QuickActionTile({required this.icon, required this.label, required this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 16),
-          const SizedBox(width: 12),
-          Expanded(child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900))),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 12),
+            Expanded(child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900))),
+          ],
+        ),
       ),
     );
   }

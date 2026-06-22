@@ -460,9 +460,9 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       data: (metrics) {
         if (metrics == null) return const SizedBox.shrink();
         final patientsHelped = metrics['patients_helped']?.toString() ?? '0';
-        final todaySessions = '0';
+        final rating = (metrics['rating'] as num?)?.toStringAsFixed(1) ?? '0.0';
+        final todaySessions = metrics['consultation_counts']?.toString() ?? '0';
         final pendingInvites = '0';
-        final rating = '4.9';
 
         return GridView.count(
           crossAxisCount: 2,
@@ -517,6 +517,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           }),
           _buildActionItem(context, Icons.medication_rounded, 'Prescribe', AppColors.primary, onTap: () => context.push('/appointments')),
           _buildActionItem(context, Icons.verified_user_rounded, 'Compliance', AppColors.info, onTap: () => context.push('/doctor/subscription')),
+          _buildActionItem(context, Icons.payments_rounded, 'Payments', AppColors.success, onTap: () => context.push('/doctor/payments')),
         ],
       ),
     );
