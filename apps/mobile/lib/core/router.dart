@@ -24,7 +24,6 @@ import '../features/patient/doctor_search_screen.dart';
 import '../features/patient/payment_failed_screen.dart';
 import '../features/patient/booking_failed_screen.dart';
 import '../features/patient/credits_screen.dart';
-import '../features/patient/pricing_plans_screen.dart';
 import '../features/verification/widgets/upload_failed_screen.dart';
 import '../shared/widgets/no_internet_screen.dart';
 import '../features/appointments/emergency_failed_screen.dart';
@@ -591,10 +590,6 @@ final goRouter = GoRouter(
     GoRoute(
       path: '/credits',
       builder: (context, state) => const CreditsScreen(),
-    ),
-    GoRoute(
-      path: '/pricing-plans',
-      builder: (context, state) => const PricingPlansScreen(),
     ),
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
   ],

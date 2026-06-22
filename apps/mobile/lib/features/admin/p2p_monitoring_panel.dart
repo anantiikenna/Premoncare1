@@ -117,7 +117,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           .from('payments')
           .select('''
             id, amount, status, created_at, method, receipt_url,
-            sender_id, recipient_id
+            user_id, recipient_id
           ''')
           .eq('method', 'manual');
 
@@ -130,7 +130,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       final senderIds = <String>{};
       final recipientIds = <String>{};
       for (final t in data) {
-        final s = t['sender_id'] as String?;
+        final s = t['user_id'] as String?;
         final r = t['recipient_id'] as String?;
         if (s != null) senderIds.add(s);
         if (r != null) recipientIds.add(r);
@@ -149,7 +149,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       }
 
       final enriched = data.map((t) {
-        final sender = profileMap[t['sender_id']];
+        final sender = profileMap[t['user_id']];
         final recipient = profileMap[t['recipient_id']];
         return {
           ...t,
@@ -209,7 +209,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
     try {
       final payments = await supabase
           .from('payments')
-          .select('sender_id, recipient_id, amount')
+          .select('user_id, recipient_id, amount')
           .eq('method', 'manual')
           .eq('status', 'approved');
 

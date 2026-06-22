@@ -93,7 +93,7 @@ class CreditsScreen extends ConsumerWidget {
   Widget _buildActionGrid(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _QuickAction(icon: Icons.timer_rounded, label: 'Buy Time', color: AppColors.primary, onTap: () => context.push('/pricing-plans'))),
+        Expanded(child: _QuickAction(icon: Icons.timer_rounded, label: 'Buy Time', color: AppColors.primary, onTap: () => context.push('/doctor-search'))),
         const SizedBox(width: 12),
         Expanded(child: _QuickAction(icon: Icons.upload_file_rounded, label: 'Upload Receipt', color: AppColors.success, onTap: () => context.push('/upload-receipt'))),
         const SizedBox(width: 12),
@@ -130,7 +130,7 @@ class CreditsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () => context.push('/pricing-plans'),
+                  onPressed: () => context.push('/doctor-search'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
@@ -343,7 +343,7 @@ class _DoctorCreditCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => context.push('/pricing-plans'),
+            onPressed: () => context.push('/doctor-search'),
                   style: OutlinedButton.styleFrom(side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: const EdgeInsets.symmetric(vertical: 14)),
                   child: Text('Buy More', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13)),
                 ),

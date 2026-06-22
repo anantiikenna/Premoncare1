@@ -84,7 +84,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
                       final today = DateTime.now();
                       final todayAppts = appointments.where((a) {
                         final d = DateTime.parse(a['appointment_date']);
-                        return d.year == today.year && d.month == today.day;
+                        return d.year == today.year && d.month == today.month && d.day == today.day;
                       }).toList();
                       final pending = appointments.where((a) => a['status'] == 'pending' || a['status'] == 'emergency_request').toList();
 

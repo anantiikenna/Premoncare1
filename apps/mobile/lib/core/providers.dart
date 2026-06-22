@@ -172,7 +172,7 @@ final recentDoctorApplicationsProvider = FutureProvider<List<Map<String, dynamic
 final recentTransactionsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final response = await supabase
       .from('payments')
-      .select('id, amount, status, created_at, sender_id, recipient_id')
+      .select('id, amount, status, created_at, user_id, recipient_id')
       .order('created_at', ascending: false)
       .limit(5);
   return List<Map<String, dynamic>>.from(response);

@@ -43,7 +43,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
     try {
       final data = await supabase
           .from('profiles')
-          .select('full_name, specialty, about, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url, is_online')
+          .select('full_name, specialty, about_text, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url, is_online')
           .eq('id', widget.doctorId)
           .single();
       if (mounted) setState(() { _profile = data; _loading = false; });
@@ -58,7 +58,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   double get _hourlyRate => (_profile?['hourly_rate'] as num?)?.toDouble() ?? 5000.0;
   double get _bookingRate => widget.isEmergency ? _hourlyRate * 5 : _hourlyRate;
   int get _experienceYears => _profile?['experience_years'] as int? ?? 0;
-  String get _about => _profile?['about'] as String? ?? 'Dedicated and compassionate healthcare professional committed to delivering quality patient care.';
+  String get _about => _profile?['about_text'] as String? ?? 'Dedicated and compassionate healthcare professional committed to delivering quality patient care.';
   bool get _isOnline => _profile?['is_online'] == true;
   String get _verificationStatus => _profile?['verification_status'] as String? ?? 'pending';
   bool get _isVerified => _verificationStatus == 'approved';

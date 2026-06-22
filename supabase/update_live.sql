@@ -343,6 +343,51 @@ CREATE TRIGGER on_appointment_completed
   EXECUTE PROCEDURE public.update_doctor_consultation_count();
 
 -- ============================================================
+-- FORUM: Missing RPC functions + reply_count trigger
+-- ============================================================
+
+-- RPC: Increment forum post upvote
+CREATE OR REPLACE FUNCTION public.increment_forum_upvote(p_post_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE forum_posts SET upvotes = upvotes + 1 WHERE id = p_post_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- RPC: Increment forum reply helpful votes
+CREATE OR REPLACE FUNCTION public.increment_reply_helpful(p_reply_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE forum_replies SET helpful_votes = helpful_votes + 1 WHERE id = p_reply_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Trigger: auto-maintain reply_count on forum_posts
+CREATE OR REPLACE FUNCTION public.update_forum_reply_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE forum_posts SET updated_at = NOW() WHERE id = NEW.post_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE forum_posts SET updated_at = NOW() WHERE id = OLD.post_id;
+  END IF;
+  RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS on_forum_reply_change ON public.forum_replies;
+CREATE TRIGGER on_forum_reply_change
+  AFTER INSERT OR DELETE ON public.forum_replies
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.update_forum_reply_count();
+
+-- RPC Grants
+REVOKE EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) TO authenticated;
+
+-- ============================================================
 -- NOTE: auth_leaked_password_protection
 -- Enable in Supabase Dashboard → Auth → Settings → Password
 -- Toggle "Leaked password protection" ON

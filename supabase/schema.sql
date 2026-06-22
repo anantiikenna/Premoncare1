@@ -87,6 +87,7 @@ create table profiles (
   emergency_contact_phone text,
   address text,
   phone text,
+  is_emergency boolean default false,
   
   -- Privacy & Security
   biometric_enabled boolean default false,
@@ -754,6 +755,21 @@ CREATE TRIGGER on_appointment_completed
   FOR EACH ROW
   EXECUTE PROCEDURE public.update_doctor_consultation_count();
 
+-- Forum: RPC functions for upvotes and helpful votes
+CREATE OR REPLACE FUNCTION public.increment_forum_upvote(p_post_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE forum_posts SET upvotes = upvotes + 1 WHERE id = p_post_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.increment_reply_helpful(p_reply_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE forum_replies SET helpful_votes = helpful_votes + 1 WHERE id = p_reply_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
 CREATE OR REPLACE FUNCTION increment_time_balance(
     p_patient_id UUID,
     p_doctor_id UUID,
@@ -1178,6 +1194,11 @@ GRANT EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) TO authenticat
 GRANT EXECUTE ON FUNCTION public.get_admin_financial_stats() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) TO authenticated;
 
+REVOKE EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) TO authenticated;
+
 -- forum_posts & forum_replies grants are in the FORUM ECOSYSTEM section below
 
 -- subscription_plans
@@ -1415,7 +1436,7 @@ INSERT INTO storage.buckets (id, name, public) VALUES
   ('doctor-verifications', 'doctor-verifications', false),
   ('patient-verifications', 'patient-verifications', false),
   ('medical-documents', 'medical-documents', false),
-  ('payment-receipts', 'payment-receipts', false),
+  ('payment-receipts', 'payment-receipts', true),
   ('patient-medical-vault', 'patient-medical-vault', false)
 ON CONFLICT (id) DO NOTHING;
 
@@ -1452,6 +1473,8 @@ CREATE POLICY "Users can select their own payment receipts" ON storage.objects F
 CREATE POLICY "Users can update their own payment receipts" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'payment-receipts' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY "Patients can upload their own payment receipts" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'payment-receipts' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY "Admins can view all payment receipts" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'payment-receipts' AND exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+CREATE POLICY "Doctors can view receipts sent to them" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'payment-receipts' AND exists (select 1 from public.payments where payments.receipt_url LIKE '%' || name || '%' AND payments.recipient_id = auth.uid()));
 
 -- patient-medical-vault
 CREATE POLICY "Patients can select their own medical vault documents" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'patient-medical-vault' AND (storage.foldername(name))[1] = auth.uid()::text);

@@ -26,12 +26,32 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
   final _descController = TextEditingController();
   String _paymentMethod = 'Bank Transfer';
   bool _isLoading = false;
+  String? _selectedDoctorId;
+
+  List<Map<String, dynamic>> _doctors = [];
+  bool _loadingDoctors = true;
 
   @override
   void initState() {
     super.initState();
-    if (widget.amount != null) {
-      _amountController.text = widget.amount!.toStringAsFixed(0);
+    if (widget.amount != null) _amountController.text = widget.amount!.toStringAsFixed(0);
+    _selectedDoctorId = widget.doctorId;
+    _loadDoctors();
+  }
+
+  Future<void> _loadDoctors() async {
+    try {
+      final data = await supabase
+          .from('profiles')
+          .select('id, full_name, specialty, consultation_fee, avatar_url')
+          .eq('role', 'doctor')
+          .order('full_name');
+      setState(() {
+        _doctors = List<Map<String, dynamic>>.from(data);
+        _loadingDoctors = false;
+      });
+    } catch (e) {
+      setState(() => _loadingDoctors = false);
     }
   }
 
@@ -57,6 +77,10 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter the amount paid')));
       return;
     }
+    if (_selectedDoctorId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the doctor you are paying')));
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -73,13 +97,12 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
 
       await supabase.from('payments').insert({
         'user_id': user.id,
-        if (widget.doctorId != null) 'recipient_id': widget.doctorId,
+        'recipient_id': _selectedDoctorId,
         'amount': double.parse(_amountController.text.replaceAll(RegExp(r'[^\d.]'), '')),
         'method': 'manual',
         'receipt_url': publicUrl,
         'status': 'pending',
         if (_refController.text.isNotEmpty) 'transaction_id': _refController.text,
-        if (widget.appointmentId != null) 'duration_minutes': 0,
       });
 
       if (mounted) {
@@ -174,6 +197,8 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                     ),
             ),
             const SizedBox(height: 32),
+            _buildDoctorSelector(),
+            const SizedBox(height: 20),
             _buildTextField(label: 'Amount Paid (₦)', hint: '18000', controller: _amountController, keyboardType: TextInputType.number),
             const SizedBox(height: 20),
             _buildDropdownField(),
@@ -269,6 +294,131 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildDoctorSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Paying To', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
+        const SizedBox(height: 8),
+        if (_loadingDoctors)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderOf(context))),
+            child: Row(children: [
+              SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+              const SizedBox(width: 12),
+              Text('Loading doctors...', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
+            ]),
+          )
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: _selectedDoctorId == null ? AppColors.borderOf(context) : AppColors.primary.withValues(alpha: 0.3))),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedDoctorId,
+                isExpanded: true,
+                hint: Row(
+                  children: [
+                    Icon(Icons.person_outline_rounded, size: 18, color: AppColors.textTertiaryOf(context)),
+                    const SizedBox(width: 12),
+                    Text('Select a doctor', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
+                  ],
+                ),
+                items: _doctors.map((doc) {
+                  final fee = doc['consultation_fee'] as num? ?? 0;
+                  final avatar = doc['avatar_url'] as String?;
+                  return DropdownMenuItem<String>(
+                    value: doc['id'] as String,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                          backgroundImage: avatar != null && avatar.isNotEmpty ? NetworkImage(avatar) : null,
+                          child: (avatar == null || avatar.isEmpty) ? Text((doc['full_name'] as String? ?? '?')[0].toUpperCase(), style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold)) : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(doc['full_name'] ?? 'Unknown', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+                              if (doc['specialty'] != null) Text(doc['specialty'], style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context)), overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
+                        ),
+                        if (fee > 0) Text('₦${fee.toInt()}/hr', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (val) => setState(() => _selectedDoctorId = val),
+              ),
+            ),
+          ),
+        if (_selectedDoctorId != null) ...[
+          const SizedBox(height: 12),
+          ..._doctors.where((d) => d['id'] == _selectedDoctorId).map((d) {
+            final fee = d['consultation_fee'] as num? ?? 0;
+            final avatar = d['avatar_url'] as String?;
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                    backgroundImage: avatar != null && avatar.isNotEmpty ? NetworkImage(avatar) : null,
+                    child: (avatar == null || avatar.isEmpty) ? Text((d['full_name'] as String? ?? '?')[0].toUpperCase(), style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)) : null,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(d['full_name'] ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context)), overflow: TextOverflow.ellipsis),
+                            ),
+                            Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        if (d['specialty'] != null) Text(d['specialty'], style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context)), overflow: TextOverflow.ellipsis),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Text('₦${fee.toInt()}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                        Text('per hour', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.primary.withValues(alpha: 0.7))),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
       ],
     );
   }
