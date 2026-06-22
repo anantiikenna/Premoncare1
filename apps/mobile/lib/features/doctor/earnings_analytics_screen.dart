@@ -47,10 +47,10 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
   @override
   Widget build(BuildContext context) {
     final earningsAsync = ref.watch(earningsProvider);
-    final totalEarnings = earningsAsync.when(data: (d) => d['totalEarnings'] as double, loading: () => 0.0, error: (_, __) => 0.0);
-    final consultationCount = earningsAsync.when(data: (d) => (d['consultations'] as num).toInt(), loading: () => 0, error: (_, __) => 0);
-    final rating = earningsAsync.when(data: (d) => (d['rating'] as num).toDouble(), loading: () => 0.0, error: (_, __) => 0.0);
-    final patientsHelped = earningsAsync.when(data: (d) => (d['patientsHelped'] as num).toInt(), loading: () => 0, error: (_, __) => 0);
+    final totalEarnings = earningsAsync.when(data: (d) => d['totalEarnings'] as double, loading: () => 0.0, error: (_, _) => 0.0);
+    final consultationCount = earningsAsync.when(data: (d) => (d['consultations'] as num).toInt(), loading: () => 0, error: (_, _) => 0);
+    final rating = earningsAsync.when(data: (d) => (d['rating'] as num).toDouble(), loading: () => 0.0, error: (_, _) => 0.0);
+    final patientsHelped = earningsAsync.when(data: (d) => (d['patientsHelped'] as num).toInt(), loading: () => 0, error: (_, _) => 0);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
@@ -422,8 +422,8 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Earnings', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
-                    const Text('Total', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
+                    Text('Earnings', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
+                    Text('Total', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],

@@ -71,7 +71,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
           patientAsync.when(
             data: (patient) => _buildPatientHeader(context, patient),
             loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
-            error: (_, __) => const SizedBox(height: 100, child: Center(child: Text('Could not load patient'))),
+            error: (_, _) => const SizedBox(height: 100, child: Center(child: Text('Could not load patient'))),
           ),
           const SizedBox(height: 20),
           _buildTabBar(),
@@ -267,7 +267,7 @@ class _OverviewTab extends ConsumerWidget {
               return _buildAppointmentSummary(context, total, completed, pending);
             },
             loading: () => const _SectionCard(title: 'Appointment Summary', child: SizedBox(height: 40, child: Center(child: CircularProgressIndicator()))),
-            error: (_, __) => const _SectionCard(title: 'Appointment Summary', child: Text('Could not load data')),
+            error: (_, _) => const _SectionCard(title: 'Appointment Summary', child: Text('Could not load data')),
           ),
         ],
       ),
@@ -279,17 +279,17 @@ class _OverviewTab extends ConsumerWidget {
       title: 'Appointment Summary',
       child: Column(
         children: [
-          _buildSummaryRow('Total Appointments', total.toString()),
+          _buildSummaryRow(context, 'Total Appointments', total.toString()),
           const SizedBox(height: 12),
-          _buildSummaryRow('Completed', completed.toString()),
+          _buildSummaryRow(context, 'Completed', completed.toString()),
           const SizedBox(height: 12),
-          _buildSummaryRow('Pending', pending.toString()),
+          _buildSummaryRow(context, 'Pending', pending.toString()),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryRow(String label, String value) {
+  Widget _buildSummaryRow(BuildContext context, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -329,7 +329,7 @@ class _ConsultationsTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('Could not load consultations')),
+      error: (_, _) => const Center(child: Text('Could not load consultations')),
     );
   }
 
@@ -419,7 +419,7 @@ class _RecordsTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('Could not load records')),
+      error: (_, _) => const Center(child: Text('Could not load records')),
     );
   }
 

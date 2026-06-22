@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/providers.dart';
-import '../../core/supabase_locator.dart';
 
 class DoctorPaymentsScreen extends ConsumerWidget {
   const DoctorPaymentsScreen({super.key});
@@ -80,7 +79,7 @@ class DoctorPaymentsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(patientName, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-                    Text('₦${amount}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+                    Text('₦$amount', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
                   ],
                 ),
               ),
