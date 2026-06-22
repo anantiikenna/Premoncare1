@@ -25,10 +25,10 @@ class OTPVerificationScreen extends StatefulWidget {
 
 class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   final List<TextEditingController> _controllers = List.generate(
-    8,
+    7,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(8, (index) => FocusNode());
+  final List<FocusNode> _focusNodes = List.generate(7, (index) => FocusNode());
   int _secondsRemaining = 60;
   Timer? _timer;
   bool _isLoading = false;
@@ -69,35 +69,35 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   }
 
   void _onOtpChanged(int index, String value) {
-    if (value.isNotEmpty && index < 7) {
+    if (value.isNotEmpty && index < 6) {
       _focusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
     }
 
     final otp = _controllers.map((c) => c.text).join();
-    if (otp.length == 8) {
+    if (otp.length == 7) {
       _verifyOtp();
     }
   }
 
   void _onPaste(String pasted) {
     final digits = pasted.replaceAll(RegExp(r'[^0-9]'), '').split('');
-    for (var i = 0; i < 8 && i < digits.length; i++) {
+    for (var i = 0; i < 7 && i < digits.length; i++) {
       _controllers[i].text = digits[i];
     }
-    final lastFilled = digits.length.clamp(0, 7);
+    final lastFilled = digits.length.clamp(0, 6);
     _focusNodes[lastFilled].requestFocus();
-    if (digits.length >= 8) {
+    if (digits.length >= 7) {
       _verifyOtp();
     }
   }
 
   Future<void> _verifyOtp() async {
     final otp = _controllers.map((c) => c.text).join();
-    if (otp.length < 8) {
+    if (otp.length < 7) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the complete 8-digit code')),
+        const SnackBar(content: Text('Please enter the complete 7-digit code')),
       );
       return;
     }
@@ -199,7 +199,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Enter the 8-digit code sent to',
+                           'Enter the 7-digit code sent to',
                           style: TextStyle(
                             color: AppColors.textSecondaryOf(context),
                             fontSize: 13,
@@ -215,9 +215,9 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                               final availableWidth = constraints.maxWidth;
                               final spacing = 6.0;
                               final boxWidth =
-                                  ((availableWidth - (spacing * 7)) / 8)
+                                  ((availableWidth - (spacing * 6)) / 7)
                                       .floorToDouble()
-                                      .clamp(28.0, 40.0);
+                                      .clamp(34.0, 54.0);
                               final boxHeight = (boxWidth * 1.35)
                                   .floorToDouble();
                               return Wrap(
@@ -225,7 +225,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                                 runSpacing: 12,
                                 alignment: WrapAlignment.center,
                                 children: List.generate(
-                                  8,
+                                  7,
                                   (index) => _OTPBox(
                                     index: index,
                                     controller: _controllers[index],

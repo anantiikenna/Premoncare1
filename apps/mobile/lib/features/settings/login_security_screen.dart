@@ -124,7 +124,7 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
     return TextField(
       controller: controller,
       obscureText: obscure,
-      obscuringCharacter: '•',
+      obscuringCharacter: '●',
       style: TextStyle(color: color),
       decoration: InputDecoration(
         labelText: label,

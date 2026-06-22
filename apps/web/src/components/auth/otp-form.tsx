@@ -13,7 +13,7 @@ interface OTPFormProps {
 }
 
 export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
-    const [otp, setOtp] = useState<string[]>(Array(8).fill(''))
+    const [otp, setOtp] = useState<string[]>(Array(7).fill(''))
     const [loading, setLoading] = useState(false)
     const [timer, setTimer] = useState(60)
     const [error, setError] = useState<string | null>(null)
@@ -36,7 +36,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
     }, [])
 
     const focusInput = (index: number) => {
-        const clamped = Math.max(0, Math.min(7, index))
+        const clamped = Math.max(0, Math.min(6, index))
         inputRefs.current[clamped]?.focus()
         setFocusedIndex(clamped)
     }
@@ -48,29 +48,29 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         newOtp[index] = value.slice(-1)
         setOtp(newOtp)
 
-        if (value && index < 7) {
+        if (value && index < 6) {
             focusInput(index + 1)
         }
 
-        // Auto-submit when all 8 digits filled
+        // Auto-submit when all 7 digits filled
         const code = [...newOtp.slice(0, index), value.slice(-1), ...newOtp.slice(index + 1)].join('')
-        if (code.length === 8) {
+        if (code.length === 7) {
             handleSubmitWithCode(code)
         }
     }
 
     const handlePaste = (e: React.ClipboardEvent) => {
         e.preventDefault()
-        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 8)
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 7)
         if (!pasted) return
 
-        const newOtp = pasted.split('').concat(Array(8).fill('')).slice(0, 8)
+        const newOtp = pasted.split('').concat(Array(7).fill('')).slice(0, 7)
         setOtp(newOtp)
 
-        const lastIdx = Math.min(pasted.length, 7)
+        const lastIdx = Math.min(pasted.length, 6)
         focusInput(lastIdx)
 
-        if (pasted.length === 8) {
+        if (pasted.length === 7) {
             handleSubmitWithCode(pasted)
         }
     }
@@ -96,8 +96,8 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
 
     const handleSubmit = async () => {
         const code = otp.join('')
-        if (code.length < 8) {
-            setError('Please enter the full 8-digit code')
+        if (code.length < 7) {
+            setError('Please enter the full 7-digit code')
             return
         }
         await handleSubmitWithCode(code)
@@ -109,7 +109,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         try {
             await onResend()
             setTimer(60)
-            setOtp(Array(8).fill(''))
+            setOtp(Array(7).fill(''))
             focusInput(0)
         } catch (err: unknown) {
             console.error('OTP resend failed', err)
@@ -132,7 +132,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                         Verify Identity
                     </CardTitle>
                     <CardDescription className="text-sm text-muted-foreground/70 leading-relaxed">
-                        Enter the 8-digit code sent to your email
+                        Enter the 7-digit code sent to your email
                         {email && (
                             <span className="block mt-1 font-semibold text-foreground">{email}</span>
                         )}
@@ -147,7 +147,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                     )}
 
                     {/* OTP Input Grid */}
-                    <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-1.5 sm:gap-2">
                         {otp.map((digit, idx) => (
                             <input
                                 key={idx}
@@ -162,7 +162,8 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                                 onPaste={idx === 0 ? handlePaste : undefined}
                                 onFocus={() => setFocusedIndex(idx)}
                                 className={`
-                                    w-11 h-14 text-center text-xl font-bold
+                                    w-10 h-[3.25rem] sm:w-11 sm:h-[3.5rem] md:w-12 md:h-[4rem]
+                                    text-center text-lg sm:text-xl font-bold
                                     rounded-xl border-2 transition-all duration-200
                                     outline-none
                                     ${digit

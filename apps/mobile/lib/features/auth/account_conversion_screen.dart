@@ -21,8 +21,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
   String? _conversionEmail;
   Timer? _resendTimer;
 
-  final List<TextEditingController> _otpControllers = List.generate(8, (index) => TextEditingController());
-  final List<FocusNode> _otpFocusNodes = List.generate(8, (index) => FocusNode());
+  final List<TextEditingController> _otpControllers = List.generate(7, (index) => TextEditingController());
+  final List<FocusNode> _otpFocusNodes = List.generate(7, (index) => FocusNode());
   
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -109,9 +109,9 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
 
   Future<void> _verifyOtp() async {
     final otp = _controllers.map((c) => c.text).join();
-    if (otp.length < 8) {
+    if (otp.length < 7) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the complete 8-digit code')),
+        const SnackBar(content: Text('Please enter the complete 7-digit code')),
       );
       return;
     }
@@ -150,7 +150,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
   List<TextEditingController> get _controllers => _otpControllers;
 
   void _onOtpChanged(int index, String value) {
-    if (value.isNotEmpty && index < 7) {
+    if (value.isNotEmpty && index < 6) {
       _otpFocusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _otpFocusNodes[index - 1].requestFocus();
@@ -667,13 +667,13 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             builder: (context, constraints) {
               final availableWidth = constraints.maxWidth;
               final spacing = 6.0;
-              final boxWidth = ((availableWidth - (spacing * 7)) / 8).floorToDouble().clamp(28.0, 38.0);
-              final boxHeight = (boxWidth * 1.42).floorToDouble();
+              final boxWidth = ((availableWidth - (spacing * 6)) / 7).floorToDouble().clamp(34.0, 54.0);
+              final boxHeight = (boxWidth * 1.35).floorToDouble();
               return Wrap(
                 spacing: spacing,
                 runSpacing: 10,
                 alignment: WrapAlignment.center,
-                children: List.generate(8, (index) {
+                children: List.generate(7, (index) {
                   final isActive = _otpFocusNodes[index].hasFocus;
                   return Container(
                     width: boxWidth,

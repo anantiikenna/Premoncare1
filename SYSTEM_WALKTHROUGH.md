@@ -20,7 +20,7 @@ The system is built on a **"Security First"** principle, leveraging Supabase Row
 The platform enforces a mandatory **3-Step Registration Pipeline** for all users:
 1.  **Step 1: Identity**: Legal Name, Email, and a complex Password.
 2.  **Step 2: Terms Consent**: Interactive review and explicit agreement to the Terms of Service and Privacy Policy.
-3.  **Step 3: OTP Sync**: Real-time email verification. The user account is not activated until the 8-digit secure code is verified against the backend.
+3.  **Step 3: OTP Sync**: Real-time email verification. The user account is not activated until the 7-digit secure code is verified against the backend.
 
 **Note**: All users (including practitioners) register as Patients initially.
 

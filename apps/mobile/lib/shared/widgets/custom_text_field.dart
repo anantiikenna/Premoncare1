@@ -31,7 +31,7 @@ class CustomTextField extends StatelessWidget {
         TextFormField(
           controller: controller,
           obscureText: isPassword,
-          obscuringCharacter: '•',
+          obscuringCharacter: '●',
           keyboardType: keyboardType,
           onChanged: onChanged,
           decoration: InputDecoration(

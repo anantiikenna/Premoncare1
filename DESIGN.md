@@ -64,7 +64,7 @@ Premoncare is built on three core principles:
 - **Step 2**: Password with **4-bar strength indicator** (Weak/Fair/Good/Strong) and requirements hint ("Min 8 characters. Use uppercase, numbers & symbols").
 - **Step 3**: Confirm Password with **real-time match feedback** (green ✓ "Passwords match" or red ✗ "Passwords do not match"). Suffix icon changes based on match state.
 - **Step 4**: Terms & Privacy Consent (Toggle switches).
-- **Step 5**: OTP Verification (8-digit code, 60s resend timer).
+- **Step 5**: OTP Verification (7-digit code, 60s resend timer).
 - **Minimum Length**: Passwords under 8 characters are rejected.
 - **Button Text**: "CONTINUE" (simplified from "CONTINUE ENROLLMENT").
 

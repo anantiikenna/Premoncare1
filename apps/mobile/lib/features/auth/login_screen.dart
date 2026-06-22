@@ -350,7 +350,7 @@ class _ClinicalInput extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
-        obscuringCharacter: '•',
+        obscuringCharacter: '●',
         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimaryOf(context)),
         decoration: InputDecoration(
           hintText: hint,
