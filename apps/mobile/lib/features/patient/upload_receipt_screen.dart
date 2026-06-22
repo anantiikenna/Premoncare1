@@ -7,8 +7,6 @@ import 'dart:io';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 
-final uploadReceiptLoadingProvider = StateProvider<bool>((ref) => false);
-
 class UploadReceiptScreen extends ConsumerStatefulWidget {
   final String? appointmentId;
   final String? doctorId;
@@ -27,6 +25,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
   final _refController = TextEditingController();
   final _descController = TextEditingController();
   String _paymentMethod = 'Bank Transfer';
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -59,7 +58,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
       return;
     }
 
-    ref.read(uploadReceiptLoadingProvider.notifier).state = true;
+    setState(() => _isLoading = true);
 
     try {
       final user = supabase.auth.currentUser;
@@ -96,13 +95,12 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
         );
       }
     } finally {
-      ref.read(uploadReceiptLoadingProvider.notifier).state = false;
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(uploadReceiptLoadingProvider);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
@@ -187,9 +185,9 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isLoading ? null : _submitReceipt,
+                onPressed: _isLoading ? null : _submitReceipt,
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                child: isLoading
+                child: _isLoading
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Text('Submit for Verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ),

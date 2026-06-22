@@ -31,7 +31,7 @@ export function MeetingRoom({ roomName, userName, onClose }: MeetingRoomProps) {
     script.onload = () => {
       if (jitsiContainerRef.current) {
         const options = {
-          roomName: `PremiumHealthcare-${roomName}`,
+          roomName: `PremonCare-${roomName}`,
           width: '100%',
           height: '100%',
           parentNode: jitsiContainerRef.current,

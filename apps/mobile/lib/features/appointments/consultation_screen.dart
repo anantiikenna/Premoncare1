@@ -53,7 +53,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
       return;
     }
 
-    final roomName = 'PremiumHealthcare-${widget.appointmentId}';
+    final roomName = 'PremonCare-${widget.appointmentId}';
 
     final options = JitsiMeetConferenceOptions(
       serverURL: 'https://8x8.vc',

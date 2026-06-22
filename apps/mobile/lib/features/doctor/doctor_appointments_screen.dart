@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 
@@ -226,6 +225,13 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     );
   }
 
+  String _formatTime(DateTime dt) {
+    final h12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final m = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$h12:$m $period';
+  }
+
   Color _statusColor(String status) {
     switch (status) {
       case 'completed': return AppColors.success;
@@ -284,7 +290,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         children: [
           for (int i = 0; i < filtered.length; i++)
             _buildTimelineItem(
-              DateFormat('hh:mm a').format(DateTime.parse(filtered[i]['appointment_date'])),
+              _formatTime(DateTime.parse(filtered[i]['appointment_date'])),
               filtered[i]['patient_name'] ?? 'Guest',
               filtered[i]['consultation_mode'] ?? 'consultation',
               filtered[i]['status'],

@@ -95,7 +95,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
                   }
                   return;
                 }
-                context.push('/doctor/earnings');
+                if (context.mounted) context.push('/doctor/earnings');
               },
             ),
             ListTile(
