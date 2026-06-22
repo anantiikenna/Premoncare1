@@ -67,12 +67,18 @@ final appointmentsProvider = StreamProvider<List<Appointment>>((ref) async* {
   }
 
   // Get user role once to determine query
-  final roleResponse = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-  final isDoctor = roleResponse['role'] == 'doctor';
+  String role;
+  try {
+    final roleResponse = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+    role = roleResponse['role'] as String? ?? 'patient';
+  } catch (_) {
+    role = 'patient';
+  }
+  final isDoctor = role == 'doctor';
 
   final stream = supabase
       .from('appointments')
@@ -121,21 +127,25 @@ class AppointmentService {
         .eq('id', id);
     
     // Create notification for the other party
-    final res = await supabase
-        .from('appointments')
-        .select('patient_id, doctor_id')
-        .eq('id', id)
-        .single();
-    
-    final user = supabase.auth.currentUser;
-    final otherPartyId = user?.id == res['patient_id'] ? res['doctor_id'] : res['patient_id'];
+    try {
+      final res = await supabase
+          .from('appointments')
+          .select('patient_id, doctor_id')
+          .eq('id', id)
+          .single();
 
-    await supabase.from('notifications').insert({
-      'user_id': otherPartyId,
-      'title': 'Appointment Cancelled',
-      'message': 'An appointment has been cancelled.',
-      'type': 'appointment',
-    });
+      final user = supabase.auth.currentUser;
+      final otherPartyId = user?.id == res['patient_id'] ? res['doctor_id'] : res['patient_id'];
+
+      await supabase.from('notifications').insert({
+        'user_id': otherPartyId,
+        'title': 'Appointment Cancelled',
+        'message': 'An appointment has been cancelled.',
+        'type': 'appointment',
+      });
+    } catch (_) {
+      // Notification is best-effort; don't block cancellation if it fails
+    }
   }
 
   static Future<void> bookAppointment({

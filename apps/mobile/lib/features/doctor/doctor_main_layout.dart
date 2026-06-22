@@ -80,8 +80,21 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ListTile(
               leading: const Icon(Icons.trending_up_rounded, color: AppColors.primary),
               title: const Text('Earnings', style: TextStyle(fontWeight: FontWeight.bold)),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
+                final profile = await supabase
+                    .from('profiles')
+                    .select('verification_status')
+                    .eq('id', supabase.auth.currentUser?.id ?? '')
+                    .maybeSingle();
+                if (profile?['verification_status'] != 'approved') {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Complete verification to access financial hub')),
+                    );
+                  }
+                  return;
+                }
                 context.push('/doctor/earnings');
               },
             ),

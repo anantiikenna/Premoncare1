@@ -525,6 +525,25 @@ create policy "Admins can view all notifications"
 -- ============================================================
 -- MEDICAL RECORDS
 -- ============================================================
+
+-- Helper function to check doctor access to records (breaks RLS recursion)
+CREATE OR REPLACE FUNCTION public.doctor_has_record_access(
+  p_doctor_id UUID,
+  p_record_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM record_permissions
+    WHERE record_permissions.record_id = p_record_id
+      AND record_permissions.doctor_id = p_doctor_id
+  );
+$$;
+
 -- Patients can view their own records
 create policy "Patients can view own records"
   on medical_records for select
@@ -547,15 +566,14 @@ create policy "Patients can delete own records"
   using (auth.uid() = patient_id);
 
 -- Doctors can view records shared via authorized_doctors array OR record_permissions
+-- Uses SECURITY DEFINER function to break circular RLS dependency
+drop policy if exists "Doctors can view shared records" on public.medical_records;
+
 create policy "Doctors can view shared records"
   on medical_records for select
   using (
     auth.uid() = ANY(authorized_doctors)
-    or exists (
-      select 1 from record_permissions
-      where record_permissions.record_id = medical_records.id
-        and record_permissions.doctor_id = auth.uid()
-    )
+    or public.doctor_has_record_access(auth.uid(), id)
   );
 
 -- Admins can view all medical records (for admin stats)
@@ -655,6 +673,27 @@ create policy "Admins can update system settings"
 -- ============================================================
 -- FUNCTIONS & TRIGGERS
 -- ============================================================
+
+-- Function to auto-create profile on user signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, role, requested_role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data ->> 'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role,
+    COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.handle_new_user();
 
 -- Function to handle schedule initialization on profile promotion
 CREATE OR REPLACE FUNCTION public.initialize_doctor_schedule()
@@ -1091,6 +1130,9 @@ REVOKE EXECUTE ON FUNCTION public.get_admin_financial_stats() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.sweep_offline_doctors() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.doctor_has_record_access(UUID, UUID) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.doctor_has_record_access(UUID, UUID) TO authenticated;
 
 GRANT EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) TO authenticated;

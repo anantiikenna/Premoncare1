@@ -165,6 +165,18 @@ final goRouter = GoRouter(
       return '/patient_dashboard';
     }
 
+    if (location == '/doctor/earnings') {
+      final profileData = await supabase
+          .from('profiles')
+          .select('verification_status')
+          .eq('id', session!.user.id)
+          .maybeSingle();
+      final status = profileData?['verification_status'] as String?;
+      if (status != 'approved') {
+        return '/doctor_dashboard';
+      }
+    }
+
     return null;
   },
   routes: [

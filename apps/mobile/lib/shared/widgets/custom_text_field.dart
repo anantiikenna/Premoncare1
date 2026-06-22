@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
@@ -31,9 +32,9 @@ class CustomTextField extends StatelessWidget {
         TextFormField(
           controller: controller,
           obscureText: isPassword,
-          obscuringCharacter: '●',
           keyboardType: keyboardType,
           onChanged: onChanged,
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimaryOf(context)),
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,

@@ -1,17 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/providers.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 
-class SettingsPrivacyCenterScreen extends ConsumerWidget {
+class SettingsPrivacyCenterScreen extends ConsumerStatefulWidget {
   const SettingsPrivacyCenterScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsPrivacyCenterScreen> createState() => _SettingsPrivacyCenterScreenState();
+}
+
+class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCenterScreen> {
+  String _currentLanguage = 'English';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLanguage();
+  }
+
+  Future<void> _loadLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentLanguage = prefs.getString('locale_language') ?? 'English';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = supabase.auth.currentUser;
     final userProfile = ref.watch(userProfileProvider);
     final email = user?.email ?? 'patient@premoncare.com';
@@ -198,7 +219,7 @@ class SettingsPrivacyCenterScreen extends ConsumerWidget {
       _SettingsTileData(icon: Icons.person_outline_rounded, color: AppColors.info, title: 'Personal Information', subtitle: 'Update your details', onTap: () => context.push('/personal-info')),
       _SettingsTileData(icon: Icons.lock_outline_rounded, color: AppColors.success, title: 'Login & Security', subtitle: 'Password and security settings', onTap: () => context.push('/login-security')),
       _SettingsTileData(icon: Icons.notifications_none_rounded, color: AppColors.primary, title: 'Notification Preferences', subtitle: 'Choose what notifications to receive', onTap: () => context.push('/notification-preferences')),
-      _SettingsTileData(icon: Icons.language_rounded, color: AppColors.warning, title: 'Language & Region', subtitle: 'Language and region', trailingText: 'English', onTap: () => context.push('/language-region')),
+      _SettingsTileData(icon: Icons.language_rounded, color: AppColors.warning, title: 'Language & Region', subtitle: 'Language and region', trailingText: _currentLanguage, onTap: () => context.push('/language-region')),
     ]);
   }
 

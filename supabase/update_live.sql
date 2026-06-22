@@ -70,6 +70,42 @@ FROM payments p JOIN profiles u ON p.user_id = u.id
 WHERE p.status = 'pending';
 
 -- ============================================================
+-- FIX: Create profile on user signup (trigger was never created)
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, role, requested_role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data ->> 'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role,
+    COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.handle_new_user();
+
+-- Backfill profiles for existing users who registered without one
+INSERT INTO public.profiles (id, email, full_name, role, requested_role)
+SELECT
+  au.id,
+  au.email,
+  COALESCE(au.raw_user_meta_data ->> 'full_name', ''),
+  COALESCE(au.raw_user_meta_data ->> 'requested_role', 'patient')::user_role,
+  COALESCE(au.raw_user_meta_data ->> 'requested_role', 'patient')::user_role
+FROM auth.users au
+LEFT JOIN public.profiles p ON au.id = p.id
+WHERE p.id IS NULL;
+
+-- ============================================================
 -- FIX: Supabase Linter — function_search_path_mutable (6 functions)
 -- Add SET search_path = public to prevent search_path injection
 -- ============================================================
@@ -277,6 +313,28 @@ CREATE POLICY "Admins can view all notifications"
 -- ============================================================
 -- MEDICAL RECORDS
 -- ============================================================
+
+-- Helper function to check doctor access to records (breaks RLS recursion)
+CREATE OR REPLACE FUNCTION public.doctor_has_record_access(
+  p_doctor_id UUID,
+  p_record_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM record_permissions
+    WHERE record_permissions.record_id = p_record_id
+      AND record_permissions.doctor_id = p_doctor_id
+  );
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.doctor_has_record_access(UUID, UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.doctor_has_record_access(UUID, UUID) TO authenticated;
+
 DROP POLICY IF EXISTS "Patients can view own records" ON public.medical_records;
 DROP POLICY IF EXISTS "Patients can insert own records" ON public.medical_records;
 DROP POLICY IF EXISTS "Patients can update own records" ON public.medical_records;
@@ -304,11 +362,7 @@ CREATE POLICY "Doctors can view shared records"
   ON public.medical_records FOR SELECT
   USING (
     auth.uid() = ANY(authorized_doctors)
-    OR EXISTS (
-      SELECT 1 FROM public.record_permissions
-      WHERE record_permissions.record_id = medical_records.id
-        AND record_permissions.doctor_id = auth.uid()
-    )
+    OR public.doctor_has_record_access(auth.uid(), id)
   );
 
 CREATE POLICY "Admins can view all medical records"

@@ -70,6 +70,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       _selectedCategory = category;
       if (category != 'All') {
         final keyword = _specialtyKeywords[category] ?? '';
+        _debounce?.cancel();
         _searchController.text = category.replaceAll('\n', ' ');
         _searchQuery = keyword;
       } else {

@@ -185,6 +185,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
       await supabase.from('profiles').update(updateData).eq('id', user.id);
 
+      ref.invalidate(userProfileProvider);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
