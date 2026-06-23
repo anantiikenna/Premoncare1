@@ -192,10 +192,10 @@ class _OnboardingSlide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageHeight = math.min(viewportHeight * 0.42, 390.0);
+    final imageHeight = math.min(viewportHeight * 0.35, 320.0);
 
     return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, ArrowRight, CheckCircle2, ChevronLeft } from 'lucide-react'
+import { Loader2, ArrowRight, CheckCircle2, ChevronLeft, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { OTPForm } from './otp-form'
 import { toast } from 'sonner'
@@ -19,6 +19,7 @@ export function RegisterForm() {
     const [step, setStep] = useState<Step>('identity')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
     const [fullName, setFullName] = useState('')
     const [agreed, setAgreed] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -236,16 +237,26 @@ export function RegisterForm() {
                         </div>
                         <div className="space-y-3">
                             <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest ml-1">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="••••••••"
-                                className="h-14 rounded-2xl bg-background/50 border-border/50 font-bold focus:ring-primary/20 transition-all"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                aria-required="true"
-                                aria-label="Secure Password"
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    className="h-14 rounded-2xl bg-background/50 border-border/50 font-bold focus:ring-primary/20 transition-all pr-12"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    aria-required="true"
+                                    aria-label="Secure Password"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
