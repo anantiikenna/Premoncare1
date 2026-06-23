@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,16 +15,21 @@ class AppointmentsScreen extends ConsumerStatefulWidget {
 
 class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  Timer? _countdownTimer;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _countdownTimer?.cancel();
     super.dispose();
   }
 
@@ -126,7 +132,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
           labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
           dividerColor: Colors.transparent,
-          tabs: const [Tab(text: 'Upcoming'), Tab(text: 'Past Sessions')],
+          tabs: const [Tab(text: 'Upcoming'), Tab(text: 'Completed')],
         ),
       ),
     );
@@ -191,6 +197,11 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
 
   Widget _buildAppointmentCard(BuildContext context, Appointment appointment) {
     final bool isUpcoming = appointment.status == AppointmentStatus.pending || appointment.status == AppointmentStatus.confirmed;
+    final bool isConfirmed = appointment.status == AppointmentStatus.confirmed;
+    final now = DateTime.now().toUtc();
+    final appointmentTime = appointment.appointmentDate.toUtc();
+    final isPast = appointmentTime.isBefore(now);
+    final isJoinable = isConfirmed && appointmentTime.isBefore(now.add(const Duration(minutes: 30)));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -227,22 +238,34 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
               _buildStatusBadge(appointment.status),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(18), border: Border.all(color: AppColors.borderLightOf(context))),
-            child: Row(
+            child: Column(
               children: [
-                _buildInfoItem(Icons.calendar_today_rounded, '${appointment.appointmentDate.day}/${appointment.appointmentDate.month}/${appointment.appointmentDate.year}'),
-                const Spacer(),
-                Container(width: 1, height: 16, color: AppColors.borderOf(context)),
-                const Spacer(),
-                _buildInfoItem(Icons.access_time_rounded, _getTime(appointment.appointmentDate)),
+                Row(
+                  children: [
+                    _buildInfoItem(Icons.calendar_today_rounded, '${appointment.appointmentDate.day}/${appointment.appointmentDate.month}/${appointment.appointmentDate.year}'),
+                    const Spacer(),
+                    Container(width: 1, height: 16, color: AppColors.borderOf(context)),
+                    const Spacer(),
+                    _buildInfoItem(Icons.access_time_rounded, _getTime(appointment.appointmentDate)),
+                    const Spacer(),
+                    Container(width: 1, height: 16, color: AppColors.borderOf(context)),
+                    const Spacer(),
+                    _buildInfoItem(Icons.videocam_rounded, '${appointment.durationMinutes} mins'),
+                  ],
+                ),
+                if (isUpcoming && !isPast) ...[
+                  const SizedBox(height: 12),
+                  _buildCountdown(appointment.appointmentDate),
+                ],
               ],
             ),
           ),
           if (isUpcoming) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -260,20 +283,67 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => context.push('/appointments/${appointment.id}'),
+                    onPressed: isJoinable ? () => context.push('/appointments/${appointment.id}') : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.textInverse,
+                      disabledBackgroundColor: AppColors.textTertiaryOf(context).withValues(alpha: 0.3),
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('Join Call', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                    child: const Text('Join Consultation', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                   ),
                 ),
               ],
             ),
           ],
+          if (appointment.status == AppointmentStatus.completed) ...[
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => context.push('/appointments/${appointment.id}'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: const Text('View Summary', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCountdown(DateTime appointmentTime) {
+    final now = DateTime.now().toUtc();
+    final diff = appointmentTime.difference(now);
+    if (diff.isNegative) return const SizedBox.shrink();
+
+    final hours = diff.inHours;
+    final mins = diff.inMinutes.remainder(60);
+    final secs = diff.inSeconds.remainder(60);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.access_time_rounded, size: 16, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Text('Starts in ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
+          Text(
+            '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.primary, letterSpacing: 1),
+          ),
         ],
       ),
     );
@@ -290,7 +360,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
         break;
       case AppointmentStatus.pending:
         color = AppColors.warning;
-        label = 'PENDING';
+        label = 'SCHEDULED';
         break;
       case AppointmentStatus.completed:
         color = AppColors.slate500;

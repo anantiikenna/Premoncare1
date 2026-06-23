@@ -10,8 +10,22 @@ class BookingConfirmedScreen extends StatefulWidget {
   final String? doctorName;
   final String? doctorSpecialty;
   final String? doctorId;
+  final int? durationMinutes;
+  final String? appointmentId;
+  final String? appointmentDate;
+  final String? consultationType;
 
-  const BookingConfirmedScreen({super.key, this.consultationFee, this.doctorName, this.doctorSpecialty, this.doctorId});
+  const BookingConfirmedScreen({
+    super.key,
+    this.consultationFee,
+    this.doctorName,
+    this.doctorSpecialty,
+    this.doctorId,
+    this.durationMinutes,
+    this.appointmentId,
+    this.appointmentDate,
+    this.consultationType,
+  });
 
   @override
   State<BookingConfirmedScreen> createState() => _BookingConfirmedScreenState();
@@ -51,6 +65,9 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     final fee = widget.consultationFee ?? extra?['consultationFee'] ?? 0;
     final name = widget.doctorName ?? extra?['doctorName'] ?? '';
     final docId = widget.doctorId ?? extra?['doctorId'];
+    final durationMinutes = widget.durationMinutes ?? extra?['durationMinutes'] as int?;
+    final appointmentDate = widget.appointmentDate ?? extra?['appointmentDate'] as String?;
+    final consultationType = widget.consultationType ?? extra?['consultationType'] as String?;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
@@ -77,7 +94,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                   const SizedBox(height: 32),
                   _buildSectionTitle('SESSION DETAILS'),
                   const SizedBox(height: 16),
-                  _buildConsultationCard(primaryColor, isEmergency),
+                  _buildConsultationCard(primaryColor, isEmergency, consultationType: consultationType, durationMinutes: durationMinutes, appointmentDateStr: appointmentDate),
                   const SizedBox(height: 32),
                   if (isEmergency) ...[
                     _buildSectionTitle('P2P PAYMENT INSTRUCTIONS'),
@@ -164,10 +181,20 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     );
   }
 
-  Widget _buildConsultationCard(Color primaryColor, bool isEmergency) {
-    final now = DateTime.now();
-    final dateStr = '${now.day} ${_monthName(now.month)} ${now.year}';
-    final timeStr = '${_fmt(now.hour)}:${_fmt(now.minute)}';
+  Widget _buildConsultationCard(Color primaryColor, bool isEmergency, {String? consultationType, int? durationMinutes, String? appointmentDateStr}) {
+    String dateStr;
+    String timeStr;
+    if (appointmentDateStr != null) {
+      final dt = DateTime.parse(appointmentDateStr).toLocal();
+      dateStr = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+      timeStr = '${_fmt(dt.hour)}:${_fmt(dt.minute)}';
+    } else {
+      final now = DateTime.now();
+      dateStr = '${now.day} ${_monthName(now.month)} ${now.year}';
+      timeStr = '${_fmt(now.hour)}:${_fmt(now.minute)}';
+    }
+    final consultLabel = consultationType ?? 'Video Call';
+    final durationLabel = durationMinutes != null ? '$durationMinutes mins' : '30 mins';
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLight)),
@@ -176,6 +203,10 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
           _buildInfoRow(Icons.calendar_today_rounded, 'Date', dateStr),
           const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
           _buildInfoRow(Icons.access_time_rounded, 'Time', timeStr),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
+          _buildInfoRow(Icons.timer_outlined, 'Duration', durationLabel),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
+          _buildInfoRow(Icons.videocam_rounded, 'Consultation Type', consultLabel),
           const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
           Container(
             padding: const EdgeInsets.all(16),
@@ -321,8 +352,36 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   }
 
   Widget _buildActionButtons(BuildContext context, Color primaryColor, bool isEmergency, String? docId) {
+    final fee = widget.consultationFee ?? 0;
     return Column(
       children: [
+        if (!isEmergency)
+          SizedBox(
+            width: double.infinity,
+            height: 60,
+            child: ElevatedButton(
+              onPressed: () => context.push('/upload-receipt', extra: {
+                'doctorId': docId,
+                'amount': fee,
+                'appointmentId': widget.appointmentId,
+              }),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.textInverse,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.upload_rounded, size: 20),
+                  SizedBox(width: 12),
+                  Text('Proceed to Payment', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                ],
+              ),
+            ),
+          ),
+        if (!isEmergency) const SizedBox(height: 16),
         if (isEmergency)
           SizedBox(
             width: double.infinity,
@@ -342,15 +401,14 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
         SizedBox(
           width: double.infinity,
           height: 60,
-          child: ElevatedButton(
+          child: OutlinedButton(
             onPressed: () => context.go(isEmergency ? '/login' : '/patient_dashboard'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: AppColors.textInverse,
-              elevation: 0,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: primaryColor,
+              side: BorderSide(color: primaryColor),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             ),
-            child: Text(isEmergency ? 'Sign In to Continue' : 'Back to Dashboard', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+            child: Text(isEmergency ? 'Sign In to Continue' : 'Back to Dashboard', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
           ),
         ),
         const SizedBox(height: 16),

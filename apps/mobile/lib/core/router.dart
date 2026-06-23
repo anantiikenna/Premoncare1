@@ -256,6 +256,10 @@ final goRouter = GoRouter(
           consultationFee: (extras['consultationFee'] as num?)?.toDouble(),
           doctorName: extras['doctorName'] as String?,
           doctorId: extras['doctorId'] as String?,
+          durationMinutes: extras['durationMinutes'] as int?,
+          appointmentId: extras['appointmentId'] as String?,
+          appointmentDate: extras['appointmentDate'] as String?,
+          consultationType: extras['consultationType'] as String?,
         );
       },
     ),
@@ -473,7 +477,14 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: '/upload-receipt',
-      builder: (context, state) => const UploadReceiptScreen(),
+      builder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>? ?? {};
+        return UploadReceiptScreen(
+          doctorId: extras['doctorId'] as String?,
+          amount: (extras['amount'] as num?)?.toDouble(),
+          appointmentId: extras['appointmentId'] as String?,
+        );
+      },
     ),
     GoRoute(
       path: '/consultation-summary/:id',

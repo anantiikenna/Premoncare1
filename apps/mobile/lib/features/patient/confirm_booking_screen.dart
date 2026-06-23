@@ -34,12 +34,83 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   bool _isLoading = false;
   String? _error;
 
+  DateTime _selectedDate = DateTime.now().add(const Duration(hours: 1));
+  TimeOfDay _selectedTime = TimeOfDay.fromDateTime(DateTime.now().add(const Duration(hours: 1)));
+  String _consultationType = 'Video Call';
+  int? _currentBalanceMinutes;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTime = TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute);
+    _fetchTimeBalance();
+  }
+
+  Future<void> _fetchTimeBalance() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+    try {
+      final data = await supabase
+          .from('time_balances')
+          .select('minutes_remaining')
+          .eq('patient_id', user.id)
+          .eq('doctor_id', widget.doctorId)
+          .maybeSingle();
+      if (mounted) {
+        setState(() {
+          _currentBalanceMinutes = data != null ? (data['minutes_remaining'] as num?)?.toInt() ?? 0 : 0;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _currentBalanceMinutes = 0);
+    }
+  }
+
+  DateTime get _scheduledDateTime => DateTime(
+    _selectedDate.year, _selectedDate.month, _selectedDate.day,
+    _selectedTime.hour, _selectedTime.minute,
+  );
+
+  int get _afterBookingBalance => (_currentBalanceMinutes ?? 0) - widget.durationMinutes;
+  bool get _hasEnoughBalance => (_currentBalanceMinutes ?? 0) >= widget.durationMinutes;
+
   String get _amountStr => widget.totalAmount
       .toInt()
       .toString()
       .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
 
   Color get _primaryColor => widget.isEmergency ? AppColors.error : AppColors.primary;
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 30)),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(colorScheme: Theme.of(context).colorScheme.copyWith(primary: AppColors.primary, onPrimary: AppColors.textInverse)),
+        child: child!,
+      ),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = DateTime(picked.year, picked.month, picked.day);
+        _selectedTime = TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute);
+      });
+    }
+  }
+
+  Future<void> _selectTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(colorScheme: Theme.of(context).colorScheme.copyWith(primary: AppColors.primary, onPrimary: AppColors.textInverse)),
+        child: child!,
+      ),
+    );
+    if (picked != null) setState(() => _selectedTime = picked);
+  }
 
   Future<void> _confirmBooking() async {
     setState(() { _isLoading = true; _error = null; });
@@ -50,7 +121,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
         throw Exception('Not authenticated. Please log in again.');
       }
 
-      final appointmentDate = (widget.isEmergency ? DateTime.now() : DateTime.now().add(const Duration(hours: 1))).toUtc().toIso8601String();
+      final appointmentDate = _scheduledDateTime.toUtc().toIso8601String();
       final guestToken = userId == null ? 'guest_${DateTime.now().millisecondsSinceEpoch}' : null;
       if (guestToken != null) {
         final prefs = await SharedPreferences.getInstance();
@@ -67,6 +138,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
         'total_amount': widget.totalAmount,
         'is_patient_approved': true,
         'is_doctor_approved': false,
+        'consultation_mode': _consultationType == 'Video Call' ? 'video' : 'in_person',
         if (guestToken != null) 'metadata': {
           'is_guest': true,
           'guest_token': guestToken,
@@ -131,6 +203,10 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               'consultationFee': widget.totalAmount,
               'doctorName': widget.doctorName,
               'doctorId': widget.doctorId,
+              'durationMinutes': widget.durationMinutes,
+              'appointmentId': appointmentId,
+              'appointmentDate': appointmentDate,
+              'consultationType': _consultationType,
             },
           );
         }
@@ -173,11 +249,21 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                         const SizedBox(height: 16),
                         _buildDoctorMiniCard(context),
                         const SizedBox(height: 32),
-                        _buildSectionTitle(context, 'APPOINTMENT TIMELINE'),
+                        _buildSectionTitle(context, 'APPOINTMENT DETAILS'),
                         const SizedBox(height: 16),
-                        _buildTimelineDetails(context),
+                        _buildDateAndTimeSelector(context),
+                        const SizedBox(height: 16),
+                        _buildConsultationTypeSelector(context),
                         const SizedBox(height: 32),
-                        _buildSectionTitle(context, 'FINANCIAL SUMMARY'),
+                        _buildSectionTitle(context, 'TIME BALANCE & AVAILABILITY'),
+                        const SizedBox(height: 16),
+                        _buildTimeBalanceCard(context),
+                        if (!_hasEnoughBalance && _currentBalanceMinutes != null) ...[
+                          const SizedBox(height: 12),
+                          _buildInsufficientBalanceBanner(context),
+                        ],
+                        const SizedBox(height: 32),
+                        _buildSectionTitle(context, 'PAYMENT SUMMARY'),
                         const SizedBox(height: 16),
                         _buildPaymentSummary(context),
                         const SizedBox(height: 32),
@@ -274,30 +360,29 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
     );
   }
 
-  Widget _buildTimelineDetails(BuildContext context) {
-    final now = DateTime.now().add(const Duration(hours: 1));
-    final end = now.add(Duration(minutes: widget.durationMinutes));
-    final dateStr = '${now.day} ${_monthName(now.month)} ${now.year}';
-    final timeStr = '${_fmt(now.hour)}:${_fmt(now.minute)} – ${_fmt(end.hour)}:${_fmt(end.minute)}';
-
+  Widget _buildDateAndTimeSelector(BuildContext context) {
+    final dateStr = '${_selectedDate.day} ${_monthName(_selectedDate.month)} ${_selectedDate.year}';
+    final timeStr = _selectedTime.format(context);
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context))),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
-          _buildTimelineRow(context, Icons.calendar_today_rounded, 'Schedule', dateStr),
+          GestureDetector(
+            onTap: _selectDate,
+            child: _buildSelectorRow(context, Icons.calendar_today_rounded, 'Date', dateStr),
+          ),
           Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.dividerOf(context))),
-          _buildTimelineRow(context, Icons.access_time_rounded, 'Duration', '${widget.durationMinutes} minutes'),
-          Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.dividerOf(context))),
-          _buildTimelineRow(context, Icons.videocam_rounded, 'Timing', timeStr),
-          Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.dividerOf(context))),
-          _buildTimelineRow(context, Icons.videocam_rounded, 'Consult Type', widget.isEmergency ? 'Emergency Session' : 'HD Video Session'),
+          GestureDetector(
+            onTap: _selectTime,
+            child: _buildSelectorRow(context, Icons.access_time_rounded, 'Time', timeStr),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineRow(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildSelectorRow(BuildContext context, IconData icon, String label, String value) {
     return Row(
       children: [
         Container(
@@ -309,7 +394,127 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
         Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
         const Spacer(),
         Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+        const SizedBox(width: 8),
+        Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
       ],
+    );
+  }
+
+  Widget _buildConsultationTypeSelector(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Consultation Type', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildConsultTypeChip(context, 'Video Call', Icons.videocam_rounded)),
+              const SizedBox(width: 12),
+              Expanded(child: _buildConsultTypeChip(context, 'In-Clinic Visit', Icons.local_hospital_rounded)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConsultTypeChip(BuildContext context, String type, IconData icon) {
+    final isSelected = _consultationType == type;
+    return GestureDetector(
+      onTap: () => setState(() => _consultationType = type),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? _primaryColor.withValues(alpha: 0.08) : AppColors.surfaceAltOf(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isSelected ? _primaryColor : AppColors.borderOf(context), width: isSelected ? 2 : 1),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: isSelected ? _primaryColor : AppColors.textTertiaryOf(context), size: 28),
+            const SizedBox(height: 8),
+            Text(type, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: isSelected ? _primaryColor : AppColors.textSecondaryOf(context))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeBalanceCard(BuildContext context) {
+    final current = _currentBalanceMinutes;
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: _hasEnoughBalance ? AppColors.borderLightOf(context) : AppColors.error.withValues(alpha: 0.2)),
+      ),
+      child: current == null
+          ? Row(children: [
+              SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+              const SizedBox(width: 16),
+              Text('Checking balance...', style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context))),
+            ])
+          : Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _hasEnoughBalance ? AppColors.success.withValues(alpha: 0.08) : AppColors.error.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    _hasEnoughBalance ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                    color: _hasEnoughBalance ? AppColors.success : AppColors.error,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Current Time Balance', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
+                      Text('$current mins', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: _hasEnoughBalance ? AppColors.success : AppColors.error, letterSpacing: -1)),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('After Booking', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textTertiaryOf(context))),
+                    Text('${_afterBookingBalance >= 0 ? _afterBookingBalance : 0} mins', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+                    Text(_hasEnoughBalance ? 'Enough balance' : 'Insufficient', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _hasEnoughBalance ? AppColors.success : AppColors.error)),
+                  ],
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildInsufficientBalanceBanner(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'You need ${widget.durationMinutes} mins but only have ${_currentBalanceMinutes ?? 0}. Upload a receipt to add time.',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.error, height: 1.4),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -429,7 +634,6 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
     );
   }
 
-  String _fmt(int n) => n.toString().padLeft(2, '0');
   String _monthName(int m) => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m - 1];
 }
 
