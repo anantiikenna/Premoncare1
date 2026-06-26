@@ -495,7 +495,10 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: '/doctor-search',
-      builder: (context, state) => const DoctorSearchScreen(),
+      builder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>? ?? {};
+        return DoctorSearchScreen(isBuyingTime: extras['isBuyingTime'] as bool? ?? false);
+      },
     ),
     GoRoute(
       path: '/otp-verification',

@@ -28,6 +28,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
   late final TextEditingController _dobController;
   late final TextEditingController _genderController;
   late final TextEditingController _addressController;
+  late final TextEditingController _paymentInstructionsController;
 
   final _imagePicker = ImagePicker();
   File? _selectedPhoto;
@@ -40,6 +41,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _dobController = TextEditingController();
     _genderController = TextEditingController();
     _addressController = TextEditingController();
+    _paymentInstructionsController = TextEditingController();
   }
 
   @override
@@ -49,6 +51,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _dobController.dispose();
     _genderController.dispose();
     _addressController.dispose();
+    _paymentInstructionsController.dispose();
     super.dispose();
   }
 
@@ -58,6 +61,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _dobController.text = profile?['dob'] ?? '';
     _genderController.text = profile?['gender'] ?? '';
     _addressController.text = profile?['address'] ?? '';
+    _paymentInstructionsController.text = profile?['payment_instructions'] ?? '';
   }
 
   void _enterEditMode(Map<String, dynamic>? profile) {
@@ -147,9 +151,11 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     final ext = _selectedPhoto!.path.split('.').last;
     final path = 'avatars/${user.id}.$ext';
 
-    await supabase.storage.from('avatars').upload(
+    final bytes = await _selectedPhoto!.readAsBytes();
+
+    await supabase.storage.from('avatars').uploadBinary(
           path,
-          _selectedPhoto!,
+          bytes,
           fileOptions: const FileOptions(upsert: true),
         );
 
@@ -172,12 +178,16 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       }
 
       final updateData = <String, dynamic>{
-        'full_name': _fullNameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'dob': _dobController.text.trim(),
-        'gender': _genderController.text.trim(),
-        'address': _addressController.text.trim(),
+        'full_name': _fullNameController.text.trim().isNotEmpty ? _fullNameController.text.trim() : null,
+        'phone': _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
+        'dob': _dobController.text.trim().isNotEmpty ? _dobController.text.trim() : null,
+        'gender': _genderController.text.trim().isNotEmpty ? _genderController.text.trim() : null,
+        'address': _addressController.text.trim().isNotEmpty ? _addressController.text.trim() : null,
       };
+
+      if (currentProfile?['role'] == 'doctor') {
+        updateData['payment_instructions'] = _paymentInstructionsController.text.trim().isNotEmpty ? _paymentInstructionsController.text.trim() : null;
+      }
 
       if (avatarUrl != null) {
         updateData['avatar_url'] = avatarUrl;
@@ -287,6 +297,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           _buildInfoField(context, 'Date of Birth', profile?['dob'] ?? 'Not set'),
           _buildInfoField(context, 'Gender', profile?['gender'] ?? 'Not set'),
           _buildInfoField(context, 'Address', profile?['address'] ?? 'Not set'),
+          if (profile?['role'] == 'doctor')
+            _buildInfoField(context, 'Payment Instructions (Bank Details)', profile?['payment_instructions'] ?? 'Not set'),
         ],
       ),
     );
@@ -342,6 +354,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           _buildEditField(context, 'Date of Birth', _dobController, icon: Icons.cake_outlined, onTap: _pickDate),
           _buildEditField(context, 'Gender', _genderController, icon: Icons.wc_outlined, onTap: _pickGender),
           _buildEditField(context, 'Address', _addressController, icon: Icons.location_on_outlined, maxLines: 2),
+          if (profile?['role'] == 'doctor')
+            _buildEditField(context, 'Payment Instructions (Bank Details)', _paymentInstructionsController, icon: Icons.account_balance_rounded, maxLines: 3),
           const SizedBox(height: 32),
           Row(
             children: [

@@ -43,7 +43,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     try {
       final data = await supabase
           .from('profiles')
-          .select('id, full_name, specialty, consultation_fee, avatar_url')
+          .select('id, full_name, specialty, consultation_fee, avatar_url, payment_instructions')
           .eq('role', 'doctor')
           .order('full_name');
       setState(() {
@@ -418,6 +418,39 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
               ),
             );
           }),
+          const SizedBox(height: 16),
+          Builder(
+            builder: (context) {
+              final selectedDoc = _doctors.firstWhere((d) => d['id'] == _selectedDoctorId, orElse: () => {});
+              final instructions = selectedDoc['payment_instructions'] as String?;
+              final displayInstructions = (instructions != null && instructions.trim().isNotEmpty)
+                  ? instructions
+                  : 'No bank details provided. Please request payment details from the doctor via chat before transferring.';
+
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.info.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.account_balance_rounded, color: AppColors.info, size: 20),
+                        const SizedBox(width: 8),
+                        const Text('Payment Instructions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.info)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(displayInstructions, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, height: 1.4)),
+                  ],
+                ),
+              );
+            }
+          ),
         ],
       ],
     );

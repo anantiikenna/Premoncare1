@@ -592,6 +592,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   }
 
   Widget _buildBottomAction(BuildContext context) {
+    final isCheckingBalance = _currentBalanceMinutes == null;
     return Positioned(
       bottom: 0, left: 0, right: 0,
       child: Container(
@@ -603,7 +604,12 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
         child: SizedBox(
           height: 64,
           child: ElevatedButton(
-            onPressed: _isLoading ? null : _confirmBooking,
+            onPressed: (_isLoading || isCheckingBalance) ? null : (_hasEnoughBalance ? _confirmBooking : () {
+              context.push('/upload-receipt', extra: {
+                'doctorId': widget.doctorId,
+                'amount': widget.totalAmount,
+              });
+            }),
             style: ElevatedButton.styleFrom(
               backgroundColor: _primaryColor,
               foregroundColor: AppColors.textInverse,
@@ -611,7 +617,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               disabledBackgroundColor: _primaryColor.withValues(alpha: 0.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
-            child: _isLoading
+            child: (_isLoading || isCheckingBalance)
                 ? const SizedBox(
                     width: 24, height: 24,
                     child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2.5),
@@ -619,9 +625,9 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.verified_user_rounded, size: 20),
+                      Icon(_hasEnoughBalance ? Icons.verified_user_rounded : Icons.payment_rounded, size: 20),
                       const SizedBox(width: 12),
-                      const Text('Confirm Booking', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+                      Text(_hasEnoughBalance ? 'Confirm Booking' : 'Purchase Time', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
                       const SizedBox(width: 12),
                       Container(width: 1, height: 20, color: AppColors.dividerOf(context)),
                       const SizedBox(width: 12),

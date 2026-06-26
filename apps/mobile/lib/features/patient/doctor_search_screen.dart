@@ -7,7 +7,8 @@ import '../../core/app_colors.dart';
 import 'patient_providers.dart';
 
 class DoctorSearchScreen extends ConsumerStatefulWidget {
-  const DoctorSearchScreen({super.key});
+  final bool isBuyingTime;
+  const DoctorSearchScreen({super.key, this.isBuyingTime = false});
 
   @override
   ConsumerState<DoctorSearchScreen> createState() => _DoctorSearchScreenState();
@@ -44,23 +45,21 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _searchFocusNode.dispose();
     _debounce?.cancel();
     super.dispose();
   }
 
-  void _onSearchChanged() {
+  void _onSearchChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
       setState(() {
-        _searchQuery = _searchController.text.trim().toLowerCase();
+        _searchQuery = value.trim().toLowerCase();
       });
     });
   }
@@ -71,8 +70,8 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       if (category != 'All') {
         final keyword = _specialtyKeywords[category] ?? '';
         _debounce?.cancel();
-        _searchController.text = category.replaceAll('\n', ' ');
         _searchQuery = keyword;
+        _searchController.clear();
       } else {
         _searchController.clear();
         _searchQuery = '';
@@ -222,6 +221,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         controller: _searchController,
         focusNode: _searchFocusNode,
         textInputAction: TextInputAction.search,
+        onChanged: _onSearchChanged,
         style: AppTypography.bodyMedium,
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textTertiary, size: 20),
@@ -687,12 +687,14 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: () => context.push('/doctor-details', extra: {
-                    'id': id,
-                    'name': fullName,
-                    'specialty': specialty,
-                    'isEmergency': _isEmergencyMode,
-                  }),
+                  onPressed: widget.isBuyingTime 
+                    ? () => context.push('/upload-receipt', extra: {'doctorId': id})
+                    : () => context.push('/doctor-details', extra: {
+                        'id': id,
+                        'name': fullName,
+                        'specialty': specialty,
+                        'isEmergency': _isEmergencyMode,
+                      }),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: (_isEmergencyMode && isEmergency) ? AppColors.error : AppColors.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -700,7 +702,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text(
-                    (_isEmergencyMode && isEmergency) ? 'SOS' : 'Book',
+                    widget.isBuyingTime ? 'Buy Credit' : ((_isEmergencyMode && isEmergency) ? 'SOS' : 'Book'),
                     style: AppTypography.labelSmall.copyWith(color: AppColors.textInverse),
                   ),
                 ),

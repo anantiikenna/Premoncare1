@@ -133,20 +133,24 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
             ),
             Row(
               children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Text('P', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text('Premon', style: TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
-                const Text('Care', style: TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold)),
+                Image.asset('assets/logo-horizontal.png', height: 28, errorBuilder: (context, error, stackTrace) => Row(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Text('P', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text('Premon', style: TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('Care', style: TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold)),
+                  ],
+                )),
               ],
             ),
             const SizedBox(width: 40),
