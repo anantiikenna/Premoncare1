@@ -235,7 +235,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           Text('PASSWORD', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
-            key: ValueKey('password_$_isPasswordVisible'),
             controller: _passwordController,
             hint: 'Create Password',
             icon: Icons.lock_rounded,
@@ -280,7 +279,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           Text('CONFIRM PASSWORD', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
           const SizedBox(height: 10),
           _ClinicalInput(
-            key: ValueKey('confirmPassword_$_isConfirmPasswordVisible'),
             controller: _confirmPasswordController,
             hint: 'Re-enter Password',
             icon: Icons.verified_user_rounded,
@@ -441,7 +439,6 @@ class _ClinicalInput extends StatelessWidget {
   final bool hasError;
 
   const _ClinicalInput({
-    super.key,
     required this.controller,
     required this.hint,
     required this.icon,
@@ -479,7 +476,12 @@ class _ClinicalInput extends StatelessWidget {
             hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600),
             prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: AppColors.primary.withValues(alpha: 0.6), size: 20)),
             suffixIcon: suffixIcon != null
-                ? GestureDetector(onTap: onSuffixTap, child: Container(padding: const EdgeInsets.all(12), alignment: Alignment.center, child: suffixIcon))
+                ? IconButton(
+                    icon: suffixIcon!,
+                    onPressed: onSuffixTap,
+                    splashRadius: 20,
+                    padding: EdgeInsets.zero,
+                  )
                 : null,
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),

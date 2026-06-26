@@ -155,7 +155,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       if (_isEmailTab) ...
                       [
                         _ClinicalInput(
-                          key: ValueKey('loginPassword_$_isPasswordVisible'),
                           controller: _passwordController,
                           hint: 'Access Password',
                           icon: Icons.lock_rounded,
@@ -334,7 +333,6 @@ class _ClinicalInput extends StatelessWidget {
   final VoidCallback? onSuffixTap;
 
   const _ClinicalInput({
-    super.key,
     required this.controller,
     required this.hint,
     required this.icon,
@@ -357,7 +355,12 @@ class _ClinicalInput extends StatelessWidget {
           hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600),
           prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: AppColors.primary.withValues(alpha: 0.6), size: 20)),
           suffixIcon: suffixIcon != null
-              ? GestureDetector(onTap: onSuffixTap, child: Container(padding: const EdgeInsets.all(12), alignment: Alignment.center, child: suffixIcon))
+              ? IconButton(
+                  icon: suffixIcon!,
+                  onPressed: onSuffixTap,
+                  splashRadius: 20,
+                  padding: EdgeInsets.zero,
+                )
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),

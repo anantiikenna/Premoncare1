@@ -6,7 +6,7 @@ import '../../core/supabase_locator.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'doctor_dashboard.dart';
 import 'doctor_appointments_screen.dart';
-import '../messaging/chat_list_screen.dart';
+import 'doctor_patients_screen.dart';
 import '../forum/forum_list_screen.dart';
 import '../patient/profile_screen.dart';
 
@@ -23,7 +23,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
   final List<Widget> _screens = [
     const DoctorDashboard(),
     const DoctorAppointmentsScreen(),
-    const ChatListScreen(),
+    const DoctorPatientsScreen(),
     const ForumListScreen(),
     const ProfileScreen(),
   ];
