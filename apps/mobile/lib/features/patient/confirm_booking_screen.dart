@@ -164,9 +164,13 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
 
       try {
         final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
+        final session = supabase.auth.currentSession;
         await http.post(
           Uri.parse('$siteUrl/api/notifications/dispatch'),
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            if (session != null) 'Authorization': 'Bearer ${session.accessToken}',
+          },
           body: jsonEncode({
             'userId': widget.doctorId,
             'title': widget.isEmergency ? 'EMERGENCY Consultation Request' : 'New Appointment Request',

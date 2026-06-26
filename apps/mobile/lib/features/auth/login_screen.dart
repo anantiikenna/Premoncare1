@@ -53,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       if (!mounted) return;
 
       if (role == 'admin') {
+        clearRoleCache();
         await supabase.auth.signOut();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

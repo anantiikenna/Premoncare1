@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            value: '0', // Disabled in favor of CSP (modern best practice)
           },
           {
             key: 'Referrer-Policy',
@@ -33,7 +33,21 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';",
+            value: [
+              "default-src 'self'",
+              // SECURITY: Removed 'unsafe-eval' — not needed in production Next.js builds.
+              // If dev mode breaks, use next.config.ts devCsp override instead.
+              "script-src 'self'",
+              // SECURITY: 'unsafe-inline' retained only for styles (TailwindCSS inline styles).
+              // If migrating to CSS Modules or styled-components, remove this.
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob: https://*.supabase.co",
+              "font-src 'self' data:",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+            ].join('; '),
           },
           {
             key: 'Permissions-Policy',

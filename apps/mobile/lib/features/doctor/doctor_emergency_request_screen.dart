@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../core/providers.dart';
+import '../../core/supabase_locator.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 
 class DoctorEmergencyRequestScreen extends ConsumerStatefulWidget {
@@ -150,9 +151,13 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
       // Dispatch FCM push via web notification pipeline
       try {
         final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
+        final session = supabase.auth.currentSession;
         await http.post(
           Uri.parse('$siteUrl/api/notifications/dispatch'),
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            if (session != null) 'Authorization': 'Bearer ${session.accessToken}',
+          },
           body: jsonEncode({
             'userId': widget.patientId,
             'title': 'Emergency Request Accepted',

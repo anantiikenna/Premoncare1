@@ -2,10 +2,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> initSupabase() async {
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-  );
+  final url = dotenv.env['SUPABASE_URL'];
+  final key = dotenv.env['SUPABASE_ANON_KEY'];
+
+  if (url == null || url.isEmpty || key == null || key.isEmpty) {
+    throw Exception(
+      'Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env file. '
+      'Copy .env.sample to .env and fill in your credentials.',
+    );
+  }
+
+  await Supabase.initialize(url: url, publishableKey: key);
 }
 
 final supabase = Supabase.instance.client;

@@ -65,6 +65,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
       if (!mounted) return;
 
       if (role != 'admin') {
+        clearRoleCache();
         await supabase.auth.signOut();
         setState(() {
           _errorMessage = 'Access denied. This account does not have admin privileges.';

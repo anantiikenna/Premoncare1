@@ -119,6 +119,7 @@ final goRouter = GoRouter(
 
       final role = await getUserRole();
       if (role != 'admin') {
+        clearRoleCache();
         await supabase.auth.signOut();
         return '/admin-login';
       }
@@ -138,6 +139,7 @@ final goRouter = GoRouter(
             '/select-duration',
             '/confirm-booking',
             '/booking-confirmed',
+            '/emergency-waiting',
           }.contains(state.matchedLocation);
       if (allowsGuestEmergency) return null;
 
@@ -153,6 +155,7 @@ final goRouter = GoRouter(
     final role = await getUserRole();
 
     if (role == 'admin') {
+      clearRoleCache();
       await supabase.auth.signOut();
       return '/login';
     }
@@ -164,6 +167,16 @@ final goRouter = GoRouter(
     final location = state.matchedLocation;
 
     if (location == '/doctor_dashboard' && role == 'patient') {
+      return '/patient_dashboard';
+    }
+
+    // SECURITY: Guard all doctor-specific routes against patient access
+    if (role == 'patient' && location.startsWith('/doctor/')) {
+      return '/patient_dashboard';
+    }
+
+    // SECURITY: Guard all admin routes against non-admin access in user APK
+    if (location.startsWith('/admin') && role != 'admin') {
       return '/patient_dashboard';
     }
 
@@ -354,6 +367,11 @@ final goRouter = GoRouter(
         return FutureBuilder<String>(
           future: getUserRole(),
           builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
             if (snapshot.data == 'doctor') {
               return const DoctorAppointmentsScreen();
             }

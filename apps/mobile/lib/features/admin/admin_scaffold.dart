@@ -128,6 +128,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                   ),
                 );
                 if (confirmed == true) {
+                  clearRoleCache();
                   await supabase.auth.signOut();
                   if (context.mounted) context.go('/admin-login');
                 }

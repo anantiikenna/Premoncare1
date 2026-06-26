@@ -511,10 +511,12 @@ create policy "Users can update own notifications"
   on notifications for update
   using (auth.uid() = user_id);
 
--- Any authenticated user can insert notifications (e.g., for other users)
-create policy "Authenticated users can create notifications"
+-- Users can only create notifications for themselves (or use SECURITY DEFINER functions for system-level notifications)
+create policy "Users can create own notifications"
   on notifications for insert
-  with check (auth.role() = 'authenticated');
+  with check (auth.uid() = user_id);
+
+-- System-level notifications bypass RLS via SECURITY DEFINER functions (e.g., approve_payment, reject_payment)
 
 -- Admins can view all notifications (for admin panel)
 create policy "Admins can view all notifications"
@@ -659,10 +661,10 @@ create policy "Patients can update own reviews"
 -- ============================================================
 -- SYSTEM SETTINGS
 -- ============================================================
--- Anyone can view system settings (public config like pricing)
-create policy "Anyone can view system settings"
+-- SECURITY FIX: Only authenticated users can view system settings (not anonymous)
+create policy "Authenticated users can view system settings"
   on system_settings for select
-  using (true);
+  using (auth.role() = 'authenticated');
 
 -- Admins can update system settings
 create policy "Admins can update system settings"
@@ -797,10 +799,22 @@ DECLARE
     v_current_expiry TIMESTAMP WITH TIME ZONE;
     v_added_months INTEGER;
     v_admin_setting RECORD;
+    v_processor_role TEXT;
 BEGIN
+    -- Authorization: only admins or payment recipients can approve
+    SELECT role INTO v_processor_role FROM profiles WHERE id = p_processor_id;
+    IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
+        RAISE EXCEPTION 'Unauthorized: only admins or recipients can approve payments';
+    END IF;
+
     SELECT * INTO v_payment FROM payments WHERE id = p_payment_id FOR UPDATE;
     IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
     IF v_payment.status = 'approved' THEN RETURN; END IF;
+
+    -- Recipients can only approve their own payments
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != p_processor_id THEN
+        RAISE EXCEPTION 'Forbidden: doctors can only approve their own payments';
+    END IF;
 
     UPDATE payments SET status = 'approved', processed_by = p_processor_id WHERE id = p_payment_id;
 
@@ -814,9 +828,10 @@ BEGIN
         VALUES (v_payment.recipient_id, 'Consultation Credit Verified', 'A payment of ₦' || v_payment.amount || ' for ' || v_payment.duration_minutes || 'm has been verified.', 'payment', '/doctor/dashboard');
         
     ELSIF v_payment.recipient_id IS NULL THEN
+        -- Subscription renewal only (no auto-promotion to doctor)
         SELECT * INTO v_payer_profile FROM profiles WHERE id = v_payment.user_id FOR UPDATE;
 
-        IF v_payer_profile IS NOT NULL THEN
+        IF v_payer_profile IS NOT NULL AND v_payer_profile.role = 'doctor' THEN
             v_current_expiry := COALESCE(v_payer_profile.subscription_expires_at, NOW());
             IF v_current_expiry < NOW() THEN v_current_expiry := NOW(); END IF;
             
@@ -824,16 +839,16 @@ BEGIN
             v_current_expiry := v_current_expiry + (v_added_months || ' months')::INTERVAL;
 
             UPDATE profiles
-            SET role = 'doctor', subscription_status = 'active', fee_status = 'active', subscription_expires_at = v_current_expiry, last_subscription_payment_at = NOW(), verification_status = 'approved'
+            SET subscription_status = 'active', fee_status = 'active', subscription_expires_at = v_current_expiry, last_subscription_payment_at = NOW()
             WHERE id = v_payment.user_id;
 
             INSERT INTO notifications (user_id, title, message, type, link)
-            VALUES (v_payment.user_id, CASE WHEN v_payer_profile.role != 'doctor' THEN 'Account Formally Promoted' ELSE 'Subscription Renewed' END, 'Professional dashboard is now active! Expires on ' || v_current_expiry::DATE, 'system', '/doctor/dashboard');
+            VALUES (v_payment.user_id, 'Subscription Renewed', 'Your subscription has been renewed. Expires on ' || v_current_expiry::DATE, 'system', '/doctor/dashboard');
 
             FOR v_admin_setting IN SELECT * FROM admin_notification_settings LOOP
                 IF 'doctor_verified' = ANY(v_admin_setting.alert_types) THEN
                     INSERT INTO notifications (user_id, title, message, type, link)
-                    VALUES (v_admin_setting.admin_id, 'Doctor Activation', 'Dr. ' || COALESCE(v_payer_profile.full_name, 'Unknown') || ' has been activated/renewed.', 'system', '/admin/reports');
+                    VALUES (v_admin_setting.admin_id, 'Doctor Subscription Renewed', 'Dr. ' || COALESCE(v_payer_profile.full_name, 'Unknown') || ' has renewed their subscription.', 'system', '/admin/reports');
                 END IF;
             END LOOP;
         END IF;
@@ -858,9 +873,21 @@ CREATE OR REPLACE FUNCTION reject_payment(
 RETURNS VOID AS $$
 DECLARE
     v_payment RECORD;
+    v_processor_role TEXT;
 BEGIN
+    -- Authorization: only admins or payment recipients can reject
+    SELECT role INTO v_processor_role FROM profiles WHERE id = p_processor_id;
+    IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
+        RAISE EXCEPTION 'Unauthorized: only admins or recipients can reject payments';
+    END IF;
+
     SELECT * INTO v_payment FROM payments WHERE id = p_payment_id FOR UPDATE;
     IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
+
+    -- Recipients can only reject their own payments
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != p_processor_id THEN
+        RAISE EXCEPTION 'Forbidden: doctors can only reject their own payments';
+    END IF;
 
     UPDATE payments SET status = 'rejected', rejection_reason = p_reason, processed_by = p_processor_id WHERE id = p_payment_id;
 
@@ -1023,9 +1050,15 @@ create policy "Admins can manage disputes"
   on disputes for all
   using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
 
+-- SECURITY FIX: Users (patients/doctors) can create disputes
+create policy "Authenticated users can create disputes"
+  on disputes for insert
+  with check (auth.uid() = user_id);
+
+-- SECURITY FIX: Users can view disputes where they are user, patient, or doctor
 create policy "Users can view their own disputes"
   on disputes for select
-  using (auth.uid() = user_id);
+  using (auth.uid() = user_id OR auth.uid() = patient_id OR auth.uid() = doctor_id);
 
 -- 4. Blocked Users System
 create table blocked_users (
@@ -1042,9 +1075,10 @@ create policy "Admins can manage blocked users"
   on blocked_users for all
   using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
 
-create policy "Anyone can see if they are blocked"
+-- SECURITY FIX: Users can only see their own block status (not other users' blocks)
+create policy "Users can view own block status"
   on blocked_users for select
-  using (true);
+  using (auth.uid() = user_id);
 
 -- 5. Notification Config System
 create table notification_channels_config (
@@ -1382,6 +1416,11 @@ create policy "Authors can update own posts"
   on forum_posts for update
   using (auth.uid() = author_id);
 
+-- SECURITY FIX: Authors can delete their own posts
+create policy "Authors can delete own posts"
+  on forum_posts for delete
+  using (auth.uid() = author_id);
+
 create policy "Admins can moderate all posts"
   on forum_posts for all
   using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
@@ -1397,6 +1436,11 @@ create policy "Authenticated users can create replies"
 
 create policy "Authors can update own replies"
   on forum_replies for update
+  using (auth.uid() = author_id);
+
+-- SECURITY FIX: Authors can delete their own replies
+create policy "Authors can delete own replies"
+  on forum_replies for delete
   using (auth.uid() = author_id);
 
 create policy "Admins can moderate all replies"
@@ -1436,7 +1480,7 @@ INSERT INTO storage.buckets (id, name, public) VALUES
   ('doctor-verifications', 'doctor-verifications', false),
   ('patient-verifications', 'patient-verifications', false),
   ('medical-documents', 'medical-documents', false),
-  ('payment-receipts', 'payment-receipts', true),
+  ('payment-receipts', 'payment-receipts', false),
   ('patient-medical-vault', 'patient-medical-vault', false)
 ON CONFLICT (id) DO NOTHING;
 
@@ -1481,4 +1525,19 @@ CREATE POLICY "Patients can select their own medical vault documents" ON storage
 CREATE POLICY "Patients can update their own medical vault documents" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'patient-medical-vault' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY "Patients can delete their own medical vault documents" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'patient-medical-vault' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY "Patients can upload their own medical vault documents" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'patient-medical-vault' AND (storage.foldername(name))[1] = auth.uid()::text);
-CREATE POLICY "Doctors can view shared medical vault documents" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'patient-medical-vault');
+-- SECURITY FIX: Doctors can only view vault files if they have explicit record_permissions for the patient's record
+CREATE POLICY "Doctors can view shared medical vault documents" ON storage.objects FOR SELECT TO authenticated USING (
+  bucket_id = 'patient-medical-vault'
+  AND (
+    -- Admin access
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+    OR
+    -- Doctor access: the file's owner must have granted record_permissions to this doctor
+    exists (
+      select 1 from public.record_permissions rp
+      join public.medical_records mr on mr.id = rp.record_id
+      where rp.doctor_id = auth.uid()
+        and mr.patient_id::text = (storage.foldername(name))[1]
+    )
+  )
+);

@@ -107,6 +107,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
                   ),
                 );
                 if (confirmed == true) {
+                  clearRoleCache();
                   await supabase.auth.signOut();
                   if (context.mounted) context.go('/login');
                 }

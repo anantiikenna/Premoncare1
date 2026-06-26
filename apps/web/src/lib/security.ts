@@ -42,37 +42,82 @@ export function setCorsHeaders(res: NextResponse, requestOrigin: string | null) 
 }
 
 // ==========================================
-// 3. RATE LIMITER (In-Memory / Redis pattern)
+// 3. RATE LIMITER (In-Memory / Upstash Redis)
 // ==========================================
-// NOTE: Best practice advice dictates using Upstash/Redis for global serverless state.
-// Since you may scale, we wrap our simple memory Map in a way that can be easily swapped.
-// If UPSTASH_REDIS_REST_URL is configured, you could insert real @upstash/ratelimit logic here.
-const ipRequestCache = new Map<string, { count: number, timestamp: number }>()
+// IMPORTANT: The in-memory Map only works in single-instance deployments.
+// For serverless (Netlify/Vercel), each function invocation creates a new Map.
+// PRODUCTION RECOMMENDATION: Install @upstash/ratelimit + @upstash/redis
+// and uncomment the Upstash implementation below.
+//
+// To enable Upstash:
+//   1. npm install @upstash/ratelimit @upstash/redis
+//   2. Add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to .env.local
+//   3. Swap the implementation below (see UPSTASH block)
+
+// --- In-Memory Implementation (development/single-instance only) ---
+const ipRequestCache = new Map<string, { count: number, resetAt: number }>()
 const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 60 // 60 requests per minute
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000 // Cleanup stale entries every 5 min
+
+// Periodic cleanup to prevent memory leaks from stale IPs
+let lastCleanup = Date.now()
+function maybeCleanup() {
+    const now = Date.now()
+    if (now - lastCleanup > CLEANUP_INTERVAL_MS) {
+        lastCleanup = now
+        for (const [ip, record] of ipRequestCache) {
+            if (now > record.resetAt) ipRequestCache.delete(ip)
+        }
+    }
+}
+
+function getTrustedIp(req: NextRequest): string {
+    // In production behind a reverse proxy, x-forwarded-for contains the real client IP
+    const forwarded = req.headers.get('x-forwarded-for')
+    if (forwarded) {
+        // Take the first (leftmost) IP, which is the original client
+        const firstIp = forwarded.split(',')[0]?.trim()
+        if (firstIp) return firstIp
+    }
+    return req.headers.get('x-real-ip') || 'unknown'
+}
 
 function checkRateLimit(ip: string): boolean {
+    maybeCleanup()
     const now = Date.now()
     const record = ipRequestCache.get(ip)
 
-    if (!record) {
-        ipRequestCache.set(ip, { count: 1, timestamp: now })
-        return true
-    }
-
-    if (now - record.timestamp > RATE_LIMIT_WINDOW_MS) {
-        // Reset window
-        ipRequestCache.set(ip, { count: 1, timestamp: now })
+    if (!record || now > record.resetAt) {
+        ipRequestCache.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
         return true
     }
 
     if (record.count >= MAX_REQUESTS_PER_WINDOW) {
-        return false // Rate limit exceeded
+        return false
     }
 
     record.count++
     return true
 }
+
+// --- Upstash Implementation (production serverless) ---
+// Uncomment below and comment out in-memory implementation above:
+/*
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
+
+const ratelimit = new Ratelimit({
+    redis: Redis.fromEnv(),
+    limiter: Ratelimit.slidingWindow(MAX_REQUESTS_PER_WINDOW, `${RATE_LIMIT_WINDOW_MS / 1000} s`),
+    analytics: true,
+})
+
+async function checkRateLimitUpstash(ip: string): Promise<boolean> {
+    const { success } = await ratelimit.limit(ip)
+    return success
+}
+*/
 
 // ==========================================
 // 4. ROUTE PROTECTION HIGHER-ORDER WRAPPER
@@ -99,7 +144,7 @@ export async function withSecurity(
 
     // 1. Rate Limiting Check
     if (!options.isWebhook) {
-        const ip = req.headers.get('x-forwarded-for') || 'unknown'
+        const ip = getTrustedIp(req)
         if (!checkRateLimit(ip)) {
             const res = NextResponse.json({ error: 'Too Many Requests' }, { status: 429 })
             return setCorsHeaders(res, requestOrigin)

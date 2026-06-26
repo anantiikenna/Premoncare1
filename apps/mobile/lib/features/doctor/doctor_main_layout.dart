@@ -136,6 +136,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
                   ),
                 );
                 if (confirmed == true) {
+                  clearRoleCache();
                   await supabase.auth.signOut();
                   if (context.mounted) context.go('/login');
                 }

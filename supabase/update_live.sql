@@ -132,6 +132,121 @@ GRANT EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) TO authenticat
 GRANT EXECUTE ON FUNCTION public.get_admin_financial_stats() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) TO authenticated;
 
+-- ============================================================
+-- SECURITY FIX: Updated approve_payment with authorization checks
+-- Only admins or payment recipients can approve. No auto-promotion to doctor.
+-- ============================================================
+CREATE OR REPLACE FUNCTION approve_payment(
+    p_payment_id UUID,
+    p_processor_id UUID
+)
+RETURNS VOID AS $$
+DECLARE
+    v_payment RECORD;
+    v_payer_profile RECORD;
+    v_current_expiry TIMESTAMP WITH TIME ZONE;
+    v_added_months INTEGER;
+    v_admin_setting RECORD;
+    v_processor_role TEXT;
+BEGIN
+    -- Authorization: only admins or payment recipients can approve
+    SELECT role INTO v_processor_role FROM profiles WHERE id = p_processor_id;
+    IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
+        RAISE EXCEPTION 'Unauthorized: only admins or recipients can approve payments';
+    END IF;
+
+    SELECT * INTO v_payment FROM payments WHERE id = p_payment_id FOR UPDATE;
+    IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
+    IF v_payment.status = 'approved' THEN RETURN; END IF;
+
+    -- Recipients can only approve their own payments
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != p_processor_id THEN
+        RAISE EXCEPTION 'Forbidden: doctors can only approve their own payments';
+    END IF;
+
+    UPDATE payments SET status = 'approved', processed_by = p_processor_id WHERE id = p_payment_id;
+
+    INSERT INTO notifications (user_id, title, message, type, link)
+    VALUES (v_payment.user_id, 'Payment Approved', 'Your payment of ₦' || v_payment.amount || ' has been verified and approved.', 'payment', '/patient/payments');
+
+    IF v_payment.recipient_id IS NOT NULL AND v_payment.duration_minutes IS NOT NULL THEN
+        PERFORM increment_time_balance(v_payment.user_id, v_payment.recipient_id, v_payment.duration_minutes);
+        
+        INSERT INTO notifications (user_id, title, message, type, link)
+        VALUES (v_payment.recipient_id, 'Consultation Credit Verified', 'A payment of ₦' || v_payment.amount || ' for ' || v_payment.duration_minutes || 'm has been verified.', 'payment', '/doctor/dashboard');
+        
+    ELSIF v_payment.recipient_id IS NULL THEN
+        -- Subscription renewal only (no auto-promotion to doctor)
+        SELECT * INTO v_payer_profile FROM profiles WHERE id = v_payment.user_id FOR UPDATE;
+
+        IF v_payer_profile IS NOT NULL AND v_payer_profile.role = 'doctor' THEN
+            v_current_expiry := COALESCE(v_payer_profile.subscription_expires_at, NOW());
+            IF v_current_expiry < NOW() THEN v_current_expiry := NOW(); END IF;
+            
+            v_added_months := CASE WHEN v_payment.duration_minutes < 60 THEN v_payment.duration_minutes ELSE 1 END;
+            v_current_expiry := v_current_expiry + (v_added_months || ' months')::INTERVAL;
+
+            UPDATE profiles
+            SET subscription_status = 'active', fee_status = 'active', subscription_expires_at = v_current_expiry, last_subscription_payment_at = NOW()
+            WHERE id = v_payment.user_id;
+
+            INSERT INTO notifications (user_id, title, message, type, link)
+            VALUES (v_payment.user_id, 'Subscription Renewed', 'Your subscription has been renewed. Expires on ' || v_current_expiry::DATE, 'system', '/doctor/dashboard');
+
+            FOR v_admin_setting IN SELECT * FROM admin_notification_settings LOOP
+                IF 'doctor_verified' = ANY(v_admin_setting.alert_types) THEN
+                    INSERT INTO notifications (user_id, title, message, type, link)
+                    VALUES (v_admin_setting.admin_id, 'Doctor Subscription Renewed', 'Dr. ' || COALESCE(v_payer_profile.full_name, 'Unknown') || ' has renewed their subscription.', 'system', '/admin/reports');
+                END IF;
+            END LOOP;
+        END IF;
+    END IF;
+
+    IF v_payment.recipient_id IS NOT NULL AND v_payment.duration_minutes IS NOT NULL THEN
+        FOR v_admin_setting IN SELECT * FROM admin_notification_settings LOOP
+            IF 'payment_verified' = ANY(v_admin_setting.alert_types) THEN
+                INSERT INTO notifications (user_id, title, message, type, link)
+                VALUES (v_admin_setting.admin_id, 'Consultation Payment Verified', 'A payment of ₦' || v_payment.amount || ' for a ' || v_payment.duration_minutes || 'm session was verified.', 'payment', '/admin/reports');
+            END IF;
+        END LOOP;
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- ============================================================
+-- SECURITY FIX: Updated reject_payment with authorization checks
+-- ============================================================
+CREATE OR REPLACE FUNCTION reject_payment(
+    p_payment_id UUID,
+    p_reason TEXT,
+    p_processor_id UUID
+)
+RETURNS VOID AS $$
+DECLARE
+    v_payment RECORD;
+    v_processor_role TEXT;
+BEGIN
+    -- Authorization: only admins or payment recipients can reject
+    SELECT role INTO v_processor_role FROM profiles WHERE id = p_processor_id;
+    IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
+        RAISE EXCEPTION 'Unauthorized: only admins or recipients can reject payments';
+    END IF;
+
+    SELECT * INTO v_payment FROM payments WHERE id = p_payment_id FOR UPDATE;
+    IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
+
+    -- Recipients can only reject their own payments
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != p_processor_id THEN
+        RAISE EXCEPTION 'Forbidden: doctors can only reject their own payments';
+    END IF;
+
+    UPDATE payments SET status = 'rejected', rejection_reason = p_reason, processed_by = p_processor_id WHERE id = p_payment_id;
+
+    INSERT INTO notifications (user_id, title, message, type, link)
+    VALUES (v_payment.user_id, 'Payment Rejected', 'Your payment of ₦' || v_payment.amount || ' was rejected. Reason: ' || COALESCE(p_reason, 'No reason provided.'), 'payment', '/patient/payments');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
 -- NOTE: authenticated_security_definer_function_executable warnings are
 -- ACCEPTABLE for these functions because they are legitimately called by
 -- authenticated doctors/admins from client-side code:
@@ -523,6 +638,7 @@ CREATE POLICY "Users can update own messages"
 DROP POLICY IF EXISTS "Users can view own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Users can update own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Authenticated users can create notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users can create own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Admins can view all notifications" ON public.notifications;
 
 CREATE POLICY "Users can view own notifications"
@@ -533,9 +649,11 @@ CREATE POLICY "Users can update own notifications"
   ON public.notifications FOR UPDATE
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Authenticated users can create notifications"
+-- SECURITY FIX: Users can only create notifications for themselves.
+-- System-level notifications (payments, appointments) use SECURITY DEFINER functions.
+CREATE POLICY "Users can create own notifications"
   ON public.notifications FOR INSERT
-  WITH CHECK (auth.role() = 'authenticated');
+  WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Admins can view all notifications"
   ON public.notifications FOR SELECT
@@ -675,11 +793,82 @@ CREATE POLICY "Patients can update own reviews"
 -- SYSTEM SETTINGS
 -- ============================================================
 DROP POLICY IF EXISTS "Anyone can view system settings" ON public.system_settings;
+DROP POLICY IF EXISTS "Authenticated users can view system settings" ON public.system_settings;
 DROP POLICY IF EXISTS "Admins can update system settings" ON public.system_settings;
 
-CREATE POLICY "Anyone can view system settings"
-  ON public.system_settings FOR SELECT USING (true);
+-- SECURITY FIX: Only authenticated users can view system settings (not anonymous).
+CREATE POLICY "Authenticated users can view system settings"
+  ON public.system_settings FOR SELECT
+  USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Admins can update system settings"
   ON public.system_settings FOR UPDATE
   USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- ============================================================
+-- SECURITY FIX: Make payment-receipts bucket private
+-- ============================================================
+UPDATE storage.buckets SET public = false WHERE id = 'payment-receipts';
+
+-- ============================================================
+-- SECURITY FIX: Restrict patient-medical-vault storage access
+-- Only patients (owners), admins, and doctors with explicit record_permissions can access
+-- ============================================================
+DROP POLICY IF EXISTS "Doctors can view shared medical vault documents" ON storage.objects;
+
+CREATE POLICY "Doctors can view shared medical vault documents" ON storage.objects
+  FOR SELECT TO authenticated USING (
+    bucket_id = 'patient-medical-vault'
+    AND (
+      -- Admin access
+      EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+      OR
+      -- Doctor access: must have explicit record_permissions for the patient's records
+      EXISTS (
+        SELECT 1 FROM public.record_permissions rp
+        JOIN public.medical_records mr ON mr.id = rp.record_id
+        WHERE rp.doctor_id = auth.uid()
+          AND mr.patient_id::text = (storage.foldername(name))[1]
+      )
+    )
+  );
+
+-- ============================================================
+-- SECURITY FIX: blocked_users - restrict SELECT to self + admin only
+-- ============================================================
+DROP POLICY IF EXISTS "Anyone can see if they are blocked" ON public.blocked_users;
+
+CREATE POLICY "Users can view own block status"
+  ON public.blocked_users FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- ============================================================
+-- SECURITY FIX: disputes - add INSERT policy + expand SELECT
+-- ============================================================
+DROP POLICY IF EXISTS "Users can view their own disputes" ON public.disputes;
+
+CREATE POLICY "Authenticated users can create disputes"
+  ON public.disputes FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can view their own disputes"
+  ON public.disputes FOR SELECT
+  USING (auth.uid() = user_id OR auth.uid() = patient_id OR auth.uid() = doctor_id);
+
+-- ============================================================
+-- SECURITY FIX: forum_posts - add author DELETE policy
+-- ============================================================
+DROP POLICY IF EXISTS "Authors can delete own posts" ON public.forum_posts;
+
+CREATE POLICY "Authors can delete own posts"
+  ON public.forum_posts FOR DELETE
+  USING (auth.uid() = author_id);
+
+-- ============================================================
+-- SECURITY FIX: forum_replies - add author DELETE policy
+-- ============================================================
+DROP POLICY IF EXISTS "Authors can delete own replies" ON public.forum_replies;
+
+CREATE POLICY "Authors can delete own replies"
+  ON public.forum_replies FOR DELETE
+  USING (auth.uid() = author_id);

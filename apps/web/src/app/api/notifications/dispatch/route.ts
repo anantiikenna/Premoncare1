@@ -16,7 +16,7 @@ const dispatchSchema = z.object({
   emailData: z.record(z.string(), z.any()).optional(),
 });
 
-async function dispatchHandler(req: NextRequest) {
+async function dispatchHandler(req: NextRequest, sessionUser?: any) {
   let jsonBody: unknown;
   try {
     jsonBody = await req.json();
@@ -26,11 +26,28 @@ async function dispatchHandler(req: NextRequest) {
   const parsed = dispatchSchema.safeParse(jsonBody);
 
   if (!parsed.success) {
-    return NextResponse.json({ success: false, error: parsed.error }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid request body' }, { status: 400 });
   }
 
   const { userId, title, message, type, link, sendEmail: shouldEmail, emailTemplate, emailData } = sanitizeObject(parsed.data);
   
+  // Authorization check: only admins or the user themselves can dispatch notifications
+  if (sessionUser && sessionUser.id !== userId) {
+    const supabase = await createClient();
+    const { data: callerProfile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', sessionUser.id)
+      .single();
+    
+    if (!callerProfile || callerProfile.role !== 'admin') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Forbidden: you can only send notifications to yourself' 
+      }, { status: 403 });
+    }
+  }
+
   const supabase = await createClient();
 
   // 1. Fetch user profile for email/settings
@@ -102,8 +119,6 @@ async function dispatchHandler(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  // We allow internal system calls, but want to ensure some level of protection
-  // In a real prod app, we'd use a secret header or internal network check
   return withSecurity(req, dispatchHandler, { requireAuth: true });
 }
 
