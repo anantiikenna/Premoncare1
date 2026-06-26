@@ -18,8 +18,14 @@ final doctorPatientsProvider = FutureProvider.autoDispose<List<Map<String, dynam
 
   if (appointmentsData.isEmpty) return [];
 
-  // 2. Extract unique patient IDs
-  final patientIds = (appointmentsData as List).map((a) => a['patient_id'] as String).toSet().toList();
+  // 2. Extract unique patient IDs, filtering out nulls (e.g. from guest bookings)
+  final patientIds = (appointmentsData as List)
+      .where((a) => a['patient_id'] != null)
+      .map((a) => a['patient_id'] as String)
+      .toSet()
+      .toList();
+
+  if (patientIds.isEmpty) return [];
 
   // 3. Fetch patient profiles
   final profilesData = await supabase
@@ -191,7 +197,6 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                           leading: GenericUserAvatar(
                             radius: 24,
                             avatarUrl: patient['avatar_url'] as String?,
-                            fallbackName: name,
                           ),
                           title: Text(
                             name,
