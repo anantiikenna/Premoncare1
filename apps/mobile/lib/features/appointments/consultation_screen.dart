@@ -77,6 +77,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
             _isInMeeting = true;
           });
           _startTimer();
+          _updateAppointmentStatus('ongoing');
         }
       },
       conferenceTerminated: (url, error) {
@@ -124,8 +125,23 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
   void _endCall() {
     _timer?.cancel();
     _jitsiMeet.hangUp();
+    _updateAppointmentStatus('completed');
     if (mounted) {
-      context.go('/consultation-summary/${widget.appointmentId}');
+      context.go('/consultation-summary/${widget.appointmentId}', extra: {
+        'doctorName': widget.doctorName,
+        'doctorSpecialty': widget.specialty,
+      });
+    }
+  }
+
+  Future<void> _updateAppointmentStatus(String status) async {
+    try {
+      await supabase
+          .from('appointments')
+          .update({'status': status})
+          .eq('id', widget.appointmentId);
+    } catch (e) {
+      debugPrint('Failed to update appointment status: $e');
     }
   }
 

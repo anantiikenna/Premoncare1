@@ -21,7 +21,11 @@ export default async function DoctorAppointmentsPage() {
                 <p className="text-muted-foreground">Manage your requests, confirm sessions, and start virtual meetings.</p>
             </div>
 
-            <DoctorAppointmentManager appointments={appointments || []} docId={user.id} />
+            <DoctorAppointmentManager 
+                appointments={appointments || []} 
+                docId={user.id} 
+                doctorName={profile?.full_name || 'Doctor'}
+            />
         </div>
     )
 }

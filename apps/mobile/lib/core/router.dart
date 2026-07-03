@@ -508,7 +508,12 @@ final goRouter = GoRouter(
       path: '/consultation-summary/:id',
       builder: (context, state) {
         final id = state.pathParameters['id'] ?? '';
-        return ConsultationSummaryScreen(appointmentId: id);
+        final extras = state.extra as Map<String, dynamic>?;
+        return ConsultationSummaryScreen(
+          appointmentId: id,
+          doctorName: extras?['doctorName'] as String?,
+          doctorSpecialty: extras?['doctorSpecialty'] as String?,
+        );
       },
     ),
     GoRoute(

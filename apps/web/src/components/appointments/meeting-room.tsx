@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { Loader2, Mic, MicOff, Video, VideoOff, PhoneOff, Maximize2, Minimize2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { Loader2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
 
 declare global {
   interface Window {
@@ -13,18 +13,31 @@ declare global {
 interface MeetingRoomProps {
   roomName: string
   userName: string
+  appointmentId?: string
   onClose: () => void
 }
 
-export function MeetingRoom({ roomName, userName, onClose }: MeetingRoomProps) {
+export function MeetingRoom({ roomName, userName, appointmentId, onClose }: MeetingRoomProps) {
   const jitsiContainerRef = useRef<HTMLDivElement>(null)
-  const [api, setApi] = useState<any>(null)
+  const apiRef = useRef<any>(null)
   const [loading, setLoading] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
 
+  const updateAppointmentStatus = useCallback(async (status: string) => {
+    if (!appointmentId) return
+    try {
+      const supabase = createClient()
+      await supabase
+        .from('appointments')
+        .update({ status })
+        .eq('id', appointmentId)
+    } catch (e) {
+      console.error('Failed to update appointment status:', e)
+    }
+  }, [appointmentId])
+
   useEffect(() => {
-    // Load Jitsi script dynamically
     const script = document.createElement('script')
     script.src = 'https://8x8.vc/vpaas-magic-cookie-8ae09756b1f44059929e7161b9bd1031/external_api.js'
     script.async = true
@@ -40,6 +53,7 @@ export function MeetingRoom({ roomName, userName, onClose }: MeetingRoomProps) {
           },
           configOverwrite: {
             startWithAudioMuted: false,
+            startWithVideoMuted: false,
             disableModeratorIndicator: true,
             startScreenSharing: false,
             enableEmailInStats: false
@@ -58,24 +72,37 @@ export function MeetingRoom({ roomName, userName, onClose }: MeetingRoomProps) {
           }
         }
         const jitsiApi = new window.JitsiMeetExternalAPI('8x8.vc', options)
-        setApi(jitsiApi)
+        apiRef.current = jitsiApi
         setLoading(false)
 
         jitsiApi.addEventListeners({
-          readyToClose: () => onClose(),
-          videoConferenceLeft: () => onClose(),
+          readyToClose: () => {
+            updateAppointmentStatus('completed')
+            onClose()
+          },
+          videoConferenceLeft: () => {
+            updateAppointmentStatus('completed')
+            onClose()
+          },
           audioMuteStatusChanged: (e: any) => setIsMuted(e.muted),
           videoMuteStatusChanged: (e: any) => setIsVideoOff(e.muted)
         })
+
+        updateAppointmentStatus('ongoing')
       }
     }
     document.body.appendChild(script)
 
     return () => {
-      if (api) api.dispose()
-      document.body.removeChild(script)
+      if (apiRef.current) {
+        apiRef.current.dispose()
+        apiRef.current = null
+      }
+      if (script.parentNode) {
+        script.parentNode.removeChild(script)
+      }
     }
-  }, [])
+  }, [roomName, userName, onClose, updateAppointmentStatus])
 
   return (
     <div className="relative w-full h-full bg-zinc-950 flex flex-col">

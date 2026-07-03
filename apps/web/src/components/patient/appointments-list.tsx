@@ -229,6 +229,7 @@ export function PatientAppointmentsList({ userId }: { userId: string }) {
                         <MeetingRoom 
                             roomName={meetingApt.id}
                             userName={meetingApt.patient?.full_name || 'Patient'}
+                            appointmentId={meetingApt.id}
                             onClose={() => setMeetingApt(null)}
                         />
                     </DialogContent>

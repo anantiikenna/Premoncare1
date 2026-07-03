@@ -23,7 +23,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getUserFacingError } from '@/lib/user-facing-errors'
 
-export function DoctorAppointmentManager({ appointments, docId }: { appointments: any[], docId: string }) {
+export function DoctorAppointmentManager({ appointments, docId, doctorName }: { appointments: any[], docId: string, doctorName: string }) {
     const router = useRouter()
     const [processingId, setProcessingId] = useState<string | null>(null)
     const [activeMeeting, setActiveMeeting] = useState<any | null>(null)
@@ -145,7 +145,8 @@ export function DoctorAppointmentManager({ appointments, docId }: { appointments
                 <div className="flex-1 bg-black relative flex items-center justify-center overflow-hidden">
                     <MeetingRoom 
                         roomName={activeMeeting.id} 
-                        userName={`Dr. ${docId.slice(0, 4)}`}
+                        userName={doctorName}
+                        appointmentId={activeMeeting.id}
                         onClose={() => {
                             setActiveMeeting(null)
                             setPatientMedicalProfile(null)
@@ -373,7 +374,7 @@ export function DoctorAppointmentManager({ appointments, docId }: { appointments
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 text-[10px] font-black text-slate-600">
-                        <Calendar className="h-3 w-3" /> May 28, 2025
+                        <Calendar className="h-3 w-3" /> {new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                     </div>
                     <Button variant="outline" size="sm" className="rounded-xl h-10 border-slate-200 text-[10px] font-black uppercase tracking-widest">
                         <Filter className="h-3.5 w-3.5 mr-2" /> Filters
