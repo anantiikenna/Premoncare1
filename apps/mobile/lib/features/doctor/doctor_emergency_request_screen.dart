@@ -81,7 +81,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
 
   void _setupRealtimeSubscription() {
     _subscription = Supabase.instance.client
-        .channel('doctor-emergency-${widget.appointmentId}')
+        .channel('doctor:emergency:${widget.appointmentId}')
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
           schema: 'public',

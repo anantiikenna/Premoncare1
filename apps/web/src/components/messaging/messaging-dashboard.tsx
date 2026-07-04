@@ -34,7 +34,9 @@ export function MessagingDashboard({ currentUserId }: { currentUserId: string })
 
         // Set up real-time listener for incoming messages
         const channel = supabase
-            .channel('messages')
+            .channel(`messages:user:${currentUserId}`, {
+                config: { private: true },
+            })
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',

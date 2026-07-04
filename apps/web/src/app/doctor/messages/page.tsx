@@ -54,7 +54,9 @@ export default function DoctorMessagesPage() {
         fetchInitialData()
 
         // Realtime Subscription
-        const channel = supabase.channel('messages_channel')
+        const channel = supabase.channel('doctor:messages:fee', {
+                config: { private: true },
+            })
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'fee_negotiation_messages' },

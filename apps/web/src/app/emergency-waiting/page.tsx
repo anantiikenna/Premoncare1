@@ -82,7 +82,9 @@ export default function EmergencyWaitingPage() {
     if (!appointmentId) return
 
     const channel = supabase
-      .channel(`emergency-waiting-${appointmentId}`)
+      .channel(`emergency:waiting:${appointmentId}`, {
+        config: { private: true },
+      })
       .on(
         'postgres_changes',
         {

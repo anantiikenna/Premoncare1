@@ -59,7 +59,9 @@ export function EmergencyQueue() {
     useEffect(() => {
         Promise.all([fetchQueue(), fetchDoctors()]).then(() => setLoading(false))
 
-        const channel = supabase.channel('emergency_ops')
+        const channel = supabase.channel('admin:emergency:ops', {
+                config: { private: true },
+            })
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'appointments', filter: 'type=eq.emergency' },

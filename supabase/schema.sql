@@ -911,9 +911,30 @@ alter publication supabase_realtime add table appointments;
 alter publication supabase_realtime add table messages;
 alter publication supabase_realtime add table notifications;
 alter publication supabase_realtime add table doctor_schedules;
+alter publication supabase_realtime add table profiles;
+alter publication supabase_realtime add table payments;
+alter publication supabase_realtime add table time_balances;
+alter publication supabase_realtime add table medical_records;
+alter publication supabase_realtime add table reviews;
+alter publication supabase_realtime add table fee_negotiation_messages;
 
 -- Replica Identity for Real-time
 ALTER TABLE messages REPLICA IDENTITY FULL;
+ALTER TABLE appointments REPLICA IDENTITY FULL;
+ALTER TABLE notifications REPLICA IDENTITY FULL;
+
+-- Realtime messages RLS policies (required for private channels)
+ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "authenticated_users_can_receive_broadcasts"
+  ON realtime.messages FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "authenticated_users_can_send_broadcasts"
+  ON realtime.messages FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
 
 -- ============================================================
 -- AUDIT & SECURITY

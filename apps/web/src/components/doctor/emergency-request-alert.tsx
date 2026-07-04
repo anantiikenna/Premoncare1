@@ -81,7 +81,9 @@ export function EmergencyRequestAlert({ doctorId }: { doctorId: string }) {
   // Real-time subscription
   useEffect(() => {
     const channel = supabase
-      .channel('doctor-emergency-alerts')
+      .channel(`doctor:emergency:${doctorId}`, {
+        config: { private: true },
+      })
       .on(
         'postgres_changes',
         {

@@ -76,7 +76,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
 
   void _setupRealtimeSubscription() {
     _subscription = Supabase.instance.client
-        .channel('emergency-waiting-${widget.appointmentId}')
+        .channel('emergency:waiting:${widget.appointmentId}')
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
           schema: 'public',

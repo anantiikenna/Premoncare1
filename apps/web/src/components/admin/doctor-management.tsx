@@ -414,7 +414,9 @@ function AdminChatPanel({ doctorId, adminId, doctorName, onClose }: { doctorId: 
         }
         fetchMessages()
 
-        const channel = supabase.channel('admin_chat')
+        const channel = supabase.channel('admin:fee:chat', {
+                config: { private: true },
+            })
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'fee_negotiation_messages', filter: `doctor_id=eq.${doctorId}` },

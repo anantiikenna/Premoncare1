@@ -36,7 +36,9 @@ export function NotificationBell({ userId }: { userId: string }) {
 
         // Real-time subscription
         const channel = supabase
-            .channel(`notifications-${userId}`)
+            .channel(`notifications:user:${userId}`, {
+                config: { private: true },
+            })
             .on(
                 'postgres_changes',
                 {

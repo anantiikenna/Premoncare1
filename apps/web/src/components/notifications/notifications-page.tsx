@@ -26,7 +26,9 @@ export function NotificationsList({ userId }: { userId: string }) {
         fetchNotifications()
         
         const channel = supabase
-            .channel(`notifications-page-${userId}`)
+            .channel(`notifications:page:${userId}`, {
+                config: { private: true },
+            })
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
