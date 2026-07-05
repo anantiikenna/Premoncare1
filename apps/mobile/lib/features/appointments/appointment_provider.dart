@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_locator.dart';
 
-enum AppointmentStatus { pending, confirmed, ongoing, cancelled, completed, emergency_request, emergency_accepted, emergency_declined }
+enum AppointmentStatus { pending, confirmed, ongoing, cancelled, completed, emergencyRequest, emergencyAccepted, emergencyDeclined }
 
 enum ConsultationMode { video, audio, text, inPerson }
 

@@ -31,6 +31,7 @@ dependencies:
   posthog_flutter: ^5.28.0
   timeago: ^3.7.1
   fl_chart: ^1.2.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
