@@ -10,7 +10,7 @@ export default async function AdminSettingsPage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await getProfile(user.id)
-  if (profile?.role !== 'admin') redirect('/dashboard')
+  if (profile?.role !== 'admin') redirect('/patient/dashboard')
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 pb-12">

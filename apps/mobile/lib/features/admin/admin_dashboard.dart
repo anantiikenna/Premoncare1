@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../../core/app_colors.dart';
+import 'admin_charts_widget.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
@@ -41,6 +42,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             _buildSectionHeader('Analytics Overview'),
             const SizedBox(height: 16),
             _buildAnalyticsSection(AppColors.primary),
+            const SizedBox(height: 32),
+            const AdminChartsWidget(),
             const SizedBox(height: 32),
             _buildSectionHeader(
               'Recent Doctor Applications',

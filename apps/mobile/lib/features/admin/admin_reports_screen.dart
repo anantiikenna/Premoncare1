@@ -145,13 +145,13 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         supabase
             .from('payments')
             .select('amount')
-            .eq('status', 'completed')
+            .eq('status', 'approved')
             .gte('created_at', range.start.toIso8601String())
             .lt('created_at', range.end.toIso8601String()),
         supabase
             .from('payments')
             .select('amount')
-            .eq('status', 'completed')
+            .eq('status', 'approved')
             .gte('created_at', range.prevStart.toIso8601String())
             .lt('created_at', range.prevEnd.toIso8601String()),
         supabase

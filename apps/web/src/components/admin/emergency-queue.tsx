@@ -235,14 +235,25 @@ export function EmergencyQueue() {
                 </Card>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <QuickAction icon={Radio} label="Broadcast Alert" color="text-rose-600" bg="bg-rose-50" onClick={() => {
+                    <QuickAction icon={Radio} label="Broadcast Alert" color="text-rose-600" bg="bg-rose-50" onClick={async () => {
                         const supabase = createClient()
-                        supabase.from('notifications').insert({
-                            user_id: '00000000-0000-0000-0000-000000000000',
-                            title: 'Emergency Alert',
-                            message: 'A new emergency broadcast has been issued. Please check the emergency queue.',
-                            type: 'admin_message'
-                        }).then(() => toast.success('Broadcast sent to all online doctors'))
+                        const { data: onlineDoctors } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .eq('role', 'doctor')
+                            .eq('is_online', true)
+                        if (onlineDoctors && onlineDoctors.length > 0) {
+                            const notifications = onlineDoctors.map(doc => ({
+                                user_id: doc.id,
+                                title: 'Emergency Broadcast Alert',
+                                message: 'A new emergency broadcast has been issued. Please check the emergency queue immediately.',
+                                type: 'admin_message' as const
+                            }))
+                            await supabase.from('notifications').insert(notifications)
+                            toast.success(`Broadcast sent to ${onlineDoctors.length} online doctor(s)`)
+                        } else {
+                            toast.info('No online doctors to broadcast to')
+                        }
                     }} />
                     <QuickAction icon={ArrowUpRight} label="Escalate Case" color="text-amber-600" bg="bg-amber-50" onClick={() => toast.info('Select an emergency request to escalate')} />
                     <QuickAction icon={RefreshCw} label="Reassign Doctor" color="text-blue-600" bg="bg-blue-50" onClick={() => toast.info('Select an emergency request to reassign')} />

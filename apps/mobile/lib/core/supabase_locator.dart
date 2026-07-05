@@ -23,7 +23,7 @@ String? _cachedUserId;
 
 Future<String> getUserRole() async {
   final user = supabase.auth.currentUser;
-  if (user == null) return 'patient';
+  if (user == null) return 'denied';
   
   // Return cached role if same user
   if (_cachedUserId == user.id && _cachedRole != null) {
@@ -41,7 +41,7 @@ Future<String> getUserRole() async {
     _cachedRole = role;
     return role;
   } catch (e) {
-    return 'patient';
+    return 'denied';
   }
 }
 

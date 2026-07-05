@@ -370,6 +370,22 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
         color = AppColors.error;
         label = 'CANCELLED';
         break;
+      case AppointmentStatus.ongoing:
+        color = AppColors.info;
+        label = 'ONGOING';
+        break;
+      case AppointmentStatus.emergency_request:
+        color = AppColors.error;
+        label = 'EMERGENCY';
+        break;
+      case AppointmentStatus.emergency_accepted:
+        color = AppColors.success;
+        label = 'EMERGENCY';
+        break;
+      case AppointmentStatus.emergency_declined:
+        color = AppColors.error;
+        label = 'DECLINED';
+        break;
     }
 
     return Container(

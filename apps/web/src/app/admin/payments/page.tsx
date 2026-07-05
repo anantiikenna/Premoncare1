@@ -10,7 +10,7 @@ export default async function AdminPaymentsPage() {
     if (!user) redirect('/login')
 
     const { data: profile } = await getProfile(user.id)
-    if (profile?.role !== 'admin') redirect('/dashboard')
+    if (profile?.role !== 'admin') redirect('/patient/dashboard')
 
     return (
         <AdminPaymentReview />

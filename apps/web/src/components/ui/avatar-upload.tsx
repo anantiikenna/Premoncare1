@@ -38,7 +38,8 @@ export function AvatarUpload({ userId, currentAvatarUrl, onUploadSuccess }: Avat
             }
 
             const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
-            onUploadSuccess(data.publicUrl)
+            const cacheBustedUrl = `${data.publicUrl}?t=${Date.now()}`
+            onUploadSuccess(cacheBustedUrl)
             toast.success('Profile photo updated!')
         } catch (error: unknown) {
             console.error('Avatar upload failed', error)
@@ -53,7 +54,7 @@ export function AvatarUpload({ userId, currentAvatarUrl, onUploadSuccess }: Avat
             <div className="relative group w-32 h-32 rounded-full border-4 border-background shadow-lg overflow-hidden bg-muted flex items-center justify-center">
                 {currentAvatarUrl ? (
                     <img 
-                        src={currentAvatarUrl} 
+                        src={currentAvatarUrl.includes('?') ? currentAvatarUrl : `${currentAvatarUrl}?t=${Date.now()}`} 
                         alt="Avatar" 
                         className="w-full h-full object-cover object-center" 
                     />

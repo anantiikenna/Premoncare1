@@ -25,6 +25,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from '@/lib/utils'
+import {
+    Dialog, DialogContent, DialogHeader, DialogTitle,
+    DialogDescription, DialogFooter
+} from '@/components/ui/dialog'
 
 export function UserManagement() {
     const [loading, setLoading] = useState(true)
@@ -33,6 +37,8 @@ export function UserManagement() {
     const [selectedRole, setSelectedRole] = useState('all')
     const [accountStatusFilter, setAccountStatusFilter] = useState<string | null>(null)
     const [verificationFilter, setVerificationFilter] = useState<string | null>(null)
+    const [banDialogUser, setBanDialogUser] = useState<any>(null)
+    const [resetDialogUser, setResetDialogUser] = useState<any>(null)
     const [stats, setStats] = useState({
         total: 0,
         doctors: 0,
@@ -273,7 +279,7 @@ export function UserManagement() {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem 
                                                         className="rounded-xl px-3 py-2.5 text-sm font-bold gap-3 text-rose-600 focus:text-rose-700 focus:bg-rose-50"
-                                                        onClick={() => handleUpdateStatus(user.id, 'banned')}
+                                                        onClick={() => setBanDialogUser(user)}
                                                     >
                                                         <UserX className="h-4 w-4" />
                                                         Ban Permanently
@@ -289,7 +295,7 @@ export function UserManagement() {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem 
                                                         className="rounded-xl px-3 py-2.5 text-sm font-bold gap-3"
-                                                        onClick={() => handleResetVerification(user.id)}
+                                                        onClick={() => setResetDialogUser(user)}
                                                     >
                                                         <ShieldCheck className="h-4 w-4 text-emerald-500" />
                                                         Reset Verification
@@ -311,6 +317,60 @@ export function UserManagement() {
                     </table>
                 </div>
             </div>
+
+            {/* Ban Confirmation Dialog */}
+            <Dialog open={!!banDialogUser} onOpenChange={(open) => { if (!open) setBanDialogUser(null) }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-rose-600">Ban User Permanently</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to permanently ban <strong>{banDialogUser?.full_name}</strong>? This action will immediately suspend their account and prevent all future access. You can reverse this later from the user management panel.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setBanDialogUser(null)}>Cancel</Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => {
+                                if (banDialogUser) {
+                                    handleUpdateStatus(banDialogUser.id, 'banned')
+                                    setBanDialogUser(null)
+                                }
+                            }}
+                        >
+                            <UserX className="h-4 w-4 mr-2" />
+                            Ban Permanently
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Reset Verification Dialog */}
+            <Dialog open={!!resetDialogUser} onOpenChange={(open) => { if (!open) setResetDialogUser(null) }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Reset Verification Status</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to reset <strong>{resetDialogUser?.full_name}</strong>&apos;s verification status? This will revert their verification to &quot;unsubmitted&quot; and they will need to go through the verification wizard again.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setResetDialogUser(null)}>Cancel</Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => {
+                                if (resetDialogUser) {
+                                    handleResetVerification(resetDialogUser.id)
+                                    setResetDialogUser(null)
+                                }
+                            }}
+                        >
+                            <ShieldCheck className="h-4 w-4 mr-2" />
+                            Reset Verification
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

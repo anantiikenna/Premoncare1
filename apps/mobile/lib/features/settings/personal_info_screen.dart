@@ -29,9 +29,17 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
   late final TextEditingController _genderController;
   late final TextEditingController _addressController;
   late final TextEditingController _paymentInstructionsController;
+  late final TextEditingController _bloodGroupController;
+  late final TextEditingController _nextOfKinNameController;
+  late final TextEditingController _nextOfKinPhoneController;
+  late final TextEditingController _emergencyNameController;
+  late final TextEditingController _emergencyPhoneController;
+  bool _emailAlertsEnabled = true;
 
   final _imagePicker = ImagePicker();
   File? _selectedPhoto;
+  File? _selectedIdDocument;
+  String? _existingIdUrl;
 
   @override
   void initState() {
@@ -42,6 +50,11 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _genderController = TextEditingController();
     _addressController = TextEditingController();
     _paymentInstructionsController = TextEditingController();
+    _bloodGroupController = TextEditingController();
+    _nextOfKinNameController = TextEditingController();
+    _nextOfKinPhoneController = TextEditingController();
+    _emergencyNameController = TextEditingController();
+    _emergencyPhoneController = TextEditingController();
   }
 
   @override
@@ -52,6 +65,11 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _genderController.dispose();
     _addressController.dispose();
     _paymentInstructionsController.dispose();
+    _bloodGroupController.dispose();
+    _nextOfKinNameController.dispose();
+    _nextOfKinPhoneController.dispose();
+    _emergencyNameController.dispose();
+    _emergencyPhoneController.dispose();
     super.dispose();
   }
 
@@ -62,6 +80,13 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _genderController.text = profile?['gender'] ?? '';
     _addressController.text = profile?['address'] ?? '';
     _paymentInstructionsController.text = profile?['payment_instructions'] ?? '';
+    _bloodGroupController.text = profile?['blood_group'] ?? '';
+    _nextOfKinNameController.text = profile?['next_of_kin_name'] ?? '';
+    _nextOfKinPhoneController.text = profile?['next_of_kin_phone'] ?? '';
+    _emergencyNameController.text = profile?['emergency_contact_name'] ?? '';
+    _emergencyPhoneController.text = profile?['emergency_contact_phone'] ?? '';
+    _emailAlertsEnabled = profile?['email_alerts_enabled'] ?? true;
+    _existingIdUrl = profile?['identity_document_url'];
   }
 
   void _enterEditMode(Map<String, dynamic>? profile) {
@@ -73,6 +98,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     setState(() {
       _isEditing = false;
       _selectedPhoto = null;
+      _selectedIdDocument = null;
     });
   }
 
@@ -159,7 +185,30 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           fileOptions: const FileOptions(upsert: true),
         );
 
-    final url = supabase.storage.from('avatars').getPublicUrl(path);
+    // Add cache-busting query param to force refresh of cached image
+    final baseUrl = supabase.storage.from('avatars').getPublicUrl(path);
+    final cacheBuster = DateTime.now().millisecondsSinceEpoch;
+    return '$baseUrl?t=$cacheBuster';
+  }
+
+  Future<String?> _uploadIdDocument() async {
+    if (_selectedIdDocument == null) return null;
+
+    final user = supabase.auth.currentUser;
+    if (user == null) return null;
+
+    final ext = _selectedIdDocument!.path.split('.').last;
+    final path = '${user.id}/id_${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+    final bytes = await _selectedIdDocument!.readAsBytes();
+
+    await supabase.storage.from('doctor-verifications').uploadBinary(
+          path,
+          bytes,
+          fileOptions: const FileOptions(upsert: false),
+        );
+
+    final url = supabase.storage.from('doctor-verifications').getPublicUrl(path);
     return url;
   }
 
@@ -177,12 +226,23 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         avatarUrl = await _uploadAvatar();
       }
 
+      String? idUrl;
+      if (_selectedIdDocument != null) {
+        idUrl = await _uploadIdDocument();
+      }
+
       final updateData = <String, dynamic>{
         'full_name': _fullNameController.text.trim().isNotEmpty ? _fullNameController.text.trim() : null,
         'phone': _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
         'dob': _dobController.text.trim().isNotEmpty ? _dobController.text.trim() : null,
         'gender': _genderController.text.trim().isNotEmpty ? _genderController.text.trim() : null,
         'address': _addressController.text.trim().isNotEmpty ? _addressController.text.trim() : null,
+        'blood_group': _bloodGroupController.text.trim().isNotEmpty ? _bloodGroupController.text.trim() : null,
+        'next_of_kin_name': _nextOfKinNameController.text.trim().isNotEmpty ? _nextOfKinNameController.text.trim() : null,
+        'next_of_kin_phone': _nextOfKinPhoneController.text.trim().isNotEmpty ? _nextOfKinPhoneController.text.trim() : null,
+        'emergency_contact_name': _emergencyNameController.text.trim().isNotEmpty ? _emergencyNameController.text.trim() : null,
+        'emergency_contact_phone': _emergencyPhoneController.text.trim().isNotEmpty ? _emergencyPhoneController.text.trim() : null,
+        'email_alerts_enabled': _emailAlertsEnabled,
       };
 
       if (currentProfile?['role'] == 'doctor') {
@@ -191,6 +251,10 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
       if (avatarUrl != null) {
         updateData['avatar_url'] = avatarUrl;
+      }
+
+      if (idUrl != null) {
+        updateData['identity_document_url'] = idUrl;
       }
 
       await supabase.from('profiles').update(updateData).eq('id', user.id);
@@ -297,8 +361,15 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           _buildInfoField(context, 'Date of Birth', profile?['dob'] ?? 'Not set'),
           _buildInfoField(context, 'Gender', profile?['gender'] ?? 'Not set'),
           _buildInfoField(context, 'Address', profile?['address'] ?? 'Not set'),
+          _buildInfoField(context, 'Blood Group', profile?['blood_group'] ?? 'Not set'),
+          _buildInfoField(context, 'Next of Kin Name', profile?['next_of_kin_name'] ?? 'Not set'),
+          _buildInfoField(context, 'Next of Kin Phone', profile?['next_of_kin_phone'] ?? 'Not set'),
+          _buildInfoField(context, 'Emergency Contact Name', profile?['emergency_contact_name'] ?? 'Not set'),
+          _buildInfoField(context, 'Emergency Contact Phone', profile?['emergency_contact_phone'] ?? 'Not set'),
           if (profile?['role'] == 'doctor')
             _buildInfoField(context, 'Payment Instructions (Bank Details)', profile?['payment_instructions'] ?? 'Not set'),
+          _buildInfoField(context, 'Email Notifications', (profile?['email_alerts_enabled'] ?? true) ? 'Enabled' : 'Disabled'),
+          _buildInfoField(context, 'Identity Verification', (profile?['identity_document_url'] ?? '').isNotEmpty ? 'Uploaded' : 'Not uploaded'),
         ],
       ),
     );
@@ -354,8 +425,115 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           _buildEditField(context, 'Date of Birth', _dobController, icon: Icons.cake_outlined, onTap: _pickDate),
           _buildEditField(context, 'Gender', _genderController, icon: Icons.wc_outlined, onTap: _pickGender),
           _buildEditField(context, 'Address', _addressController, icon: Icons.location_on_outlined, maxLines: 2),
+          _buildEditField(context, 'Blood Group', _bloodGroupController, icon: Icons.bloodtype_outlined),
+          _buildEditField(context, 'Next of Kin Name', _nextOfKinNameController, icon: Icons.group_outlined),
+          _buildEditField(context, 'Next of Kin Phone', _nextOfKinPhoneController, icon: Icons.phone_outlined, keyboardType: TextInputType.phone),
+          _buildEditField(context, 'Emergency Contact Name', _emergencyNameController, icon: Icons.medical_services_outlined),
+          _buildEditField(context, 'Emergency Contact Phone', _emergencyPhoneController, icon: Icons.emergency_outlined, keyboardType: TextInputType.phone),
           if (profile?['role'] == 'doctor')
             _buildEditField(context, 'Payment Instructions (Bank Details)', _paymentInstructionsController, icon: Icons.account_balance_rounded, maxLines: 3),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceOf(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.borderOf(context)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.email_outlined, color: AppColors.textSecondaryOf(context)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Email Notifications', style: AppTypography.bodyLargeOf(context)),
+                      Text('Receive updates for payments and account status', style: AppTypography.caption),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: _emailAlertsEnabled,
+                  onChanged: (val) => setState(() => _emailAlertsEnabled = val),
+                  activeColor: AppColors.primary,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceOf(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.borderOf(context)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.badge_outlined, color: AppColors.textSecondaryOf(context)),
+                    const SizedBox(width: 12),
+                    Text('Identity Verification', style: AppTypography.bodyLargeOf(context)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (_existingIdUrl != null && _selectedIdDocument == null)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.successLightOf(context),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text('ID uploaded', style: AppTypography.caption)),
+                        TextButton(
+                          onPressed: () => setState(() { _existingIdUrl = null; }),
+                          child: const Text('Remove', style: TextStyle(color: AppColors.error, fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  )
+                else if (_selectedIdDocument != null)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.infoLightOf(context),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.insert_drive_file, color: AppColors.info, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(_selectedIdDocument!.path.split('/').last, style: AppTypography.caption, overflow: TextOverflow.ellipsis)),
+                        TextButton(
+                          onPressed: () => setState(() { _selectedIdDocument = null; }),
+                          child: const Text('Remove', style: TextStyle(color: AppColors.error, fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final picked = await _imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+                      if (picked != null) setState(() => _selectedIdDocument = File(picked.path));
+                    },
+                    icon: const Icon(Icons.upload_outlined),
+                    label: const Text('Upload ID Card'),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    ),
+                  ),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
           Row(
             children: [

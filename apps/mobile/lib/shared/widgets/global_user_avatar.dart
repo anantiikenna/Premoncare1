@@ -15,13 +15,15 @@ class GlobalUserAvatar extends ConsumerWidget {
     return userAsync.when(
       data: (profile) {
         final avatarUrl = profile?['avatar_url'] as String?;
+        final hasAvatar = avatarUrl != null && avatarUrl.isNotEmpty;
         return CircleAvatar(
+          key: ValueKey(avatarUrl),
           radius: radius,
           backgroundColor: AppColors.borderOf(context),
-          backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
+          backgroundImage: hasAvatar
               ? NetworkImage(avatarUrl)
               : null,
-          child: avatarUrl == null || avatarUrl.isEmpty
+          child: !hasAvatar
               ? Icon(Icons.person, color: AppColors.textTertiaryOf(context))
               : null,
         );

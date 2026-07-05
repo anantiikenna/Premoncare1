@@ -20,6 +20,8 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
     const [emailAlerts, setEmailAlerts] = useState(true)
     
     // New Fields
+    const [phone, setPhone] = useState('')
+    const [address, setAddress] = useState('')
     const [dob, setDob] = useState('')
     const [gender, setGender] = useState('')
     const [bloodGroup, setBloodGroup] = useState('')
@@ -44,6 +46,8 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
                 setFullName(data.full_name || '')
                 setAvatarUrl(data.avatar_url || '')
                 setEmailAlerts(data.email_alerts_enabled !== false)
+                setPhone(data.phone || '')
+                setAddress(data.address || '')
                 setDob(data.dob || '')
                 setGender(data.gender || '')
                 setBloodGroup(data.blood_group || '')
@@ -66,6 +70,8 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
                 full_name: fullName,
                 avatar_url: avatarUrl,
                 email_alerts_enabled: emailAlerts,
+                phone,
+                address,
                 dob,
                 gender,
                 blood_group: bloodGroup,
@@ -191,6 +197,13 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
                                 <Label htmlFor="fullName">Full Name</Label>
                                 <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="rounded-xl h-12" />
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone Number</Label>
+                                <Input id="phone" placeholder="+234..." value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-xl h-12" />
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="dob">Date of Birth</Label>
@@ -210,6 +223,10 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
                                         <option value="other">Other</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="address">Address</Label>
+                                <Input id="address" placeholder="Home address" value={address} onChange={(e) => setAddress(e.target.value)} className="rounded-xl h-12" />
                             </div>
                         </div>
 

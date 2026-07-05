@@ -890,6 +890,7 @@ CREATE POLICY "Doctors can view shared medical vault documents" ON storage.objec
 -- SECURITY FIX: blocked_users - restrict SELECT to self + admin only
 -- ============================================================
 DROP POLICY IF EXISTS "Anyone can see if they are blocked" ON public.blocked_users;
+DROP POLICY IF EXISTS "Users can view own block status" ON public.blocked_users;
 
 CREATE POLICY "Users can view own block status"
   ON public.blocked_users FOR SELECT
@@ -899,6 +900,7 @@ CREATE POLICY "Users can view own block status"
 -- SECURITY FIX: disputes - add INSERT policy + expand SELECT
 -- ============================================================
 DROP POLICY IF EXISTS "Users can view their own disputes" ON public.disputes;
+DROP POLICY IF EXISTS "Authenticated users can create disputes" ON public.disputes;
 
 CREATE POLICY "Authenticated users can create disputes"
   ON public.disputes FOR INSERT
@@ -925,3 +927,72 @@ DROP POLICY IF EXISTS "Authors can delete own replies" ON public.forum_replies;
 CREATE POLICY "Authors can delete own replies"
   ON public.forum_replies FOR DELETE
   USING (auth.uid() = author_id);
+
+-- ============================================================
+-- PERFORMANCE: Add indexes for unindexed foreign keys
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_appointments_payment_id ON public.appointments (payment_id);
+CREATE INDEX IF NOT EXISTS idx_blocked_users_blocked_by ON public.blocked_users (blocked_by);
+CREATE INDEX IF NOT EXISTS idx_device_sessions_user_id ON public.device_sessions (user_id);
+CREATE INDEX IF NOT EXISTS idx_disputes_doctor_id ON public.disputes (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_disputes_patient_id ON public.disputes (patient_id);
+CREATE INDEX IF NOT EXISTS idx_disputes_resolved_by ON public.disputes (resolved_by);
+CREATE INDEX IF NOT EXISTS idx_doctor_subscriptions_doctor_id ON public.doctor_subscriptions (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_doctor_subscriptions_plan_id ON public.doctor_subscriptions (plan_id);
+CREATE INDEX IF NOT EXISTS idx_fee_negotiation_messages_doctor_id ON public.fee_negotiation_messages (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_fee_negotiation_messages_sender_id ON public.fee_negotiation_messages (sender_id);
+CREATE INDEX IF NOT EXISTS idx_forum_follows_category_id ON public.forum_follows (category_id);
+CREATE INDEX IF NOT EXISTS idx_forum_follows_post_id ON public.forum_follows (post_id);
+CREATE INDEX IF NOT EXISTS idx_forum_follows_user_id ON public.forum_follows (user_id);
+CREATE INDEX IF NOT EXISTS idx_forum_reports_post_id ON public.forum_reports (post_id);
+CREATE INDEX IF NOT EXISTS idx_forum_reports_reply_id ON public.forum_reports (reply_id);
+CREATE INDEX IF NOT EXISTS idx_forum_reports_reporter_id ON public.forum_reports (reporter_id);
+CREATE INDEX IF NOT EXISTS idx_forum_reports_resolved_by ON public.forum_reports (resolved_by);
+CREATE INDEX IF NOT EXISTS idx_forum_saves_post_id ON public.forum_saves (post_id);
+CREATE INDEX IF NOT EXISTS idx_health_records_doctor_id ON public.health_records (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_health_records_patient_id ON public.health_records (patient_id);
+CREATE INDEX IF NOT EXISTS idx_medical_documents_patient_id ON public.medical_documents (patient_id);
+CREATE INDEX IF NOT EXISTS idx_payments_processed_by ON public.payments (processed_by);
+CREATE INDEX IF NOT EXISTS idx_payouts_doctor_id ON public.payouts (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_payouts_processed_by ON public.payouts (processed_by);
+CREATE INDEX IF NOT EXISTS idx_prescriptions_appointment_id ON public.prescriptions (appointment_id);
+CREATE INDEX IF NOT EXISTS idx_prescriptions_doctor_id ON public.prescriptions (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_prescriptions_patient_id ON public.prescriptions (patient_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_verified_by ON public.profiles (verified_by);
+CREATE INDEX IF NOT EXISTS idx_record_permissions_doctor_id ON public.record_permissions (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_refunds_patient_id ON public.refunds (patient_id);
+CREATE INDEX IF NOT EXISTS idx_refunds_payment_id ON public.refunds (payment_id);
+CREATE INDEX IF NOT EXISTS idx_refunds_processed_by ON public.refunds (processed_by);
+CREATE INDEX IF NOT EXISTS idx_reviews_doctor_id ON public.reviews (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_patient_id ON public.reviews (patient_id);
+
+-- ============================================================
+-- PERFORMANCE: Remove unused indexes to reduce write overhead
+-- ============================================================
+DROP INDEX IF EXISTS public.idx_appointments_doctor_status;
+DROP INDEX IF EXISTS public.idx_appointments_emergency_requests;
+DROP INDEX IF EXISTS public.idx_notifications_user_id;
+DROP INDEX IF EXISTS public.idx_profiles_verification_status;
+DROP INDEX IF EXISTS public.idx_profiles_is_online;
+DROP INDEX IF EXISTS public.idx_profiles_is_emergency;
+DROP INDEX IF EXISTS public.idx_appointments_patient_id;
+DROP INDEX IF EXISTS public.idx_appointments_status;
+DROP INDEX IF EXISTS public.idx_appointments_doctor_id;
+DROP INDEX IF EXISTS public.idx_appointments_created_at;
+DROP INDEX IF EXISTS public.idx_payments_user_id;
+DROP INDEX IF EXISTS public.idx_payments_status;
+DROP INDEX IF EXISTS public.idx_payments_recipient_id;
+DROP INDEX IF EXISTS public.idx_messages_sender_id;
+DROP INDEX IF EXISTS public.idx_messages_receiver_id;
+DROP INDEX IF EXISTS public.idx_messages_created_at;
+DROP INDEX IF EXISTS public.idx_notifications_is_read;
+DROP INDEX IF EXISTS public.idx_time_balances_patient_id;
+DROP INDEX IF EXISTS public.idx_time_balances_doctor_id;
+DROP INDEX IF EXISTS public.idx_forum_posts_category_id;
+DROP INDEX IF EXISTS public.idx_forum_posts_author_id;
+DROP INDEX IF EXISTS public.idx_forum_replies_post_id;
+DROP INDEX IF EXISTS public.idx_forum_replies_author_id;
+DROP INDEX IF EXISTS public.idx_disputes_status;
+DROP INDEX IF EXISTS public.idx_disputes_user_id;
+DROP INDEX IF EXISTS public.idx_audit_logs_admin_id;
+DROP INDEX IF EXISTS public.idx_audit_logs_created_at;

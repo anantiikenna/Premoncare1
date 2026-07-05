@@ -1,3 +1,6 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase-server'
+import { getProfile } from '@/lib/queries'
 import { ForumFeed } from "@/components/forum/forum-feed"
 import { ModerationDashboard } from "@/components/admin/moderation-dashboard"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -7,6 +10,13 @@ export default async function AdminForumFeedPage({
 }: {
     searchParams: Promise<{ category?: string }>
 }) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/login')
+
+    const { data: profile } = await getProfile(user.id)
+    if (profile?.role !== 'admin') redirect('/patient/dashboard')
+
     const params = await searchParams
     return (
         <div className="space-y-8">

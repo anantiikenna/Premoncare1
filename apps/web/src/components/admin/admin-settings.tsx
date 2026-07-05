@@ -83,6 +83,12 @@ export function AdminSettings() {
             })
             .eq('id', 'default')
 
+        if (globalError) {
+            toast.error('Failed to update platform settings: ' + globalError.message)
+            setSaving(false)
+            return
+        }
+
         // Save Personal
         if (userId) {
             const { error: personalError } = await supabase
@@ -92,8 +98,13 @@ export function AdminSettings() {
                     email_notifications_enabled: adminSettings.enabled,
                     alert_types: adminSettings.types || []
                 })
+
+            if (personalError) {
+                toast.error('Failed to update notification preferences: ' + personalError.message)
+            }
         }
 
+        toast.success('Settings saved successfully')
         setSaving(false)
     }
 

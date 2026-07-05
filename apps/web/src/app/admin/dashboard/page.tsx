@@ -1,5 +1,8 @@
-import { getAdminStats, getAllProfiles } from '@/lib/queries'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase-server'
+import { getProfile, getAdminStats, getAllProfiles } from '@/lib/queries'
 import { StatsOverview } from '@/components/admin/stats-overview'
+import { AdminDashboardCharts } from '@/components/admin/admin-dashboard-charts'
 import { UserTable } from '@/components/admin/user-table'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { 
@@ -14,6 +17,13 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default async function AdminDashboard() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/login')
+
+    const { data: profile } = await getProfile(user.id)
+    if (profile?.role !== 'admin') redirect('/patient/dashboard')
+
     const stats = await getAdminStats()
     const { data: profiles } = await getAllProfiles()
 
@@ -50,6 +60,9 @@ export default async function AdminDashboard() {
 
             {/* Metrics Grid */}
             <StatsOverview stats={stats} />
+
+            {/* Real-Time Charts */}
+            <AdminDashboardCharts />
 
             <div className="grid gap-8 lg:grid-cols-12">
                 {/* User Management Section */}
