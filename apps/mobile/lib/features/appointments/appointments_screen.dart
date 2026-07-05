@@ -380,7 +380,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
         break;
       case AppointmentStatus.emergency_accepted:
         color = AppColors.success;
-        label = 'EMERGENCY';
+        label = 'ACCEPTED';
         break;
       case AppointmentStatus.emergency_declined:
         color = AppColors.error;
