@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
@@ -162,7 +163,26 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
       setState(() {
         _currentStep++;
       });
+      // Link guest appointment when completing profile (step 3 → 4)
+      if (_currentStep == 4) {
+        _linkGuestAppointment();
+      }
     }
+  }
+
+  Future<void> _linkGuestAppointment() async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      final guestToken = prefs.getString('premon_guest_token');
+      if (guestToken == null || guestToken.isEmpty) return;
+      await supabase
+          .from('appointments')
+          .update({'patient_id': user.id})
+          .eq('metadata->>guest_token', guestToken)
+          .isFilter('patient_id', null);
+    } catch (_) {}
   }
 
   void _prevStep() {

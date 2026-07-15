@@ -196,8 +196,8 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
   }
 
   Widget _buildAppointmentCard(BuildContext context, Appointment appointment) {
-    final bool isUpcoming = appointment.status == AppointmentStatus.pending || appointment.status == AppointmentStatus.confirmed;
-    final bool isConfirmed = appointment.status == AppointmentStatus.confirmed;
+    final bool isUpcoming = appointment.status == AppointmentStatus.pending || appointment.status == AppointmentStatus.confirmed || appointment.status == AppointmentStatus.rescheduled;
+    final bool isConfirmed = appointment.status == AppointmentStatus.confirmed || appointment.status == AppointmentStatus.rescheduled;
     final now = DateTime.now().toUtc();
     final appointmentTime = appointment.appointmentDate.toUtc();
     final isPast = appointmentTime.isBefore(now);
@@ -385,6 +385,10 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
       case AppointmentStatus.emergencyDeclined:
         color = AppColors.error;
         label = 'DECLINED';
+        break;
+      case AppointmentStatus.rescheduled:
+        color = AppColors.info;
+        label = 'RESCHEDULED';
         break;
     }
 

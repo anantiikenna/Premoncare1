@@ -121,6 +121,7 @@ export default function EmergencyBookingPage() {
       const guestToken = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
       localStorage.setItem('premon_guest_token', guestToken)
       localStorage.setItem('premon_guest_email', email)
+      localStorage.setItem('premon_guest_phone', phone)
 
       const totalAmount = ((selectedDoctor.consultation_fee || 50) * duration * 5 / 15)
 
@@ -148,6 +149,15 @@ export default function EmergencyBookingPage() {
         .single()
 
       if (bookingError) throw bookingError
+
+      // Link the authenticated user (from OTP) to the appointment
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.id && appointmentData?.id) {
+        await supabase
+          .from('appointments')
+          .update({ patient_id: user.id })
+          .eq('id', appointmentData.id)
+      }
 
       // Store appointment data for the waiting page
       if (appointmentData?.id) {

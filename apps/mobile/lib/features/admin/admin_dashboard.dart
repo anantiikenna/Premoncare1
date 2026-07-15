@@ -70,60 +70,90 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   }
 
   Widget _buildWelcomeHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Welcome back, Admin',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textPrimaryOf(context),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text('👋', style: TextStyle(fontSize: 24)),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'System activity is running smoothly.',
-              style: TextStyle(
-                color: AppColors.textSecondaryOf(context),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+    final now = DateTime.now();
+    final hour = now.hour;
+    final greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary,
+            AppColors.primary.withValues(alpha: 0.8),
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.success.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
-          child: Row(
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              const Icon(Icons.circle, color: AppColors.success, size: 8),
-              const SizedBox(width: 8),
-              Text(
-                'All systems operational',
-                style: TextStyle(
-                  color: AppColors.success,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.shield_rounded, color: Colors.white, size: 24),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.circle, color: Colors.white, size: 6),
+                    SizedBox(width: 6),
+                    Text(
+                      'Systems Online',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 20),
+          Text(
+            '$greeting, Admin',
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Platform operations are running smoothly.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -151,6 +181,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               icon: Icons.people_outline_rounded,
               iconBgColor: AppColors.infoLightOf(context),
               iconColor: AppColors.info,
+              trend: '+12%',
+              isTrendUp: true,
             ),
             _StatCard(
               title: 'Verified Doctors',
@@ -158,6 +190,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               icon: Icons.medical_services_outlined,
               iconBgColor: AppColors.successLightOf(context),
               iconColor: AppColors.success,
+              trend: '+5%',
+              isTrendUp: true,
             ),
             _StatCard(
               title: 'Appointments Today',
@@ -165,6 +199,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               icon: Icons.calendar_today_outlined,
               iconBgColor: AppColors.primary.withValues(alpha: 0.1),
               iconColor: AppColors.primary,
+              trend: stats['todayAppointments'] > 0 ? '+${stats['todayAppointments']}' : '0',
+              isTrendUp: true,
             ),
             _StatCard(
               title: 'Total Revenue',
@@ -172,6 +208,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               icon: Icons.currency_exchange_rounded,
               iconBgColor: AppColors.warningLightOf(context),
               iconColor: AppColors.warning,
+              trend: '+18%',
+              isTrendUp: true,
             ),
           ],
         );
@@ -212,28 +250,34 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         children: [
           _AlertCard(
             count: '$verificationsCount',
-            title: 'Pending Doctor Verifications',
-            btnLabel: 'Review',
+            title: 'Doctor Verifications',
+            subtitle: 'Pending review',
+            btnLabel: 'Review Now',
             color: AppColors.warning,
-            icon: Icons.warning_amber_rounded,
+            icon: Icons.verified_user_rounded,
+            hasUrgency: verificationsCount > 0,
             onTap: () => context.push('/admin/doctor-verification'),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           _AlertCard(
             count: '$disputesCount',
             title: 'Payment Disputes',
-            btnLabel: 'Resolve',
+            subtitle: 'Needs resolution',
+            btnLabel: 'Resolve Now',
             color: AppColors.error,
-            icon: Icons.error_outline_rounded,
+            icon: Icons.gavel_rounded,
+            hasUrgency: disputesCount > 0,
             onTap: () => context.push('/admin/disputes'),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           _AlertCard(
             count: '—',
             title: 'Emergency Queue',
+            subtitle: 'Live monitoring',
             btnLabel: 'Open Queue',
             color: AppColors.info,
-            icon: Icons.access_time_rounded,
+            icon: Icons.emergency_rounded,
+            hasUrgency: false,
             onTap: () => context.push('/admin/emergency-queue'),
           ),
         ],
@@ -603,48 +647,76 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       crossAxisCount: 3,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.1,
+      childAspectRatio: 1.05,
       children: [
         _QuickActionItem(
           icon: Icons.verified_user_rounded,
           label: 'Verify Doctors',
-          color: primaryColor,
+          gradient: LinearGradient(
+            colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => context.push('/admin/doctor-verification'),
         ),
         _QuickActionItem(
           icon: Icons.groups_rounded,
           label: 'Manage Users',
-          color: AppColors.primary,
+          gradient: LinearGradient(
+            colors: [AppColors.info, AppColors.info.withValues(alpha: 0.7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => context.push('/admin/user-management'),
         ),
         _QuickActionItem(
           icon: Icons.campaign_rounded,
-          label: 'Broadcast Notice',
-          color: AppColors.success,
+          label: 'Broadcast',
+          gradient: LinearGradient(
+            colors: [AppColors.success, AppColors.success.withValues(alpha: 0.7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => context.push('/admin/notifications'),
         ),
         _QuickActionItem(
           icon: Icons.description_rounded,
           label: 'Audit Logs',
-          color: AppColors.warning,
+          gradient: LinearGradient(
+            colors: [AppColors.warning, AppColors.warning.withValues(alpha: 0.7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => context.push('/admin/audit-timeline'),
         ),
         _QuickActionItem(
           icon: Icons.account_balance_wallet_rounded,
           label: 'Payments',
-          color: AppColors.info,
+          gradient: LinearGradient(
+            colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => context.push('/admin/financial'),
         ),
         _QuickActionItem(
           icon: Icons.gavel_rounded,
           label: 'Disputes',
-          color: AppColors.error,
+          gradient: LinearGradient(
+            colors: [AppColors.error, AppColors.error.withValues(alpha: 0.7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => context.push('/admin/disputes'),
         ),
         _QuickActionItem(
           icon: Icons.forum_rounded,
           label: 'Forum Mod',
-          color: AppColors.primary,
+          gradient: LinearGradient(
+            colors: [AppColors.info, AppColors.info.withValues(alpha: 0.7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           onTap: () => context.push('/admin/forum-moderation'),
         ),
       ],
@@ -687,6 +759,8 @@ class _StatCard extends StatelessWidget {
   final IconData icon;
   final Color iconBgColor;
   final Color iconColor;
+  final String? trend;
+  final bool isTrendUp;
 
   const _StatCard({
     required this.title,
@@ -694,6 +768,8 @@ class _StatCard extends StatelessWidget {
     required this.icon,
     required this.iconBgColor,
     required this.iconColor,
+    this.trend,
+    this.isTrendUp = true,
   });
 
   @override
@@ -720,6 +796,35 @@ class _StatCard extends StatelessWidget {
                 ),
                 child: Icon(icon, color: iconColor, size: 20),
               ),
+              if (trend != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isTrendUp
+                        ? AppColors.success.withValues(alpha: 0.1)
+                        : AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isTrendUp ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                        size: 10,
+                        color: isTrendUp ? AppColors.success : AppColors.error,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        trend!,
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: isTrendUp ? AppColors.success : AppColors.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
           Column(
@@ -751,27 +856,57 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _AlertCard extends StatelessWidget {
+class _AlertCard extends StatefulWidget {
   final String count;
   final String title;
+  final String subtitle;
   final String btnLabel;
   final Color color;
   final IconData icon;
+  final bool hasUrgency;
   final VoidCallback? onTap;
 
   const _AlertCard({
     required this.count,
     required this.title,
+    required this.subtitle,
     required this.btnLabel,
     required this.color,
     required this.icon,
+    this.hasUrgency = false,
     this.onTap,
   });
 
   @override
+  State<_AlertCard> createState() => _AlertCardState();
+}
+
+class _AlertCardState extends State<_AlertCard> with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _pulseAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
+      width: 240,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
@@ -786,56 +921,81 @@ class _AlertCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: widget.color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: color, size: 22),
+                child: Icon(widget.icon, color: widget.color, size: 22),
               ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    count,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: color,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textSecondaryOf(context),
-                    ),
-                  ),
-                ],
+              if (widget.hasUrgency) ...[
+                const SizedBox(width: 8),
+                AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: widget.color.withValues(alpha: _pulseAnimation.value),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: widget.color.withValues(alpha: _pulseAnimation.value * 0.5),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+              const Spacer(),
+              Text(
+                widget.count,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: widget.color,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          Text(
+            widget.title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.subtitle,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.textTertiaryOf(context),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 44,
+            height: 40,
             child: ElevatedButton(
-              onPressed: onTap,
+              onPressed: widget.onTap,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.surfaceOf(context),
-                foregroundColor: color,
+                backgroundColor: widget.color,
+                foregroundColor: Colors.white,
                 elevation: 0,
-                side: BorderSide(color: color.withValues(alpha: 0.2)),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
-                btnLabel,
+                widget.btnLabel,
                 style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -1061,13 +1221,13 @@ class _TransactionTile extends StatelessWidget {
 class _QuickActionItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final Color color;
+  final Gradient gradient;
   final VoidCallback? onTap;
 
   const _QuickActionItem({
     required this.icon,
     required this.label,
-    required this.color,
+    required this.gradient,
     this.onTap,
   });
 
@@ -1076,31 +1236,37 @@ class _QuickActionItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surfaceOf(context),
+          gradient: gradient,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.borderLightOf(context)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadowLight,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: Colors.white.withValues(alpha: 0.25),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, color: Colors.white, size: 22),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimaryOf(context),
+                color: Colors.white,
               ),
             ),
           ],

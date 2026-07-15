@@ -141,12 +141,12 @@ export function EmergencyRequestAlert({ doctorId }: { doctorId: string }) {
       const newStatus = accept ? 'emergency_accepted' : 'emergency_declined'
       const { error } = await supabase
         .from('appointments')
-        .update({ status: newStatus, is_doctor_approved: accept })
+        .update({ status: newStatus, is_doctor_approved: accept, ...(accept ? {} : { accepted_at: null }) })
         .eq('id', appointmentId)
 
       if (error) throw error
 
-      // Notify patient
+      // Notify patient (skip for guests — patient_id is null, they receive FCM push from creation)
       if (patientId) {
         try {
           await supabase.from('notifications').insert({

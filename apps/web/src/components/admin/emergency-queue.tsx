@@ -28,7 +28,7 @@ export function EmergencyQueue() {
         const { data, error } = await supabase
             .from('appointments')
             .select('*, profiles!appointments_patient_id_fkey(full_name, avatar_url, dob, gender), doctor:profiles!appointments_doctor_id_fkey(full_name, avatar_url)')
-            .eq('type', 'emergency')
+            .eq('is_emergency', true)
             .not('status', 'eq', 'completed')
             .order('created_at', { ascending: false })
 
@@ -39,7 +39,7 @@ export function EmergencyQueue() {
         const { count } = await supabase
             .from('appointments')
             .select('*', { count: 'exact', head: true })
-            .eq('type', 'emergency')
+            .eq('is_emergency', true)
             .eq('status', 'completed')
             .gte('created_at', todayStart.toISOString())
 
@@ -64,7 +64,7 @@ export function EmergencyQueue() {
             })
             .on(
                 'postgres_changes',
-                { event: '*', schema: 'public', table: 'appointments', filter: 'type=eq.emergency' },
+                { event: '*', schema: 'public', table: 'appointments', filter: 'is_emergency=eq.true' },
                 () => {
                     fetchQueue()
                 }

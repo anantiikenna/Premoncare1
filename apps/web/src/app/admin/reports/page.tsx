@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 type TimeRange = 'today' | 'week' | 'month';
-type AppointmentStatus = 'pending' | 'approved' | 'completed' | 'cancelled' | 'rejected';
+type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rescheduled';
 
 interface KPIData {
   totalUsers: number;

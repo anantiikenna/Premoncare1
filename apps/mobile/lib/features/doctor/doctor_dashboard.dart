@@ -240,7 +240,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
               return GestureDetector(
                 onTap: () => context.push('/doctor-emergency-request', extra: {
                   'appointmentId': req['id'],
-                  'patientId': req['patient_id'] ?? '',
+                  'patientId': req['patient_id'] as String?,
                   'patientName': patientName,
                   'durationMinutes': duration,
                   'totalAmount': amount.toDouble(),

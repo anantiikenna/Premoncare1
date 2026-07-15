@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
@@ -417,8 +418,17 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
           height: 60,
           child: TextButton(
             onPressed: () {
+              final feeVal = widget.consultationFee ?? 0;
+              final doctorName = widget.doctorName ?? '';
+              final feeStr = feeVal.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+              final receipt = 'Premoncare Emergency Receipt\n'
+                  'Doctor: Dr. ${doctorName.replaceAll('Dr. ', '')}\n'
+                  'Amount: ₦$feeStr\n'
+                  'Date: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}\n'
+                  'Appointment ID: ${widget.appointmentId ?? 'N/A'}';
+              Clipboard.setData(ClipboardData(text: receipt));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Receipt has been saved to your device downloads')),
+                const SnackBar(content: Text('Receipt copied to clipboard')),
               );
             },
             style: TextButton.styleFrom(

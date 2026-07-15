@@ -13,7 +13,7 @@ import '../../shared/widgets/generic_user_avatar.dart';
 
 class DoctorEmergencyRequestScreen extends ConsumerStatefulWidget {
   final String appointmentId;
-  final String patientId;
+  final String? patientId;
   final String patientName;
   final int durationMinutes;
   final double totalAmount;
@@ -21,7 +21,7 @@ class DoctorEmergencyRequestScreen extends ConsumerStatefulWidget {
   const DoctorEmergencyRequestScreen({
     super.key,
     required this.appointmentId,
-    required this.patientId,
+    this.patientId,
     required this.patientName,
     required this.durationMinutes,
     required this.totalAmount,
@@ -128,44 +128,54 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
       final newStatus = accept ? 'emergency_accepted' : 'emergency_declined';
       await Supabase.instance.client
           .from('appointments')
-          .update({'status': newStatus, 'is_doctor_approved': accept})
+          .update({
+            'status': newStatus,
+            'is_doctor_approved': accept,
+            if (!accept) 'accepted_at': null,
+          })
           .eq('id', widget.appointmentId);
 
       ref.invalidate(emergencyRequestsProvider);
       ref.invalidate(upcomingAppointmentsProvider);
 
-      // Notify patient
-      try {
-        await Supabase.instance.client.from('notifications').insert({
-          'user_id': widget.patientId,
-          'title': accept ? 'Emergency Request Accepted' : 'Emergency Request Declined',
-          'message': accept
-              ? 'Dr. has accepted your emergency consultation request. Please proceed with payment.'
-              : 'Unfortunately, Dr. is unable to take your case right now.',
-          'type': 'appointment',
-          'is_read': false,
-          'metadata': {'appointment_id': widget.appointmentId},
-        });
-      } catch (_) {}
+      // Notify patient (skip in-app for guests — patient_id is null)
+      if (widget.patientId != null && widget.patientId!.isNotEmpty) {
+        try {
+          await Supabase.instance.client.from('notifications').insert({
+            'user_id': widget.patientId,
+            'title': accept ? 'Emergency Request Accepted' : 'Emergency Request Declined',
+            'message': accept
+                ? 'Dr. has accepted your emergency consultation request. Please proceed with payment.'
+                : 'Unfortunately, Dr. is unable to take your case right now.',
+            'type': 'appointment',
+            'is_read': false,
+            'metadata': {'appointment_id': widget.appointmentId},
+          });
+        } catch (_) {}
+      }
 
       // Dispatch FCM push via web notification pipeline
-      try {
-        final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
-        final session = supabase.auth.currentSession;
-        await http.post(
-          Uri.parse('$siteUrl/api/notifications/dispatch'),
-          headers: {
-            'Content-Type': 'application/json',
-            if (session != null) 'Authorization': 'Bearer ${session.accessToken}',
-          },
-          body: jsonEncode({
-            'userId': widget.patientId,
-            'title': 'Emergency Request Accepted',
-            'message': 'Dr. has accepted your emergency consultation request.',
-            'type': 'appointment',
-          }),
-        );
-      } catch (_) {}
+      if (widget.patientId != null && widget.patientId!.isNotEmpty) {
+        try {
+          final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
+          final session = supabase.auth.currentSession;
+          await http.post(
+            Uri.parse('$siteUrl/api/notifications/dispatch'),
+            headers: {
+              'Content-Type': 'application/json',
+              if (session != null) 'Authorization': 'Bearer ${session.accessToken}',
+            },
+            body: jsonEncode({
+              'userId': widget.patientId,
+              'title': accept ? 'Emergency Request Accepted' : 'Emergency Request Declined',
+              'message': accept
+                  ? 'Dr. has accepted your emergency consultation request. Please proceed with payment.'
+                  : 'Unfortunately, Dr. is unable to take your case right now.',
+              'type': 'appointment',
+            }),
+          );
+        } catch (_) {}
+      }
 
       if (mounted) {
         if (accept) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import '../../core/providers.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'admin_dashboard.dart';
@@ -127,10 +128,17 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                     ],
                   ),
                 );
-                if (confirmed == true) {
-                  clearRoleCache();
-                  await supabase.auth.signOut();
-                  if (context.mounted) context.go('/admin-login');
+                if (confirmed == true && context.mounted) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const Center(child: CircularProgressIndicator(color: AppColors.textInverse)),
+                  );
+                  await performLogout();
+                  if (context.mounted) {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    context.go('/admin-login');
+                  }
                 }
               },
             ),
@@ -250,31 +258,54 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
           child: Column(
             children: [
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(24),
-                alignment: Alignment.centerLeft,
                 decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: AppColors.borderLightOf(context))),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withValues(alpha: 0.8),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text('A', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold, fontSize: 18)),
+                    Image.asset(
+                      'assets/logo.png',
+                      height: 48,
+                      errorBuilder: (_, _, _) => Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.shield_rounded, color: Colors.white, size: 26),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Premon Care Admin', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context))),
-                        Text('System Controller', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500)),
-                      ],
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Premon Care',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 20,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Admin Portal',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -332,7 +363,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                   context.go('/admin/user-management');
                 }
               }),
-              _buildNavItem(context, Icons.medical_services_rounded, 'Doctors', isSelected: activeIndex == 2, activeColor: AppColors.primary, onTap: () {
+              _buildNavItem(context, Icons.medical_services_rounded, 'Doctors', isSelected: activeIndex == 2, activeColor: AppColors.primary, badgeCount: ref.watch(pendingVerificationsProvider).whenOrNull(data: (v) => v) ?? 0, onTap: () {
                 if (_isShell) {
                   setState(() => _currentIndex = 2);
                 } else {
@@ -354,14 +385,39 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, IconData icon, String label, {required bool isSelected, required Color activeColor, VoidCallback? onTap}) {
+  Widget _buildNavItem(BuildContext context, IconData icon, String label, {required bool isSelected, required Color activeColor, VoidCallback? onTap, int? badgeCount}) {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: isSelected ? activeColor : AppColors.textTertiaryOf(context), size: 26),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(icon, color: isSelected ? activeColor : AppColors.textTertiaryOf(context), size: 26),
+              if (badgeCount != null && badgeCount > 0)
+                Positioned(
+                  right: -6,
+                  top: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.error,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$badgeCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(height: 4),
           Text(
             label,

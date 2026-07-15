@@ -40,6 +40,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
   File? _selectedPhoto;
   File? _selectedIdDocument;
   String? _existingIdUrl;
+  String? _originalIdUrl;
 
   @override
   void initState() {
@@ -87,6 +88,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     _emergencyPhoneController.text = profile?['emergency_contact_phone'] ?? '';
     _emailAlertsEnabled = profile?['email_alerts_enabled'] ?? true;
     _existingIdUrl = profile?['identity_document_url'];
+    _originalIdUrl = profile?['identity_document_url'];
   }
 
   void _enterEditMode(Map<String, dynamic>? profile) {
@@ -202,13 +204,13 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
     final bytes = await _selectedIdDocument!.readAsBytes();
 
-    await supabase.storage.from('doctor-verifications').uploadBinary(
+    await supabase.storage.from('patient-identity-documents').uploadBinary(
           path,
           bytes,
           fileOptions: const FileOptions(upsert: false),
         );
 
-    final url = supabase.storage.from('doctor-verifications').getPublicUrl(path);
+    final url = supabase.storage.from('patient-identity-documents').getPublicUrl(path);
     return url;
   }
 
@@ -243,6 +245,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         'emergency_contact_name': _emergencyNameController.text.trim().isNotEmpty ? _emergencyNameController.text.trim() : null,
         'emergency_contact_phone': _emergencyPhoneController.text.trim().isNotEmpty ? _emergencyPhoneController.text.trim() : null,
         'email_alerts_enabled': _emailAlertsEnabled,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
       };
 
       if (currentProfile?['role'] == 'doctor') {
@@ -258,6 +261,13 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       }
 
       await supabase.from('profiles').update(updateData).eq('id', user.id);
+
+      if (_originalIdUrl != null && _existingIdUrl == null && _selectedIdDocument == null) {
+        try {
+          final oldPath = _originalIdUrl!.split('/patient-identity-documents/')[1].split('?')[0];
+          await supabase.storage.from('patient-identity-documents').remove([oldPath]);
+        } catch (_) {}
+      }
 
       ref.invalidate(userProfileProvider);
 
@@ -456,7 +466,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 Switch(
                   value: _emailAlertsEnabled,
                   onChanged: (val) => setState(() => _emailAlertsEnabled = val),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
               ],
             ),

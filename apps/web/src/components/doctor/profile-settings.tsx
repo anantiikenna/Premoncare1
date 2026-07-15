@@ -82,7 +82,7 @@ export function DoctorProfileSettings({ doctorId }: { doctorId: string }) {
                 full_name: profile.full_name,
                 avatar_url: profile.avatar_url,
                 specialty: profile.specialty,
-                experience_years: profile.experience_years ? parseInt(profile.experience_years) : undefined,
+                experience_years: profile.experience_years ? (parseInt(profile.experience_years) || undefined) : undefined,
                 clinic_address: profile.clinic_address,
                 consultation_fee: parseFloat(profile.consultation_fee) || 0,
                 payment_instructions: profile.payment_instructions,

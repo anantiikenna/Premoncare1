@@ -30,6 +30,7 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
     const [emergencyName, setEmergencyName] = useState('')
     const [emergencyPhone, setEmergencyPhone] = useState('')
     const [idUrl, setIdUrl] = useState('')
+    const [originalIdUrl, setOriginalIdUrl] = useState('')
     const [uploadingId, setUploadingId] = useState(false)
 
     // Security States
@@ -56,6 +57,7 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
                 setEmergencyName(data.emergency_contact_name || '')
                 setEmergencyPhone(data.emergency_contact_phone || '')
                 setIdUrl(data.identity_document_url || '')
+                setOriginalIdUrl(data.identity_document_url || '')
             }
             setLoading(false)
         }
@@ -64,27 +66,49 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!fullName.trim()) {
+            toast.error('Full name is required')
+            return
+        }
+        if (phone && !/^\+?[\d\s-]{7,15}$/.test(phone)) {
+            toast.error('Invalid phone number format')
+            return
+        }
+        const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', '']
+        if (bloodGroup && !validBloodGroups.includes(bloodGroup)) {
+            toast.error('Invalid blood group')
+            return
+        }
         setSaving(true)
         try {
             const updates = {
-                full_name: fullName,
+                full_name: fullName.trim(),
                 avatar_url: avatarUrl,
                 email_alerts_enabled: emailAlerts,
-                phone,
-                address,
-                dob,
-                gender,
-                blood_group: bloodGroup,
-                next_of_kin_name: nextOfKinName,
-                next_of_kin_phone: nextOfKinPhone,
-                emergency_contact_name: emergencyName,
-                emergency_contact_phone: emergencyPhone,
-                identity_document_url: idUrl,
+                phone: phone || null,
+                address: address || null,
+                dob: dob || null,
+                gender: gender || null,
+                blood_group: bloodGroup || null,
+                next_of_kin_name: nextOfKinName || null,
+                next_of_kin_phone: nextOfKinPhone || null,
+                emergency_contact_name: emergencyName || null,
+                emergency_contact_phone: emergencyPhone || null,
+                identity_document_url: idUrl || null,
                 updated_at: new Date().toISOString()
             }
             const { error } = await updateProfile(patientId, updates)
             if (error) throw error
+
+            if (originalIdUrl && originalIdUrl !== idUrl) {
+                try {
+                    const oldPath = originalIdUrl.split('/patient-identity-documents/')[1]?.split('?')[0]
+                    if (oldPath) await supabase.storage.from('patient-identity-documents').remove([oldPath])
+                } catch (_) {}
+            }
+
             toast.success('Profile updated successfully')
+            window.location.reload()
         } catch (error: unknown) {
             toast.error('Failed to update profile: ' + (error instanceof Error ? error.message : String(error)))
         } finally {
@@ -148,10 +172,10 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
             const fileExt = file.name.split('.').pop();
             const fileName = `${patientId}/id_${Date.now()}.${fileExt}`;
             const { error: uploadError } = await supabase.storage
-                .from('doctor-verifications')
+                .from('patient-identity-documents')
                 .upload(fileName, file);
             if (uploadError) throw uploadError;
-            const { data: { publicUrl } } = supabase.storage.from('doctor-verifications').getPublicUrl(fileName);
+            const { data: { publicUrl } } = supabase.storage.from('patient-identity-documents').getPublicUrl(fileName);
             setIdUrl(publicUrl);
             toast.success('Identity document uploaded');
         } catch (err: any) {

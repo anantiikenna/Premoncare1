@@ -492,7 +492,7 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
               ],
             ),
           ),
-          Image.asset('assets/growth_icon.png', width: 60, errorBuilder: (_, _, _) => const Icon(Icons.bar_chart_rounded, size: 40, color: AppColors.success)),
+          const Icon(Icons.bar_chart_rounded, size: 40, color: AppColors.success),
         ],
       ),
     );

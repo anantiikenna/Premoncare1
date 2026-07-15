@@ -279,6 +279,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
       case 'emergency_accepted': return AppColors.success;
       case 'emergency_declined': return AppColors.error;
       case 'cancelled': return AppColors.textTertiaryOf(context);
+      case 'rescheduled': return AppColors.info;
       default: return AppColors.textSecondaryOf(context);
     }
   }
@@ -309,7 +310,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
       }
       if (_tabController.index == 2) {
         // PENDING
-        return a['status'] == 'pending' || a['status'] == 'emergency_request';
+        return a['status'] == 'pending' || a['status'] == 'emergency_request' || a['status'] == 'rescheduled';
       }
       if (_tabController.index == 3) {
         // PAST

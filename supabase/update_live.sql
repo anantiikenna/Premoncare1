@@ -579,19 +579,77 @@ DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Admins can update any profile" ON public.profiles;
 
-CREATE POLICY "Anyone can view profiles"
+CREATE POLICY "Anyone can update profiles"
   ON public.profiles FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
-  USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (
+    auth.uid() = id
+    AND role = (SELECT role FROM public.profiles WHERE id = auth.uid())
+    AND verification_status = (SELECT verification_status FROM public.profiles WHERE id = auth.uid())
+    AND account_status = (SELECT account_status FROM public.profiles WHERE id = auth.uid())
+    AND subscription_status = (SELECT subscription_status FROM public.profiles WHERE id = auth.uid())
+    AND subscription_expires_at = (SELECT subscription_expires_at FROM public.profiles WHERE id = auth.uid())
+    AND rating = (SELECT rating FROM public.profiles WHERE id = auth.uid())
+    AND review_count = (SELECT review_count FROM public.profiles WHERE id = auth.uid())
+  );
 
 CREATE POLICY "Users can insert own profile"
   ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Admins can update any profile" ON public.profiles;
 CREATE POLICY "Admins can update any profile"
   ON public.profiles FOR UPDATE
   USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- ============================================================
+-- AUTO-UPDATE updated_at ON profiles
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.update_profiles_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS set_profiles_updated_at ON public.profiles;
+CREATE TRIGGER set_profiles_updated_at
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.update_profiles_updated_at();
+
+-- ============================================================
+-- STORAGE: patient-identity-documents BUCKET
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+  VALUES ('patient-identity-documents', 'patient-identity-documents', false)
+  ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for patient-identity-documents
+DROP POLICY IF EXISTS "Users can view own identity documents" ON storage.objects;
+DROP POLICY IF EXISTS "Users can upload own identity documents" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete own identity documents" ON storage.objects;
+DROP POLICY IF EXISTS "Admins can view all identity documents" ON storage.objects;
+
+CREATE POLICY "Users can view own identity documents"
+  ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'patient-identity-documents' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Users can upload own identity documents"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'patient-identity-documents' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Users can delete own identity documents"
+  ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'patient-identity-documents' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Admins can view all identity documents"
+  ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'patient-identity-documents' AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- ============================================================
 -- DOCTOR SCHEDULES

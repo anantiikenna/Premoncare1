@@ -120,7 +120,7 @@ final goRouter = GoRouter(
       final role = await getUserRole();
       if (role != 'admin') {
         clearRoleCache();
-        await supabase.auth.signOut();
+        await performLogout();
         return '/admin-login';
       }
 
@@ -156,7 +156,7 @@ final goRouter = GoRouter(
 
     if (role == 'admin') {
       clearRoleCache();
-      await supabase.auth.signOut();
+      await performLogout();
       return '/login';
     }
 
@@ -299,7 +299,7 @@ final goRouter = GoRouter(
         final extras = state.extra as Map<String, dynamic>? ?? {};
         return DoctorEmergencyRequestScreen(
           appointmentId: extras['appointmentId'] as String? ?? '',
-          patientId: extras['patientId'] as String? ?? '',
+          patientId: extras['patientId'] as String?,
           patientName: extras['patientName'] as String? ?? 'Patient',
           durationMinutes: extras['durationMinutes'] as int? ?? 15,
           totalAmount: (extras['totalAmount'] as num?)?.toDouble() ?? 0.0,

@@ -121,6 +121,12 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
 
   void _handleTimeout() {
     setState(() => _status = 'timeout');
+    Supabase.instance.client
+        .from('appointments')
+        .update({'status': 'emergency_declined'})
+        .eq('id', widget.appointmentId)
+        .then((_) {})
+        .catchError((_) {});
   }
 
   String get _timerText {

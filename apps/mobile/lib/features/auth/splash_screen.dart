@@ -66,8 +66,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
         if (mounted) {
           if (role == 'admin') {
-            clearRoleCache();
-            await supabase.auth.signOut();
+            await performLogout();
             if (mounted) context.go('/login');
           } else if (!hasSeenPermissions && role == 'patient') {
             context.go('/permissions');

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,7 +49,12 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
 
   Future<void> _fetchTimeBalance() async {
     final user = supabase.auth.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      if (widget.isEmergency && mounted) {
+        setState(() => _currentBalanceMinutes = 9999);
+      }
+      return;
+    }
     try {
       final data = await supabase
           .from('time_balances')
@@ -122,7 +128,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
       }
 
       final appointmentDate = _scheduledDateTime.toUtc().toIso8601String();
-      final guestToken = userId == null ? 'guest_${DateTime.now().millisecondsSinceEpoch}' : null;
+      final guestToken = userId == null ? 'guest_${DateTime.now().millisecondsSinceEpoch}_${Random.secure().nextInt(999999).toRadixString(36)}' : null;
       if (guestToken != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('premon_guest_token', guestToken);
@@ -143,6 +149,11 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
           'is_guest': true,
           'guest_token': guestToken,
           'pricing_multiplier': 5,
+          'base_fee': widget.totalAmount / 5,
+        },
+        if (guestToken == null) 'metadata': {
+          'pricing_multiplier': widget.isEmergency ? 5 : 1,
+          'base_fee': widget.isEmergency ? widget.totalAmount / 5 : widget.totalAmount,
         },
       };
 

@@ -59,7 +59,9 @@ class AppointmentDetailScreen extends ConsumerWidget {
                             const SizedBox(height: 16),
                             if (appointment.status == AppointmentStatus.confirmed && appointment.mode == ConsultationMode.video) _VideoCallAction(appointment: appointment),
                             const SizedBox(height: 16),
-                            if (appointment.status == AppointmentStatus.pending || appointment.status == AppointmentStatus.confirmed) _CancelAction(appointmentId: appointment.id),
+                            if (appointment.status == AppointmentStatus.pending || appointment.status == AppointmentStatus.confirmed || appointment.status == AppointmentStatus.rescheduled) _RescheduleAction(appointment: appointment),
+                            const SizedBox(height: 16),
+                            if (appointment.status == AppointmentStatus.pending || appointment.status == AppointmentStatus.confirmed || appointment.status == AppointmentStatus.rescheduled) _CancelAction(appointmentId: appointment.id),
                             const SizedBox(height: 40),
                           ],
                         ),
@@ -248,6 +250,90 @@ class _VideoCallAction extends StatelessWidget {
       'specialty': appointment.specialty,
       'durationMinutes': appointment.durationMinutes,
     });
+  }
+}
+
+class _RescheduleAction extends StatelessWidget {
+  final Appointment appointment;
+  const _RescheduleAction({required this.appointment});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
+      child: OutlinedButton.icon(
+        onPressed: () => _showReschedulePicker(context),
+        icon: const Icon(Icons.schedule_rounded, size: 20),
+        label: const Text('RESCHEDULE SESSION', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.info,
+          side: BorderSide(color: AppColors.infoLight),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+      ),
+    );
+  }
+
+  void _showReschedulePicker(BuildContext context) async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: appointment.appointmentDate,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 90)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(primary: AppColors.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedDate == null || !context.mounted) return;
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(appointment.appointmentDate),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(primary: AppColors.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedTime == null || !context.mounted) return;
+
+    final newDate = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: const Text('Confirm Reschedule', style: TextStyle(fontWeight: FontWeight.w900)),
+        content: Text(
+          'Reschedule this session to ${pickedDate.day}/${pickedDate.month}/${pickedDate.year} at ${pickedTime.format(context)}? The other party will be notified.',
+          style: TextStyle(fontSize: 14, height: 1.5, fontWeight: FontWeight.w500, color: AppColors.textSecondaryOf(context)),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('CANCEL', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context)))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('CONFIRM', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.primary))),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await AppointmentService.rescheduleAppointment(appointment.id, newDate);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: const Text('Session rescheduled successfully'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        );
+        context.pop();
+      }
+    }
   }
 }
 

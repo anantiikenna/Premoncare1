@@ -135,10 +135,17 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
                     ],
                   ),
                 );
-                if (confirmed == true) {
-                  clearRoleCache();
-                  await supabase.auth.signOut();
-                  if (context.mounted) context.go('/login');
+                if (confirmed == true && context.mounted) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const Center(child: CircularProgressIndicator(color: AppColors.textInverse)),
+                  );
+                  await performLogout();
+                  if (context.mounted) {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    context.go('/login');
+                  }
                 }
               },
             ),

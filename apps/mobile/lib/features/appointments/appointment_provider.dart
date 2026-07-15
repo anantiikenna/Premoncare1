@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_locator.dart';
 
-enum AppointmentStatus { pending, confirmed, ongoing, cancelled, completed, emergencyRequest, emergencyAccepted, emergencyDeclined }
+enum AppointmentStatus { pending, confirmed, ongoing, cancelled, completed, emergencyRequest, emergencyAccepted, emergencyDeclined, rescheduled }
 
 enum ConsultationMode { video, audio, text, inPerson }
 
@@ -143,9 +143,38 @@ class AppointmentService {
         'message': 'An appointment has been cancelled.',
         'type': 'appointment',
       });
-    } catch (_) {
-      // Notification is best-effort; don't block cancellation if it fails
-    }
+    } catch (_) {}
+  }
+
+  static Future<void> rescheduleAppointment(String id, DateTime newDate) async {
+    await supabase
+        .from('appointments')
+        .update({
+          'appointment_date': newDate.toIso8601String(),
+          'status': 'rescheduled',
+        })
+        .eq('id', id);
+
+    try {
+      final res = await supabase
+          .from('appointments')
+          .select('patient_id, doctor_id')
+          .eq('id', id)
+          .single();
+
+      final user = supabase.auth.currentUser;
+      final otherPartyId = user?.id == res['patient_id'] ? res['doctor_id'] : res['patient_id'];
+      final role = user?.id == res['patient_id'] ? 'Patient' : 'Doctor';
+
+      final dateStr = '${newDate.day}/${newDate.month}/${newDate.year} at ${newDate.hour}:${newDate.minute.toString().padLeft(2, '0')}';
+
+      await supabase.from('notifications').insert({
+        'user_id': otherPartyId,
+        'title': 'Appointment Rescheduled',
+        'message': 'The $role has rescheduled the appointment to $dateStr.',
+        'type': 'appointment',
+      });
+    } catch (_) {}
   }
 
   static Future<void> bookAppointment({

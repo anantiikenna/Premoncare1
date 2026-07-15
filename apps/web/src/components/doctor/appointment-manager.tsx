@@ -54,16 +54,16 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
 
     const stats = {
         today: appointments.filter(a => a.appointment_date.startsWith(todayStr)).length,
-        upcoming: appointments.filter(a => a.status === 'scheduled' || a.status === 'approved').length,
+        upcoming: appointments.filter(a => a.status === 'confirmed' || a.status === 'rescheduled').length,
         pending: appointments.filter(a => a.status === 'pending').length,
         completed: appointments.filter(a => a.status === 'completed').length,
     }
 
     const filteredAppointments = appointments.filter(a => {
         if (viewTab === 'incoming') return a.status === 'pending'
-        if (viewTab === 'confirmed') return a.status === 'approved'
-        if (viewTab === 'upcoming') return a.status === 'scheduled'
-        if (viewTab === 'past') return a.status === 'completed'
+        if (viewTab === 'confirmed') return a.status === 'confirmed' || a.status === 'rescheduled'
+        if (viewTab === 'upcoming') return a.status === 'confirmed' || a.status === 'rescheduled'
+        if (viewTab === 'past') return a.status === 'completed' || a.status === 'cancelled'
         return true
     })
 
@@ -71,7 +71,7 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
         setIsCrediting(true)
         try {
             const { error: aptError } = await updateAppointmentStatus(apt.id, { 
-                status: 'approved'
+                status: 'confirmed'
             })
             if (aptError) throw aptError
 
@@ -500,7 +500,7 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
                                                             </DialogContent>
                                                         </Dialog>
                                                     </>
-                                                ) : apt.status === 'approved' ? (
+                                                ) : apt.status === 'confirmed' || apt.status === 'rescheduled' ? (
                                                     <Button 
                                                         className="w-full md:w-40 h-10 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20"
                                                         onClick={() => startMeeting(apt)}
@@ -545,7 +545,7 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
                                         time: aptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                         user: apt.patient?.full_name || 'Patient',
                                         type: apt.reason || 'Consultation',
-                                        status: apt.status === 'approved' ? 'confirmed' : apt.status === 'pending' ? 'upcoming' : apt.status,
+                                        status: apt.status === 'confirmed' ? 'confirmed' : apt.status === 'rescheduled' ? 'rescheduled' : apt.status === 'pending' ? 'upcoming' : apt.status,
                                         current: false,
                                         label: apt.reason || 'Consultation'
                                     }

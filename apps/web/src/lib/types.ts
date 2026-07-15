@@ -13,7 +13,7 @@ export interface PaymentPayload {
 }
 
 export interface AppointmentUpdates {
-    status?: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
+    status?: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rescheduled';
     reason?: string;
     appointment_date?: string;
 }
@@ -23,11 +23,14 @@ export interface ProfileUpdates {
     avatar_url?: string;
     dob?: string;
     gender?: string;
+    phone?: string;
+    address?: string;
     next_of_kin_name?: string;
     next_of_kin_phone?: string;
     emergency_contact_name?: string;
     emergency_contact_phone?: string;
     blood_group?: string;
+    identity_document_url?: string;
     bank_name?: string;
     account_name?: string;
     account_number?: string;
@@ -35,8 +38,10 @@ export interface ProfileUpdates {
     experience_years?: number;
     clinic_address?: string;
     consultation_fee?: number;
+    payment_instructions?: string;
     email_alerts_enabled?: boolean;
     verification_status?: 'pending' | 'approved' | 'rejected' | 'unsubmitted';
+    updated_at?: string;
 }
 
 export interface MedicalProfileData {
@@ -141,7 +146,7 @@ export interface AppointmentWithDetails {
     id: string;
     created_at: string;
     appointment_date: string;
-    status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
+    status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rescheduled';
     reason?: string;
     patient_id: string;
     doctor_id: string;

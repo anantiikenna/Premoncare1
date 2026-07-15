@@ -382,8 +382,7 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                     'action': 'account_deletion_requested',
                   });
                 }
-                clearRoleCache();
-                await supabase.auth.signOut();
+                await performLogout();
                 if (context.mounted) context.go('/login');
               } catch (e) {
                 if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));

@@ -51,3 +51,12 @@ void clearRoleCache() {
   _cachedUserId = null;
 }
 
+/// Centralized logout: unsubscribe all Realtime channels, clear cache, sign out.
+Future<void> performLogout() async {
+  try {
+    supabase.removeAllChannels();
+  } catch (_) {}
+  clearRoleCache();
+  await supabase.auth.signOut();
+}
+

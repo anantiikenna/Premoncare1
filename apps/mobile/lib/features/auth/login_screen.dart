@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
-import '../../core/supabase_locator.dart' show supabase, getUserRole, clearRoleCache;
+import '../../core/supabase_locator.dart' show supabase, getUserRole, clearRoleCache, performLogout;
 import '../../core/services/notification_service.dart';
 import '../../core/user_facing_errors.dart';
 
@@ -53,8 +53,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       if (!mounted) return;
 
       if (role == 'admin') {
-        clearRoleCache();
-        await supabase.auth.signOut();
+        await performLogout();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Admin accounts cannot access the patient/doctor app. Please use the Admin app.'), backgroundColor: AppColors.error),

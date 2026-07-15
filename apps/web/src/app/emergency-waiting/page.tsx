@@ -97,10 +97,10 @@ export default function EmergencyWaitingPage() {
           const newStatus = payload.new?.status as string
           if (newStatus === 'emergency_accepted') {
             setStatus('accepted')
-            // Redirect to checkout after brief delay
+            // Redirect to account conversion after brief delay
             setTimeout(() => {
               localStorage.setItem('premon_emergency_accepted', 'true')
-              router.push(`/checkout?appointmentId=${appointmentId}`)
+              router.push('/account-conversion')
             }, 2000)
           } else if (newStatus === 'emergency_declined') {
             setStatus('declined')

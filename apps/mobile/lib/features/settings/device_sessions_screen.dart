@@ -73,8 +73,7 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
                 final nav = GoRouter.of(context);
                 final messenger = ScaffoldMessenger.of(context);
                 try {
-                  clearRoleCache();
-                  await supabase.auth.signOut();
+                  await performLogout();
                   if (!mounted) return;
                   nav.go('/login');
                 } catch (e) {
