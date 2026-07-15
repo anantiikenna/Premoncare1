@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/services/admin_service.dart';
 import 'admin_scaffold.dart';
+import 'admin_shared_widgets.dart';
 
 final _adminService = AdminService();
 
@@ -21,6 +22,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
   String _searchQuery = '';
   Map<String, dynamic>? _selectedDoctor;
   bool _doctorsLoading = false;
+  String? _error;
 
   List<Map<String, dynamic>> _doctors = [];
   Map<String, int> _counts = {'pending': 0, 'under_review': 0, 'approved': 0, 'rejected': 0};
@@ -55,6 +57,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
   }
 
   Future<void> _refreshAll() async {
+    setState(() => _error = null);
     await Future.wait([_fetchDoctors(), _fetchCounts()]);
   }
 
@@ -82,6 +85,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load doctors: $e'), backgroundColor: AppColors.error),
         );
@@ -110,6 +114,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load counts: $e'), backgroundColor: AppColors.error),
         );
@@ -381,7 +386,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
   Widget build(BuildContext context) {
     return AdminScaffold(
       selectedIndex: 2,
-      body: _selectedDoctor != null
+      body: _error != null && !_doctorsLoading
+          ? AdminErrorState(message: _error!, onRetry: _refreshAll)
+          : _selectedDoctor != null
           ? _buildDetailView()
           : _buildListView(),
     );
@@ -500,9 +507,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: TextField(
               controller: _searchController,
@@ -534,9 +541,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: _doctorsLoading
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
@@ -575,9 +582,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       return Container(
         padding: const EdgeInsets.all(40),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: Center(
           child: Column(
@@ -614,9 +621,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightOf(context)),
           boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: Offset(0, 8))],
         ),
         child: Row(
@@ -712,9 +719,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 40, offset: const Offset(0, 20))],
       ),
       child: Column(
@@ -834,9 +841,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         width: double.infinity,
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: const Column(
           children: [
@@ -871,9 +878,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         children: [
@@ -919,9 +926,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: TextField(
             controller: _adminNotesController,
@@ -1066,9 +1073,9 @@ class _TabItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : AppColors.surface,
+          color: isSelected ? color.withValues(alpha: 0.1) : AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? color.withValues(alpha: 0.5) : AppColors.borderLight),
+          border: Border.all(color: isSelected ? color.withValues(alpha: 0.5) : AppColors.borderLightOf(context)),
         ),
         child: Row(
           children: [
@@ -1130,9 +1137,9 @@ class _DocumentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

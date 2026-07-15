@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math' as math;
 import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
+import 'admin_shared_widgets.dart';
 
 class DisputeResolutionScreen extends ConsumerStatefulWidget {
   const DisputeResolutionScreen({super.key});
@@ -22,6 +23,7 @@ class _DisputeResolutionScreenState
   List<Map<String, dynamic>> _filteredDisputes = [];
   Map<String, dynamic>? _selectedDispute;
   bool _isLoading = true;
+  String? _error;
   String _selectedFilter = 'All';
 
   int _openCount = 0;
@@ -46,7 +48,7 @@ class _DisputeResolutionScreenState
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+    setState(() { _isLoading = true; _error = null; });
     await Future.wait([_loadStats(), _loadDisputes()]);
     if (mounted) setState(() => _isLoading = false);
   }
@@ -80,6 +82,7 @@ class _DisputeResolutionScreenState
       }
     } catch (e) {
       if (kDebugMode) debugPrint('Error loading dispute stats: $e');
+      if (mounted && _error == null) setState(() => _error = e.toString());
     }
   }
 
@@ -104,6 +107,7 @@ class _DisputeResolutionScreenState
       if (kDebugMode) debugPrint('Error loading disputes: $e');
       if (mounted) {
         setState(() {
+          _error = e.toString();
           _disputes = [];
           _filteredDisputes = [];
         });
@@ -302,7 +306,9 @@ class _DisputeResolutionScreenState
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             )
-          : RefreshIndicator(
+          : _error != null
+              ? AdminErrorState(message: _error!, onRetry: _loadData)
+              : RefreshIndicator(
               onRefresh: _loadData,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -524,34 +530,10 @@ class _DisputeResolutionScreenState
 
   Widget _buildDisputesList() {
     if (_filteredDisputes.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(48),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceOf(context),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.slate200),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              Icon(Icons.inbox_outlined, size: 48, color: AppColors.slate300),
-              const SizedBox(height: 16),
-              Text(
-                'No disputes found',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.slate600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'No disputes match the current filter.',
-                style: TextStyle(fontSize: 13, color: AppColors.slate400),
-              ),
-            ],
-          ),
-        ),
+      return AdminEmptyState(
+        icon: Icons.inbox_outlined,
+        title: 'No disputes found',
+        subtitle: 'No disputes match the current filter.',
       );
     }
 

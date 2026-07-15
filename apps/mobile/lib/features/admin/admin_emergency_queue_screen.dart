@@ -204,9 +204,9 @@ class _AdminEmergencyQueueScreenState
                     width: double.infinity,
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: AppColors.borderLight),
+                      border: Border.all(color: AppColors.borderLightOf(context)),
                     ),
                     child: const Center(
                       child:
@@ -218,9 +218,9 @@ class _AdminEmergencyQueueScreenState
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: AppColors.borderLight),
+                      border: Border.all(color: AppColors.borderLightOf(context)),
                       boxShadow: const [
                         BoxShadow(
                           color: AppColors.shadowLight,
@@ -317,9 +317,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +374,7 @@ class _EmergencyRequestCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: statusColor.withValues(alpha: 0.2)),
         boxShadow: [
@@ -530,9 +530,9 @@ class _ChecklistItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [

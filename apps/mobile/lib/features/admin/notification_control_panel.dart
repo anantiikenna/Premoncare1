@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
 import 'admin_providers.dart';
+import 'admin_shared_widgets.dart';
 
 final _channelConfigsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final response = await Supabase.instance.client
@@ -136,7 +137,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       borderRadius: BorderRadius.circular(14),
                     ),
                     filled: true,
-                    fillColor: AppColors.surfaceAlt,
+                    fillColor: AppColors.surfaceAltOf(context),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -150,7 +151,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       borderRadius: BorderRadius.circular(14),
                     ),
                     filled: true,
-                    fillColor: AppColors.surfaceAlt,
+                    fillColor: AppColors.surfaceAltOf(context),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -162,7 +163,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                       borderRadius: BorderRadius.circular(14),
                     ),
                     filled: true,
-                    fillColor: AppColors.surfaceAlt,
+                    fillColor: AppColors.surfaceAltOf(context),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'all', child: Text('All Users')),
@@ -303,11 +304,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           child: CircularProgressIndicator(),
         ),
       ),
-      error: (e, _) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text('Failed to load stats: $e'),
-        ),
+      error: (e, _) => AdminErrorState(
+        message: 'Failed to load stats: $e',
+        onRetry: () => ref.invalidate(_notificationStatsProvider),
       ),
     );
   }
@@ -382,11 +381,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           child: CircularProgressIndicator(),
         ),
       ),
-      error: (e, _) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text('Failed to load channels: $e'),
-        ),
+      error: (e, _) => AdminErrorState(
+        message: 'Failed to load channels: $e',
+        onRetry: () => ref.invalidate(_channelConfigsProvider),
       ),
     );
   }
@@ -454,11 +451,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
           child: CircularProgressIndicator(),
         ),
       ),
-      error: (e, _) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text('Failed to load notifications: $e'),
-        ),
+      error: (e, _) => AdminErrorState(
+        message: 'Failed to load notifications: $e',
+        onRetry: () => ref.invalidate(_recentNotificationsProvider),
       ),
     );
   }

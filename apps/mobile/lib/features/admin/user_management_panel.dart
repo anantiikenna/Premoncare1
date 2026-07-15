@@ -115,8 +115,10 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
 
     return AdminScaffold(
       selectedIndex: 1,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
+      body: RefreshIndicator(
+        onRefresh: () async => setState(() {}),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
@@ -157,6 +159,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           _buildUserList(adminService),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
+        ),
       ),
     );
   }

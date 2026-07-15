@@ -504,9 +504,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: const Row(
               children: [
@@ -557,9 +557,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               children: [
@@ -633,9 +633,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               children: [
@@ -678,9 +678,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       return Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: const Center(
           child: Text(
@@ -731,9 +731,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               children: [
@@ -777,9 +777,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               children: [
@@ -938,9 +938,9 @@ class _P2PStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1002,12 +1002,12 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.infoLight : AppColors.surface,
+        color: isSelected ? AppColors.infoLight : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.5)
-              : AppColors.borderLight,
+              : AppColors.borderLightOf(context),
         ),
       ),
       child: Row(
@@ -1050,9 +1050,9 @@ class _FilterButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: const Row(
         children: [
@@ -1097,9 +1097,9 @@ class _DateRangePicker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
@@ -1288,9 +1288,9 @@ class _P2PTransactionItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [

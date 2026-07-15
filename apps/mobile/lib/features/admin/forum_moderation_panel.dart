@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
+import 'admin_shared_widgets.dart';
 
 class ForumModerationPanel extends ConsumerStatefulWidget {
   const ForumModerationPanel({super.key});
@@ -14,6 +15,7 @@ class ForumModerationPanel extends ConsumerStatefulWidget {
 
 class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
   bool _loading = true;
+  String? _error;
 
   int _pendingReportsCount = 0;
   int _totalPostsCount = 0;
@@ -30,7 +32,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
   }
 
   Future<void> _refreshAll() async {
-    setState(() => _loading = true);
+    setState(() { _loading = true; _error = null; });
     await Future.wait([
       _fetchStats(),
       _fetchPendingReports(),
@@ -76,6 +78,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load stats: $e'), backgroundColor: AppColors.error),
         );
@@ -104,6 +107,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load reports: $e'), backgroundColor: AppColors.error),
         );
@@ -164,6 +168,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load actions: $e'), backgroundColor: AppColors.error),
         );
@@ -239,7 +244,9 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
   Widget build(BuildContext context) {
     return AdminScaffold(
       selectedIndex: 3,
-      body: RefreshIndicator(
+      body: _error != null && !_loading
+          ? AdminErrorState(message: _error!, onRetry: _refreshAll)
+          : RefreshIndicator(
         onRefresh: _refreshAll,
         color: AppColors.primary,
         child: SingleChildScrollView(
@@ -292,9 +299,9 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: Row(
             children: [
@@ -329,9 +336,9 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: Offset(0, 4))],
       ),
       child: Column(
@@ -360,9 +367,9 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +423,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.borderLight)),
+        border: Border(bottom: BorderSide(color: AppColors.borderLightOf(context))),
       ),
       child: Row(
         children: [
@@ -486,9 +493,9 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,7 +530,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightOf(context)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -542,9 +549,9 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

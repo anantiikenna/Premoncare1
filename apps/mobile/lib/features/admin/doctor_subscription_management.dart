@@ -248,7 +248,7 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
   Widget _buildMetricsGrid() {
     return Container(
       padding: const EdgeInsets.all(20),
-      color: AppColors.surface,
+      color: AppColors.surfaceOf(context),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -304,9 +304,9 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.borderLight),
+                border: Border.all(color: AppColors.borderLightOf(context)),
               ),
               child: Row(
                 children: [
@@ -345,9 +345,9 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         children: [
@@ -461,9 +461,9 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.borderLight),
+                border: Border.all(color: AppColors.borderLightOf(context)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,9 +496,9 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.borderLight),
+                border: Border.all(color: AppColors.borderLightOf(context)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -609,7 +609,7 @@ class _MetricCard extends StatelessWidget {
       width: 140,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.surfaceAlt, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLight)),
+      decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -646,9 +646,9 @@ class _TabButton extends StatelessWidget {
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isSelected ? activeColor.withValues(alpha: 0.1) : AppColors.surface,
+        color: isSelected ? activeColor.withValues(alpha: 0.1) : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isSelected ? activeColor : AppColors.borderLight),
+        border: Border.all(color: isSelected ? activeColor : AppColors.borderLightOf(context)),
       ),
       child: Text(label, style: TextStyle(color: isSelected ? activeColor : AppColors.slate500, fontSize: 12, fontWeight: FontWeight.w900)),
     );
@@ -670,7 +670,7 @@ class _IconButton extends StatelessWidget {
       },
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderLight)),
+        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderLightOf(context))),
         child: Icon(icon, color: AppColors.slate500, size: 20),
       ),
     );

@@ -422,9 +422,9 @@ class _FinancialModerationScreenState
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.surfaceOf(context),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(color: AppColors.borderLightOf(context)),
                 ),
                 child: const Row(
                   children: [
@@ -494,9 +494,9 @@ class _FinancialModerationScreenState
       return Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: const Center(
           child: Text(
@@ -584,9 +584,9 @@ class _FinancialModerationScreenState
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,9 +621,9 @@ class _FinancialModerationScreenState
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               children: [
@@ -754,9 +754,9 @@ class _FinancialModerationScreenState
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -800,9 +800,9 @@ class _FinancialModerationScreenState
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1058,9 +1058,9 @@ class _FinanceStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1149,12 +1149,12 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.infoLight : AppColors.surface,
+        color: isSelected ? AppColors.infoLight : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.5)
-              : AppColors.borderLight,
+              : AppColors.borderLightOf(context),
         ),
       ),
       child: Text(
@@ -1186,9 +1186,9 @@ class _IconButton extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: Row(
           children: [
@@ -1232,9 +1232,9 @@ class _AlertCard extends StatelessWidget {
       width: 260,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1294,7 +1294,7 @@ class _AlertCard extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.surface,
+                backgroundColor: AppColors.surfaceOf(context),
                 foregroundColor: color,
                 elevation: 0,
                 side: BorderSide(color: color.withValues(alpha: 0.2)),
@@ -1345,9 +1345,9 @@ class _TransactionItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [

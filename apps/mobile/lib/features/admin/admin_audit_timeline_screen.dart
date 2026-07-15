@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import 'admin_scaffold.dart';
+import 'admin_shared_widgets.dart';
 
 class AdminAuditTimelineScreen extends ConsumerStatefulWidget {
   const AdminAuditTimelineScreen({super.key});
@@ -20,6 +21,7 @@ class _AdminAuditTimelineScreenState
   List<Map<String, dynamic>> _logs = [];
   List<Map<String, dynamic>> _filteredLogs = [];
   bool _isLoading = true;
+  String? _error;
 
   int _totalCount = 0;
   int _securityCount = 0;
@@ -42,7 +44,7 @@ class _AdminAuditTimelineScreenState
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+    setState(() { _isLoading = true; _error = null; });
     await Future.wait([_loadStats(), _loadLogs()]);
     if (mounted) setState(() => _isLoading = false);
   }
@@ -77,6 +79,7 @@ class _AdminAuditTimelineScreenState
       }
     } catch (e) {
       if (kDebugMode) debugPrint('Error loading audit stats: $e');
+      if (mounted && _error == null) setState(() => _error = e.toString());
     }
   }
 
@@ -100,6 +103,7 @@ class _AdminAuditTimelineScreenState
       if (kDebugMode) debugPrint('Error loading audit logs: $e');
       if (mounted) {
         setState(() {
+          _error = e.toString();
           _logs = [];
           _filteredLogs = [];
         });
@@ -207,7 +211,9 @@ class _AdminAuditTimelineScreenState
       selectedIndex: 4,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : RefreshIndicator(
+          : _error != null
+              ? AdminErrorState(message: _error!, onRetry: _loadData)
+              : RefreshIndicator(
               onRefresh: _loadData,
               color: AppColors.primary,
               child: SingleChildScrollView(
@@ -509,28 +515,10 @@ class _AdminAuditTimelineScreenState
 
   Widget _buildTimeline() {
     if (_filteredLogs.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 60),
-          child: Column(
-            children: [
-              Icon(Icons.history_rounded,
-                  size: 48, color: AppColors.textTertiaryOf(context)),
-              const SizedBox(height: 16),
-              Text('No audit logs found',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textSecondaryOf(context))),
-              const SizedBox(height: 4),
-              Text('Pull down to refresh',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textTertiaryOf(context))),
-            ],
-          ),
-        ),
+      return AdminEmptyState(
+        icon: Icons.history_rounded,
+        title: 'No audit logs found',
+        subtitle: 'Pull down to refresh',
       );
     }
 

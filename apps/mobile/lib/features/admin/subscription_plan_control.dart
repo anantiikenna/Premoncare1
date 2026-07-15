@@ -260,9 +260,9 @@ class _SubscriptionPlanControlState
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: const Center(
             child: Text(
@@ -291,9 +291,9 @@ class _SubscriptionPlanControlState
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightOf(context)),
           ),
           child: const Center(
             child: Text(
@@ -327,12 +327,12 @@ class _SubscriptionPlanControlState
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isActive
               ? AppColors.primary.withValues(alpha: 0.3)
-              : AppColors.borderLight,
+              : AppColors.borderLightOf(context),
           width: isActive ? 2 : 1,
         ),
       ),
@@ -558,9 +558,9 @@ class _SmallStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
