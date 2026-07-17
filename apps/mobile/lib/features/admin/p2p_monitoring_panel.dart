@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import 'admin_avatar.dart';
 import 'admin_scaffold.dart';
 
 class P2PMonitoringPanel extends ConsumerStatefulWidget {
@@ -142,7 +143,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       if (allIds.isNotEmpty) {
         final profiles = await supabase
             .from('profiles')
-            .select('id, full_name, email')
+            .select('id, full_name, email, avatar_url')
             .inFilter('id', allIds.toList());
         for (final p in profiles) {
           profileMap[p['id'] as String] = p;
@@ -156,6 +157,8 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           ...t,
           'sender_name': sender?['full_name'] ?? 'Unknown',
           'recipient_name': recipient?['full_name'] ?? 'Unknown',
+          'sender_avatar': sender?['avatar_url'],
+          'recipient_avatar': recipient?['avatar_url'],
         };
       }).toList();
 
@@ -235,7 +238,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       if (topIds.isNotEmpty) {
         final profiles = await supabase
             .from('profiles')
-            .select('id, full_name')
+            .select('id, full_name, avatar_url')
             .inFilter('id', topIds);
         for (final p in profiles) {
           profileMap[p['id'] as String] = p;
@@ -248,6 +251,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
         final profile = profileMap[entry.key];
         topUsers.add({
           'name': profile?['full_name'] ?? 'Unknown',
+          'avatar_url': profile?['avatar_url'],
           'volume': entry.value,
           'count': userCount[entry.key] ?? 0,
         });
@@ -716,6 +720,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
             id: id.length >= 8 ? id.substring(0, 8) : id,
             status: _statusLabel(status),
             statusColor: _statusColor(status),
+            senderAvatar: t['sender_avatar'] as String?,
+            receiverAvatar: t['recipient_avatar'] as String?,
+            receiptUrl: t['receipt_url'] as String?,
           ),
         );
       }).toList(),
@@ -762,6 +769,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                         amount: _formatAmount(u['volume'] as int),
                         txnCount: '${u['count']} Transactions',
                         initial: _initial(name),
+                        avatarUrl: u['avatar_url'] as String?,
                       ),
                       if (i < _topUsers.length - 1)
                         const Divider(height: 32, color: AppColors.divider),
@@ -1270,6 +1278,9 @@ class _P2PTransactionItem extends StatelessWidget {
   final String id;
   final String status;
   final Color statusColor;
+  final String? senderAvatar;
+  final String? receiverAvatar;
+  final String? receiptUrl;
 
   const _P2PTransactionItem({
     required this.senderName,
@@ -1281,6 +1292,9 @@ class _P2PTransactionItem extends StatelessWidget {
     required this.id,
     required this.status,
     required this.statusColor,
+    this.senderAvatar,
+    this.receiverAvatar,
+    this.receiptUrl,
   });
 
   @override
@@ -1294,7 +1308,7 @@ class _P2PTransactionItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _UserStack(initial: senderInitial, label: 'Sender', name: senderName),
+          _UserStack(initial: senderInitial, label: 'Sender', name: senderName, avatarUrl: senderAvatar),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Icon(
@@ -1307,6 +1321,7 @@ class _P2PTransactionItem extends StatelessWidget {
             initial: receiverInitial,
             label: 'Receiver',
             name: receiverName,
+            avatarUrl: receiverAvatar,
           ),
           const Spacer(),
           Column(
@@ -1347,6 +1362,41 @@ class _P2PTransactionItem extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 8),
+          if (receiptUrl != null && receiptUrl!.isNotEmpty)
+            GestureDetector(
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => Dialog(
+                  backgroundColor: Colors.black,
+                  insetPadding: const EdgeInsets.all(16),
+                  child: Stack(
+                    children: [
+                      Center(child: InteractiveViewer(child: Image.network(receiptUrl!, fit: BoxFit.contain))),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.network(receiptUrl!, fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.receipt_rounded, color: AppColors.slate300, size: 20),
+                ),
+              ),
+            ),
           const Icon(Icons.chevron_right_rounded, color: AppColors.slate300),
         ],
       ),
@@ -1358,28 +1408,19 @@ class _UserStack extends StatelessWidget {
   final String initial;
   final String label;
   final String name;
+  final String? avatarUrl;
   const _UserStack({
     required this.initial,
     required this.label,
     required this.name,
+    this.avatarUrl,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          child: Text(
-            initial,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ),
+        AdminAvatar(imageUrl: avatarUrl, name: name, radius: 18),
         const SizedBox(width: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1413,6 +1454,7 @@ class _TopUserItem extends StatelessWidget {
   final String amount;
   final String txnCount;
   final String initial;
+  final String? avatarUrl;
 
   const _TopUserItem({
     required this.rank,
@@ -1420,6 +1462,7 @@ class _TopUserItem extends StatelessWidget {
     required this.amount,
     required this.txnCount,
     required this.initial,
+    this.avatarUrl,
   });
 
   @override
@@ -1445,18 +1488,7 @@ class _TopUserItem extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          child: Text(
-            initial,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ),
+        AdminAvatar(imageUrl: avatarUrl, name: name, radius: 18),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

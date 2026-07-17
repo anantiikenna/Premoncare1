@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_colors.dart';
+import 'admin_avatar.dart';
 import 'admin_providers.dart';
 import 'admin_scaffold.dart';
 
@@ -498,17 +499,10 @@ class _UserListItem extends StatelessWidget {
         children: [
           Stack(
             children: [
-              CircleAvatar(
+              AdminAvatar(
+                imageUrl: user['avatar_url'] as String?,
+                name: (user['full_name'] ?? 'U').toString(),
                 radius: 26,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                child: Text(
-                  (user['full_name'] ?? 'U')[0].toUpperCase(),
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
               ),
               Positioned(
                 bottom: 0,

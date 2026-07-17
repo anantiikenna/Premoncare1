@@ -274,7 +274,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Image.asset(
-                      'assets/logo.png',
+                      'assets/logo-symbol.png',
                       height: 48,
                       errorBuilder: (_, _, _) => Container(
                         width: 48,

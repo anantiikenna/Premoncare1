@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math' as math;
 import '../../core/app_colors.dart';
+import 'admin_avatar.dart';
 import 'admin_scaffold.dart';
 import 'admin_shared_widgets.dart';
 
@@ -92,8 +93,8 @@ class _DisputeResolutionScreenState
           .from('disputes')
           .select('''
             *,
-            patient_profile:profiles!disputes_patient_id_fkey(full_name, email),
-            doctor_profile:profiles!disputes_doctor_id_fkey(full_name, email)
+            patient_profile:profiles!disputes_patient_id_fkey(full_name, email, avatar_url),
+            doctor_profile:profiles!disputes_doctor_id_fkey(full_name, email, avatar_url)
           ''')
           .order('created_at', ascending: false);
 
@@ -661,19 +662,10 @@ class _DisputeResolutionScreenState
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    CircleAvatar(
+                    AdminAvatar(
+                      imageUrl: patient?['avatar_url'] as String?,
+                      name: patientName,
                       radius: 12,
-                      backgroundColor: AppColors.primary.withValues(
-                        alpha: 0.15,
-                      ),
-                      child: Text(
-                        patientName.isNotEmpty ? patientName[0] : '?',
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                      ),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -695,19 +687,12 @@ class _DisputeResolutionScreenState
                         ),
                       ),
                     ),
-                    CircleAvatar(
+                    AdminAvatar(
+                      imageUrl: doctor?['avatar_url'] as String?,
+                      name: doctorName,
                       radius: 12,
-                      backgroundColor: AppColors.success.withValues(
-                        alpha: 0.15,
-                      ),
-                      child: Text(
-                        doctorName.isNotEmpty ? doctorName[0] : '?',
-                        style: const TextStyle(
-                          color: AppColors.success,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                      ),
+                      backgroundColor: AppColors.success,
+                    ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(

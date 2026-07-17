@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import 'admin_scaffold.dart';
+import 'admin_shared_widgets.dart';
 
 class SubscriptionPlanControl extends ConsumerStatefulWidget {
   const SubscriptionPlanControl({super.key});
@@ -257,23 +258,10 @@ class _SubscriptionPlanControlState
     final activePlans = _plans.where((p) => p['is_active'] == true).toList();
     if (activePlans.isEmpty) {
       return [
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceOf(context),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.borderLightOf(context)),
-          ),
-          child: const Center(
-            child: Text(
-              'No active plans',
-              style: TextStyle(
-                color: AppColors.textTertiary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        const AdminEmptyState(
+          icon: Icons.subscriptions_outlined,
+          title: 'No active plans',
+          subtitle: 'Create a subscription plan to get started',
         ),
       ];
     }
@@ -288,23 +276,10 @@ class _SubscriptionPlanControlState
         _plans.where((p) => p['is_active'] != true).toList();
     if (inactivePlans.isEmpty) {
       return [
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceOf(context),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.borderLightOf(context)),
-          ),
-          child: const Center(
-            child: Text(
-              'All plans are active',
-              style: TextStyle(
-                color: AppColors.textTertiary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        const AdminEmptyState(
+          icon: Icons.check_circle_outline,
+          title: 'All plans active',
+          subtitle: 'Every plan is currently active',
         ),
       ];
     }

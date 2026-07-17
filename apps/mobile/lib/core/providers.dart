@@ -160,7 +160,7 @@ final pendingDisputesProvider = FutureProvider<int>((ref) async {
 final recentDoctorApplicationsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final response = await supabase
       .from('profiles')
-      .select('id, full_name, email, created_at, specialty')
+      .select('id, full_name, email, created_at, specialty, avatar_url')
       .eq('role', 'doctor')
       .eq('verification_status', 'pending')
       .order('created_at', ascending: false)

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
+import 'admin_avatar.dart';
 import 'admin_scaffold.dart';
 
 class DoctorSubscriptionManagement extends ConsumerStatefulWidget {
@@ -383,6 +384,7 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
                 lastPay: _formatCurrency(amount),
                 payDate: lastPayDate != null ? _formatExpiry(lastPayDate).replaceAll('Expires in ', '').replaceAll('Expired ', 'Paid ') : 'N/A',
                 initial: _getInitial(doctorName),
+                avatarUrl: profile?['avatar_url'] as String?,
               );
             }),
         ],
@@ -519,6 +521,7 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
                         name: doctorName,
                         sub: expiry,
                         initial: _getInitial(doctorName),
+                        avatarUrl: profile?['avatar_url'] as String?,
                       );
                     }),
                 ],
@@ -686,8 +689,9 @@ class _SubscriptionRow extends StatelessWidget {
   final String lastPay;
   final String payDate;
   final String initial;
+  final String? avatarUrl;
 
-  const _SubscriptionRow({required this.name, required this.plan, required this.amount, required this.status, required this.expiry, required this.lastPay, required this.payDate, required this.initial});
+  const _SubscriptionRow({required this.name, required this.plan, required this.amount, required this.status, required this.expiry, required this.lastPay, required this.payDate, required this.initial, this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -700,11 +704,7 @@ class _SubscriptionRow extends StatelessWidget {
             flex: 3,
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                  child: Text(initial, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 11)),
-                ),
+                AdminAvatar(imageUrl: avatarUrl, name: name, radius: 16),
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -872,7 +872,8 @@ class _SmallDoctorItem extends StatelessWidget {
   final String name;
   final String sub;
   final String initial;
-  const _SmallDoctorItem({required this.name, required this.sub, required this.initial});
+  final String? avatarUrl;
+  const _SmallDoctorItem({required this.name, required this.sub, required this.initial, this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -880,11 +881,7 @@ class _SmallDoctorItem extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 14,
-            backgroundColor: AppColors.primary,
-            child: Text(initial, style: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold, fontSize: 10)),
-          ),
+          AdminAvatar(imageUrl: avatarUrl, name: name, radius: 14),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

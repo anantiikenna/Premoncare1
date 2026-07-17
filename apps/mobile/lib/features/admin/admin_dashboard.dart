@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../../core/app_colors.dart';
+import 'admin_avatar.dart';
 import 'admin_charts_widget.dart';
+import 'admin_shared_widgets.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
@@ -18,8 +20,14 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     final statsAsync = ref.watch(adminStatsProvider);
 
     return statsAsync.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            SizedBox(height: 24),
+            AdminStatsSkeleton(),
+          ],
+        ),
       ),
       error: (e, _) => Center(child: Text('Failed to load dashboard: $e')),
       data: (stats) => SingleChildScrollView(
@@ -560,6 +568,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 specialty: specialty,
                 time: timeAgo,
                 initial: initial,
+                avatarUrl: app['avatar_url'] as String?,
                 onReview: () => context.push('/admin/doctor-verification'),
               ),
             );
@@ -1011,6 +1020,7 @@ class _ApplicationTile extends StatelessWidget {
   final String specialty;
   final String time;
   final String initial;
+  final String? avatarUrl;
   final VoidCallback onReview;
 
   const _ApplicationTile({
@@ -1018,6 +1028,7 @@ class _ApplicationTile extends StatelessWidget {
     required this.specialty,
     required this.time,
     required this.initial,
+    this.avatarUrl,
     required this.onReview,
   });
 
@@ -1032,18 +1043,7 @@ class _ApplicationTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-            child: Text(
-              initial,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
+          AdminAvatar(imageUrl: avatarUrl, name: name, radius: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

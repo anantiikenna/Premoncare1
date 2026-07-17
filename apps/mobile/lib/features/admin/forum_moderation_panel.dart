@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import 'admin_avatar.dart';
 import 'admin_scaffold.dart';
 import 'admin_shared_widgets.dart';
 
@@ -450,7 +451,13 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
                 const SizedBox(height: 4),
                 Text('In post: "$postTitle"', style: const TextStyle(color: AppColors.slate600, fontSize: 12)),
                 const SizedBox(height: 4),
-                Text('Reported by $reporterName • ${_timeAgo(createdAt)}', style: const TextStyle(color: AppColors.slate500, fontSize: 11)),
+                Row(
+                  children: [
+                    AdminAvatar(imageUrl: reporter?['avatar_url'] as String?, name: reporterName, radius: 10),
+                    const SizedBox(width: 6),
+                    Text('Reported by $reporterName • ${_timeAgo(createdAt)}', style: const TextStyle(color: AppColors.slate500, fontSize: 11)),
+                  ],
+                ),
               ],
             ),
           ),
@@ -571,15 +578,10 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
               ),
             )
           else if (_recentActions.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: AppColors.slate50,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Text('No recent moderation actions', style: TextStyle(color: AppColors.slate400, fontSize: 14, fontWeight: FontWeight.w600)),
-              ),
+            const AdminEmptyState(
+              icon: Icons.history_rounded,
+              title: 'No recent actions',
+              subtitle: 'Moderation actions will appear here',
             )
           else
             ..._recentActions.map((action) => _buildActionRow(action)),

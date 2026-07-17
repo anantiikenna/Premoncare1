@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
+import 'admin_avatar.dart';
 import 'admin_scaffold.dart';
 
 final adminEmergencyRequestsProvider =
@@ -58,22 +59,29 @@ class _AdminEmergencyQueueScreenState
 
     final profiles = await supabase
         .from('profiles')
-        .select('id, full_name')
+        .select('id, full_name, avatar_url')
         .inFilter('id', ids.toList());
 
     final profileMap = {
-      for (final p in profiles) p['id'] as String: p['full_name'] as String,
+      for (final p in profiles) p['id'] as String: {
+        'full_name': p['full_name'] as String,
+        'avatar_url': p['avatar_url'] as String?,
+      },
     };
 
     setState(() {
       _enrichedRequests = requests.map((r) {
-        final patientName = r['patient_id'] != null
-            ? (profileMap[r['patient_id']] ?? 'Unknown Patient')
-            : 'Guest Patient';
-        final doctorName = r['doctor_id'] != null
-            ? (profileMap[r['doctor_id']] ?? 'Unknown Doctor')
-            : 'Unassigned';
-        return {...r, '_patientName': patientName, '_doctorName': doctorName};
+        final patientProfile = r['patient_id'] != null ? profileMap[r['patient_id']] : null;
+        final doctorProfile = r['doctor_id'] != null ? profileMap[r['doctor_id']] : null;
+        final patientName = patientProfile != null ? (patientProfile['full_name'] ?? 'Unknown Patient') : 'Guest Patient';
+        final doctorName = doctorProfile != null ? (doctorProfile['full_name'] ?? 'Unknown Doctor') : 'Unassigned';
+        return {
+          ...r,
+          '_patientName': patientName,
+          '_doctorName': doctorName,
+          '_patientAvatar': patientProfile?['avatar_url'],
+          '_doctorAvatar': doctorProfile?['avatar_url'],
+        };
       }).toList();
       _loadingProfiles = false;
     });
@@ -390,14 +398,11 @@ class _EmergencyRequestCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.emergency_rounded,
-                    color: AppColors.error, size: 18),
+              AdminAvatar(
+                imageUrl: appointment['_doctorAvatar'] as String?,
+                name: doctorName,
+                radius: 20,
+                backgroundColor: AppColors.error,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -453,6 +458,12 @@ class _EmergencyRequestCard extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
+              AdminAvatar(
+                imageUrl: appointment['_patientAvatar'] as String?,
+                name: patientName,
+                radius: 10,
+              ),
+              const SizedBox(width: 6),
               _infoChip(Icons.person_outline_rounded, patientName,
                   isGuest ? AppColors.warning : AppColors.textSecondary),
               const SizedBox(width: 10),

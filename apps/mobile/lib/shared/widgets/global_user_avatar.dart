@@ -16,15 +16,24 @@ class GlobalUserAvatar extends ConsumerWidget {
       data: (profile) {
         final avatarUrl = profile?['avatar_url'] as String?;
         final hasAvatar = avatarUrl != null && avatarUrl.isNotEmpty;
+        final name = (profile?['full_name'] as String?) ?? '';
+        final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
         return CircleAvatar(
           key: ValueKey(avatarUrl),
           radius: radius,
-          backgroundColor: AppColors.borderOf(context),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           backgroundImage: hasAvatar
               ? NetworkImage(avatarUrl)
               : null,
           child: !hasAvatar
-              ? Icon(Icons.person, color: AppColors.textTertiaryOf(context))
+              ? Text(
+                  initial,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: radius * 0.7,
+                    color: AppColors.primary,
+                  ),
+                )
               : null,
         );
       },

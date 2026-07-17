@@ -869,7 +869,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         final title = docMap['title'] ?? docMap['name'] ?? 'Document';
         final fileName = docMap['file_name'] ?? docMap['url'] ?? 'file';
         final isVerified = docMap['verified'] == true;
-        return _DocumentCard(title: title, fileName: fileName, isVerified: isVerified, color: AppColors.primary);
+        return _DocumentCard(title: title, fileName: fileName, isVerified: isVerified, color: AppColors.primary, url: docMap['url'] as String?);
       }).toList(),
     );
   }
@@ -1129,8 +1129,9 @@ class _DocumentCard extends StatelessWidget {
   final String fileName;
   final bool isVerified;
   final Color color;
+  final String? url;
 
-  const _DocumentCard({required this.title, required this.fileName, required this.isVerified, required this.color});
+  const _DocumentCard({required this.title, required this.fileName, required this.isVerified, required this.color, this.url});
 
   @override
   Widget build(BuildContext context) {
@@ -1151,10 +1152,22 @@ class _DocumentCard extends StatelessWidget {
                 color: AppColors.slate50,
                 borderRadius: BorderRadius.circular(16),
               ),
+              clipBehavior: Clip.antiAlias,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  const Icon(Icons.description_rounded, color: AppColors.slate300, size: 40),
+                  if (url != null && (url!.endsWith('.jpg') || url!.endsWith('.jpeg') || url!.endsWith('.png') || url!.endsWith('.webp')))
+                    Image.network(
+                      url!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_rounded, color: AppColors.slate300, size: 40),
+                    )
+                  else if (url != null && (url!.endsWith('.pdf') || url!.contains('.pdf')))
+                    const Icon(Icons.picture_as_pdf_rounded, color: AppColors.error, size: 40)
+                  else
+                    const Icon(Icons.description_rounded, color: AppColors.slate300, size: 40),
                   if (isVerified)
                     Positioned(
                       top: 8,

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import 'admin_avatar.dart';
 import 'admin_scaffold.dart';
+import 'admin_shared_widgets.dart';
 
 class FinancialModerationScreen extends ConsumerStatefulWidget {
   const FinancialModerationScreen({super.key});
@@ -143,7 +145,7 @@ class _FinancialModerationScreenState
       if (allIds.isNotEmpty) {
         final profiles = await supabase
             .from('profiles')
-            .select('id, full_name, email, role')
+            .select('id, full_name, email, role, avatar_url')
             .inFilter('id', allIds.toList());
         for (final p in profiles) {
           profileMap[p['id'] as String] = p;
@@ -157,6 +159,8 @@ class _FinancialModerationScreenState
           ...t,
           'sender_name': sender?['full_name'] ?? 'Unknown',
           'recipient_name': recipient?['full_name'] ?? 'Unknown',
+          'sender_avatar': sender?['avatar_url'],
+          'recipient_avatar': recipient?['avatar_url'],
         };
       }).toList();
 
@@ -534,6 +538,8 @@ class _FinancialModerationScreenState
             status: _capitalizeStatus(status),
             statusColor: _statusColor(status),
             initial: initial,
+            avatarUrl: isRefund ? (t['sender_avatar'] as String?) : (t['recipient_avatar'] as String?),
+            receiptUrl: t['receipt_url'] as String?,
           ),
         );
       }).toList(),
@@ -764,15 +770,10 @@ class _FinancialModerationScreenState
                 _buildListHeader('Recent Disputes'),
                 const SizedBox(height: 20),
                 if (_disputes.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      'No disputes found',
-                      style: TextStyle(
-                        color: AppColors.textTertiary,
-                        fontSize: 12,
-                      ),
-                    ),
+                  const AdminEmptyState(
+                    icon: Icons.gavel_outlined,
+                    title: 'No disputes',
+                    subtitle: 'No open disputes to review',
                   )
                 else
                   ..._disputes.take(3).expand((d) => [
@@ -810,15 +811,10 @@ class _FinancialModerationScreenState
                 _buildListHeader('Pending Payouts'),
                 const SizedBox(height: 20),
                 if (pendingPayments.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      'No pending payouts',
-                      style: TextStyle(
-                        color: AppColors.textTertiary,
-                        fontSize: 12,
-                      ),
-                    ),
+                  const AdminEmptyState(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: 'No pending payouts',
+                    subtitle: 'All payouts have been processed',
                   )
                 else
                   ...pendingPayments.take(3).expand((p) {
@@ -834,6 +830,7 @@ class _FinancialModerationScreenState
                         date: _formatDate(p['created_at'] as String?),
                         amount: _formatAmount(amount),
                         initial: initial,
+                        avatarUrl: p['recipient_avatar'] as String?,
                       ),
                       if (p != pendingPayments.last)
                         const Divider(
@@ -1327,6 +1324,8 @@ class _TransactionItem extends StatelessWidget {
   final String status;
   final Color statusColor;
   final String initial;
+  final String? avatarUrl;
+  final String? receiptUrl;
 
   const _TransactionItem({
     required this.name,
@@ -1338,6 +1337,8 @@ class _TransactionItem extends StatelessWidget {
     required this.status,
     required this.statusColor,
     required this.initial,
+    this.avatarUrl,
+    this.receiptUrl,
   });
 
   @override
@@ -1351,15 +1352,7 @@ class _TransactionItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-            child: Text(initial,
-                style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16)),
-          ),
+          AdminAvatar(imageUrl: avatarUrl, name: name, radius: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -1440,6 +1433,41 @@ class _TransactionItem extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 8),
+          if (receiptUrl != null && receiptUrl!.isNotEmpty)
+            GestureDetector(
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => Dialog(
+                  backgroundColor: Colors.black,
+                  insetPadding: const EdgeInsets.all(16),
+                  child: Stack(
+                    children: [
+                      Center(child: InteractiveViewer(child: Image.network(receiptUrl!, fit: BoxFit.contain))),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.network(receiptUrl!, fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.receipt_rounded, color: AppColors.slate300, size: 20),
+                ),
+              ),
+            ),
           const Icon(Icons.chevron_right_rounded,
               color: AppColors.slate300),
         ],
@@ -1600,6 +1628,7 @@ class _PayoutItem extends StatelessWidget {
   final String date;
   final String amount;
   final String initial;
+  final String? avatarUrl;
 
   const _PayoutItem({
     required this.name,
@@ -1607,21 +1636,14 @@ class _PayoutItem extends StatelessWidget {
     required this.date,
     required this.amount,
     required this.initial,
+    this.avatarUrl,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: AppColors.success.withValues(alpha: 0.15),
-          child: Text(initial,
-              style: const TextStyle(
-                  color: AppColors.success,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13)),
-        ),
+        AdminAvatar(imageUrl: avatarUrl, name: name, radius: 20),
         const SizedBox(width: 16),
         Expanded(
           child: Column(

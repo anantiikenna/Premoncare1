@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import 'admin_avatar.dart';
 import 'admin_scaffold.dart';
 
 class AdminReportsScreen extends ConsumerStatefulWidget {
@@ -226,7 +227,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           final count = doctorCountMap[id]!;
           final profile = profileMap[id];
           final name = profile?['full_name'] as String? ?? 'Unknown Doctor';
-          return _DoctorStat(id: id, name: name, appointmentCount: count);
+          return _DoctorStat(id: id, name: name, appointmentCount: count, avatarUrl: profile?['avatar_url'] as String?);
         }).toList();
       }
 
@@ -983,6 +984,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     initial,
                     doctor.appointmentCount,
                     index,
+                    avatarUrl: doctor.avatarUrl,
                   ),
                   if (index < _topDoctors.length - 1)
                     Padding(
@@ -1002,26 +1004,16 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     String name,
     String initial,
     int appointments,
-    int rank,
-  ) {
+    int rank, {
+    String? avatarUrl,
+  }) {
     return Row(
       children: [
         Expanded(
           flex: 4,
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                child: Text(
-                  initial,
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
+              AdminAvatar(imageUrl: avatarUrl, name: name, radius: 16),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -1339,10 +1331,12 @@ class _DoctorStat {
   final String id;
   final String name;
   final int appointmentCount;
+  final String? avatarUrl;
 
   const _DoctorStat({
     required this.id,
     required this.name,
     required this.appointmentCount,
+    this.avatarUrl,
   });
 }
