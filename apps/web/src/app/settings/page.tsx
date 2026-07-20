@@ -9,8 +9,11 @@ import Link from 'next/link'
 interface Profile {
   id: string
   full_name: string
+  email?: string
   avatar_url?: string
   is_verified?: boolean
+  role?: string
+  created_at?: string
 }
 
 export default function SettingsPrivacyPage() {
@@ -20,6 +23,7 @@ export default function SettingsPrivacyPage() {
   const [loading, setLoading] = useState(true)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -32,7 +36,7 @@ export default function SettingsPrivacyPage() {
       setEmail(user.email || '')
       const { data } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, is_verified')
+        .select('id, full_name, avatar_url, is_verified, role, created_at')
         .eq('id', user.id)
         .single()
       setProfile(data)
@@ -44,6 +48,12 @@ export default function SettingsPrivacyPage() {
   const handleDeleteAccount = async () => {
     setDeleting(true)
     const supabase = createClient()
+    try {
+      await supabase.from('audit_logs').insert({
+        user_id: profile!.id,
+        action: 'account_deletion_requested',
+      })
+    } catch {}
     const { error } = await supabase.auth.admin.deleteUser(profile!.id)
     if (error) {
       toast.error('Failed to delete account. Please contact support.')
@@ -53,6 +63,7 @@ export default function SettingsPrivacyPage() {
     }
     setDeleting(false)
     setShowDeleteDialog(false)
+    setDeleteConfirmEmail('')
   }
 
   if (loading) {
@@ -165,31 +176,90 @@ export default function SettingsPrivacyPage() {
       {/* Delete Confirmation Dialog */}
       {showDeleteDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl space-y-6">
-            <div className="text-center space-y-3">
-              <div className="mx-auto w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-white rounded-3xl p-8 max-w-lg w-full mx-4 shadow-2xl space-y-5 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-red-50 rounded-full">
+                <svg className="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-black text-slate-900">Delete Account?</h3>
-              <p className="text-sm font-semibold text-slate-500">
-                This action is permanent and cannot be undone. All your data, records, and history will be erased.
+              <h3 className="text-xl font-black text-slate-900">Delete Account</h3>
+            </div>
+
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-4">
+              <p className="text-sm font-bold text-red-800 leading-relaxed">
+                You are about to permanently delete your account. This action is <span className="underline">irreversible</span> and all data will be lost forever.
               </p>
             </div>
-            <div className="flex gap-3">
+
+            <div className="space-y-1">
+              <p className="text-sm font-black text-slate-800">This will permanently delete:</p>
+              <ul className="space-y-2 mt-2">
+                <li className="flex items-start gap-3 text-sm text-slate-600">
+                  <svg className="w-4 h-4 mt-0.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  Your profile and personal information
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-600">
+                  <svg className="w-4 h-4 mt-0.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  All appointments and consultation history
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-600">
+                  <svg className="w-4 h-4 mt-0.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+                  Medical records and uploaded documents
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-600">
+                  <svg className="w-4 h-4 mt-0.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  All messages and chat history
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-600">
+                  <svg className="w-4 h-4 mt-0.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
+                  Payment records and transaction history
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-600">
+                  <svg className="w-4 h-4 mt-0.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                  Reviews and ratings you&apos;ve given
+                </li>
+              </ul>
+            </div>
+
+            {profile?.role === 'doctor' && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-xs font-bold text-amber-700">
+                  ⚠ You have a doctor account. Deleting this will also remove your verification status and all patient records you&apos;ve managed.
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="text-sm font-black text-slate-800">
+                Type your email to confirm:
+              </label>
+              <input
+                type="email"
+                value={deleteConfirmEmail}
+                onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                placeholder={email}
+                className="w-full px-4 py-3 rounded-xl border text-sm font-semibold transition-colors outline-none
+                  border-slate-200 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+              />
+              {deleteConfirmEmail && deleteConfirmEmail !== email && (
+                <p className="text-xs font-semibold text-red-500">Email does not match</p>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-1">
               <button
-                onClick={() => setShowDeleteDialog(false)}
+                onClick={() => { setShowDeleteDialog(false); setDeleteConfirmEmail('') }}
                 className="flex-1 h-12 rounded-xl border border-slate-200 font-black text-sm text-slate-600 hover:bg-slate-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAccount}
-                disabled={deleting}
-                className="flex-1 h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-colors disabled:opacity-50"
+                disabled={deleting || deleteConfirmEmail !== email}
+                className="flex-1 h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                {deleting ? 'Deleting...' : 'Yes, Delete'}
+                {deleting ? 'Deleting...' : 'Delete My Account'}
               </button>
             </div>
           </div>

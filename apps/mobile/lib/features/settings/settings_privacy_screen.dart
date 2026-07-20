@@ -348,51 +348,247 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
-    final color = AppColors.textPrimaryOf(context);
-    showDialog(
+    final user = supabase.auth.currentUser;
+    final email = user?.email ?? '';
+    final deleteController = TextEditingController();
+
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceOf(context),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Row(
-          children: [
-            const Icon(Icons.warning_rounded, color: AppColors.error),
-            const SizedBox(width: 12),
-            Text('Delete Account?', style: TextStyle(fontWeight: FontWeight.w900, color: color, fontSize: 18)),
-          ],
-        ),
-        content: Text(
-          'This will permanently delete your account and all health data. This action cannot be undone.',
-          style: TextStyle(color: AppColors.textSecondaryOf(context), height: 1.5, fontSize: 13),
-        ),
-        actionsPadding: const EdgeInsets.all(16),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.bold)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                final user = supabase.auth.currentUser;
-                if (user != null) {
-                  await supabase.from('audit_logs').insert({
-                    'user_id': user.id,
-                    'action': 'account_deletion_requested',
-                  });
-                }
-                await performLogout();
-                if (context.mounted) context.go('/login');
-              } catch (e) {
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) {
+          final canDelete = deleteController.text == email;
+          return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.85,
             ),
-            child: const Text('Delete Permanently', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceOf(ctx),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.borderLightOf(ctx),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.warning_rounded, color: AppColors.error, size: 24),
+                      ),
+                      const SizedBox(width: 14),
+                      Text(
+                        'Delete Account',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textPrimaryOf(ctx),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.error.withValues(alpha: 0.15)),
+                    ),
+                    child: Text(
+                      'You are about to permanently delete your account. This action is irreversible and all data will be lost.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimaryOf(ctx),
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'This will permanently delete:',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimaryOf(ctx),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const _DeleteSummaryItem(icon: Icons.person_outline_rounded, text: 'Your profile and personal information'),
+                  const _DeleteSummaryItem(icon: Icons.calendar_today_rounded, text: 'All appointments and consultation history'),
+                  const _DeleteSummaryItem(icon: Icons.folder_outlined, text: 'Medical records and uploaded documents'),
+                  const _DeleteSummaryItem(icon: Icons.chat_bubble_outline_rounded, text: 'All messages and chat history'),
+                  const _DeleteSummaryItem(icon: Icons.receipt_long_rounded, text: 'Payment records and transaction history'),
+                  const _DeleteSummaryItem(icon: Icons.star_border_rounded, text: 'Reviews and ratings you\'ve given'),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Type your email to confirm:',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimaryOf(ctx),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundOf(ctx),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: deleteController.text.isNotEmpty
+                            ? (canDelete ? AppColors.success : AppColors.error)
+                            : AppColors.borderLightOf(ctx),
+                      ),
+                    ),
+                    child: TextField(
+                      controller: deleteController,
+                      keyboardType: TextInputType.emailAddress,
+                      onChanged: (_) => setModalState(() {}),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimaryOf(ctx),
+                      ),
+                      decoration: InputDecoration(
+                        hintText: email,
+                        hintStyle: TextStyle(
+                          color: AppColors.textTertiaryOf(ctx),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      ),
+                    ),
+                  ),
+                  if (deleteController.text.isNotEmpty && !canDelete)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        'Email does not match',
+                        style: TextStyle(fontSize: 11, color: AppColors.error, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            deleteController.dispose();
+                            Navigator.pop(ctx);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: AppColors.borderLightOf(ctx)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: AppColors.textSecondaryOf(ctx),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: canDelete
+                              ? () async {
+                                  Navigator.pop(ctx);
+                                  try {
+                                    final currentUser = supabase.auth.currentUser;
+                                    if (currentUser != null) {
+                                      await supabase.from('audit_logs').insert({
+                                        'user_id': currentUser.id,
+                                        'action': 'account_deletion_requested',
+                                      });
+                                    }
+                                    await performLogout();
+                                    if (context.mounted) context.go('/login');
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Error: $e')),
+                                      );
+                                    }
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.error,
+                            disabledBackgroundColor: AppColors.error.withValues(alpha: 0.3),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: const Text(
+                            'Delete My Account',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DeleteSummaryItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _DeleteSummaryItem({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: AppColors.error.withValues(alpha: 0.7)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryOf(context),
+              ),
+            ),
           ),
         ],
       ),
