@@ -693,7 +693,6 @@ class _DisputeResolutionScreenState
                       radius: 12,
                       backgroundColor: AppColors.success,
                     ),
-                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

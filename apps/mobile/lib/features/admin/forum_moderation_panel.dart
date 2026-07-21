@@ -423,7 +423,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.borderLightOf(context))),
       ),
       child: Row(
