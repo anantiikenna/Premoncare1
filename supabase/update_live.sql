@@ -48,7 +48,7 @@ CREATE INDEX IF NOT EXISTS idx_appointments_emergency_requests
   ON public.appointments (doctor_id, created_at DESC)
   WHERE status = 'emergency_request';
 
--- 4. Realtime publication (skip if already added)
+-- 4. Realtime publication (skip if already added or not owner)
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -58,6 +58,8 @@ BEGIN
   ) THEN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.appointments;
   END IF;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping publication add for appointments: %', SQLERRM;
 END $$;
 
 -- Add missing tables to realtime publication
@@ -76,6 +78,8 @@ BEGIN
       EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', t);
     END IF;
   END LOOP;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping publication add: %', SQLERRM;
 END $$;
 
 -- Set replica identity for critical realtime tables (safe — skip if not owner)
