@@ -153,6 +153,7 @@ create table appointments (
   payment_id uuid, -- Will link to payments table
   is_doctor_approved boolean default false,
   is_patient_approved boolean default true,
+  accepted_at timestamp with time zone,
   meeting_link text,
   reminder_sent boolean default false
 );
@@ -435,10 +436,50 @@ create policy "Patients can view own appointments"
   on appointments for select
   using (auth.uid() = patient_id);
 
+-- Guests can view emergency appointments where patient_id is null
+create policy "Guests can view own emergency appointments"
+  on appointments for select
+  using (patient_id IS NULL AND is_emergency = true AND metadata->>'guest_token' IS NOT NULL);
+
 -- Doctors can view appointments assigned to them
 create policy "Doctors can view their appointments"
   on appointments for select
   using (auth.uid() = doctor_id);
+
+-- Patients can create their own appointments
+create policy "Patients can create own appointments"
+  on appointments for insert
+  with check (auth.uid() = patient_id);
+
+-- Allow authenticated users to insert guest emergency appointments (patient_id IS NULL)
+create policy "Authenticated users can create guest emergency appointments"
+  on appointments for insert
+  with check (patient_id IS NULL AND is_emergency = true);
+
+-- Patients can update their own appointments (link patient_id, etc.)
+create policy "Patients can update own appointments"
+  on appointments for update
+  using (auth.uid() = patient_id)
+  with check (auth.uid() = patient_id);
+
+-- Allow linking guest appointments after account creation
+create policy "Authenticated users can link guest emergency appointments"
+  on appointments for update
+  using (patient_id IS NULL AND is_emergency = true)
+  with check (auth.uid() = patient_id);
+
+-- Doctors can update appointments assigned to them
+create policy "Doctors can update own appointments"
+  on appointments for update
+  using (auth.uid() = doctor_id)
+  with check (auth.uid() = doctor_id);
+
+-- Admins can manage all appointments
+create policy "Admins can manage all appointments"
+  on appointments for all
+  using (
+    exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+  );
 
 -- ============================================================
 -- PAYMENTS

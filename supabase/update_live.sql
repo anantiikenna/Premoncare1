@@ -1054,3 +1054,55 @@ DROP INDEX IF EXISTS public.idx_disputes_status;
 DROP INDEX IF EXISTS public.idx_disputes_user_id;
 DROP INDEX IF EXISTS public.idx_audit_logs_admin_id;
 DROP INDEX IF EXISTS public.idx_audit_logs_created_at;
+
+-- ============================================================
+-- MIGRATION: Emergency Guest Booking RLS + accepted_at column
+-- Run this in your Supabase SQL Editor
+-- ============================================================
+
+-- 1. Add accepted_at column for emergency handshake tracking
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS accepted_at timestamp with time zone;
+
+-- 2. Drop existing restrictive INSERT/UPDATE/SELECT policies on appointments
+DROP POLICY IF EXISTS "Patients can create own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Patients can update own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Patients can view own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Authenticated users can create guest emergency appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Authenticated users can link guest emergency appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Guests can view own emergency appointments" ON public.appointments;
+
+-- 3. Recreate policies to support guest emergency bookings
+-- SELECT: patients see their own, guests see their emergency bookings, doctors see assigned
+CREATE POLICY "Patients can view own appointments"
+  ON public.appointments FOR SELECT
+  USING (auth.uid() = patient_id);
+
+CREATE POLICY "Guests can view own emergency appointments"
+  ON public.appointments FOR SELECT
+  USING (patient_id IS NULL AND is_emergency = true AND metadata->>'guest_token' IS NOT NULL);
+
+-- INSERT: patients create their own, authenticated users can create guest emergency
+CREATE POLICY "Patients can create own appointments"
+  ON public.appointments FOR INSERT
+  WITH CHECK (auth.uid() = patient_id);
+
+CREATE POLICY "Authenticated users can create guest emergency appointments"
+  ON public.appointments FOR INSERT
+  WITH CHECK (patient_id IS NULL AND is_emergency = true);
+
+-- UPDATE: patients update their own, link guest after signup, doctors update assigned
+CREATE POLICY "Patients can update own appointments"
+  ON public.appointments FOR UPDATE
+  USING (auth.uid() = patient_id)
+  WITH CHECK (auth.uid() = patient_id);
+
+CREATE POLICY "Authenticated users can link guest emergency appointments"
+  ON public.appointments FOR UPDATE
+  USING (patient_id IS NULL AND is_emergency = true)
+  WITH CHECK (auth.uid() = patient_id);
+
+-- 4. Verify accepted_at column exists
+SELECT column_name, data_type FROM information_schema.columns
+WHERE table_name = 'appointments'
+AND column_name IN ('accepted_at', 'reason', 'consultation_mode', 'is_emergency', 'total_amount', 'metadata')
+ORDER BY ordinal_position;
