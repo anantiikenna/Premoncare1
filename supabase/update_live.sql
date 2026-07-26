@@ -78,10 +78,24 @@ BEGIN
   END LOOP;
 END $$;
 
--- Set replica identity for critical realtime tables
-ALTER TABLE messages REPLICA IDENTITY FULL;
-ALTER TABLE appointments REPLICA IDENTITY FULL;
-ALTER TABLE notifications REPLICA IDENTITY FULL;
+-- Set replica identity for critical realtime tables (safe — skip if not owner)
+DO $$ BEGIN
+  ALTER TABLE messages REPLICA IDENTITY FULL;
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on messages (not table owner)';
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE appointments REPLICA IDENTITY FULL;
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on appointments (not table owner)';
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE notifications REPLICA IDENTITY FULL;
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on notifications (not table owner)';
+END $$;
 
 -- Realtime messages RLS policies (required for private channels)
 ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
