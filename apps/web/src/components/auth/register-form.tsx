@@ -155,6 +155,7 @@ export function RegisterForm() {
                                     localStorage.removeItem('premon_emergency_appointment_id')
                                     localStorage.removeItem('premon_guest_token')
                                     localStorage.removeItem('premon_guest_email')
+                                    localStorage.removeItem('premon_guest_phone')
                                 }
                             } catch (err) {
                                 console.error('Failed to link emergency appointment:', err)

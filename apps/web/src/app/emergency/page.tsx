@@ -59,7 +59,7 @@ export default function EmergencyBookingPage() {
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        shouldCreateUser: true,
+        shouldCreateUser: false,
       },
     })
 
@@ -91,12 +91,13 @@ export default function EmergencyBookingPage() {
       const now = new Date().toISOString()
       const { data } = await supabase
         .from('profiles')
-        .select('id, full_name, specialty, avatar_url, consultation_fee, experience_years, clinic_address, payment_instructions, is_online, reviews(rating)')
+        .select('id, full_name, specialty, avatar_url, consultation_fee, experience_years, clinic_address, payment_instructions, is_online, is_emergency, reviews(rating)')
         .eq('role', 'doctor')
         .eq('verification_status', 'approved')
         .eq('subscription_status', 'active')
         .gt('subscription_expires_at', now)
         .eq('is_online', true)
+        .eq('is_emergency', true)
 
       if (data) setDoctors(data)
       setLoading(false)

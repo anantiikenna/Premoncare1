@@ -105,11 +105,17 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
     // Navigate to booking confirmed after showing success animation
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        context.go('/booking-confirmed?emergency=true', extra: {
-          'consultationFee': widget.totalAmount,
-          'doctorName': widget.doctorName,
-          'doctorId': widget.doctorId,
-        });
+        context.go(
+          '/booking-confirmed',
+          extra: {
+            'consultationFee': widget.totalAmount,
+            'doctorName': widget.doctorName,
+            'doctorId': widget.doctorId,
+            'durationMinutes': widget.durationMinutes,
+            'appointmentId': widget.appointmentId,
+            'consultationType': 'Video Call',
+          },
+        );
       }
     });
   }
@@ -127,6 +133,9 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
         .eq('id', widget.appointmentId)
         .then((_) {})
         .catchError((_) {});
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) context.go('/emergency-failed');
+    });
   }
 
   String get _timerText {
@@ -153,12 +162,13 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                   height: 500,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: (_status == 'accepted'
-                            ? AppColors.success
-                            : _status == 'declined' || _status == 'timeout'
+                    color:
+                        (_status == 'accepted'
+                                ? AppColors.success
+                                : _status == 'declined' || _status == 'timeout'
                                 ? AppColors.error
                                 : AppColors.primary)
-                        .withValues(alpha: 0.05 * _pulseAnimation.value),
+                            .withValues(alpha: 0.05 * _pulseAnimation.value),
                   ),
                 );
               },
@@ -198,8 +208,8 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
             final color = _status == 'accepted'
                 ? AppColors.success
                 : _status == 'declined' || _status == 'timeout'
-                    ? AppColors.error
-                    : AppColors.primary;
+                ? AppColors.error
+                : AppColors.primary;
             return Transform.scale(
               scale: _status == 'waiting' ? _pulseAnimation.value : 1.0,
               child: Container(
@@ -214,8 +224,8 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                   _status == 'accepted'
                       ? Icons.check_rounded
                       : _status == 'declined' || _status == 'timeout'
-                          ? Icons.close_rounded
-                          : Icons.hourglass_top_rounded,
+                      ? Icons.close_rounded
+                      : Icons.hourglass_top_rounded,
                   color: color,
                   size: 36,
                 ),
@@ -228,16 +238,16 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
           _status == 'accepted'
               ? 'Doctor Accepted!'
               : _status == 'declined'
-                  ? 'Doctor Unavailable'
-                  : _status == 'timeout'
-                      ? 'Request Expired'
-                      : 'Connecting You...',
+              ? 'Doctor Unavailable'
+              : _status == 'timeout'
+              ? 'Request Expired'
+              : 'Connecting You...',
           style: AppTypography.h3.copyWith(
             color: _status == 'accepted'
                 ? AppColors.success
                 : _status == 'declined' || _status == 'timeout'
-                    ? AppColors.error
-                    : AppColors.textPrimary,
+                ? AppColors.error
+                : AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -245,11 +255,13 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
           _status == 'waiting'
               ? 'Sending your emergency request to Dr. ${widget.doctorName.replaceFirst('Dr. ', '')}...'
               : _status == 'accepted'
-                  ? 'Dr. ${widget.doctorName.replaceFirst('Dr. ', '')} is ready for your consultation.'
-                  : _status == 'declined'
-                      ? 'The doctor is currently unavailable. Let us find you another specialist.'
-                      : 'The request timed out. We\'ll find you another available doctor.',
-          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+              ? 'Dr. ${widget.doctorName.replaceFirst('Dr. ', '')} is ready for your consultation.'
+              : _status == 'declined'
+              ? 'The doctor is currently unavailable. Let us find you another specialist.'
+              : 'The request timed out. We\'ll find you another available doctor.',
+          style: AppTypography.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -263,7 +275,13 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border),
-        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -280,7 +298,10 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                 const SizedBox(height: 4),
                 Text(
                   'Emergency Consultation',
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.error, fontWeight: FontWeight.w600),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -292,7 +313,11 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                 color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.check_rounded, color: AppColors.success, size: 20),
+              child: const Icon(
+                Icons.check_rounded,
+                color: AppColors.success,
+                size: 20,
+              ),
             ),
         ],
       ),
@@ -322,8 +347,8 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                     _secondsRemaining > 60
                         ? AppColors.primary
                         : _secondsRemaining > 30
-                            ? AppColors.warning
-                            : AppColors.error,
+                        ? AppColors.warning
+                        : AppColors.error,
                   ),
                 ),
               ),
@@ -334,8 +359,8 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                   color: _secondsRemaining > 60
                       ? AppColors.textPrimary
                       : _secondsRemaining > 30
-                          ? AppColors.warning
-                          : AppColors.error,
+                      ? AppColors.warning
+                      : AppColors.error,
                 ),
               ),
             ],
@@ -344,7 +369,9 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
         const SizedBox(height: 16),
         Text(
           'Waiting for doctor response',
-          style: AppTypography.bodySmall.copyWith(color: AppColors.textTertiary),
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textTertiary,
+          ),
         ),
       ],
     );
@@ -365,7 +392,10 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
             Expanded(
               child: Text(
                 'The doctor will receive an urgent notification. You\'ll be connected immediately once they accept.',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.primary, height: 1.4),
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.primary,
+                  height: 1.4,
+                ),
               ),
             ),
           ],
@@ -382,14 +412,21 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
         ),
         child: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 20),
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: AppColors.error,
+              size: 20,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 _status == 'declined'
                     ? 'Dr. ${widget.doctorName.replaceFirst('Dr. ', '')} is unable to take your case right now.'
                     : 'No response received within the time limit.',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.error, height: 1.4),
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.error,
+                  height: 1.4,
+                ),
               ),
             ),
           ],
@@ -418,9 +455,14 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.textSecondary,
             side: const BorderSide(color: AppColors.border),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
-          child: const Text('Cancel Request', style: TextStyle(fontWeight: FontWeight.w700)),
+          child: const Text(
+            'Cancel Request',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
         ),
       );
     }
@@ -439,9 +481,17 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
             onPressed: () => context.go('/doctor-search'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
-            child: const Text('Find Another Doctor', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.textInverse)),
+            child: const Text(
+              'Find Another Doctor',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textInverse,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -453,9 +503,14 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.textSecondary,
               side: const BorderSide(color: AppColors.border),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
-            child: const Text('Back to Home', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: const Text(
+              'Back to Home',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
         ),
       ],
