@@ -14,7 +14,16 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_emergency boolean DEFAULT false;
 ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS rejection_reason text;
 
--- 2. Update status check constraint for emergency flow
+-- 2. Update status check constraint for emergency flow (safe version)
+DO $$
+BEGIN
+  UPDATE public.appointments SET status = 'cancelled' WHERE status IN ('expired', 'failed', 'abandoned');
+  UPDATE public.appointments SET status = 'pending' WHERE status NOT IN (
+    'pending', 'emergency_pending', 'emergency_request', 'emergency_accepted',
+    'emergency_declined', 'confirmed', 'cancelled', 'completed', 'ongoing', 'rescheduled'
+  );
+END $$;
+
 ALTER TABLE public.appointments DROP CONSTRAINT IF EXISTS appointments_status_check;
 ALTER TABLE public.appointments
   ADD CONSTRAINT appointments_status_check
@@ -27,7 +36,8 @@ ALTER TABLE public.appointments
     'confirmed',
     'cancelled',
     'completed',
-    'ongoing'
+    'ongoing',
+    'rescheduled'
   ));
 
 -- 3. Performance indexes
@@ -355,7 +365,33 @@ END $$;
 -- ============================================================
 -- FIX: Update appointments status CHECK to include 'rescheduled'
 -- (used by admin_reports_screen.dart)
+-- Safe version: cleans up invalid statuses before adding constraint
 -- ============================================================
+
+-- First, find and fix any status values not in the allowed list
+DO $$
+DECLARE
+  invalid_count INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO invalid_count
+  FROM public.appointments
+  WHERE status NOT IN (
+    'pending', 'emergency_pending', 'emergency_request', 'emergency_accepted',
+    'emergency_declined', 'confirmed', 'cancelled', 'completed', 'ongoing', 'rescheduled'
+  );
+
+  IF invalid_count > 0 THEN
+    -- Map common invalid statuses to valid ones
+    UPDATE public.appointments SET status = 'cancelled' WHERE status IN ('expired', 'failed', 'abandoned');
+    UPDATE public.appointments SET status = 'pending' WHERE status NOT IN (
+      'pending', 'emergency_pending', 'emergency_request', 'emergency_accepted',
+      'emergency_declined', 'confirmed', 'cancelled', 'completed', 'ongoing', 'rescheduled'
+    );
+    RAISE NOTICE 'Fixed % rows with invalid appointment statuses', invalid_count;
+  END IF;
+END $$;
+
+-- Now safely rebuild the constraint
 ALTER TABLE public.appointments DROP CONSTRAINT IF EXISTS appointments_status_check;
 ALTER TABLE public.appointments
   ADD CONSTRAINT appointments_status_check
