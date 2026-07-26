@@ -81,20 +81,20 @@ END $$;
 -- Set replica identity for critical realtime tables (safe — skip if not owner)
 DO $$ BEGIN
   ALTER TABLE messages REPLICA IDENTITY FULL;
-EXCEPTION WHEN insufficient_privilege THEN
-  RAISE NOTICE 'Skipping REPLICA IDENTITY on messages (not table owner)';
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on messages: %', SQLERRM;
 END $$;
 
 DO $$ BEGIN
   ALTER TABLE appointments REPLICA IDENTITY FULL;
-EXCEPTION WHEN insufficient_privilege THEN
-  RAISE NOTICE 'Skipping REPLICA IDENTITY on appointments (not table owner)';
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on appointments: %', SQLERRM;
 END $$;
 
 DO $$ BEGIN
   ALTER TABLE notifications REPLICA IDENTITY FULL;
-EXCEPTION WHEN insufficient_privilege THEN
-  RAISE NOTICE 'Skipping REPLICA IDENTITY on notifications (not table owner)';
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on notifications: %', SQLERRM;
 END $$;
 
 -- Realtime messages RLS policies (required for private channels)
