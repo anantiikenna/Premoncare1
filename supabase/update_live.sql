@@ -4,6 +4,8 @@
 -- Each statement runs independently — safe to re-run
 -- ============================================================
 
+SET ROLE postgres;
+
 -- 1. Add missing columns (safe if already exists)
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS metadata jsonb DEFAULT '{}'::jsonb;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS is_emergency boolean DEFAULT false;
@@ -102,7 +104,11 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 
 -- Realtime messages RLS policies (required for private channels)
-ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping ENABLE RLS on realtime.messages: %', SQLERRM;
+END $$;
 
 DO $$
 BEGIN
@@ -494,9 +500,13 @@ CREATE INDEX IF NOT EXISTS idx_payments_user_id ON public.payments (user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_status ON public.payments (status);
 CREATE INDEX IF NOT EXISTS idx_payments_recipient_id ON public.payments (recipient_id);
 
-CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages (sender_id);
-CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON public.messages (receiver_id);
-CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.messages (created_at DESC);
+DO $$ BEGIN
+  CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages (sender_id);
+  CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON public.messages (receiver_id);
+  CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.messages (created_at DESC);
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping messages indexes: %', SQLERRM;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications (user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON public.notifications (is_read) WHERE is_read = false;
@@ -776,26 +786,30 @@ CREATE POLICY "Admins can manage all payments"
 -- ============================================================
 -- MESSAGES
 -- ============================================================
-DROP POLICY IF EXISTS "Users can view sent messages" ON public.messages;
-DROP POLICY IF EXISTS "Users can view received messages" ON public.messages;
-DROP POLICY IF EXISTS "Users can send messages" ON public.messages;
-DROP POLICY IF EXISTS "Users can update own messages" ON public.messages;
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "Users can view sent messages" ON public.messages;
+  DROP POLICY IF EXISTS "Users can view received messages" ON public.messages;
+  DROP POLICY IF EXISTS "Users can send messages" ON public.messages;
+  DROP POLICY IF EXISTS "Users can update own messages" ON public.messages;
 
-CREATE POLICY "Users can view sent messages"
-  ON public.messages FOR SELECT
-  USING (auth.uid() = sender_id);
+  CREATE POLICY "Users can view sent messages"
+    ON public.messages FOR SELECT
+    USING (auth.uid() = sender_id);
 
-CREATE POLICY "Users can view received messages"
-  ON public.messages FOR SELECT
-  USING (auth.uid() = receiver_id);
+  CREATE POLICY "Users can view received messages"
+    ON public.messages FOR SELECT
+    USING (auth.uid() = receiver_id);
 
-CREATE POLICY "Users can send messages"
-  ON public.messages FOR INSERT
-  WITH CHECK (auth.uid() = sender_id);
+  CREATE POLICY "Users can send messages"
+    ON public.messages FOR INSERT
+    WITH CHECK (auth.uid() = sender_id);
 
-CREATE POLICY "Users can update own messages"
-  ON public.messages FOR UPDATE
-  USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+  CREATE POLICY "Users can update own messages"
+    ON public.messages FOR UPDATE
+    USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping messages policies: %', SQLERRM;
+END $$;
 
 -- ============================================================
 -- NOTIFICATIONS
