@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
-import '../../core/supabase_locator.dart';
+import '../../core/supabase_locator.dart'
+    show supabase, getUserRole, clearRoleCache, performLogout;
 import '../../core/user_facing_errors.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
@@ -109,8 +110,34 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         token: otp,
         type: widget.isSignup ? OtpType.signup : OtpType.email,
       );
+
+      if (!mounted) return;
+
+      final role = await getUserRole();
+
+      if (!mounted) return;
+
+      if (role == 'admin') {
+        await performLogout();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Admin accounts cannot access the patient/doctor app. Please use the Admin app.',
+              ),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          context.go('/login');
+        }
+        return;
+      }
+
+      clearRoleCache();
       if (mounted) {
-        context.go('/');
+        context.go(
+          role == 'doctor' ? '/doctor_dashboard' : '/patient_dashboard',
+        );
       }
     } on AuthException catch (e, stackTrace) {
       logHandledError('OTP verification failed', e, stackTrace);
@@ -199,7 +226,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                           'Enter the 7-digit code sent to',
+                          'Enter the 7-digit code sent to',
                           style: TextStyle(
                             color: AppColors.textSecondaryOf(context),
                             fontSize: 13,
@@ -366,7 +393,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       if (widget.isSignup) {
         await supabase.auth.resend(type: OtpType.signup, email: widget.email);
       } else {
-        await supabase.auth.signInWithOtp(email: widget.email);
+        await supabase.auth.signInWithOtp(
+          email: widget.email,
+          shouldCreateUser: false,
+        );
       }
       _startTimer();
       if (mounted) {
