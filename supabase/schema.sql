@@ -2,6 +2,8 @@
 -- Last Updated: 2026-05-15
 -- Includes: Profiles, Medical Vault, Subscriptions, Appointments, Real-time Messaging, and Doctor Scheduling.
 
+SET ROLE postgres;
+
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
@@ -948,16 +950,20 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- ============================================================
 -- REALTIME
 -- ============================================================
-alter publication supabase_realtime add table appointments;
-alter publication supabase_realtime add table messages;
-alter publication supabase_realtime add table notifications;
-alter publication supabase_realtime add table doctor_schedules;
-alter publication supabase_realtime add table profiles;
-alter publication supabase_realtime add table payments;
-alter publication supabase_realtime add table time_balances;
-alter publication supabase_realtime add table medical_records;
-alter publication supabase_realtime add table reviews;
-alter publication supabase_realtime add table fee_negotiation_messages;
+DO $$ BEGIN
+  alter publication supabase_realtime add table appointments;
+  alter publication supabase_realtime add table messages;
+  alter publication supabase_realtime add table notifications;
+  alter publication supabase_realtime add table doctor_schedules;
+  alter publication supabase_realtime add table profiles;
+  alter publication supabase_realtime add table payments;
+  alter publication supabase_realtime add table time_balances;
+  alter publication supabase_realtime add table medical_records;
+  alter publication supabase_realtime add table reviews;
+  alter publication supabase_realtime add table fee_negotiation_messages;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping publication adds: %', SQLERRM;
+END $$;
 
 -- Replica Identity for Real-time (safe — skip if not table owner)
 DO $$ BEGIN
@@ -979,17 +985,21 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 
 -- Realtime messages RLS policies (required for private channels)
-ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "authenticated_users_can_receive_broadcasts"
-  ON realtime.messages FOR SELECT
-  TO authenticated
-  USING (true);
+  CREATE POLICY "authenticated_users_can_receive_broadcasts"
+    ON realtime.messages FOR SELECT
+    TO authenticated
+    USING (true);
 
-CREATE POLICY "authenticated_users_can_send_broadcasts"
-  ON realtime.messages FOR INSERT
-  TO authenticated
-  WITH CHECK (true);
+  CREATE POLICY "authenticated_users_can_send_broadcasts"
+    ON realtime.messages FOR INSERT
+    TO authenticated
+    WITH CHECK (true);
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping realtime.messages RLS: %', SQLERRM;
+END $$;
 
 -- ============================================================
 -- AUDIT & SECURITY
@@ -1467,8 +1477,12 @@ alter table forum_reports enable row level security;
 alter table forum_saves enable row level security;
 alter table forum_follows enable row level security;
 
-alter publication supabase_realtime add table forum_posts;
-alter publication supabase_realtime add table forum_replies;
+DO $$ BEGIN
+  alter publication supabase_realtime add table forum_posts;
+  alter publication supabase_realtime add table forum_replies;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping forum publication adds: %', SQLERRM;
+END $$;
 
 -- ── forum_categories ──
 create policy "Anyone can view active categories"
