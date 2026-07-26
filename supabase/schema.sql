@@ -959,10 +959,24 @@ alter publication supabase_realtime add table medical_records;
 alter publication supabase_realtime add table reviews;
 alter publication supabase_realtime add table fee_negotiation_messages;
 
--- Replica Identity for Real-time
-ALTER TABLE messages REPLICA IDENTITY FULL;
-ALTER TABLE appointments REPLICA IDENTITY FULL;
-ALTER TABLE notifications REPLICA IDENTITY FULL;
+-- Replica Identity for Real-time (safe — skip if not table owner)
+DO $$ BEGIN
+  ALTER TABLE messages REPLICA IDENTITY FULL;
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on messages (not table owner)';
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE appointments REPLICA IDENTITY FULL;
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on appointments (not table owner)';
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE notifications REPLICA IDENTITY FULL;
+EXCEPTION WHEN insufficient_privilege THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on notifications (not table owner)';
+END $$;
 
 -- Realtime messages RLS policies (required for private channels)
 ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
