@@ -227,7 +227,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           final count = doctorCountMap[id]!;
           final profile = profileMap[id];
           final name = profile?['full_name'] as String? ?? 'Unknown Doctor';
-          return _DoctorStat(id: id, name: name, appointmentCount: count, avatarUrl: profile?['avatar_url'] as String?);
+          return _DoctorStat(
+            id: id,
+            name: name,
+            appointmentCount: count,
+            avatarUrl: profile?['avatar_url'] as String?,
+          );
         }).toList();
       }
 
@@ -405,11 +410,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       child: Center(
         child: Column(
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              color: AppColors.error,
-              size: 40,
-            ),
+            Icon(Icons.error_outline_rounded, color: AppColors.error, size: 40),
             const SizedBox(height: 12),
             Text(
               'Failed to load data',
@@ -422,7 +423,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             const SizedBox(height: 4),
             Text(
               _error ?? 'Unknown error',
-              style: TextStyle(fontSize: 11, color: AppColors.textTertiaryOf(context)),
+              style: TextStyle(
+                fontSize: 11,
+                color: AppColors.textTertiaryOf(context),
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -483,7 +487,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         GestureDetector(
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Report export is being prepared. Check back soon.')),
+              const SnackBar(
+                content: Text(
+                  'Report export is being prepared. Check back soon.',
+                ),
+              ),
             );
           },
           child: Container(
@@ -495,7 +503,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.ios_share_rounded, size: 16, color: AppColors.textSecondaryOf(context)),
+                Icon(
+                  Icons.ios_share_rounded,
+                  size: 16,
+                  color: AppColors.textSecondaryOf(context),
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Export Report',
@@ -539,7 +551,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : AppColors.surfaceOf(context),
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.surfaceOf(context),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
@@ -559,7 +573,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 child: Text(
                   range,
                   style: TextStyle(
-                    color: isSelected ? AppColors.textInverse : AppColors.textSecondaryOf(context),
+                    color: isSelected
+                        ? AppColors.textInverse
+                        : AppColors.textSecondaryOf(context),
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   ),
@@ -696,9 +712,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 isPositive
                     ? Icons.arrow_upward_rounded
                     : Icons.arrow_downward_rounded,
-                color: isPositive
-                    ? AppColors.success
-                    : AppColors.error,
+                color: isPositive ? AppColors.success : AppColors.error,
                 size: 12,
               ),
               const SizedBox(width: 2),
@@ -707,9 +721,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: isPositive
-                      ? AppColors.success
-                      : AppColors.error,
+                  color: isPositive ? AppColors.success : AppColors.error,
                 ),
               ),
               const SizedBox(width: 4),
@@ -790,7 +802,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               child: Center(
                 child: Text(
                   'No appointments in this period',
-                  style: TextStyle(fontSize: 13, color: AppColors.textTertiaryOf(context)),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
                 ),
               ),
             )
@@ -938,7 +953,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               child: Center(
                 child: Text(
                   'No doctor appointments in this period',
-                  style: TextStyle(fontSize: 13, color: AppColors.textTertiaryOf(context)),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
                 ),
               ),
             )
@@ -989,7 +1007,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   if (index < _topDoctors.length - 1)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: AppColors.borderLightOf(context)),
+                      child: Divider(
+                        height: 1,
+                        color: AppColors.borderLightOf(context),
+                      ),
                     ),
                 ],
               );
@@ -1286,11 +1307,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.security_rounded,
-            color: AppColors.info,
-            size: 24,
-          ),
+          Icon(Icons.security_rounded, color: AppColors.info, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

@@ -14,10 +14,12 @@ class DoctorVerificationPanel extends ConsumerStatefulWidget {
   const DoctorVerificationPanel({super.key});
 
   @override
-  ConsumerState<DoctorVerificationPanel> createState() => _DoctorVerificationPanelState();
+  ConsumerState<DoctorVerificationPanel> createState() =>
+      _DoctorVerificationPanelState();
 }
 
-class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPanel> {
+class _DoctorVerificationPanelState
+    extends ConsumerState<DoctorVerificationPanel> {
   _TabStatus _selectedTab = _TabStatus.pending;
   String _searchQuery = '';
   Map<String, dynamic>? _selectedDoctor;
@@ -25,7 +27,12 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
   String? _error;
 
   List<Map<String, dynamic>> _doctors = [];
-  Map<String, int> _counts = {'pending': 0, 'under_review': 0, 'approved': 0, 'rejected': 0};
+  Map<String, int> _counts = {
+    'pending': 0,
+    'under_review': 0,
+    'approved': 0,
+    'rejected': 0,
+  };
 
   final _searchController = TextEditingController();
   final _adminNotesController = TextEditingController();
@@ -67,7 +74,8 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       final client = Supabase.instance.client;
       var query = client.from('profiles').select().eq('role', 'doctor');
 
-      if (_selectedTab == _TabStatus.pending || _selectedTab == _TabStatus.underReview) {
+      if (_selectedTab == _TabStatus.pending ||
+          _selectedTab == _TabStatus.underReview) {
         query = query.eq('verification_status', _statusFilter);
       } else if (_selectedTab == _TabStatus.verified) {
         query = query.eq('verification_status', 'approved');
@@ -76,7 +84,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       }
 
       if (_searchQuery.isNotEmpty) {
-        query = query.or('full_name.ilike.%$_searchQuery%,email.ilike.%$_searchQuery%');
+        query = query.or(
+          'full_name.ilike.%$_searchQuery%,email.ilike.%$_searchQuery%',
+        );
       }
 
       final response = await query.order('created_at', ascending: false);
@@ -87,7 +97,10 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       if (mounted) {
         setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load doctors: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to load doctors: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     } finally {
@@ -98,10 +111,30 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
   Future<void> _fetchCounts() async {
     try {
       final client = Supabase.instance.client;
-      final pending = await client.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'pending').count();
-      final underReview = await client.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'under_review').count();
-      final approved = await client.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'approved').count();
-      final rejected = await client.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'rejected').count();
+      final pending = await client
+          .from('profiles')
+          .select('id')
+          .eq('role', 'doctor')
+          .eq('verification_status', 'pending')
+          .count();
+      final underReview = await client
+          .from('profiles')
+          .select('id')
+          .eq('role', 'doctor')
+          .eq('verification_status', 'under_review')
+          .count();
+      final approved = await client
+          .from('profiles')
+          .select('id')
+          .eq('role', 'doctor')
+          .eq('verification_status', 'approved')
+          .count();
+      final rejected = await client
+          .from('profiles')
+          .select('id')
+          .eq('role', 'doctor')
+          .eq('verification_status', 'rejected')
+          .count();
       if (mounted) {
         setState(() {
           _counts = {
@@ -116,11 +149,13 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       if (mounted) {
         setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load counts: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to load counts: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
-    } finally {
-    }
+    } finally {}
   }
 
   void _selectDoctor(Map<String, dynamic> doctor) {
@@ -148,26 +183,51 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           children: [
             Icon(Icons.check_circle_rounded, color: AppColors.success),
             SizedBox(width: 12),
-            Text('Approve Doctor?', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.slate800, fontSize: 18)),
+            Text(
+              'Approve Doctor?',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
         content: Text(
           'Are you sure you want to approve ${doctor['full_name'] ?? 'this doctor'}? This will immediately grant them practitioner access and operational scheduling capabilities.',
-          style: const TextStyle(color: AppColors.slate500, height: 1.5, fontSize: 13),
+          style: const TextStyle(
+            color: AppColors.textTertiaryOf(context),
+            height: 1.5,
+            fontSize: 13,
+          ),
         ),
         actionsPadding: const EdgeInsets.all(16),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.slate400, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Approve', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Approve',
+              style: TextStyle(
+                color: AppColors.textInverse,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -179,7 +239,10 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         await _adminService.updateVerificationStatus(doctor['id'], 'approved');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Doctor verified successfully!'), backgroundColor: AppColors.success),
+            const SnackBar(
+              content: Text('Doctor verified successfully!'),
+              backgroundColor: AppColors.success,
+            ),
           );
           _deselectDoctor();
           _refreshAll();
@@ -187,7 +250,10 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: AppColors.error,
+            ),
           );
         }
       } finally {
@@ -206,7 +272,14 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           children: [
             Icon(Icons.cancel_rounded, color: AppColors.error),
             SizedBox(width: 12),
-            Text('Reject Application', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.slate800, fontSize: 18)),
+            Text(
+              'Reject Application',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
         content: Column(
@@ -215,7 +288,11 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           children: [
             const Text(
               'Please provide a reason for rejecting this application. This will be sent to the user.',
-              style: TextStyle(color: AppColors.slate500, height: 1.5, fontSize: 13),
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                height: 1.5,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -223,10 +300,16 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'Reason for rejection...',
-                hintStyle: const TextStyle(color: AppColors.slate400, fontSize: 13),
+                hintStyle: const TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontSize: 13,
+                ),
                 filled: true,
-                fillColor: AppColors.slate50,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                fillColor: AppColors.surfaceAltOf(context),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ],
@@ -235,15 +318,29 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.slate400, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Reject', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Reject',
+              style: TextStyle(
+                color: AppColors.textInverse,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -252,10 +349,17 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     if (confirmed == true) {
       setState(() => _doctorsLoading = true);
       try {
-        await _adminService.updateVerificationStatus(doctor['id'], 'rejected', reason: reasonController.text);
+        await _adminService.updateVerificationStatus(
+          doctor['id'],
+          'rejected',
+          reason: reasonController.text,
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Application rejected.'), backgroundColor: AppColors.error),
+            const SnackBar(
+              content: Text('Application rejected.'),
+              backgroundColor: AppColors.error,
+            ),
           );
           _deselectDoctor();
           _refreshAll();
@@ -263,7 +367,10 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: AppColors.error,
+            ),
           );
         }
       } finally {
@@ -283,7 +390,14 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           children: [
             Icon(Icons.help_rounded, color: AppColors.warning),
             SizedBox(width: 12),
-            Text('Request Information', style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.slate800, fontSize: 18)),
+            Text(
+              'Request Information',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
         content: Column(
@@ -292,18 +406,29 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           children: [
             const Text(
               'What additional information do you need from the applicant?',
-              style: TextStyle(color: AppColors.slate500, height: 1.5, fontSize: 13),
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                height: 1.5,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: infoController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'E.g. Please upload a clearer copy of your Medical License.',
-                hintStyle: const TextStyle(color: AppColors.slate400, fontSize: 13),
+                hintText:
+                    'E.g. Please upload a clearer copy of your Medical License.',
+                hintStyle: const TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontSize: 13,
+                ),
                 filled: true,
-                fillColor: AppColors.slate50,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                fillColor: AppColors.surfaceAltOf(context),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ],
@@ -312,15 +437,29 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.slate400, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.warning,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Send Request', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Send Request',
+              style: TextStyle(
+                color: AppColors.textInverse,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -329,10 +468,19 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     if (confirmed == true) {
       setState(() => _doctorsLoading = true);
       try {
-        await _adminService.updateVerificationStatus(doctor['id'], 'under_review', reason: infoController.text);
+        await _adminService.updateVerificationStatus(
+          doctor['id'],
+          'under_review',
+          reason: infoController.text,
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Information request sent. Status set to Under Review.'), backgroundColor: AppColors.warning),
+            const SnackBar(
+              content: Text(
+                'Information request sent. Status set to Under Review.',
+              ),
+              backgroundColor: AppColors.warning,
+            ),
           );
           _deselectDoctor();
           _refreshAll();
@@ -340,7 +488,10 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: AppColors.error,
+            ),
           );
         }
       } finally {
@@ -361,7 +512,7 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
       case 'rejected':
         return AppColors.error;
       default:
-        return AppColors.slate400;
+        return AppColors.textTertiaryOf(context);
     }
   }
 
@@ -433,9 +584,20 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
             onTap: _deselectDoctor,
             child: Row(
               children: [
-                const Icon(Icons.arrow_back_ios_rounded, color: AppColors.primary, size: 18),
+                const Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
-                Text('Back to Queue', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 14)),
+                Text(
+                  'Back to Queue',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
               ],
             ),
           ),
@@ -515,15 +677,31 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               controller: _searchController,
               onSubmitted: (_) => _fetchDoctors(),
               onChanged: (v) => setState(() => _searchQuery = v),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.slate800),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimaryOf(context),
+              ),
               decoration: InputDecoration(
-                icon: const Icon(Icons.search_rounded, color: AppColors.slate400, size: 20),
+                icon: const Icon(
+                  Icons.search_rounded,
+                  color: AppColors.textTertiaryOf(context),
+                  size: 20,
+                ),
                 border: InputBorder.none,
                 hintText: 'Search by name or email...',
-                hintStyle: const TextStyle(color: AppColors.slate400, fontSize: 13, fontWeight: FontWeight.w600),
+                hintStyle: const TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.close_rounded, color: AppColors.slate400, size: 18),
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textTertiaryOf(context),
+                          size: 18,
+                        ),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
@@ -546,8 +724,19 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               border: Border.all(color: AppColors.borderLightOf(context)),
             ),
             child: _doctorsLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
-                : const Icon(Icons.tune_rounded, color: AppColors.slate600, size: 20),
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : const Icon(
+                    Icons.tune_rounded,
+                    color: AppColors.textSecondaryOf(context),
+                    size: 20,
+                  ),
           ),
         ),
       ],
@@ -557,13 +746,29 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
   Widget _buildStatsRow() {
     return Row(
       children: [
-        _StatCard(label: 'Pending', count: '${_counts['pending'] ?? 0}', color: AppColors.warning),
+        _StatCard(
+          label: 'Pending',
+          count: '${_counts['pending'] ?? 0}',
+          color: AppColors.warning,
+        ),
         const SizedBox(width: 12),
-        _StatCard(label: 'In Review', count: '${_counts['under_review'] ?? 0}', color: AppColors.info),
+        _StatCard(
+          label: 'In Review',
+          count: '${_counts['under_review'] ?? 0}',
+          color: AppColors.info,
+        ),
         const SizedBox(width: 12),
-        _StatCard(label: 'Approved', count: '${_counts['approved'] ?? 0}', color: AppColors.success),
+        _StatCard(
+          label: 'Approved',
+          count: '${_counts['approved'] ?? 0}',
+          color: AppColors.success,
+        ),
         const SizedBox(width: 12),
-        _StatCard(label: 'Rejected', count: '${_counts['rejected'] ?? 0}', color: AppColors.error),
+        _StatCard(
+          label: 'Rejected',
+          count: '${_counts['rejected'] ?? 0}',
+          color: AppColors.error,
+        ),
       ],
     );
   }
@@ -589,11 +794,29 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.check_circle_outline_rounded, color: AppColors.success.withValues(alpha: 0.5), size: 48),
+              Icon(
+                Icons.check_circle_outline_rounded,
+                color: AppColors.success.withValues(alpha: 0.5),
+                size: 48,
+              ),
               const SizedBox(height: 16),
-              const Text('No doctors found', style: TextStyle(color: AppColors.slate500, fontSize: 14, fontWeight: FontWeight.w700)),
+              const Text(
+                'No doctors found',
+                style: TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 4),
-              const Text('All caught up for this category!', style: TextStyle(color: AppColors.slate400, fontSize: 12, fontWeight: FontWeight.w600)),
+              const Text(
+                'All caught up for this category!',
+                style: TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),
@@ -601,10 +824,14 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     }
 
     return Column(
-      children: _doctors.map((doctor) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: _buildDoctorListCard(doctor),
-      )).toList(),
+      children: _doctors
+          .map(
+            (doctor) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildDoctorListCard(doctor),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -613,7 +840,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     final email = doctor['email'] ?? '';
     final specialty = doctor['specialty'] ?? 'General';
     final status = doctor['verification_status'] ?? 'pending';
-    final createdAt = doctor['created_at'] != null ? DateTime.tryParse(doctor['created_at']) : null;
+    final createdAt = doctor['created_at'] != null
+        ? DateTime.tryParse(doctor['created_at'])
+        : null;
     final color = _statusColor(status);
 
     return GestureDetector(
@@ -624,7 +853,13 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.borderLightOf(context)),
-          boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 20, offset: Offset(0, 8))],
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadowLight,
+              blurRadius: 20,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -641,27 +876,49 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                   child: Center(
                     child: Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
-                      style: const TextStyle(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
                 Transform.translate(
                   offset: const Offset(0, 10),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.surface, width: 2)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.surface, width: 2),
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          status == 'pending' ? Icons.hourglass_bottom_rounded
-                              : status == 'under_review' ? Icons.search_rounded
-                              : status == 'approved' ? Icons.check_rounded
+                          status == 'pending'
+                              ? Icons.hourglass_bottom_rounded
+                              : status == 'under_review'
+                              ? Icons.search_rounded
+                              : status == 'approved'
+                              ? Icons.check_rounded
                               : Icons.cancel_rounded,
-                          color: AppColors.textInverse, size: 10,
+                          color: AppColors.textInverse,
+                          size: 10,
                         ),
                         const SizedBox(width: 4),
-                        Text(_statusLabel(status), style: const TextStyle(color: AppColors.textInverse, fontSize: 9, fontWeight: FontWeight.w800)),
+                        Text(
+                          _statusLabel(status),
+                          style: const TextStyle(
+                            color: AppColors.textInverse,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -673,15 +930,43 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Dr. $name', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+                  Text(
+                    'Dr. $name',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimaryOf(context),
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(specialty, style: const TextStyle(color: AppColors.slate500, fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(
+                    specialty,
+                    style: const TextStyle(
+                      color: AppColors.textTertiaryOf(context),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.email_outlined, color: AppColors.slate400, size: 13),
+                      const Icon(
+                        Icons.email_outlined,
+                        color: AppColors.textTertiaryOf(context),
+                        size: 13,
+                      ),
                       const SizedBox(width: 6),
-                      Expanded(child: Text(email, style: const TextStyle(color: AppColors.slate400, fontSize: 11, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
+                      Expanded(
+                        child: Text(
+                          email,
+                          style: const TextStyle(
+                            color: AppColors.textTertiaryOf(context),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -694,10 +979,18 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                 if (createdAt != null)
                   Text(
                     '${createdAt.day}/${createdAt.month}/${createdAt.year}',
-                    style: const TextStyle(color: AppColors.slate400, fontSize: 11, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      color: AppColors.textTertiaryOf(context),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 const SizedBox(height: 8),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.slate400, size: 20),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textTertiaryOf(context),
+                  size: 20,
+                ),
               ],
             ),
           ],
@@ -712,7 +1005,9 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     final phone = doctor['phone'] ?? '';
     final specialty = doctor['specialty'] ?? 'General';
     final status = doctor['verification_status'] ?? 'pending';
-    final createdAt = doctor['created_at'] != null ? DateTime.tryParse(doctor['created_at']) : null;
+    final createdAt = doctor['created_at'] != null
+        ? DateTime.tryParse(doctor['created_at'])
+        : null;
     final id = doctor['id'] ?? '';
     final color = _statusColor(status);
 
@@ -722,7 +1017,13 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: AppColors.borderLightOf(context)),
-        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 40, offset: const Offset(0, 20))],
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: 40,
+            offset: const Offset(0, 20),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -742,27 +1043,49 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                     child: Center(
                       child: Text(
                         name.isNotEmpty ? name[0].toUpperCase() : '?',
-                        style: const TextStyle(color: AppColors.primary, fontSize: 32, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                   Transform.translate(
                     offset: const Offset(0, 12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.surface, width: 2)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.surface, width: 2),
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            status == 'pending' ? Icons.hourglass_bottom_rounded
-                                : status == 'under_review' ? Icons.search_rounded
-                                : status == 'approved' ? Icons.check_rounded
+                            status == 'pending'
+                                ? Icons.hourglass_bottom_rounded
+                                : status == 'under_review'
+                                ? Icons.search_rounded
+                                : status == 'approved'
+                                ? Icons.check_rounded
                                 : Icons.cancel_rounded,
-                            color: AppColors.textInverse, size: 10,
+                            color: AppColors.textInverse,
+                            size: 10,
                           ),
                           const SizedBox(width: 4),
-                          Text(_statusLabel(status), style: const TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w800)),
+                          Text(
+                            _statusLabel(status),
+                            style: const TextStyle(
+                              color: AppColors.textInverse,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -781,17 +1104,45 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Dr. $name', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+                              Text(
+                                'Dr. $name',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.textPrimaryOf(context),
+                                ),
+                              ),
                               const SizedBox(height: 2),
-                              Text(specialty, style: const TextStyle(color: AppColors.slate500, fontSize: 13, fontWeight: FontWeight.w600)),
+                              Text(
+                                specialty,
+                                style: const TextStyle(
+                                  color: AppColors.textTertiaryOf(context),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text('User ID', style: TextStyle(fontSize: 10, color: AppColors.slate400, fontWeight: FontWeight.w700)),
-                            Text(id.toString().substring(0, 8), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.slate800)),
+                            const Text(
+                              'User ID',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppColors.textTertiaryOf(context),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Text(
+                              id.toString().substring(0, 8),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimaryOf(context),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -800,18 +1151,40 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                     if (email.isNotEmpty)
                       Row(
                         children: [
-                          const Icon(Icons.email_outlined, color: AppColors.slate400, size: 14),
+                          const Icon(
+                            Icons.email_outlined,
+                            color: AppColors.textTertiaryOf(context),
+                            size: 14,
+                          ),
                           const SizedBox(width: 8),
-                          Text(email, style: const TextStyle(color: AppColors.slate500, fontSize: 12, fontWeight: FontWeight.w600)),
+                          Text(
+                            email,
+                            style: const TextStyle(
+                              color: AppColors.textTertiaryOf(context),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ],
                       ),
                     if (phone.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(Icons.phone_outlined, color: AppColors.slate400, size: 14),
+                          const Icon(
+                            Icons.phone_outlined,
+                            color: AppColors.textTertiaryOf(context),
+                            size: 14,
+                          ),
                           const SizedBox(width: 8),
-                          Text(phone, style: const TextStyle(color: AppColors.slate500, fontSize: 12, fontWeight: FontWeight.w600)),
+                          Text(
+                            phone,
+                            style: const TextStyle(
+                              color: AppColors.textTertiaryOf(context),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -820,8 +1193,14 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          createdAt != null ? 'Applied on: ${createdAt.day} ${_monthName(createdAt.month)} ${createdAt.year}' : 'Application date unknown',
-                          style: const TextStyle(color: AppColors.slate400, fontSize: 11, fontWeight: FontWeight.w600),
+                          createdAt != null
+                              ? 'Applied on: ${createdAt.day} ${_monthName(createdAt.month)} ${createdAt.year}'
+                              : 'Application date unknown',
+                          style: const TextStyle(
+                            color: AppColors.textTertiaryOf(context),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -847,11 +1226,29 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         ),
         child: const Column(
           children: [
-            Icon(Icons.folder_off_outlined, color: AppColors.slate300, size: 40),
+            Icon(
+              Icons.folder_off_outlined,
+              color: AppColors.textTertiaryOf(context),
+              size: 40,
+            ),
             SizedBox(height: 12),
-            Text('No documents submitted', style: TextStyle(color: AppColors.slate500, fontSize: 13, fontWeight: FontWeight.w700)),
+            Text(
+              'No documents submitted',
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             SizedBox(height: 4),
-            Text('The applicant has not uploaded any documents yet.', style: TextStyle(color: AppColors.slate400, fontSize: 11, fontWeight: FontWeight.w600)),
+            Text(
+              'The applicant has not uploaded any documents yet.',
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       );
@@ -869,12 +1266,21 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         final title = docMap['title'] ?? docMap['name'] ?? 'Document';
         final fileName = docMap['file_name'] ?? docMap['url'] ?? 'file';
         final isVerified = docMap['verified'] == true;
-        return _DocumentCard(title: title, fileName: fileName, isVerified: isVerified, color: AppColors.primary, url: docMap['url'] as String?);
+        return _DocumentCard(
+          title: title,
+          fileName: fileName,
+          isVerified: isVerified,
+          color: AppColors.primary,
+          url: docMap['url'] as String?,
+        );
       }).toList(),
     );
   }
 
-  Widget _buildDetailsGrid(Map<String, dynamic> doctor, Map<String, dynamic> metadata) {
+  Widget _buildDetailsGrid(
+    Map<String, dynamic> doctor,
+    Map<String, dynamic> metadata,
+  ) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -886,29 +1292,77 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
         children: [
           Row(
             children: [
-              Expanded(child: _DetailItem(icon: Icons.person_outline_rounded, label: 'Full Name', value: 'Dr. ${doctor['full_name'] ?? 'N/A'}')),
-              Expanded(child: _DetailItem(icon: Icons.badge_outlined, label: 'License Number', value: metadata['license_number'] ?? 'N/A')),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.person_outline_rounded,
+                  label: 'Full Name',
+                  value: 'Dr. ${doctor['full_name'] ?? 'N/A'}',
+                ),
+              ),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.badge_outlined,
+                  label: 'License Number',
+                  value: metadata['license_number'] ?? 'N/A',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _DetailItem(icon: Icons.cake_outlined, label: 'Date of Birth', value: metadata['date_of_birth'] ?? 'N/A')),
-              Expanded(child: _DetailItem(icon: Icons.location_on_outlined, label: 'Issuing State', value: metadata['issuing_state'] ?? 'N/A')),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.cake_outlined,
+                  label: 'Date of Birth',
+                  value: metadata['date_of_birth'] ?? 'N/A',
+                ),
+              ),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.location_on_outlined,
+                  label: 'Issuing State',
+                  value: metadata['issuing_state'] ?? 'N/A',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _DetailItem(icon: Icons.transgender_rounded, label: 'Gender', value: metadata['gender'] ?? 'N/A')),
-              Expanded(child: _DetailItem(icon: Icons.work_outline_rounded, label: 'Years of Experience', value: metadata['years_of_experience'] ?? 'N/A')),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.transgender_rounded,
+                  label: 'Gender',
+                  value: metadata['gender'] ?? 'N/A',
+                ),
+              ),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.work_outline_rounded,
+                  label: 'Years of Experience',
+                  value: metadata['years_of_experience'] ?? 'N/A',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _DetailItem(icon: Icons.medical_services_outlined, label: 'Specialization', value: doctor['specialty'] ?? 'N/A')),
-              Expanded(child: _DetailItem(icon: Icons.apartment_rounded, label: 'Practice Type', value: metadata['practice_type'] ?? 'N/A')),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.medical_services_outlined,
+                  label: 'Specialization',
+                  value: doctor['specialty'] ?? 'N/A',
+                ),
+              ),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.apartment_rounded,
+                  label: 'Practice Type',
+                  value: metadata['practice_type'] ?? 'N/A',
+                ),
+              ),
             ],
           ),
         ],
@@ -920,7 +1374,15 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Admin Notes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.slate800, letterSpacing: -0.5)),
+        const Text(
+          'Admin Notes',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+            letterSpacing: -0.5,
+          ),
+        ),
         const SizedBox(height: 12),
         Container(
           width: double.infinity,
@@ -933,10 +1395,18 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
           child: TextField(
             controller: _adminNotesController,
             maxLines: 4,
-            style: const TextStyle(color: AppColors.slate800, fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: AppColors.textPrimaryOf(context),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
             decoration: const InputDecoration(
               hintText: 'Add a note (optional)...',
-              hintStyle: TextStyle(color: AppColors.slate400, fontSize: 13, fontWeight: FontWeight.w600),
+              hintStyle: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
               border: InputBorder.none,
             ),
           ),
@@ -1019,9 +1489,20 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.check_circle_rounded, color: AppColors.success, size: 20),
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.success,
+                  size: 20,
+                ),
                 SizedBox(width: 8),
-                Text('This doctor has been verified', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w800, fontSize: 13)),
+                Text(
+                  'This doctor has been verified',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1037,7 +1518,14 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
               children: [
                 Icon(Icons.cancel_rounded, color: AppColors.error, size: 20),
                 SizedBox(width: 8),
-                Text('This application was rejected', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w800, fontSize: 13)),
+                Text(
+                  'This application was rejected',
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1046,11 +1534,33 @@ class _DoctorVerificationPanelState extends ConsumerState<DoctorVerificationPane
   }
 
   Widget _buildSectionHeader(String title) {
-    return Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.slate800, letterSpacing: -0.5));
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w900,
+        color: AppColors.textPrimaryOf(context),
+        letterSpacing: -0.5,
+      ),
+    );
   }
 
   String _monthName(int month) {
-    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month];
   }
 }
@@ -1064,7 +1574,13 @@ class _TabItem extends StatelessWidget {
   final Color color;
   final VoidCallback? onTap;
 
-  const _TabItem({required this.label, required this.count, required this.isSelected, required this.color, this.onTap});
+  const _TabItem({
+    required this.label,
+    required this.count,
+    required this.isSelected,
+    required this.color,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1073,21 +1589,44 @@ class _TabItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : AppColors.surfaceOf(context),
+          color: isSelected
+              ? color.withValues(alpha: 0.1)
+              : AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? color.withValues(alpha: 0.5) : AppColors.borderLightOf(context)),
+          border: Border.all(
+            color: isSelected
+                ? color.withValues(alpha: 0.5)
+                : AppColors.borderLightOf(context),
+          ),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
               child: Icon(Icons.timer_outlined, color: color, size: 14),
             ),
             const SizedBox(width: 8),
-            Text(label, style: TextStyle(color: isSelected ? color : AppColors.slate500, fontSize: 13, fontWeight: FontWeight.w700)),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? color : AppColors.textTertiaryOf(context),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(width: 8),
-            Text(count, style: TextStyle(color: isSelected ? color : AppColors.slate400, fontSize: 13, fontWeight: FontWeight.w800)),
+            Text(
+              count,
+              style: TextStyle(
+                color: isSelected ? color : AppColors.textTertiaryOf(context),
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ],
         ),
       ),
@@ -1100,7 +1639,11 @@ class _StatCard extends StatelessWidget {
   final String count;
   final Color color;
 
-  const _StatCard({required this.label, required this.count, required this.color});
+  const _StatCard({
+    required this.label,
+    required this.count,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1114,9 +1657,23 @@ class _StatCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(count, style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w900)),
+            Text(
+              count,
+              style: TextStyle(
+                color: color,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w700)),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ],
         ),
       ),
@@ -1131,7 +1688,13 @@ class _DocumentCard extends StatelessWidget {
   final Color color;
   final String? url;
 
-  const _DocumentCard({required this.title, required this.fileName, required this.isVerified, required this.color, this.url});
+  const _DocumentCard({
+    required this.title,
+    required this.fileName,
+    required this.isVerified,
+    required this.color,
+    this.url,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1149,33 +1712,57 @@ class _DocumentCard extends StatelessWidget {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.slate50,
+                color: AppColors.surfaceAltOf(context),
                 borderRadius: BorderRadius.circular(16),
               ),
               clipBehavior: Clip.antiAlias,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  if (url != null && (url!.endsWith('.jpg') || url!.endsWith('.jpeg') || url!.endsWith('.png') || url!.endsWith('.webp')))
+                  if (url != null &&
+                      (url!.endsWith('.jpg') ||
+                          url!.endsWith('.jpeg') ||
+                          url!.endsWith('.png') ||
+                          url!.endsWith('.webp')))
                     Image.network(
                       url!,
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_rounded, color: AppColors.slate300, size: 40),
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.broken_image_rounded,
+                        color: AppColors.textTertiaryOf(context),
+                        size: 40,
+                      ),
                     )
-                  else if (url != null && (url!.endsWith('.pdf') || url!.contains('.pdf')))
-                    const Icon(Icons.picture_as_pdf_rounded, color: AppColors.error, size: 40)
+                  else if (url != null &&
+                      (url!.endsWith('.pdf') || url!.contains('.pdf')))
+                    const Icon(
+                      Icons.picture_as_pdf_rounded,
+                      color: AppColors.error,
+                      size: 40,
+                    )
                   else
-                    const Icon(Icons.description_rounded, color: AppColors.slate300, size: 40),
+                    const Icon(
+                      Icons.description_rounded,
+                      color: AppColors.textTertiaryOf(context),
+                      size: 40,
+                    ),
                   if (isVerified)
                     Positioned(
                       top: 8,
                       right: 8,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
-                        child: const Icon(Icons.check, color: AppColors.textInverse, size: 10),
+                        decoration: const BoxDecoration(
+                          color: AppColors.success,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          color: AppColors.textInverse,
+                          size: 10,
+                        ),
                       ),
                     ),
                 ],
@@ -1183,19 +1770,40 @@ class _DocumentCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.slate800)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 13,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(fileName, style: const TextStyle(color: AppColors.slate400, fontSize: 10, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+          Text(
+            fileName,
+            style: const TextStyle(
+              color: AppColors.textTertiaryOf(context),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: isVerified ? AppColors.successLight : AppColors.warningLight,
+              color: isVerified
+                  ? AppColors.successLight
+                  : AppColors.warningLight,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               isVerified ? 'Verified' : 'Pending',
-              style: TextStyle(color: isVerified ? AppColors.success : AppColors.warning, fontSize: 10, fontWeight: FontWeight.w800),
+              style: TextStyle(
+                color: isVerified ? AppColors.success : AppColors.warning,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
@@ -1209,7 +1817,11 @@ class _DetailItem extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailItem({required this.icon, required this.label, required this.value});
+  const _DetailItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1217,7 +1829,10 @@ class _DetailItem extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            color: AppColors.infoLight,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Icon(icon, color: AppColors.primary, size: 20),
         ),
         const SizedBox(width: 12),
@@ -1225,9 +1840,23 @@ class _DetailItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 10, color: AppColors.slate400, fontWeight: FontWeight.w700)),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textTertiaryOf(context),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
             ],
           ),
         ),
@@ -1242,7 +1871,12 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
 
-  const _ActionButton({required this.label, required this.color, required this.icon, this.onTap});
+  const _ActionButton({
+    required this.label,
+    required this.color,
+    required this.icon,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1256,16 +1890,26 @@ class _ActionButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: color.withValues(alpha: enabled ? 0.1 : 0.05),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withValues(alpha: enabled ? 0.2 : 0.1)),
+              border: Border.all(
+                color: color.withValues(alpha: enabled ? 0.2 : 0.1),
+              ),
             ),
-            child: Icon(icon, color: color.withValues(alpha: enabled ? 1.0 : 0.4), size: 20),
+            child: Icon(
+              icon,
+              color: color.withValues(alpha: enabled ? 1.0 : 0.4),
+              size: 20,
+            ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: color.withValues(alpha: enabled ? 1.0 : 0.4)),
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            color: color.withValues(alpha: enabled ? 1.0 : 0.4),
+          ),
         ),
       ],
     );

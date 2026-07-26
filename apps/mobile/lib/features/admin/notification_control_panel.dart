@@ -6,7 +6,9 @@ import 'admin_scaffold.dart';
 import 'admin_providers.dart';
 import 'admin_shared_widgets.dart';
 
-final _channelConfigsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final _channelConfigsProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
   final response = await Supabase.instance.client
       .from('notification_channels_config')
       .select()
@@ -14,19 +16,25 @@ final _channelConfigsProvider = FutureProvider<List<Map<String, dynamic>>>((ref)
   return List<Map<String, dynamic>>.from(response);
 });
 
-final _recentNotificationsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final response = await Supabase.instance.client
-      .from('notifications')
-      .select()
-      .order('created_at', ascending: false)
-      .limit(10);
-  return List<Map<String, dynamic>>.from(response);
-});
+final _recentNotificationsProvider = FutureProvider<List<Map<String, dynamic>>>(
+  (ref) async {
+    final response = await Supabase.instance.client
+        .from('notifications')
+        .select()
+        .order('created_at', ascending: false)
+        .limit(10);
+    return List<Map<String, dynamic>>.from(response);
+  },
+);
 
-final _notificationStatsProvider = FutureProvider<Map<String, int>>((ref) async {
+final _notificationStatsProvider = FutureProvider<Map<String, int>>((
+  ref,
+) async {
   final client = Supabase.instance.client;
 
-  final totalResponse = await client.from('notifications').count(CountOption.exact);
+  final totalResponse = await client
+      .from('notifications')
+      .count(CountOption.exact);
 
   final now = DateTime.now();
   final todayStart = DateTime(now.year, now.month, now.day);
@@ -52,10 +60,12 @@ class NotificationControlPanel extends ConsumerStatefulWidget {
   const NotificationControlPanel({super.key});
 
   @override
-  ConsumerState<NotificationControlPanel> createState() => _NotificationControlPanelState();
+  ConsumerState<NotificationControlPanel> createState() =>
+      _NotificationControlPanelState();
 }
 
-class _NotificationControlPanelState extends ConsumerState<NotificationControlPanel> {
+class _NotificationControlPanelState
+    extends ConsumerState<NotificationControlPanel> {
   @override
   void initState() {
     super.initState();
@@ -119,7 +129,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           title: const Text(
             'Send Notification',
             style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
@@ -167,8 +179,14 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                   ),
                   items: const [
                     DropdownMenuItem(value: 'all', child: Text('All Users')),
-                    DropdownMenuItem(value: 'patient', child: Text('Patients Only')),
-                    DropdownMenuItem(value: 'doctor', child: Text('Doctors Only')),
+                    DropdownMenuItem(
+                      value: 'patient',
+                      child: Text('Patients Only'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'doctor',
+                      child: Text('Doctors Only'),
+                    ),
                   ],
                   onChanged: (v) {
                     if (v != null) {
@@ -194,9 +212,12 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
               onPressed: isLoading
                   ? null
                   : () async {
-                      if (titleController.text.isEmpty || messageController.text.isEmpty) {
+                      if (titleController.text.isEmpty ||
+                          messageController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please fill in all fields')),
+                          const SnackBar(
+                            content: Text('Please fill in all fields'),
+                          ),
                         );
                         return;
                       }
@@ -238,7 +259,10 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
               child: isLoading
                   ? const SizedBox(
@@ -344,7 +368,10 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
             child: Center(
               child: Text(
                 'No notification channels configured',
-                style: TextStyle(color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           );
@@ -366,7 +393,8 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
                   color: _getChannelColor(channels[i]['id'] as String),
                   icon: _getChannelIcon(channels[i]['id'] as String),
                   isEnabled: channels[i]['is_enabled'] as bool? ?? false,
-                  onToggle: (value) => _toggleChannel(channels[i]['id'] as String, value),
+                  onToggle: (value) =>
+                      _toggleChannel(channels[i]['id'] as String, value),
                 ),
                 if (i < channels.length - 1)
                   Divider(height: 32, color: AppColors.dividerOf(context)),
@@ -396,7 +424,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Channel ${_formatChannelLabel(channelId)} ${value ? "enabled" : "disabled"}'),
+            content: Text(
+              'Channel ${_formatChannelLabel(channelId)} ${value ? "enabled" : "disabled"}',
+            ),
             backgroundColor: AppColors.success,
             duration: const Duration(seconds: 2),
           ),
@@ -431,7 +461,10 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
             child: Center(
               child: Text(
                 'No recent notifications',
-                style: TextStyle(color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           );
@@ -459,7 +492,9 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
   }
 
   Widget _buildNotificationTile(Map<String, dynamic> notification) {
-    final createdAt = DateTime.tryParse(notification['created_at'] as String? ?? '');
+    final createdAt = DateTime.tryParse(
+      notification['created_at'] as String? ?? '',
+    );
     final dateStr = createdAt != null
         ? '${createdAt.day.toString().padLeft(2, '0')} ${_monthAbbr(createdAt.month)}, ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}'
         : '';
@@ -530,17 +565,21 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
               ),
               Text(
                 dateStr,
-                style: const TextStyle(
-                  color: AppColors.slate300,
+                style: TextStyle(
+                  color: AppColors.textTertiaryOf(context),
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: (isRead ? AppColors.success : AppColors.info).withValues(alpha: 0.1),
+                  color: (isRead ? AppColors.success : AppColors.info)
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -561,8 +600,19 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
 
   String _monthAbbr(int month) {
     const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[month];
   }
@@ -620,7 +670,7 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
       case 'whatsapp':
         return AppColors.success;
       default:
-        return AppColors.textSecondary;
+        return AppColors.textSecondaryOf(context);
     }
   }
 
@@ -673,7 +723,11 @@ class _NotificationControlPanelState extends ConsumerState<NotificationControlPa
     }
   }
 
-  Widget _buildSectionHeader(String title, {String? subtitle, VoidCallback? onSeeAll}) {
+  Widget _buildSectionHeader(
+    String title, {
+    String? subtitle,
+    VoidCallback? onSeeAll,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -786,26 +840,29 @@ class _TabItem extends StatelessWidget {
   final String label;
   final bool isSelected;
 
-  const _TabItem({
-    required this.label,
-    required this.isSelected,
-  });
+  const _TabItem({required this.label, required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : AppColors.surfaceOf(context),
+        color: isSelected
+            ? AppColors.primary.withValues(alpha: 0.05)
+            : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.5) : AppColors.borderLightOf(context),
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : AppColors.borderLightOf(context),
         ),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? AppColors.primary : AppColors.textSecondaryOf(context),
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.textSecondaryOf(context),
           fontSize: 13,
           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
         ),

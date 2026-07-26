@@ -11,7 +11,8 @@ class ForumModerationPanel extends ConsumerStatefulWidget {
   const ForumModerationPanel({super.key});
 
   @override
-  ConsumerState<ForumModerationPanel> createState() => _ForumModerationPanelState();
+  ConsumerState<ForumModerationPanel> createState() =>
+      _ForumModerationPanelState();
 }
 
 class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
@@ -33,7 +34,10 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
   }
 
   Future<void> _refreshAll() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     await Future.wait([
       _fetchStats(),
       _fetchPendingReports(),
@@ -52,10 +56,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           .eq('status', 'pending')
           .count();
 
-      final postsRes = await client
-          .from('forum_posts')
-          .select('id')
-          .count();
+      final postsRes = await client.from('forum_posts').select('id').count();
 
       final flaggedRes = await client
           .from('forum_posts')
@@ -81,7 +82,10 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       if (mounted) {
         setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load stats: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to load stats: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -110,7 +114,10 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       if (mounted) {
         setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load reports: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to load reports: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -171,7 +178,10 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       if (mounted) {
         setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load actions: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to load actions: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -180,22 +190,31 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
   Future<void> _dismissReport(String reportId) async {
     try {
       final client = Supabase.instance.client;
-      await client.from('forum_reports').update({
-        'status': 'dismissed',
-        'resolved_at': DateTime.now().toIso8601String(),
-        'resolved_by': client.auth.currentUser?.id,
-      }).eq('id', reportId);
+      await client
+          .from('forum_reports')
+          .update({
+            'status': 'dismissed',
+            'resolved_at': DateTime.now().toIso8601String(),
+            'resolved_by': client.auth.currentUser?.id,
+          })
+          .eq('id', reportId);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Report dismissed'), backgroundColor: AppColors.success),
+          const SnackBar(
+            content: Text('Report dismissed'),
+            backgroundColor: AppColors.success,
+          ),
         );
         _refreshAll();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -205,26 +224,36 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     try {
       final client = Supabase.instance.client;
 
-      await client.from('forum_posts').update({
-        'status': 'rejected',
-      }).eq('id', postId);
+      await client
+          .from('forum_posts')
+          .update({'status': 'rejected'})
+          .eq('id', postId);
 
-      await client.from('forum_reports').update({
-        'status': 'action_taken',
-        'resolved_at': DateTime.now().toIso8601String(),
-        'resolved_by': client.auth.currentUser?.id,
-      }).eq('id', reportId);
+      await client
+          .from('forum_reports')
+          .update({
+            'status': 'action_taken',
+            'resolved_at': DateTime.now().toIso8601String(),
+            'resolved_by': client.auth.currentUser?.id,
+          })
+          .eq('id', reportId);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post removed and report resolved'), backgroundColor: AppColors.success),
+          const SnackBar(
+            content: Text('Post removed and report resolved'),
+            backgroundColor: AppColors.success,
+          ),
         );
         _refreshAll();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -248,33 +277,33 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       body: _error != null && !_loading
           ? AdminErrorState(message: _error!, onRetry: _refreshAll)
           : RefreshIndicator(
-        onRefresh: _refreshAll,
-        color: AppColors.primary,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 24),
-              _buildStatsRow(),
-              const SizedBox(height: 24),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(flex: 3, child: _buildRecentReports()),
-                  const SizedBox(width: 24),
-                  Expanded(flex: 2, child: _buildQuickActions()),
-                ],
+              onRefresh: _refreshAll,
+              color: AppColors.primary,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 24),
+                    _buildStatsRow(),
+                    const SizedBox(height: 24),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 3, child: _buildRecentReports()),
+                        const SizedBox(width: 24),
+                        Expanded(flex: 2, child: _buildQuickActions()),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    _buildRecentModerationActions(),
+                    const SizedBox(height: 32),
+                    _buildBottomBanner(),
+                  ],
+                ),
               ),
-              const SizedBox(height: 32),
-              _buildRecentModerationActions(),
-              const SizedBox(height: 32),
-              _buildBottomBanner(),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
@@ -286,14 +315,23 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Forum Moderation Dashboard',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.slate900, letterSpacing: -0.5),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+                letterSpacing: -0.5,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               'Overview of forum activities, reports, and moderation actions.',
-              style: TextStyle(fontSize: 14, color: AppColors.slate500, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textTertiaryOf(context),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -306,11 +344,19 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           ),
           child: Row(
             children: [
-              Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.slate400),
+              Icon(
+                Icons.calendar_today_outlined,
+                size: 16,
+                color: AppColors.textTertiaryOf(context),
+              ),
               const SizedBox(width: 8),
               Text(
                 'All Time',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.slate700),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: AppColors.textSecondaryOf(context),
+                ),
               ),
             ],
           ),
@@ -322,25 +368,69 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
   Widget _buildStatsRow() {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Pending Reports', _pendingReportsCount.toString(), 'Require review', Icons.flag_outlined, AppColors.error)),
+        Expanded(
+          child: _buildStatCard(
+            'Pending Reports',
+            _pendingReportsCount.toString(),
+            'Require review',
+            Icons.flag_outlined,
+            AppColors.error,
+          ),
+        ),
         const SizedBox(width: 16),
-        Expanded(child: _buildStatCard('Flagged Posts', _flaggedPostsCount.toString(), 'Awaiting moderation', Icons.gpp_maybe_outlined, AppColors.warning)),
+        Expanded(
+          child: _buildStatCard(
+            'Flagged Posts',
+            _flaggedPostsCount.toString(),
+            'Awaiting moderation',
+            Icons.gpp_maybe_outlined,
+            AppColors.warning,
+          ),
+        ),
         const SizedBox(width: 16),
-        Expanded(child: _buildStatCard('Total Posts', _totalPostsCount.toString(), 'All time', Icons.chat_bubble_outline, AppColors.primary)),
+        Expanded(
+          child: _buildStatCard(
+            'Total Posts',
+            _totalPostsCount.toString(),
+            'All time',
+            Icons.chat_bubble_outline,
+            AppColors.primary,
+          ),
+        ),
         const SizedBox(width: 16),
-        Expanded(child: _buildStatCard('Active Categories', _activeCategoriesCount.toString(), 'Forum sections', Icons.folder_outlined, AppColors.success)),
+        Expanded(
+          child: _buildStatCard(
+            'Active Categories',
+            _activeCategoriesCount.toString(),
+            'Forum sections',
+            Icons.folder_outlined,
+            AppColors.success,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildStatCard(String title, String value, String subtitle, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    String subtitle,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderLightOf(context)),
-        boxShadow: const [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: Offset(0, 4))],
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,11 +444,32 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(height: 16),
-          Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.slate900)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(title, style: const TextStyle(fontSize: 13, color: AppColors.slate700, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondaryOf(context),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(subtitle, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.bold)),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -378,8 +489,22 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Pending Reports', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.slate900)),
-              Text('${_pendingReports.length} items', style: const TextStyle(color: AppColors.slate400, fontWeight: FontWeight.bold, fontSize: 13)),
+              Text(
+                'Pending Reports',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
+              Text(
+                '${_pendingReports.length} items',
+                style: TextStyle(
+                  color: AppColors.textTertiaryOf(context),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -400,9 +525,20 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline_rounded, color: AppColors.success, size: 24),
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: AppColors.success,
+                    size: 24,
+                  ),
                   SizedBox(width: 12),
-                  Text('No pending reports', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700, fontSize: 14)),
+                  Text(
+                    'No pending reports',
+                    style: TextStyle(
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
                 ],
               ),
             )
@@ -417,14 +553,20 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     final post = report['post'] as Map<String, dynamic>?;
     final reporter = report['reporter'] as Map<String, dynamic>?;
     final reason = report['reason'] ?? 'No reason provided';
-    final postTitle = post != null ? (post['title'] ?? 'Untitled Post') : 'Post deleted';
-    final reporterName = reporter != null ? (reporter['full_name'] ?? 'Anonymous') : 'Unknown';
+    final postTitle = post != null
+        ? (post['title'] ?? 'Untitled Post')
+        : 'Post deleted';
+    final reporterName = reporter != null
+        ? (reporter['full_name'] ?? 'Anonymous')
+        : 'Unknown';
     final createdAt = report['created_at'] as String?;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.borderLightOf(context))),
+        border: Border(
+          bottom: BorderSide(color: AppColors.borderLightOf(context)),
+        ),
       ),
       child: Row(
         children: [
@@ -434,58 +576,117 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
               color: AppColors.errorLight,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text('Pending', style: TextStyle(color: AppColors.error, fontSize: 11, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Pending',
+              style: TextStyle(
+                color: AppColors.error,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           const SizedBox(width: 16),
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(color: AppColors.errorLight, shape: BoxShape.circle),
-            child: const Icon(Icons.flag_outlined, color: AppColors.error, size: 20),
+            decoration: const BoxDecoration(
+              color: AppColors.errorLight,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.flag_outlined,
+              color: AppColors.error,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(reason, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.slate900)),
+                Text(
+                  reason,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('In post: "$postTitle"', style: const TextStyle(color: AppColors.slate600, fontSize: 12)),
+                Text(
+                  'In post: "$postTitle"',
+                  style: TextStyle(
+                    color: AppColors.textSecondaryOf(context),
+                    fontSize: 12,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    AdminAvatar(imageUrl: reporter?['avatar_url'] as String?, name: reporterName, radius: 10),
+                    AdminAvatar(
+                      imageUrl: reporter?['avatar_url'] as String?,
+                      name: reporterName,
+                      radius: 10,
+                    ),
                     const SizedBox(width: 6),
-                    Text('Reported by $reporterName • ${_timeAgo(createdAt)}', style: const TextStyle(color: AppColors.slate500, fontSize: 11)),
+                    Text(
+                      'Reported by $reporterName • ${_timeAgo(createdAt)}',
+                      style: TextStyle(
+                        color: AppColors.textTertiaryOf(context),
+                        fontSize: 11,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: AppColors.slate400),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            icon: Icon(
+              Icons.more_vert,
+              color: AppColors.textTertiaryOf(context),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             onSelected: (value) {
               if (value == 'dismiss') _dismissReport(report['id']);
-              if (value == 'remove' && post != null) _takeAction(report['id'], post['id']);
+              if (value == 'remove' && post != null)
+                _takeAction(report['id'], post['id']);
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'remove',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline, color: AppColors.error, size: 18),
+                    Icon(
+                      Icons.delete_outline,
+                      color: AppColors.error,
+                      size: 18,
+                    ),
                     SizedBox(width: 8),
-                    Text('Remove Post', style: TextStyle(color: AppColors.error)),
+                    Text(
+                      'Remove Post',
+                      style: TextStyle(color: AppColors.error),
+                    ),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'dismiss',
                 child: Row(
                   children: [
-                    Icon(Icons.close_outlined, color: AppColors.slate600, size: 18),
+                    Icon(
+                      Icons.close_outlined,
+                      color: AppColors.textSecondaryOf(context),
+                      size: 18,
+                    ),
                     SizedBox(width: 8),
-                    Text('Dismiss Report', style: TextStyle(color: AppColors.slate600)),
+                    Text(
+                      'Dismiss Report',
+                      style: TextStyle(
+                        color: AppColors.textSecondaryOf(context),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -507,30 +708,68 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Quick Actions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.slate900)),
+          Text(
+            'Quick Actions',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
           const SizedBox(height: 16),
-          _buildQuickActionItem('Manage Categories', Icons.folder_outlined, AppColors.primary, () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Category management coming soon'), backgroundColor: AppColors.info),
-            );
-          }),
-          _buildQuickActionItem('Forum Settings', Icons.settings_outlined, AppColors.slate500, () {
-            context.push('/settings-privacy');
-          }),
-          _buildQuickActionItem('View Flagged Posts', Icons.gpp_maybe_outlined, AppColors.warning, () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Flagged posts view coming soon'), backgroundColor: AppColors.info),
-            );
-          }),
-          _buildQuickActionItem('User Moderation', Icons.person_outline, AppColors.info, () {
-            context.push('/admin/user-management');
-          }),
+          _buildQuickActionItem(
+            'Manage Categories',
+            Icons.folder_outlined,
+            AppColors.primary,
+            () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Category management coming soon'),
+                  backgroundColor: AppColors.info,
+                ),
+              );
+            },
+          ),
+          _buildQuickActionItem(
+            'Forum Settings',
+            Icons.settings_outlined,
+            AppColors.textTertiaryOf(context),
+            () {
+              context.push('/settings-privacy');
+            },
+          ),
+          _buildQuickActionItem(
+            'View Flagged Posts',
+            Icons.gpp_maybe_outlined,
+            AppColors.warning,
+            () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Flagged posts view coming soon'),
+                  backgroundColor: AppColors.info,
+                ),
+              );
+            },
+          ),
+          _buildQuickActionItem(
+            'User Moderation',
+            Icons.person_outline,
+            AppColors.info,
+            () {
+              context.push('/admin/user-management');
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActionItem(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildQuickActionItem(
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -544,8 +783,21 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           children: [
             Icon(icon, color: color, size: 20),
             const SizedBox(width: 12),
-            Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.slate900))),
-            const Icon(Icons.chevron_right, color: AppColors.slate400, size: 20),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: AppColors.textTertiaryOf(context),
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -563,10 +815,17 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Moderation Actions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.slate900)),
+              Text(
+                'Recent Moderation Actions',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -595,24 +854,41 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     final resolver = action['resolver'] as Map<String, dynamic>?;
     final status = action['status'] ?? 'reviewed';
     final reason = action['reason'] ?? '';
-    final postTitle = post != null ? (post['title'] ?? 'Untitled') : 'Post deleted';
-    final resolverName = resolver != null ? (resolver['full_name'] ?? 'Admin') : 'System';
+    final postTitle = post != null
+        ? (post['title'] ?? 'Untitled')
+        : 'Post deleted';
+    final resolverName = resolver != null
+        ? (resolver['full_name'] ?? 'Admin')
+        : 'System';
     final resolvedAt = action['resolved_at'] as String?;
 
     final isActionTaken = status == 'action_taken';
     final isDismissed = status == 'dismissed';
-    final color = isActionTaken ? AppColors.error : (isDismissed ? AppColors.slate500 : AppColors.info);
-    final badge = isActionTaken ? 'Removed' : (isDismissed ? 'Dismissed' : 'Reviewed');
-    final icon = isActionTaken ? Icons.delete_outline : (isDismissed ? Icons.close_outlined : Icons.check_circle_outline);
+    final color = isActionTaken
+        ? AppColors.error
+        : (isDismissed ? AppColors.textTertiaryOf(context) : AppColors.info);
+    final badge = isActionTaken
+        ? 'Removed'
+        : (isDismissed ? 'Dismissed' : 'Reviewed');
+    final icon = isActionTaken
+        ? Icons.delete_outline
+        : (isDismissed ? Icons.close_outlined : Icons.check_circle_outline);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.borderLight))),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.borderLightOf(context)),
+        ),
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 16),
@@ -621,24 +897,58 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isActionTaken ? 'Post removed' : (isDismissed ? 'Report dismissed' : 'Report reviewed'),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.slate900),
+                  isActionTaken
+                      ? 'Post removed'
+                      : (isDismissed ? 'Report dismissed' : 'Report reviewed'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
                 ),
                 const SizedBox(height: 4),
-                Text('In post: "$postTitle"', style: const TextStyle(color: AppColors.slate600, fontSize: 12)),
+                Text(
+                  'In post: "$postTitle"',
+                  style: TextStyle(
+                    color: AppColors.textSecondaryOf(context),
+                    fontSize: 12,
+                  ),
+                ),
                 if (reason.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text('Reason: $reason', style: const TextStyle(color: AppColors.slate500, fontSize: 11)),
+                  Text(
+                    'Reason: $reason',
+                    style: TextStyle(
+                      color: AppColors.textTertiaryOf(context),
+                      fontSize: 11,
+                    ),
+                  ),
                 ],
                 const SizedBox(height: 4),
-                Text('By $resolverName • ${_timeAgo(resolvedAt)}', style: const TextStyle(color: AppColors.slate500, fontSize: 11)),
+                Text(
+                  'By $resolverName • ${_timeAgo(resolvedAt)}',
+                  style: TextStyle(
+                    color: AppColors.textTertiaryOf(context),
+                    fontSize: 11,
+                  ),
+                ),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-            child: Text(badge, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              badge,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -656,17 +966,37 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-            child: Icon(Icons.verified_user, color: AppColors.textInverse, size: 24),
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.verified_user,
+              color: AppColors.textInverse,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Keep the community safe and trustworthy.', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.slate900)),
+                Text(
+                  'Keep the community safe and trustworthy.',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('Your moderation helps maintain a healthy environment for everyone.', style: TextStyle(fontSize: 13, color: AppColors.slate600)),
+                Text(
+                  'Your moderation helps maintain a healthy environment for everyone.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondaryOf(context),
+                  ),
+                ),
               ],
             ),
           ),

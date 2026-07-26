@@ -36,7 +36,10 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
   void initState() {
     super.initState();
     _fetchData();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) => _fetchData());
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _fetchData(),
+    );
     _subscribeToRealtime();
   }
 
@@ -73,7 +76,8 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
 
     for (final appt in appointments) {
       final status = appt['status'] as String? ?? '';
-      final createdAt = DateTime.tryParse(appt['created_at'] as String? ?? '') ?? now;
+      final createdAt =
+          DateTime.tryParse(appt['created_at'] as String? ?? '') ?? now;
       final dayKey = DateFormat('MM-dd').format(createdAt);
 
       statusCounts[status] = (statusCounts[status] ?? 0) + 1;
@@ -90,7 +94,8 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
 
     for (final pay in payments) {
       final amount = (pay['amount'] as num?)?.toInt() ?? 0;
-      final createdAt = DateTime.tryParse(pay['created_at'] as String? ?? '') ?? now;
+      final createdAt =
+          DateTime.tryParse(pay['created_at'] as String? ?? '') ?? now;
       final dayKey = DateFormat('MM-dd').format(createdAt);
       revenueByDay[dayKey] = (revenueByDay[dayKey] ?? 0) + amount;
       totalRev += amount;
@@ -178,21 +183,21 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: AppTypography.h4Of(context),
-              ),
+              Text(title, style: AppTypography.h4Of(context)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '$totalCount',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.primary,
-                  ),
+                  style: AppTypography.labelMediumOf(
+                    context,
+                  ).copyWith(color: AppColors.primary),
                 ),
               ),
             ],
@@ -221,15 +226,20 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
             ),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 32,
                 interval: 1,
                 getTitlesWidget: (value, meta) {
-                  if (value != value.roundToDouble()) return const SizedBox.shrink();
+                  if (value != value.roundToDouble())
+                    return const SizedBox.shrink();
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: Text(
@@ -270,7 +280,9 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
               spots: _completedTrend
                   .asMap()
                   .entries
-                  .map((e) => FlSpot(e.key.toDouble(), e.value.count.toDouble()))
+                  .map(
+                    (e) => FlSpot(e.key.toDouble(), e.value.count.toDouble()),
+                  )
                   .toList(),
               isCurved: true,
               color: AppColors.success,
@@ -286,7 +298,9 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
               spots: _cancelledTrend
                   .asMap()
                   .entries
-                  .map((e) => FlSpot(e.key.toDouble(), e.value.count.toDouble()))
+                  .map(
+                    (e) => FlSpot(e.key.toDouble(), e.value.count.toDouble()),
+                  )
                   .toList(),
               isCurved: true,
               color: AppColors.error,
@@ -301,14 +315,16 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
           ],
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (_) => AppColors.slate800,
+              getTooltipColor: (_) => AppColors.textPrimaryOf(context),
               getTooltipItems: (spots) => spots
-                  .map((s) => LineTooltipItem(
-                        '${s.y.toInt()}',
-                        AppTypography.bodySmall.copyWith(
-                          color: Colors.white,
-                        ),
-                      ))
+                  .map(
+                    (s) => LineTooltipItem(
+                      '${s.y.toInt()}',
+                      AppTypography.bodySmallOf(
+                        context,
+                      ).copyWith(color: Colors.white),
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -320,7 +336,10 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
   }
 
   Widget _buildRevenueChart(BuildContext context) {
-    final maxVal = _revenueTrend.fold<int>(0, (prev, e) => e.amount > prev ? e.amount : prev);
+    final maxVal = _revenueTrend.fold<int>(
+      0,
+      (prev, e) => e.amount > prev ? e.amount : prev,
+    );
 
     return _buildChartCard(
       context: context,
@@ -331,20 +350,28 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: maxVal > 0 ? (maxVal / 4).ceilToDouble().clamp(1, double.infinity) : 1,
+            horizontalInterval: maxVal > 0
+                ? (maxVal / 4).ceilToDouble().clamp(1, double.infinity)
+                : 1,
             getDrawingHorizontalLine: (value) => FlLine(
               color: AppColors.borderOf(context).withValues(alpha: 0.4),
               strokeWidth: 1,
             ),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 48,
-                interval: maxVal > 0 ? (maxVal / 4).ceilToDouble().clamp(1, double.infinity) : 1,
+                interval: maxVal > 0
+                    ? (maxVal / 4).ceilToDouble().clamp(1, double.infinity)
+                    : 1,
                 getTitlesWidget: (value, meta) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -381,23 +408,25 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
           barGroups: _revenueTrend
               .asMap()
               .entries
-              .map((e) => BarChartGroupData(
-                    x: e.key,
-                    barRods: [
-                      BarChartRodData(
-                        toY: e.value.amount.toDouble(),
-                        color: AppColors.primary,
-                        width: 8,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(4),
-                        ),
+              .map(
+                (e) => BarChartGroupData(
+                  x: e.key,
+                  barRods: [
+                    BarChartRodData(
+                      toY: e.value.amount.toDouble(),
+                      color: AppColors.primary,
+                      width: 8,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(4),
                       ),
-                    ],
-                  ))
+                    ),
+                  ],
+                ),
+              )
               .toList(),
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (_) => AppColors.slate800,
+              getTooltipColor: (_) => AppColors.textPrimaryOf(context),
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(
                   _formatCurrency(rod.toY.toInt()),
@@ -425,15 +454,13 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
       'emergency_declined': AppColors.error,
     };
 
-    final sections = _statusBreakdown.entries
-        .where((e) => e.value > 0)
-        .toList()
+    final sections = _statusBreakdown.entries.where((e) => e.value > 0).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     final pieSections = sections.asMap().entries.map((entry) {
       final status = entry.value.key;
       final count = entry.value.value;
-      final color = colors[status] ?? AppColors.slate400;
+      final color = colors[status] ?? AppColors.textTertiaryOf(context);
       final pct = _totalStatusCount > 0
           ? (count / _totalStatusCount * 100).toStringAsFixed(1)
           : '0';
@@ -443,7 +470,7 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
         title: '$pct%',
         color: color,
         radius: 90,
-        titleStyle: AppTypography.labelSmall.copyWith(
+        titleStyle: AppTypography.labelSmallOf(context).copyWith(
           color: Colors.white,
           fontSize: 11,
           fontWeight: FontWeight.w800,
@@ -467,10 +494,10 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
                         PieChartSectionData(
                           value: 1,
                           title: 'No Data',
-                          color: AppColors.slate200,
+                          color: AppColors.borderLightOf(context),
                           radius: 90,
                           titleStyle: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryOf(context),
                           ),
                         ),
                       ]
@@ -484,7 +511,8 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: sections.map((entry) {
-              final color = colors[entry.key] ?? AppColors.slate400;
+              final color =
+                  colors[entry.key] ?? AppColors.textTertiaryOf(context);
               final label = entry.key.replaceAll('_', ' ');
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),

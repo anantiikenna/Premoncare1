@@ -49,7 +49,10 @@ class _DisputeResolutionScreenState
   }
 
   Future<void> _loadData() async {
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     await Future.wait([_loadStats(), _loadDisputes()]);
     if (mounted) setState(() => _isLoading = false);
   }
@@ -221,9 +224,9 @@ class _DisputeResolutionScreenState
       case 'resolved':
         return AppColors.success;
       case 'closed':
-        return AppColors.slate500;
+        return AppColors.textTertiaryOf(context);
       default:
-        return AppColors.slate500;
+        return AppColors.textTertiaryOf(context);
     }
   }
 
@@ -255,7 +258,7 @@ class _DisputeResolutionScreenState
       case 'behavior':
         return AppColors.pink;
       default:
-        return AppColors.slate500;
+        return AppColors.textTertiaryOf(context);
     }
   }
 
@@ -285,7 +288,7 @@ class _DisputeResolutionScreenState
       case 'low':
         return AppColors.success;
       default:
-        return AppColors.slate500;
+        return AppColors.textTertiaryOf(context);
     }
   }
 
@@ -308,8 +311,8 @@ class _DisputeResolutionScreenState
               child: CircularProgressIndicator(color: AppColors.primary),
             )
           : _error != null
-              ? AdminErrorState(message: _error!, onRetry: _loadData)
-              : RefreshIndicator(
+          ? AdminErrorState(message: _error!, onRetry: _loadData)
+          : RefreshIndicator(
               onRefresh: _loadData,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -359,19 +362,22 @@ class _DisputeResolutionScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Dispute Resolution Center',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.slate900,
+                  color: AppColors.textPrimaryOf(context),
                   letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
                 'Manage, review and resolve disputes fairly and efficiently.',
-                style: const TextStyle(fontSize: 14, color: AppColors.slate500),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textTertiaryOf(context),
+                ),
               ),
             ],
           ),
@@ -393,10 +399,10 @@ class _DisputeResolutionScreenState
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: AppColors.surfaceOf(context),
-          border: Border.all(color: AppColors.slate200),
+          border: Border.all(color: AppColors.borderLightOf(context)),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, size: 18, color: AppColors.slate800),
+        child: Icon(icon, size: 18, color: AppColors.textPrimaryOf(context)),
       ),
     );
   }
@@ -450,7 +456,7 @@ class _DisputeResolutionScreenState
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.slate200),
+        border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -476,7 +482,7 @@ class _DisputeResolutionScreenState
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppColors.slate900,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           const SizedBox(height: 4),
@@ -485,7 +491,7 @@ class _DisputeResolutionScreenState
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppColors.slate500,
+              color: AppColors.textTertiaryOf(context),
             ),
           ),
         ],
@@ -512,10 +518,12 @@ class _DisputeResolutionScreenState
                   });
                 }
               },
-              backgroundColor: AppColors.slate100,
+              backgroundColor: AppColors.borderLightOf(context),
               selectedColor: AppColors.primary,
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.textInverse : AppColors.slate600,
+                color: isSelected
+                    ? AppColors.textInverse
+                    : AppColors.textSecondaryOf(context),
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
               shape: RoundedRectangleBorder(
@@ -559,7 +567,9 @@ class _DisputeResolutionScreenState
               color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.slate200,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.borderLightOf(context),
                 width: isSelected ? 2 : 1,
               ),
               boxShadow: [
@@ -604,7 +614,7 @@ class _DisputeResolutionScreenState
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.slate900,
+                                    color: AppColors.textPrimaryOf(context),
                                   ),
                                 ),
                               ),
@@ -650,7 +660,7 @@ class _DisputeResolutionScreenState
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 13,
-                              color: AppColors.slate600,
+                              color: AppColors.textSecondaryOf(context),
                               height: 1.4,
                             ),
                           ),
@@ -673,7 +683,7 @@ class _DisputeResolutionScreenState
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.slate900,
+                        color: AppColors.textPrimaryOf(context),
                       ),
                     ),
                     const Padding(
@@ -683,7 +693,7 @@ class _DisputeResolutionScreenState
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.slate500,
+                          color: AppColors.textTertiaryOf(context),
                         ),
                       ),
                     ),
@@ -700,7 +710,7 @@ class _DisputeResolutionScreenState
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.slate900,
+                          color: AppColors.textPrimaryOf(context),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -737,7 +747,7 @@ class _DisputeResolutionScreenState
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.slate500,
+                        color: AppColors.textTertiaryOf(context),
                       ),
                     ),
                     _buildDividerDot(),
@@ -745,7 +755,7 @@ class _DisputeResolutionScreenState
                       _timeAgo(createdAt),
                       style: const TextStyle(
                         fontSize: 12,
-                        color: AppColors.slate500,
+                        color: AppColors.textTertiaryOf(context),
                       ),
                     ),
                     if (dispute['amount'] != null) ...[
@@ -755,7 +765,7 @@ class _DisputeResolutionScreenState
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.slate500,
+                          color: AppColors.textTertiaryOf(context),
                         ),
                       ),
                     ],
@@ -776,7 +786,7 @@ class _DisputeResolutionScreenState
         width: 4,
         height: 4,
         decoration: const BoxDecoration(
-          color: AppColors.slate500,
+          color: AppColors.textTertiaryOf(context),
           shape: BoxShape.circle,
         ),
       ),
@@ -813,7 +823,7 @@ class _DisputeResolutionScreenState
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.slate900,
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             Container(
@@ -821,7 +831,7 @@ class _DisputeResolutionScreenState
               decoration: BoxDecoration(
                 color: AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.slate200),
+                border: Border.all(color: AppColors.borderLightOf(context)),
               ),
               child: const Row(
                 children: [
@@ -842,7 +852,7 @@ class _DisputeResolutionScreenState
           decoration: BoxDecoration(
             color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.slate200),
+            border: Border.all(color: AppColors.borderLightOf(context)),
             boxShadow: [
               BoxShadow(
                 color: AppColors.shadowLight,
@@ -872,14 +882,14 @@ class _DisputeResolutionScreenState
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.slate900,
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         const Text(
                           'Total',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.slate500,
+                            color: AppColors.textTertiaryOf(context),
                           ),
                         ),
                       ],
@@ -939,7 +949,7 @@ class _DisputeResolutionScreenState
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.slate900,
+                  color: AppColors.textPrimaryOf(context),
                   height: 1.5,
                 ),
               ),
@@ -988,7 +998,7 @@ class _DisputeResolutionScreenState
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.slate900,
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
             ),
@@ -997,7 +1007,7 @@ class _DisputeResolutionScreenState
               child: const Icon(
                 Icons.close,
                 size: 20,
-                color: AppColors.slate500,
+                color: AppColors.textTertiaryOf(context),
               ),
             ),
           ],
@@ -1009,7 +1019,7 @@ class _DisputeResolutionScreenState
           decoration: BoxDecoration(
             color: AppColors.surfaceOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.slate200),
+            border: Border.all(color: AppColors.borderLightOf(context)),
             boxShadow: [
               BoxShadow(
                 color: AppColors.shadowLight,
@@ -1047,7 +1057,7 @@ class _DisputeResolutionScreenState
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: AppColors.slate900,
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -1055,7 +1065,7 @@ class _DisputeResolutionScreenState
                           '${_statusLabel(status)} • ${_timeAgo(createdAt)}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.slate500,
+                            color: AppColors.textTertiaryOf(context),
                           ),
                         ),
                       ],
@@ -1094,7 +1104,7 @@ class _DisputeResolutionScreenState
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.slate500,
+                    color: AppColors.textTertiaryOf(context),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -1102,7 +1112,7 @@ class _DisputeResolutionScreenState
                   d['description'],
                   style: const TextStyle(
                     fontSize: 13,
-                    color: AppColors.slate700,
+                    color: AppColors.textSecondaryOf(context),
                     height: 1.5,
                   ),
                 ),
@@ -1132,7 +1142,7 @@ class _DisputeResolutionScreenState
                         d['resolution_notes'],
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppColors.slate700,
+                          color: AppColors.textSecondaryOf(context),
                         ),
                       ),
                     ],
@@ -1150,7 +1160,7 @@ class _DisputeResolutionScreenState
             decoration: BoxDecoration(
               color: AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.slate200),
+              border: Border.all(color: AppColors.borderLightOf(context)),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.shadowLight,
@@ -1167,7 +1177,7 @@ class _DisputeResolutionScreenState
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.slate900,
+                    color: AppColors.textPrimaryOf(context),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -1322,7 +1332,7 @@ class _DisputeResolutionScreenState
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.slate500,
+                color: AppColors.textTertiaryOf(context),
               ),
             ),
           ),
@@ -1332,7 +1342,7 @@ class _DisputeResolutionScreenState
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: valueColor ?? AppColors.slate900,
+                color: valueColor ?? AppColors.textPrimaryOf(context),
               ),
             ),
           ),
@@ -1357,13 +1367,16 @@ class _DisputeResolutionScreenState
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.slate900,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(fontSize: 13, color: AppColors.slate600),
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondaryOf(context),
+            ),
           ),
         ],
       ),
@@ -1397,7 +1410,7 @@ class DonutChartPainter extends CustomPainter {
 
     final total = openCount + inReviewCount + resolvedCount;
     if (total == 0) {
-      paint.color = AppColors.slate200;
+      paint.color = AppColors.borderLight;
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         0,

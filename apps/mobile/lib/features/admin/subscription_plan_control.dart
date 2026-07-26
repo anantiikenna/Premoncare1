@@ -43,7 +43,8 @@ class _SubscriptionPlanControlState
           .from('subscription_plans')
           .select('*')
           .order('price', ascending: true);
-      if (mounted) setState(() => _plans = List<Map<String, dynamic>>.from(data));
+      if (mounted)
+        setState(() => _plans = List<Map<String, dynamic>>.from(data));
     } catch (e) {
       if (mounted) setState(() => _error = 'Failed to load plans: $e');
     }
@@ -84,7 +85,8 @@ class _SubscriptionPlanControlState
     try {
       await supabase
           .from('subscription_plans')
-          .update({'is_active': newActive}).eq('id', planId);
+          .update({'is_active': newActive})
+          .eq('id', planId);
       await _loadPlans();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -134,32 +136,33 @@ class _SubscriptionPlanControlState
         color: AppColors.primary,
         child: _isLoading
             ? const Center(
-                child: CircularProgressIndicator(color: AppColors.primary))
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
             : _error != null && _plans.isEmpty
-                ? _buildErrorState()
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 24),
-                        _buildHeader(),
-                        const SizedBox(height: 24),
-                        _buildStatsRow(),
-                        const SizedBox(height: 32),
-                        _buildSectionTitle('ACTIVE SUBSCRIPTION PLANS'),
-                        const SizedBox(height: 16),
-                        ..._buildActivePlanCards(),
-                        const SizedBox(height: 32),
-                        _buildSectionTitle('INACTIVE PLANS'),
-                        const SizedBox(height: 16),
-                        ..._buildInactivePlanCards(),
-                        const SizedBox(height: 40),
-                        _buildInfoBanner(),
-                        const SizedBox(height: 40),
-                      ],
-                    ),
-                  ),
+            ? _buildErrorState()
+            : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildHeader(),
+                    const SizedBox(height: 24),
+                    _buildStatsRow(),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle('ACTIVE SUBSCRIPTION PLANS'),
+                    const SizedBox(height: 16),
+                    ..._buildActivePlanCards(),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle('INACTIVE PLANS'),
+                    const SizedBox(height: 16),
+                    ..._buildInactivePlanCards(),
+                    const SizedBox(height: 40),
+                    _buildInfoBanner(),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -171,14 +174,17 @@ class _SubscriptionPlanControlState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded,
-                color: AppColors.error, size: 48),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.error,
+              size: 48,
+            ),
             const SizedBox(height: 16),
             Text(
               _error!,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -189,11 +195,16 @@ class _SubscriptionPlanControlState
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: Text('Retry',
-                  style: TextStyle(
-                      color: AppColors.textInverse, fontWeight: FontWeight.bold)),
+              child: Text(
+                'Retry',
+                style: TextStyle(
+                  color: AppColors.textInverse,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
@@ -202,22 +213,28 @@ class _SubscriptionPlanControlState
   }
 
   Widget _buildHeader() {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('PLAN ARCHITECTURE',
-            style: TextStyle(
-                color: AppColors.textTertiary,
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5)),
-        SizedBox(height: 8),
-        Text('Manage Service Tiers',
-            style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
-                letterSpacing: -0.5)),
+        Text(
+          'PLAN ARCHITECTURE',
+          style: TextStyle(
+            color: AppColors.textTertiaryOf(context),
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Manage Service Tiers',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+            letterSpacing: -0.5,
+          ),
+        ),
       ],
     );
   }
@@ -246,12 +263,15 @@ class _SubscriptionPlanControlState
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title,
-        style: const TextStyle(
-            color: AppColors.textTertiary,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2));
+    return Text(
+      title,
+      style: const TextStyle(
+        color: AppColors.textTertiaryOf(context),
+        fontSize: 11,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1.2,
+      ),
+    );
   }
 
   List<Widget> _buildActivePlanCards() {
@@ -265,15 +285,18 @@ class _SubscriptionPlanControlState
         ),
       ];
     }
-    return activePlans.map((plan) => Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: _buildPlanCard(plan),
-        )).toList();
+    return activePlans
+        .map(
+          (plan) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildPlanCard(plan),
+          ),
+        )
+        .toList();
   }
 
   List<Widget> _buildInactivePlanCards() {
-    final inactivePlans =
-        _plans.where((p) => p['is_active'] != true).toList();
+    final inactivePlans = _plans.where((p) => p['is_active'] != true).toList();
     if (inactivePlans.isEmpty) {
       return [
         const AdminEmptyState(
@@ -283,10 +306,14 @@ class _SubscriptionPlanControlState
         ),
       ];
     }
-    return inactivePlans.map((plan) => Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: _buildPlanCard(plan),
-        )).toList();
+    return inactivePlans
+        .map(
+          (plan) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildPlanCard(plan),
+          ),
+        )
+        .toList();
   }
 
   Widget _buildPlanCard(Map<String, dynamic> plan) {
@@ -297,7 +324,9 @@ class _SubscriptionPlanControlState
     final planId = plan['id'] as String;
     final subscribers = _subscriberCounts[planId] ?? 0;
 
-    final color = isActive ? AppColors.primary : AppColors.slate400;
+    final color = isActive
+        ? AppColors.primary
+        : AppColors.textTertiaryOf(context);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -328,18 +357,22 @@ class _SubscriptionPlanControlState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 16,
-                            color: AppColors.textPrimary)),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
+                        color: AppColors.textPrimaryOf(context),
+                      ),
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       _formatPriceWithPeriod(price, duration),
                       style: TextStyle(
-                          color: color,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800),
+                        color: color,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
@@ -348,30 +381,36 @@ class _SubscriptionPlanControlState
                 value: isActive,
                 onChanged: (val) => _togglePlanActive(planId, isActive),
                 activeThumbColor: AppColors.success,
-                activeTrackColor:
-                    AppColors.success.withValues(alpha: 0.2),
-                inactiveThumbColor: AppColors.slate300,
-                inactiveTrackColor:
-                    AppColors.slate300.withValues(alpha: 0.2),
+                activeTrackColor: AppColors.success.withValues(alpha: 0.2),
+                inactiveThumbColor: AppColors.textTertiaryOf(context),
+                inactiveTrackColor: AppColors.textTertiaryOf(
+                  context,
+                ).withValues(alpha: 0.2),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          const Divider(color: AppColors.borderLight),
+          Divider(color: AppColors.borderLightOf(context)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.people_outline_rounded,
-                      size: 16, color: AppColors.textTertiary),
+                  const Icon(
+                    Icons.people_outline_rounded,
+                    size: 16,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
                   const SizedBox(width: 8),
-                  Text('$subscribers active users',
-                      style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600)),
+                  Text(
+                    '$subscribers active users',
+                    style: const TextStyle(
+                      color: AppColors.textSecondaryOf(context),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
               TextButton(
@@ -380,9 +419,13 @@ class _SubscriptionPlanControlState
                 },
                 child: const Row(
                   children: [
-                    Text('View Details',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 12)),
+                    Text(
+                      'View Details',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                      ),
+                    ),
                     SizedBox(width: 4),
                     Icon(Icons.chevron_right_rounded, size: 16),
                   ],
@@ -425,23 +468,29 @@ class _SubscriptionPlanControlState
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.slate300,
+                    color: AppColors.textTertiaryOf(ctx),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              Text(name.toUpperCase(),
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimary)),
+              Text(
+                name.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(ctx),
+                ),
+              ),
               const SizedBox(height: 8),
-              Text(description,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.5)),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondaryOf(context),
+                  height: 1.5,
+                ),
+              ),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -458,31 +507,40 @@ class _SubscriptionPlanControlState
               ),
               const SizedBox(height: 24),
               if (features.isNotEmpty) ...[
-                const Text('Features',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary)),
+                Text(
+                  'Features',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimaryOf(ctx),
+                  ),
+                ),
                 const SizedBox(height: 12),
-                ...features.map((f) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.check_circle_rounded,
-                              color: AppColors.success, size: 18),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              f.toString(),
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w600),
+                ...features.map(
+                  (f) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: AppColors.success,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            f.toString(),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondaryOf(context),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ],
           ),
@@ -508,10 +566,11 @@ class _SubscriptionPlanControlState
             child: Text(
               'Plan creation and feature editing are managed in the Supabase database. Toggle switches above update the plan\'s active status in real-time.',
               style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  height: 1.4),
+                color: AppColors.textSecondaryOf(context),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -525,8 +584,11 @@ class _SmallStatCard extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _SmallStatCard(
-      {required this.label, required this.value, required this.color});
+  const _SmallStatCard({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -540,18 +602,24 @@ class _SmallStatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textTertiary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textTertiaryOf(context),
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: color,
-                  letterSpacing: -0.5)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: color,
+              letterSpacing: -0.5,
+            ),
+          ),
         ],
       ),
     );
@@ -572,9 +640,14 @@ class _DetailChip extends StatelessWidget {
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(label,
-          style: TextStyle(
-              color: color, fontSize: 12, fontWeight: FontWeight.w800)),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
     );
   }
 }

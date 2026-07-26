@@ -10,10 +10,12 @@ class DoctorSubscriptionManagement extends ConsumerStatefulWidget {
   const DoctorSubscriptionManagement({super.key});
 
   @override
-  ConsumerState<DoctorSubscriptionManagement> createState() => _DoctorSubscriptionManagementState();
+  ConsumerState<DoctorSubscriptionManagement> createState() =>
+      _DoctorSubscriptionManagementState();
 }
 
-class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptionManagement> {
+class _DoctorSubscriptionManagementState
+    extends ConsumerState<DoctorSubscriptionManagement> {
   bool _loading = true;
   String _error = '';
   String _selectedFilter = 'all';
@@ -45,10 +47,14 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
 
       final response = await client
           .from('doctor_subscriptions')
-          .select('*, profiles!doctor_subscriptions_doctor_id_fkey(id, full_name, email, avatar_url, role, subscription_status, subscription_expires_at), subscription_plans!doctor_subscriptions_plan_id_fkey(name, price, duration_months)')
+          .select(
+            '*, profiles!doctor_subscriptions_doctor_id_fkey(id, full_name, email, avatar_url, role, subscription_status, subscription_expires_at), subscription_plans!doctor_subscriptions_plan_id_fkey(name, price, duration_months)',
+          )
           .order('expiry_date', ascending: true);
 
-      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response,
+      );
 
       int active = 0;
       int expiringSoon = 0;
@@ -187,11 +193,15 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
   List<Map<String, dynamic>> _getExpiringSoon() {
     final now = DateTime.now();
     final sevenDays = now.add(const Duration(days: 7));
-    return _allSubscriptions.where((s) {
-      final expiry = DateTime.tryParse(s['expiry_date'] as String? ?? '');
-      if (expiry == null) return false;
-      return s['status'] == 'expiring_soon' || (s['status'] == 'active' && expiry.isBefore(sevenDays));
-    }).take(5).toList();
+    return _allSubscriptions
+        .where((s) {
+          final expiry = DateTime.tryParse(s['expiry_date'] as String? ?? '');
+          if (expiry == null) return false;
+          return s['status'] == 'expiring_soon' ||
+              (s['status'] == 'active' && expiry.isBefore(sevenDays));
+        })
+        .take(5)
+        .toList();
   }
 
   @override
@@ -199,50 +209,68 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
     return AdminScaffold(
       selectedIndex: 4,
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : _error.isNotEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error),
-                      const SizedBox(height: 12),
-                      Text('Failed to load subscriptions', style: TextStyle(color: AppColors.slate700, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      Text(_error, style: TextStyle(color: AppColors.slate500, fontSize: 12)),
-                      const SizedBox(height: 16),
-                      TextButton.icon(
-                        onPressed: _fetchSubscriptions,
-                        icon: const Icon(Icons.refresh_rounded, size: 16),
-                        label: const Text('Retry'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 48,
+                    color: AppColors.error,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _fetchSubscriptions,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        _buildMetricsGrid(),
-                        const SizedBox(height: 24),
-                        _buildFilterTabs(),
-                        const SizedBox(height: 16),
-                        _buildSearchBar(),
-                        const SizedBox(height: 24),
-                        _buildSubscriptionTable(),
-                        const SizedBox(height: 24),
-                        _buildBulkActions(),
-                        const SizedBox(height: 32),
-                        _buildAnalyticsSection(),
-                        const SizedBox(height: 32),
-                        _buildLowerGrids(),
-                        const SizedBox(height: 40),
-                      ],
+                  const SizedBox(height: 12),
+                  Text(
+                    'Failed to load subscriptions',
+                    style: TextStyle(
+                      color: AppColors.textSecondaryOf(context),
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _error,
+                    style: TextStyle(
+                      color: AppColors.textTertiaryOf(context),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: _fetchSubscriptions,
+                    icon: const Icon(Icons.refresh_rounded, size: 16),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _fetchSubscriptions,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    _buildMetricsGrid(),
+                    const SizedBox(height: 24),
+                    _buildFilterTabs(),
+                    const SizedBox(height: 16),
+                    _buildSearchBar(),
+                    const SizedBox(height: 24),
+                    _buildSubscriptionTable(),
+                    const SizedBox(height: 24),
+                    _buildBulkActions(),
+                    const SizedBox(height: 32),
+                    _buildAnalyticsSection(),
+                    const SizedBox(height: 32),
+                    _buildLowerGrids(),
+                    const SizedBox(height: 40),
+                  ],
                 ),
+              ),
+            ),
     );
   }
 
@@ -254,11 +282,48 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _MetricCard(label: 'Total Doctors', value: '$_totalDoctors', trend: '', trendColor: AppColors.success, icon: Icons.people_outline_rounded, iconColor: AppColors.primary),
-            _MetricCard(label: 'Active', value: '$_activeCount', trend: _totalDoctors > 0 ? '${(_activeCount / _totalDoctors * 100).toStringAsFixed(1)}%' : '0%', trendColor: AppColors.success, icon: Icons.check_circle_outline_rounded, iconColor: AppColors.success),
-            _MetricCard(label: 'Expiring Soon', value: '$_expiringSoonCount', trend: 'Next 7 days', trendColor: AppColors.warning, icon: Icons.timer_outlined, iconColor: AppColors.warning),
-            _MetricCard(label: 'Expired', value: '$_expiredCount', trend: 'Requires attention', trendColor: AppColors.error, icon: Icons.history_rounded, iconColor: AppColors.error),
-            _MetricCard(label: 'Overdue', value: '$_overdueCount', trend: 'Payment overdue', trendColor: AppColors.error, icon: Icons.account_balance_wallet_outlined, iconColor: AppColors.pink),
+            _MetricCard(
+              label: 'Total Doctors',
+              value: '$_totalDoctors',
+              trend: '',
+              trendColor: AppColors.success,
+              icon: Icons.people_outline_rounded,
+              iconColor: AppColors.primary,
+            ),
+            _MetricCard(
+              label: 'Active',
+              value: '$_activeCount',
+              trend: _totalDoctors > 0
+                  ? '${(_activeCount / _totalDoctors * 100).toStringAsFixed(1)}%'
+                  : '0%',
+              trendColor: AppColors.success,
+              icon: Icons.check_circle_outline_rounded,
+              iconColor: AppColors.success,
+            ),
+            _MetricCard(
+              label: 'Expiring Soon',
+              value: '$_expiringSoonCount',
+              trend: 'Next 7 days',
+              trendColor: AppColors.warning,
+              icon: Icons.timer_outlined,
+              iconColor: AppColors.warning,
+            ),
+            _MetricCard(
+              label: 'Expired',
+              value: '$_expiredCount',
+              trend: 'Requires attention',
+              trendColor: AppColors.error,
+              icon: Icons.history_rounded,
+              iconColor: AppColors.error,
+            ),
+            _MetricCard(
+              label: 'Overdue',
+              value: '$_overdueCount',
+              trend: 'Payment overdue',
+              trendColor: AppColors.error,
+              icon: Icons.account_balance_wallet_outlined,
+              iconColor: AppColors.pink,
+            ),
           ],
         ),
       ),
@@ -311,7 +376,11 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search_rounded, color: AppColors.slate400, size: 20),
+                  Icon(
+                    Icons.search_rounded,
+                    color: AppColors.textTertiaryOf(context),
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
@@ -319,14 +388,21 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
                         _searchQuery = value;
                         _applyFilter();
                       },
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Search doctor by name, email or plan...',
-                        hintStyle: TextStyle(color: AppColors.slate400, fontSize: 13, fontWeight: FontWeight.w600),
+                        hintStyle: TextStyle(
+                          color: AppColors.textTertiaryOf(context),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -358,9 +434,19 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               padding: const EdgeInsets.all(32),
               child: Column(
                 children: [
-                  Icon(Icons.subscriptions_outlined, size: 48, color: AppColors.slate300),
+                  Icon(
+                    Icons.subscriptions_outlined,
+                    size: 48,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
                   const SizedBox(height: 12),
-                  Text('No subscriptions found', style: TextStyle(color: AppColors.slate500, fontWeight: FontWeight.w700)),
+                  Text(
+                    'No subscriptions found',
+                    style: TextStyle(
+                      color: AppColors.textTertiaryOf(context),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ],
               ),
             )
@@ -382,7 +468,11 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
                 status: _statusLabel(status),
                 expiry: _formatExpiry(expiryDate),
                 lastPay: _formatCurrency(amount),
-                payDate: lastPayDate != null ? _formatExpiry(lastPayDate).replaceAll('Expires in ', '').replaceAll('Expired ', 'Paid ') : 'N/A',
+                payDate: lastPayDate != null
+                    ? _formatExpiry(lastPayDate)
+                          .replaceAll('Expires in ', '')
+                          .replaceAll('Expired ', 'Paid ')
+                    : 'N/A',
                 initial: _getInitial(doctorName),
                 avatarUrl: profile?['avatar_url'] as String?,
               );
@@ -397,15 +487,65 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(
         color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Expanded(flex: 3, child: Text('Doctor', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.slate500))),
-          Expanded(flex: 2, child: Text('Plan & Amount', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.slate500))),
-          Expanded(flex: 2, child: Text('Status & Expiry', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.slate500))),
-          Expanded(flex: 2, child: Text('Last Payment', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.slate500))),
-          Text('Actions', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.slate500)),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'Doctor',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textTertiaryOf(context),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Plan & Amount',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textTertiaryOf(context),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Status & Expiry',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textTertiaryOf(context),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Last Payment',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textTertiaryOf(context),
+              ),
+            ),
+          ),
+          Text(
+            'Actions',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textTertiaryOf(context),
+            ),
+          ),
         ],
       ),
     );
@@ -419,26 +559,72 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${_subscriptions.length} Loaded', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.slate800)),
-              const Text('Select doctors to perform bulk actions', style: TextStyle(fontSize: 10, color: AppColors.slate500, fontWeight: FontWeight.w600)),
+              Text(
+                '${_subscriptions.length} Loaded',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
+              Text(
+                'Select doctors to perform bulk actions',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textTertiaryOf(context),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
           const Spacer(),
-          _BulkActionButton(icon: Icons.send_rounded, label: 'Send Reminder', color: AppColors.primary, onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select doctors to send reminders.')));
-          }),
+          _BulkActionButton(
+            icon: Icons.send_rounded,
+            label: 'Send Reminder',
+            color: AppColors.primary,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Select doctors to send reminders.'),
+                ),
+              );
+            },
+          ),
           const SizedBox(width: 8),
-          _BulkActionButton(icon: Icons.calendar_today_rounded, label: 'Extend Subscription', color: AppColors.primary, onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select doctors to extend subscriptions.')));
-          }),
+          _BulkActionButton(
+            icon: Icons.calendar_today_rounded,
+            label: 'Extend Subscription',
+            color: AppColors.primary,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Select doctors to extend subscriptions.'),
+                ),
+              );
+            },
+          ),
           const SizedBox(width: 8),
-          _BulkActionButton(icon: Icons.block_rounded, label: 'Suspend', color: AppColors.error, onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select doctors to suspend.')));
-          }),
+          _BulkActionButton(
+            icon: Icons.block_rounded,
+            label: 'Suspend',
+            color: AppColors.error,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Select doctors to suspend.')),
+              );
+            },
+          ),
           const SizedBox(width: 8),
-          _BulkActionButton(icon: Icons.file_download_outlined, label: 'Export', color: AppColors.textTertiaryOf(context), onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export is being prepared.')));
-          }),
+          _BulkActionButton(
+            icon: Icons.file_download_outlined,
+            label: 'Export',
+            color: AppColors.textTertiaryOf(context),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Export is being prepared.')),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -470,19 +656,55 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Subscription Overview', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+                  Text(
+                    'Subscription Overview',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimaryOf(context),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   Row(
                     children: [
-                      _CircularChart(value: activeRatio > 0 ? activeRatio : 0, label: '$total', subLabel: 'Total', color: AppColors.primary),
+                      _CircularChart(
+                        value: activeRatio > 0 ? activeRatio : 0,
+                        label: '$total',
+                        subLabel: 'Total',
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 32),
                       Expanded(
                         child: Column(
                           children: [
-                            _LegendItem(label: 'Active', value: '($_activeCount)', percentage: '${(activeRatio * 100).toStringAsFixed(1)}%', color: AppColors.primary),
-                            _LegendItem(label: 'Expiring Soon', value: '($_expiringSoonCount)', percentage: '${(expiringRatio * 100).toStringAsFixed(1)}%', color: AppColors.warning),
-                            _LegendItem(label: 'Expired', value: '($_expiredCount)', percentage: '${(expiredRatio * 100).toStringAsFixed(1)}%', color: AppColors.error),
-                            _LegendItem(label: 'Overdue', value: '($_overdueCount)', percentage: '${(overdueRatio * 100).toStringAsFixed(1)}%', color: AppColors.pink),
+                            _LegendItem(
+                              label: 'Active',
+                              value: '($_activeCount)',
+                              percentage:
+                                  '${(activeRatio * 100).toStringAsFixed(1)}%',
+                              color: AppColors.primary,
+                            ),
+                            _LegendItem(
+                              label: 'Expiring Soon',
+                              value: '($_expiringSoonCount)',
+                              percentage:
+                                  '${(expiringRatio * 100).toStringAsFixed(1)}%',
+                              color: AppColors.warning,
+                            ),
+                            _LegendItem(
+                              label: 'Expired',
+                              value: '($_expiredCount)',
+                              percentage:
+                                  '${(expiredRatio * 100).toStringAsFixed(1)}%',
+                              color: AppColors.error,
+                            ),
+                            _LegendItem(
+                              label: 'Overdue',
+                              value: '($_overdueCount)',
+                              percentage:
+                                  '${(overdueRatio * 100).toStringAsFixed(1)}%',
+                              color: AppColors.pink,
+                            ),
                           ],
                         ),
                       ),
@@ -505,18 +727,34 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Expiring Soon (Next 7 Days)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+                  Text(
+                    'Expiring Soon (Next 7 Days)',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimaryOf(context),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   if (expiringSoon.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text('No subscriptions expiring soon', style: TextStyle(color: AppColors.slate400, fontSize: 12)),
+                      child: Text(
+                        'No subscriptions expiring soon',
+                        style: TextStyle(
+                          color: AppColors.textTertiaryOf(context),
+                          fontSize: 12,
+                        ),
+                      ),
                     )
                   else
                     ...expiringSoon.map((sub) {
                       final profile = sub['profiles'] as Map<String, dynamic>?;
-                      final doctorName = profile?['full_name'] as String? ?? 'Unknown';
-                      final expiry = _formatExpiry(sub['expiry_date'] as String?);
+                      final doctorName =
+                          profile?['full_name'] as String? ?? 'Unknown';
+                      final expiry = _formatExpiry(
+                        sub['expiry_date'] as String?,
+                      );
                       return _SmallDoctorItem(
                         name: doctorName,
                         sub: expiry,
@@ -545,9 +783,30 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               children: [
                 _SectionHeader('Status Breakdown'),
                 const SizedBox(height: 16),
-                _ProgressRow(label: 'Active', value: '$_activeCount', percentage: total > 0 ? '${(_activeCount / total * 100).toStringAsFixed(1)}%' : '0%', color: AppColors.primary),
-                _ProgressRow(label: 'Expiring Soon', value: '$_expiringSoonCount', percentage: total > 0 ? '${(_expiringSoonCount / total * 100).toStringAsFixed(1)}%' : '0%', color: AppColors.warning),
-                _ProgressRow(label: 'Expired', value: '$_expiredCount', percentage: total > 0 ? '${(_expiredCount / total * 100).toStringAsFixed(1)}%' : '0%', color: AppColors.error),
+                _ProgressRow(
+                  label: 'Active',
+                  value: '$_activeCount',
+                  percentage: total > 0
+                      ? '${(_activeCount / total * 100).toStringAsFixed(1)}%'
+                      : '0%',
+                  color: AppColors.primary,
+                ),
+                _ProgressRow(
+                  label: 'Expiring Soon',
+                  value: '$_expiringSoonCount',
+                  percentage: total > 0
+                      ? '${(_expiringSoonCount / total * 100).toStringAsFixed(1)}%'
+                      : '0%',
+                  color: AppColors.warning,
+                ),
+                _ProgressRow(
+                  label: 'Expired',
+                  value: '$_expiredCount',
+                  percentage: total > 0
+                      ? '${(_expiredCount / total * 100).toStringAsFixed(1)}%'
+                      : '0%',
+                  color: AppColors.error,
+                ),
               ],
             ),
           ),
@@ -557,9 +816,28 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               children: [
                 _SectionHeader('Total Doctors'),
                 const SizedBox(height: 16),
-                _ProgressRow(label: 'With Active Sub', value: '$_activeCount', percentage: '$_totalDoctors total', color: AppColors.primary),
-                _ProgressRow(label: 'No Sub (Inactive)', value: '${_totalDoctors - _allSubscriptions.length}', percentage: _totalDoctors > 0 ? '${((_totalDoctors - _allSubscriptions.length) / _totalDoctors * 100).toStringAsFixed(1)}%' : '0%', color: AppColors.slate400),
-                _ProgressRow(label: 'Overdue', value: '$_overdueCount', percentage: total > 0 ? '${(_overdueCount / total * 100).toStringAsFixed(1)}%' : '0%', color: AppColors.pink),
+                _ProgressRow(
+                  label: 'With Active Sub',
+                  value: '$_activeCount',
+                  percentage: '$_totalDoctors total',
+                  color: AppColors.primary,
+                ),
+                _ProgressRow(
+                  label: 'No Sub (Inactive)',
+                  value: '${_totalDoctors - _allSubscriptions.length}',
+                  percentage: _totalDoctors > 0
+                      ? '${((_totalDoctors - _allSubscriptions.length) / _totalDoctors * 100).toStringAsFixed(1)}%'
+                      : '0%',
+                  color: AppColors.textTertiaryOf(context),
+                ),
+                _ProgressRow(
+                  label: 'Overdue',
+                  value: '$_overdueCount',
+                  percentage: total > 0
+                      ? '${(_overdueCount / total * 100).toStringAsFixed(1)}%'
+                      : '0%',
+                  color: AppColors.pink,
+                ),
               ],
             ),
           ),
@@ -570,21 +848,54 @@ class _DoctorSubscriptionManagementState extends ConsumerState<DoctorSubscriptio
               children: [
                 _SectionHeader('Quick Actions'),
                 const SizedBox(height: 16),
-                _QuickActionTile(icon: Icons.warning_amber_rounded, label: 'Overdue Payments', color: AppColors.error, onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Overdue payments list is under development.')));
-                }),
-                _QuickActionTile(icon: Icons.bar_chart_rounded, label: 'Subscription Reports', color: AppColors.primary, onTap: () => context.push('/admin/reports')),
-                _QuickActionTile(icon: Icons.verified_user_rounded, label: 'Payment Verification', color: AppColors.success, onTap: () => context.push('/admin/financial-moderation')),
-                _QuickActionTile(icon: Icons.notifications_active_rounded, label: 'Notification Settings', color: AppColors.pink, onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Notification Settings'),
-                      content: const Text('Configure subscription notifications.'),
-                      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
-                    ),
-                  );
-                }),
+                _QuickActionTile(
+                  icon: Icons.warning_amber_rounded,
+                  label: 'Overdue Payments',
+                  color: AppColors.error,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Overdue payments list is under development.',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                _QuickActionTile(
+                  icon: Icons.bar_chart_rounded,
+                  label: 'Subscription Reports',
+                  color: AppColors.primary,
+                  onTap: () => context.push('/admin/reports'),
+                ),
+                _QuickActionTile(
+                  icon: Icons.verified_user_rounded,
+                  label: 'Payment Verification',
+                  color: AppColors.success,
+                  onTap: () => context.push('/admin/financial-moderation'),
+                ),
+                _QuickActionTile(
+                  icon: Icons.notifications_active_rounded,
+                  label: 'Notification Settings',
+                  color: AppColors.pink,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Notification Settings'),
+                        content: const Text(
+                          'Configure subscription notifications.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -604,7 +915,14 @@ class _MetricCard extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
 
-  const _MetricCard({required this.label, required this.value, required this.trend, required this.trendColor, required this.icon, required this.iconColor});
+  const _MetricCard({
+    required this.label,
+    required this.value,
+    required this.trend,
+    required this.trendColor,
+    required this.icon,
+    required this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -612,7 +930,11 @@ class _MetricCard extends StatelessWidget {
       width: 140,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context))),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceAltOf(context),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -620,17 +942,41 @@ class _MetricCard extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Icon(icon, color: iconColor, size: 16),
               ),
               const Spacer(),
               if (trend.isNotEmpty)
-                Text(trend, style: TextStyle(color: trendColor, fontSize: 9, fontWeight: FontWeight.w900)),
+                Text(
+                  trend,
+                  style: TextStyle(
+                    color: trendColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.slate800)),
-          Text(label, style: const TextStyle(fontSize: 9, color: AppColors.slate500, fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 9,
+              color: AppColors.textTertiaryOf(context),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );
@@ -641,7 +987,11 @@ class _TabButton extends StatelessWidget {
   final String label;
   final bool isSelected;
   final Color activeColor;
-  const _TabButton({required this.label, required this.isSelected, required this.activeColor});
+  const _TabButton({
+    required this.label,
+    required this.isSelected,
+    required this.activeColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -649,11 +999,22 @@ class _TabButton extends StatelessWidget {
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isSelected ? activeColor.withValues(alpha: 0.1) : AppColors.surfaceOf(context),
+        color: isSelected
+            ? activeColor.withValues(alpha: 0.1)
+            : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isSelected ? activeColor : AppColors.borderLightOf(context)),
+        border: Border.all(
+          color: isSelected ? activeColor : AppColors.borderLightOf(context),
+        ),
       ),
-      child: Text(label, style: TextStyle(color: isSelected ? activeColor : AppColors.slate500, fontSize: 12, fontWeight: FontWeight.w900)),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? activeColor : AppColors.textTertiaryOf(context),
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
     );
   }
 }
@@ -668,13 +1029,20 @@ class _IconButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label coming soon'), backgroundColor: AppColors.primary),
+          SnackBar(
+            content: Text('$label coming soon'),
+            backgroundColor: AppColors.primary,
+          ),
         );
       },
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderLightOf(context))),
-        child: Icon(icon, color: AppColors.slate500, size: 20),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borderLightOf(context)),
+        ),
+        child: Icon(icon, color: AppColors.textTertiaryOf(context), size: 20),
       ),
     );
   }
@@ -691,13 +1059,27 @@ class _SubscriptionRow extends StatelessWidget {
   final String initial;
   final String? avatarUrl;
 
-  const _SubscriptionRow({required this.name, required this.plan, required this.amount, required this.status, required this.expiry, required this.lastPay, required this.payDate, required this.initial, this.avatarUrl});
+  const _SubscriptionRow({
+    required this.name,
+    required this.plan,
+    required this.amount,
+    required this.status,
+    required this.expiry,
+    required this.lastPay,
+    required this.payDate,
+    required this.initial,
+    this.avatarUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.borderLight))),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.borderLightOf(context)),
+        ),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -709,8 +1091,22 @@ class _SubscriptionRow extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.slate800)),
-                    Text(plan, style: const TextStyle(fontSize: 9, color: AppColors.slate400, fontWeight: FontWeight.w600)),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        color: AppColors.textPrimaryOf(context),
+                      ),
+                    ),
+                    Text(
+                      plan,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: AppColors.textTertiaryOf(context),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -721,8 +1117,22 @@ class _SubscriptionRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(plan, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.slate500)),
-                Text(amount, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+                Text(
+                  plan,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
+                ),
+                Text(
+                  amount,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
               ],
             ),
           ),
@@ -733,7 +1143,14 @@ class _SubscriptionRow extends StatelessWidget {
               children: [
                 _StatusBadge(label: status),
                 const SizedBox(height: 4),
-                Text(expiry, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.slate400)),
+                Text(
+                  expiry,
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
+                ),
               ],
             ),
           ),
@@ -742,12 +1159,29 @@ class _SubscriptionRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(lastPay, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.slate800)),
-                Text(payDate, style: const TextStyle(fontSize: 9, color: AppColors.slate400, fontWeight: FontWeight.w600)),
+                Text(
+                  lastPay,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
+                Text(
+                  payDate,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: AppColors.textTertiaryOf(context),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
-          const Icon(Icons.more_vert_rounded, color: AppColors.slate300),
+          Icon(
+            Icons.more_vert_rounded,
+            color: AppColors.textTertiaryOf(context),
+          ),
         ],
       ),
     );
@@ -775,15 +1209,25 @@ class _StatusBadge extends StatelessWidget {
         color = AppColors.pink;
         break;
       case 'suspended':
-        color = AppColors.slate500;
+        color = AppColors.textTertiaryOf(context);
         break;
       default:
-        color = AppColors.slate400;
+        color = AppColors.textTertiaryOf(context);
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
-      child: Text(label, style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w900)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 8,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
     );
   }
 }
@@ -793,7 +1237,12 @@ class _BulkActionButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback? onTap;
-  const _BulkActionButton({required this.icon, required this.label, required this.color, this.onTap});
+  const _BulkActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -801,7 +1250,11 @@ class _BulkActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderLightOf(context))),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.borderLightOf(context)),
+        ),
         child: Icon(icon, color: color, size: 18),
       ),
     );
@@ -813,7 +1266,12 @@ class _CircularChart extends StatelessWidget {
   final String label;
   final String subLabel;
   final Color color;
-  const _CircularChart({required this.value, required this.label, required this.subLabel, required this.color});
+  const _CircularChart({
+    required this.value,
+    required this.label,
+    required this.subLabel,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -826,15 +1284,25 @@ class _CircularChart extends StatelessWidget {
           child: CircularProgressIndicator(
             value: value > 0 ? value : 0,
             strokeWidth: 8,
-            backgroundColor: AppColors.slate200,
+            backgroundColor: AppColors.borderLightOf(context),
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900)),
-            Text(subLabel, style: const TextStyle(fontSize: 8, color: AppColors.slate400, fontWeight: FontWeight.w700)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+            ),
+            Text(
+              subLabel,
+              style: TextStyle(
+                fontSize: 8,
+                color: AppColors.textTertiaryOf(context),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ],
         ),
       ],
@@ -847,7 +1315,12 @@ class _LegendItem extends StatelessWidget {
   final String value;
   final String percentage;
   final Color color;
-  const _LegendItem({required this.label, required this.value, required this.percentage, required this.color});
+  const _LegendItem({
+    required this.label,
+    required this.value,
+    required this.percentage,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -855,13 +1328,38 @@ class _LegendItem extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
           const SizedBox(width: 12),
-          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.slate500)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textTertiaryOf(context),
+            ),
+          ),
           const Spacer(),
-          Text(value, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.slate400)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textTertiaryOf(context),
+            ),
+          ),
           const SizedBox(width: 12),
-          Text(percentage, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+          Text(
+            percentage,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
         ],
       ),
     );
@@ -873,7 +1371,12 @@ class _SmallDoctorItem extends StatelessWidget {
   final String sub;
   final String initial;
   final String? avatarUrl;
-  const _SmallDoctorItem({required this.name, required this.sub, required this.initial, this.avatarUrl});
+  const _SmallDoctorItem({
+    required this.name,
+    required this.sub,
+    required this.initial,
+    this.avatarUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -887,8 +1390,22 @@ class _SmallDoctorItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: AppColors.slate800)),
-                Text(sub, style: const TextStyle(fontSize: 9, color: AppColors.warning, fontWeight: FontWeight.w800)),
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
+                Text(
+                  sub,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ],
             ),
           ),
@@ -908,8 +1425,19 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.slate800)),
-        const Icon(Icons.more_horiz_rounded, size: 16, color: AppColors.slate300),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+          ),
+        ),
+        Icon(
+          Icons.more_horiz_rounded,
+          size: 16,
+          color: AppColors.textTertiaryOf(context),
+        ),
       ],
     );
   }
@@ -920,7 +1448,12 @@ class _ProgressRow extends StatelessWidget {
   final String value;
   final String percentage;
   final Color color;
-  const _ProgressRow({required this.label, required this.value, required this.percentage, required this.color});
+  const _ProgressRow({
+    required this.label,
+    required this.value,
+    required this.percentage,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -933,14 +1466,28 @@ class _ProgressRow extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.slate500)),
-              Text('$value ($percentage)', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.slate800)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textTertiaryOf(context),
+                ),
+              ),
+              Text(
+                '$value ($percentage)',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 6),
           LinearProgressIndicator(
             value: parsedValue > 0 ? (parsedValue / total).clamp(0.0, 1.0) : 0,
-            backgroundColor: AppColors.slate200,
+            backgroundColor: AppColors.borderLightOf(context),
             valueColor: AlwaysStoppedAnimation<Color>(color),
             minHeight: 4,
           ),
@@ -955,7 +1502,12 @@ class _QuickActionTile extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback? onTap;
-  const _QuickActionTile({required this.icon, required this.label, required this.color, this.onTap});
+  const _QuickActionTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -964,12 +1516,24 @@ class _QuickActionTile extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(color: color.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Row(
           children: [
             Icon(icon, color: color, size: 16),
             const SizedBox(width: 12),
-            Expanded(child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900))),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -7,23 +7,23 @@ import 'admin_scaffold.dart';
 
 final adminEmergencyRequestsProvider =
     StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
-  return supabase
-      .from('appointments')
-      .stream(primaryKey: ['id'])
-      .eq('status', 'emergency_request')
-      .order('created_at', ascending: false)
-      .map((data) => List<Map<String, dynamic>>.from(data));
-});
+      return supabase
+          .from('appointments')
+          .stream(primaryKey: ['id'])
+          .eq('status', 'emergency_request')
+          .order('created_at', ascending: false)
+          .map((data) => List<Map<String, dynamic>>.from(data));
+    });
 
 final emergencyAcceptedProvider =
     StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
-  return supabase
-      .from('appointments')
-      .stream(primaryKey: ['id'])
-      .eq('status', 'emergency_accepted')
-      .order('created_at', ascending: false)
-      .map((data) => List<Map<String, dynamic>>.from(data));
-});
+      return supabase
+          .from('appointments')
+          .stream(primaryKey: ['id'])
+          .eq('status', 'emergency_accepted')
+          .order('created_at', ascending: false)
+          .map((data) => List<Map<String, dynamic>>.from(data));
+    });
 
 class AdminEmergencyQueueScreen extends ConsumerStatefulWidget {
   const AdminEmergencyQueueScreen({super.key});
@@ -38,8 +38,7 @@ class _AdminEmergencyQueueScreenState
   List<Map<String, dynamic>> _enrichedRequests = [];
   bool _loadingProfiles = false;
 
-  Future<void> _enrichRequests(
-      List<Map<String, dynamic>> requests) async {
+  Future<void> _enrichRequests(List<Map<String, dynamic>> requests) async {
     if (requests.isEmpty) {
       setState(() {
         _enrichedRequests = [];
@@ -63,18 +62,27 @@ class _AdminEmergencyQueueScreenState
         .inFilter('id', ids.toList());
 
     final profileMap = {
-      for (final p in profiles) p['id'] as String: {
-        'full_name': p['full_name'] as String,
-        'avatar_url': p['avatar_url'] as String?,
-      },
+      for (final p in profiles)
+        p['id'] as String: {
+          'full_name': p['full_name'] as String,
+          'avatar_url': p['avatar_url'] as String?,
+        },
     };
 
     setState(() {
       _enrichedRequests = requests.map((r) {
-        final patientProfile = r['patient_id'] != null ? profileMap[r['patient_id']] : null;
-        final doctorProfile = r['doctor_id'] != null ? profileMap[r['doctor_id']] : null;
-        final patientName = patientProfile != null ? (patientProfile['full_name'] ?? 'Unknown Patient') : 'Guest Patient';
-        final doctorName = doctorProfile != null ? (doctorProfile['full_name'] ?? 'Unknown Doctor') : 'Unassigned';
+        final patientProfile = r['patient_id'] != null
+            ? profileMap[r['patient_id']]
+            : null;
+        final doctorProfile = r['doctor_id'] != null
+            ? profileMap[r['doctor_id']]
+            : null;
+        final patientName = patientProfile != null
+            ? (patientProfile['full_name'] ?? 'Unknown Patient')
+            : 'Guest Patient';
+        final doctorName = doctorProfile != null
+            ? (doctorProfile['full_name'] ?? 'Unknown Doctor')
+            : 'Unassigned';
         return {
           ...r,
           '_patientName': patientName,
@@ -116,11 +124,14 @@ class _AdminEmergencyQueueScreenState
             children: [
               const Icon(Icons.error_outline, color: AppColors.error, size: 48),
               const SizedBox(height: 12),
-              Text('Failed to load emergency queue',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary)),
+              Text(
+                'Failed to load emergency queue',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => ref.invalidate(adminEmergencyRequestsProvider),
@@ -130,7 +141,8 @@ class _AdminEmergencyQueueScreenState
           ),
         ),
         data: (requests) {
-          final acceptedCount = acceptedAsync.whenOrNull(data: (a) => a.length) ?? 0;
+          final acceptedCount =
+              acceptedAsync.whenOrNull(data: (a) => a.length) ?? 0;
 
           _enrichRequests(requests);
 
@@ -149,26 +161,33 @@ class _AdminEmergencyQueueScreenState
                         color: AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(18),
                       ),
-                      child: const Icon(Icons.emergency_rounded,
-                          color: AppColors.error, size: 28),
+                      child: const Icon(
+                        Icons.emergency_rounded,
+                        color: AppColors.error,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Emergency Queue',
-                              style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.textPrimary)),
+                          Text(
+                            'Emergency Queue',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.textPrimaryOf(context),
+                            ),
+                          ),
                           const SizedBox(height: 4),
                           Text(
                             '${requests.length} pending • $acceptedCount accepted today',
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textSecondary),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondaryOf(context),
+                            ),
                           ),
                         ],
                       ),
@@ -214,11 +233,14 @@ class _AdminEmergencyQueueScreenState
                     decoration: BoxDecoration(
                       color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: AppColors.borderLightOf(context)),
+                      border: Border.all(
+                        color: AppColors.borderLightOf(context),
+                      ),
                     ),
                     child: const Center(
-                      child:
-                          CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     ),
                   )
                 else if (_enrichedRequests.isEmpty)
@@ -228,7 +250,9 @@ class _AdminEmergencyQueueScreenState
                     decoration: BoxDecoration(
                       color: AppColors.surfaceOf(context),
                       borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: AppColors.borderLightOf(context)),
+                      border: Border.all(
+                        color: AppColors.borderLightOf(context),
+                      ),
                       boxShadow: const [
                         BoxShadow(
                           color: AppColors.shadowLight,
@@ -246,27 +270,32 @@ class _AdminEmergencyQueueScreenState
                             color: AppColors.success.withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.health_and_safety_rounded,
-                              color: AppColors.success, size: 34),
+                          child: const Icon(
+                            Icons.health_and_safety_rounded,
+                            color: AppColors.success,
+                            size: 34,
+                          ),
                         ),
                         const SizedBox(height: 18),
-                        const Text(
+                        Text(
                           'No emergency consults waiting',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.textPrimary),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimaryOf(context),
+                          ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'New guest emergency bookings will appear here for immediate operational review.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 13,
-                              height: 1.5,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary),
+                            fontSize: 13,
+                            height: 1.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondaryOf(context),
+                          ),
                         ),
                       ],
                     ),
@@ -279,24 +308,29 @@ class _AdminEmergencyQueueScreenState
                     ),
                   ),
                 const SizedBox(height: 28),
-                const Text('Response Checklist',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary)),
+                Text(
+                  'Response Checklist',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
                 const SizedBox(height: 14),
                 const _ChecklistItem(
-                    title: 'Confirm doctor availability',
-                    subtitle:
-                        'Ensure the selected specialist is online and responsive.'),
+                  title: 'Confirm doctor availability',
+                  subtitle:
+                      'Ensure the selected specialist is online and responsive.',
+                ),
                 const _ChecklistItem(
-                    title: 'Validate emergency payment',
-                    subtitle:
-                        'Check P2P evidence before session activation.'),
+                  title: 'Validate emergency payment',
+                  subtitle: 'Check P2P evidence before session activation.',
+                ),
                 const _ChecklistItem(
-                    title: 'Monitor conversion follow-up',
-                    subtitle:
-                        'Guide guests to secure their records after consultation.'),
+                  title: 'Monitor conversion follow-up',
+                  subtitle:
+                      'Guide guests to secure their records after consultation.',
+                ),
                 const SizedBox(height: 40),
               ],
             ),
@@ -334,18 +368,24 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 24),
           const SizedBox(height: 14),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textPrimary)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textSecondary,
-                  letterSpacing: 1.2)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textSecondaryOf(context),
+              letterSpacing: 1.2,
+            ),
+          ),
         ],
       ),
     );
@@ -369,14 +409,16 @@ class _EmergencyRequestCard extends StatelessWidget {
     final doctorName = appointment['_doctorName'] as String? ?? 'Unassigned';
     final amount = (appointment['total_amount'] as num?) ?? 0;
     final metadata = appointment['metadata'] as Map<String, dynamic>?;
-    final isGuest = patientName == 'Guest Patient' ||
+    final isGuest =
+        patientName == 'Guest Patient' ||
         (metadata != null && metadata.containsKey('guest_token'));
     final appointmentDate = appointment['appointment_date'] as String?;
 
     final statusColor = isAccepted ? AppColors.success : AppColors.error;
     final statusLabel = isAccepted ? 'ACCEPTED' : 'PENDING';
-    final statusIcon =
-        isAccepted ? Icons.check_circle_outline_rounded : Icons.access_time_rounded;
+    final statusIcon = isAccepted
+        ? Icons.check_circle_outline_rounded
+        : Icons.access_time_rounded;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -411,10 +453,10 @@ class _EmergencyRequestCard extends StatelessWidget {
                   children: [
                     Text(
                       doctorName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary,
+                        color: AppColors.textPrimaryOf(context),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -423,14 +465,17 @@ class _EmergencyRequestCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryOf(context),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -454,7 +499,7 @@ class _EmergencyRequestCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          const Divider(color: AppColors.borderLight, height: 1),
+          Divider(color: AppColors.borderLightOf(context), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -464,25 +509,36 @@ class _EmergencyRequestCard extends StatelessWidget {
                 radius: 10,
               ),
               const SizedBox(width: 6),
-              _infoChip(Icons.person_outline_rounded, patientName,
-                  isGuest ? AppColors.warning : AppColors.textSecondary),
+              _infoChip(
+                Icons.person_outline_rounded,
+                patientName,
+                isGuest
+                    ? AppColors.warning
+                    : AppColors.textSecondaryOf(context),
+              ),
               const SizedBox(width: 10),
-              _infoChip(Icons.calendar_today_rounded,
-                  _formatDate(appointmentDate), AppColors.textSecondary),
+              _infoChip(
+                Icons.calendar_today_rounded,
+                _formatDate(appointmentDate),
+                AppColors.textSecondaryOf(context),
+              ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              _infoChip(Icons.currency_exchange_rounded,
-                  '₦${amount.toStringAsFixed(0)}', AppColors.success),
+              _infoChip(
+                Icons.currency_exchange_rounded,
+                '₦${amount.toStringAsFixed(0)}',
+                AppColors.success,
+              ),
               const Spacer(),
               Text(
                 timeAgo,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                 ),
               ),
             ],
@@ -522,8 +578,18 @@ class _EmergencyRequestCard extends StatelessWidget {
     final date = DateTime.tryParse(iso);
     if (date == null) return 'No date';
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -554,26 +620,35 @@ class _ChecklistItem extends StatelessWidget {
               color: AppColors.success.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check_rounded,
-                color: AppColors.success, size: 18),
+            child: const Icon(
+              Icons.check_rounded,
+              color: AppColors.success,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle,
-                    style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                        height: 1.4)),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondaryOf(context),
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),

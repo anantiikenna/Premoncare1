@@ -92,11 +92,9 @@ class _FinancialModerationScreenState
         }
       }
 
-      final disputes =
-          await supabase.from('disputes').select('id, status');
+      final disputes = await supabase.from('disputes').select('id, status');
       final openDisputes = disputes
-          .where((d) =>
-              (d['status'] == 'open') || (d['status'] == 'in_review'))
+          .where((d) => (d['status'] == 'open') || (d['status'] == 'in_review'))
           .length;
 
       if (mounted) {
@@ -202,10 +200,7 @@ class _FinancialModerationScreenState
       }
 
       final enriched = data.map((d) {
-        return {
-          ...d,
-          'user_name': profileMap[d['user_id']] ?? 'Unknown',
-        };
+        return {...d, 'user_name': profileMap[d['user_id']] ?? 'Unknown'};
       }).toList();
 
       if (mounted) setState(() => _disputes = enriched);
@@ -231,8 +226,18 @@ class _FinancialModerationScreenState
     try {
       final dt = DateTime.parse(isoDate).toLocal();
       const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ];
       final h = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
       final ampm = dt.hour >= 12 ? 'PM' : 'AM';
@@ -262,7 +267,7 @@ class _FinancialModerationScreenState
       case 'closed':
         return AppColors.success;
       default:
-        return AppColors.slate400;
+        return AppColors.textTertiaryOf(context);
     }
   }
 
@@ -275,74 +280,82 @@ class _FinancialModerationScreenState
         color: AppColors.primary,
         child: _isLoading
             ? const Center(
-                child: CircularProgressIndicator(color: AppColors.primary))
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
             : _error != null && _transactions.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.error_outline_rounded,
-                              color: AppColors.error, size: 48),
-                          const SizedBox(height: 16),
-                          Text(
-                            _error!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: _loadData,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: const Text('Retry',
-                                style: TextStyle(
-                                    color: AppColors.textInverse,
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                        ],
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        color: AppColors.error,
+                        size: 48,
                       ),
-                    ),
-                  )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 24),
-                        _buildFinancialStats(),
-                        const SizedBox(height: 32),
-                        _buildFilterTabs(),
-                        const SizedBox(height: 20),
-                        _buildSearchAndFilters(),
-                        const SizedBox(height: 32),
-                        _buildSectionHeader('Financial Alerts', onSeeAll: () {}),
-                        const SizedBox(height: 16),
-                        _buildFinancialAlerts(),
-                        const SizedBox(height: 32),
-                        _buildSectionHeader('Recent Transactions', onSeeAll: () {}),
-                        const SizedBox(height: 16),
-                        _buildTransactionsList(),
-                        const SizedBox(height: 32),
-                        _buildRevenueAnalysis(),
-                        const SizedBox(height: 32),
-                        _buildDisputesAndPayouts(),
-                        const SizedBox(height: 32),
-                        _buildSectionHeader('Quick Actions'),
-                        const SizedBox(height: 16),
-                        _buildQuickActions(context),
-                        const SizedBox(height: 40),
-                      ],
-                    ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _error!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.textSecondaryOf(context),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _loadData,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Retry',
+                          style: TextStyle(
+                            color: AppColors.textInverse,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildFinancialStats(),
+                    const SizedBox(height: 32),
+                    _buildFilterTabs(),
+                    const SizedBox(height: 20),
+                    _buildSearchAndFilters(),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('Financial Alerts', onSeeAll: () {}),
+                    const SizedBox(height: 16),
+                    _buildFinancialAlerts(),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('Recent Transactions', onSeeAll: () {}),
+                    const SizedBox(height: 16),
+                    _buildTransactionsList(),
+                    const SizedBox(height: 32),
+                    _buildRevenueAnalysis(),
+                    const SizedBox(height: 32),
+                    _buildDisputesAndPayouts(),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('Quick Actions'),
+                    const SizedBox(height: 16),
+                    _buildQuickActions(context),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -367,7 +380,8 @@ class _FinancialModerationScreenState
         _FinanceStatCard(
           title: 'Total Payouts',
           value: _formatAmount(_totalPayouts),
-          trend: '${_transactions.where((t) => t['status'] == 'approved').length} txns',
+          trend:
+              '${_transactions.where((t) => t['status'] == 'approved').length} txns',
           trendPositive: true,
           icon: Icons.account_balance_wallet_outlined,
           color: AppColors.primary,
@@ -423,8 +437,10 @@ class _FinancialModerationScreenState
           children: [
             Expanded(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceOf(context),
                   borderRadius: BorderRadius.circular(16),
@@ -432,13 +448,16 @@ class _FinancialModerationScreenState
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.search_rounded,
-                        color: AppColors.textTertiary, size: 20),
+                    Icon(
+                      Icons.search_rounded,
+                      color: AppColors.textTertiaryOf(context),
+                      size: 20,
+                    ),
                     SizedBox(width: 12),
                     Text(
                       'Search by name, transaction ID...',
                       style: TextStyle(
-                        color: AppColors.textTertiary,
+                        color: AppColors.textTertiaryOf(context),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -506,7 +525,7 @@ class _FinancialModerationScreenState
           child: Text(
             'No transactions found',
             style: TextStyle(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryOf(context),
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -523,8 +542,7 @@ class _FinancialModerationScreenState
         final name = isRefund
             ? (t['sender_name'] as String? ?? 'Unknown')
             : (t['recipient_name'] as String? ?? 'Unknown');
-        final initial =
-            name.isNotEmpty ? name[0].toUpperCase() : '?';
+        final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -534,11 +552,15 @@ class _FinancialModerationScreenState
             id: (t['id'] as String? ?? '').substring(0, 8),
             date: _formatDate(t['created_at'] as String?),
             amount: '${isRefund ? "- " : ""}${_formatAmount(amount)}',
-            amountColor: isRefund ? AppColors.error : AppColors.textPrimary,
+            amountColor: isRefund
+                ? AppColors.error
+                : AppColors.textPrimaryOf(context),
             status: _capitalizeStatus(status),
             statusColor: _statusColor(status),
             initial: initial,
-            avatarUrl: isRefund ? (t['sender_avatar'] as String?) : (t['recipient_avatar'] as String?),
+            avatarUrl: isRefund
+                ? (t['sender_avatar'] as String?)
+                : (t['recipient_avatar'] as String?),
             receiptUrl: t['receipt_url'] as String?,
           ),
         );
@@ -576,12 +598,15 @@ class _FinancialModerationScreenState
     final other = total - approved - pending;
     final otherPositive = other > 0 ? other : 0;
 
-    final approvedPct =
-        total > 0 ? ((approved / total) * 100).toStringAsFixed(1) : '0.0';
-    final pendingPct =
-        total > 0 ? ((pending / total) * 100).toStringAsFixed(1) : '0.0';
-    final otherPct =
-        total > 0 ? ((otherPositive / total) * 100).toStringAsFixed(1) : '0.0';
+    final approvedPct = total > 0
+        ? ((approved / total) * 100).toStringAsFixed(1)
+        : '0.0';
+    final pendingPct = total > 0
+        ? ((pending / total) * 100).toStringAsFixed(1)
+        : '0.0';
+    final otherPct = total > 0
+        ? ((otherPositive / total) * 100).toStringAsFixed(1)
+        : '0.0';
 
     return Row(
       children: [
@@ -604,13 +629,14 @@ class _FinancialModerationScreenState
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.textPrimary,
+                    color: AppColors.textPrimaryOf(context),
                   ),
                 ),
                 SizedBox(
                   height: 120,
                   child: CustomPaint(
-                      painter: _LineChartPainter(AppColors.primary)),
+                    painter: _LineChartPainter(AppColors.primary),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -644,10 +670,10 @@ class _FinancialModerationScreenState
                       child: CircularProgressIndicator(
                         value: approved / (total > 0 ? total : 1),
                         strokeWidth: 10,
-                        backgroundColor:
-                            AppColors.borderLightOf(context),
+                        backgroundColor: AppColors.borderLightOf(context),
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.primary),
+                          AppColors.primary,
+                        ),
                       ),
                     ),
                     Column(
@@ -657,7 +683,7 @@ class _FinancialModerationScreenState
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.textPrimary,
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         const Text(
@@ -665,7 +691,7 @@ class _FinancialModerationScreenState
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryOf(context),
                           ),
                         ),
                       ],
@@ -689,7 +715,7 @@ class _FinancialModerationScreenState
                   label: 'Other',
                   value: _formatAmount(otherPositive),
                   percentage: '$otherPct%',
-                  color: AppColors.slate500,
+                  color: AppColors.textTertiaryOf(context),
                 ),
               ],
             ),
@@ -702,15 +728,27 @@ class _FinancialModerationScreenState
   List<Widget> _weekLabels() {
     final now = DateTime.now();
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return List.generate(7, (i) {
       final d = now.subtract(Duration(days: 6 - i));
       return Text(
         '${months[d.month - 1]} ${d.day}',
-        style: const TextStyle(
-            fontSize: 10, color: AppColors.textTertiary),
+        style: TextStyle(
+          fontSize: 10,
+          color: AppColors.textTertiaryOf(context),
+        ),
       );
     });
   }
@@ -724,7 +762,7 @@ class _FinancialModerationScreenState
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         Row(
@@ -733,14 +771,14 @@ class _FinancialModerationScreenState
               'This Week',
               style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
                 fontWeight: FontWeight.w700,
               ),
             ),
             Icon(
               Icons.keyboard_arrow_down_rounded,
               size: 16,
-              color: AppColors.textSecondary.withValues(alpha: 0.5),
+              color: AppColors.textSecondaryOf(context).withValues(alpha: 0.5),
             ),
           ],
         ),
@@ -776,22 +814,29 @@ class _FinancialModerationScreenState
                     subtitle: 'No open disputes to review',
                   )
                 else
-                  ..._disputes.take(3).expand((d) => [
-                        _DisputeItem(
-                          name: d['user_name'] as String? ?? 'Unknown',
-                          sub: d['title'] as String? ??
-                              d['description'] as String? ??
-                              'No description',
-                          id: (d['id'] as String? ?? '').substring(0, 8),
-                          time: _formatDate(d['created_at'] as String?),
-                          status: _capitalizeStatus(
-                              d['status'] as String? ?? 'open'),
-                          color: _statusColor(d['status'] as String? ?? 'open'),
-                        ),
-                        if (d != _disputes.last)
-                          const Divider(
-                              height: 24, color: AppColors.divider),
-                      ]),
+                  ..._disputes
+                      .take(3)
+                      .expand(
+                        (d) => [
+                          _DisputeItem(
+                            name: d['user_name'] as String? ?? 'Unknown',
+                            sub:
+                                d['title'] as String? ??
+                                d['description'] as String? ??
+                                'No description',
+                            id: (d['id'] as String? ?? '').substring(0, 8),
+                            time: _formatDate(d['created_at'] as String?),
+                            status: _capitalizeStatus(
+                              d['status'] as String? ?? 'open',
+                            ),
+                            color: _statusColor(
+                              d['status'] as String? ?? 'open',
+                            ),
+                          ),
+                          if (d != _disputes.last)
+                            const Divider(height: 24, color: AppColors.divider),
+                        ],
+                      ),
               ],
             ),
           ),
@@ -819,10 +864,10 @@ class _FinancialModerationScreenState
                 else
                   ...pendingPayments.take(3).expand((p) {
                     final amount = (p['amount'] as num?)?.toInt() ?? 0;
-                    final name =
-                        p['recipient_name'] as String? ?? 'Unknown';
-                    final initial =
-                        name.isNotEmpty ? name[0].toUpperCase() : '?';
+                    final name = p['recipient_name'] as String? ?? 'Unknown';
+                    final initial = name.isNotEmpty
+                        ? name[0].toUpperCase()
+                        : '?';
                     return [
                       _PayoutItem(
                         name: name,
@@ -833,8 +878,7 @@ class _FinancialModerationScreenState
                         avatarUrl: p['recipient_avatar'] as String?,
                       ),
                       if (p != pendingPayments.last)
-                        const Divider(
-                            height: 24, color: AppColors.divider),
+                        const Divider(height: 24, color: AppColors.divider),
                     ];
                   }),
               ],
@@ -854,7 +898,7 @@ class _FinancialModerationScreenState
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         const Text(
@@ -894,7 +938,12 @@ class _FinancialModerationScreenState
               builder: (ctx) => AlertDialog(
                 title: const Text('Review Refunds'),
                 content: const Text('Refund review is under development.'),
-                actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('OK'),
+                  ),
+                ],
               ),
             );
           },
@@ -917,7 +966,9 @@ class _FinancialModerationScreenState
           color: AppColors.info,
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payout settings are under development.')),
+              const SnackBar(
+                content: Text('Payout settings are under development.'),
+              ),
             );
           },
         ),
@@ -929,32 +980,40 @@ class _FinancialModerationScreenState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Row(
           children: [
             Icon(Icons.check_circle_rounded, color: AppColors.success),
             SizedBox(width: 12),
-            Text('Approve Payouts?',
-                style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textPrimary,
-                    fontSize: 18)),
+            Text(
+              'Approve Payouts?',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
         content: Text(
           'Are you sure you want to approve all pending payouts? This will process ${_formatAmount(_pendingPayouts)} across $_pendingPayoutCount transactions.',
           style: const TextStyle(
-              color: AppColors.textSecondary, height: 1.5, fontSize: 13),
+            color: AppColors.textSecondaryOf(context),
+            height: 1.5,
+            fontSize: 13,
+          ),
         ),
         actionsPadding: const EdgeInsets.all(16),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
-                style: TextStyle(
-                    color: AppColors.textTertiary,
-                    fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -988,11 +1047,16 @@ class _FinancialModerationScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Approve All',
-                style: TextStyle(
-                    color: AppColors.textInverse, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Approve All',
+              style: TextStyle(
+                color: AppColors.textInverse,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -1008,7 +1072,7 @@ class _FinancialModerationScreenState
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
             letterSpacing: -0.5,
           ),
         ),
@@ -1079,7 +1143,7 @@ class _FinanceStatCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryOf(context),
                   letterSpacing: -0.5,
                 ),
               ),
@@ -1088,7 +1152,7 @@ class _FinanceStatCard extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 10,
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1101,8 +1165,7 @@ class _FinanceStatCard extends StatelessWidget {
                   trendPositive
                       ? Icons.arrow_upward_rounded
                       : Icons.arrow_downward_rounded,
-                  color:
-                      trendPositive ? AppColors.success : AppColors.error,
+                  color: trendPositive ? AppColors.success : AppColors.error,
                   size: 12,
                 ),
               if (!isTransactionCount) const SizedBox(width: 4),
@@ -1111,19 +1174,17 @@ class _FinanceStatCard extends StatelessWidget {
                 style: TextStyle(
                   color: isTransactionCount
                       ? AppColors.textSecondary
-                      : (trendPositive
-                          ? AppColors.success
-                          : AppColors.error),
+                      : (trendPositive ? AppColors.success : AppColors.error),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(width: 4),
               if (!isTransactionCount)
-                const Text(
+                Text(
                   'vs last month',
                   style: TextStyle(
-                    color: AppColors.slate300,
+                    color: AppColors.textTertiaryOf(context),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1157,7 +1218,9 @@ class _TabItem extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? AppColors.primary : AppColors.textSecondary,
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.textSecondaryOf(context),
           fontSize: 13,
           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
         ),
@@ -1175,13 +1238,12 @@ class _IconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label is being developed.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$label is being developed.')));
       },
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(16),
@@ -1189,12 +1251,12 @@ class _IconButton extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.textSecondary, size: 20),
+            Icon(icon, color: AppColors.textSecondaryOf(context), size: 20),
             const SizedBox(width: 8),
             Text(
               label,
               style: const TextStyle(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -1264,7 +1326,7 @@ class _AlertCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+                      color: AppColors.textPrimaryOf(context),
                     ),
                   ),
                 ],
@@ -1277,7 +1339,7 @@ class _AlertCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryOf(context),
             ),
           ),
           const SizedBox(height: 20),
@@ -1333,7 +1395,7 @@ class _TransactionItem extends StatelessWidget {
     required this.id,
     required this.date,
     required this.amount,
-    this.amountColor = AppColors.textPrimary,
+    required this.amountColor,
     required this.status,
     required this.statusColor,
     required this.initial,
@@ -1363,14 +1425,14 @@ class _TransactionItem extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
-                    color: AppColors.textPrimary,
+                    color: AppColors.textPrimaryOf(context),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   type,
                   style: const TextStyle(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryOf(context),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1387,14 +1449,14 @@ class _TransactionItem extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryOf(context),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   date,
-                  style: const TextStyle(
-                    color: AppColors.slate300,
+                  style: TextStyle(
+                    color: AppColors.textTertiaryOf(context),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1415,8 +1477,7 @@ class _TransactionItem extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
@@ -1442,7 +1503,14 @@ class _TransactionItem extends StatelessWidget {
                   insetPadding: const EdgeInsets.all(16),
                   child: Stack(
                     children: [
-                      Center(child: InteractiveViewer(child: Image.network(receiptUrl!, fit: BoxFit.contain))),
+                      Center(
+                        child: InteractiveViewer(
+                          child: Image.network(
+                            receiptUrl!,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
                       Positioned(
                         top: 8,
                         right: 8,
@@ -1460,16 +1528,24 @@ class _TransactionItem extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(color: AppColors.borderLightOf(context)),
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: Image.network(receiptUrl!, fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(Icons.receipt_rounded, color: AppColors.slate300, size: 20),
+                child: Image.network(
+                  receiptUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.receipt_rounded,
+                    color: AppColors.textTertiaryOf(context),
+                    size: 20,
+                  ),
                 ),
               ),
             ),
-          const Icon(Icons.chevron_right_rounded,
-              color: AppColors.slate300),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.textTertiaryOf(context),
+          ),
         ],
       ),
     );
@@ -1507,7 +1583,7 @@ class _BreakdownItem extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
             ),
           ),
@@ -1519,14 +1595,14 @@ class _BreakdownItem extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               Text(
                 '($percentage)',
                 style: const TextStyle(
                   fontSize: 10,
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1566,8 +1642,11 @@ class _DisputeItem extends StatelessWidget {
             color: AppColors.errorLight,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.error_outline_rounded,
-              color: AppColors.error, size: 20),
+          child: const Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.error,
+            size: 20,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -1579,13 +1658,13 @@ class _DisputeItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               Text(
                 sub,
                 style: const TextStyle(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryOf(context),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1593,7 +1672,7 @@ class _DisputeItem extends StatelessWidget {
               Text(
                 '$id \u2022 $time',
                 style: const TextStyle(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
                 ),
@@ -1602,8 +1681,7 @@ class _DisputeItem extends StatelessWidget {
           ),
         ),
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
@@ -1654,13 +1732,13 @@ class _PayoutItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               Text(
                 txnCount,
                 style: const TextStyle(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryOf(context),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1668,7 +1746,7 @@ class _PayoutItem extends StatelessWidget {
               Text(
                 date,
                 style: const TextStyle(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
                 ),
@@ -1681,7 +1759,7 @@ class _PayoutItem extends StatelessWidget {
           style: const TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 14,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
       ],
@@ -1748,13 +1826,29 @@ class _LineChartPainter extends CustomPainter {
     final path = Path();
     path.moveTo(0, size.height * 0.8);
     path.quadraticBezierTo(
-        size.width * 0.15, size.height * 0.7, size.width * 0.25, size.height * 0.75);
+      size.width * 0.15,
+      size.height * 0.7,
+      size.width * 0.25,
+      size.height * 0.75,
+    );
     path.quadraticBezierTo(
-        size.width * 0.4, size.height * 0.85, size.width * 0.5, size.height * 0.4);
+      size.width * 0.4,
+      size.height * 0.85,
+      size.width * 0.5,
+      size.height * 0.4,
+    );
     path.quadraticBezierTo(
-        size.width * 0.65, size.height * 0.3, size.width * 0.8, size.height * 0.35);
+      size.width * 0.65,
+      size.height * 0.3,
+      size.width * 0.8,
+      size.height * 0.35,
+    );
     path.quadraticBezierTo(
-        size.width * 0.9, size.height * 0.2, size.width, size.height * 0.1);
+      size.width * 0.9,
+      size.height * 0.2,
+      size.width,
+      size.height * 0.1,
+    );
 
     canvas.drawPath(path, paint);
 
@@ -1766,7 +1860,11 @@ class _LineChartPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 2, dotPaintInner);
+    canvas.drawCircle(
+      Offset(size.width * 0.5, size.height * 0.4),
+      2,
+      dotPaintInner,
+    );
     canvas.drawCircle(Offset(size.width, size.height * 0.1), 4, dotPaint);
     canvas.drawCircle(Offset(size.width, size.height * 0.1), 2, dotPaintInner);
   }

@@ -14,11 +14,7 @@ class AdminScaffold extends ConsumerStatefulWidget {
   final Widget? body;
   final int selectedIndex;
 
-  const AdminScaffold({
-    super.key,
-    this.body,
-    this.selectedIndex = 0,
-  });
+  const AdminScaffold({super.key, this.body, this.selectedIndex = 0});
 
   @override
   ConsumerState<AdminScaffold> createState() => _AdminScaffoldState();
@@ -65,19 +61,41 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Account Section', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+            Text(
+              'Account Section',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+              ),
+            ),
             const SizedBox(height: 16),
             ListTile(
               leading: Icon(Icons.person_rounded, color: AppColors.primary),
-              title: const Text('Admin Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text(
+                'Admin Profile',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin profile settings are being developed. Your account is managed by the platform owner.')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Admin profile settings are being developed. Your account is managed by the platform owner.',
+                    ),
+                  ),
+                );
               },
             ),
             ListTile(
-              leading: Icon(Icons.admin_panel_settings_rounded, color: AppColors.primary),
-              title: const Text('Permissions / Role', style: TextStyle(fontWeight: FontWeight.bold)),
+              leading: Icon(
+                Icons.admin_panel_settings_rounded,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Permissions / Role',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/settings-privacy');
@@ -85,7 +103,10 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             ),
             ListTile(
               leading: Icon(Icons.security_rounded, color: AppColors.primary),
-              title: const Text('Security Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text(
+                'Security Settings',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/settings-privacy');
@@ -93,7 +114,10 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             ),
             ListTile(
               leading: Icon(Icons.devices_rounded, color: AppColors.primary),
-              title: const Text('Device Sessions', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text(
+                'Device Sessions',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/admin/audit-timeline');
@@ -101,16 +125,32 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             ),
             const Divider(),
             ListTile(
-              leading: Icon(Icons.help_center_rounded, color: AppColors.primary),
-              title: const Text('Help & Support', style: TextStyle(fontWeight: FontWeight.bold)),
+              leading: Icon(
+                Icons.help_center_rounded,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Help & Support',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contact support: support@premoncare.com')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Contact support: support@premoncare.com'),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.logout_rounded, color: AppColors.error),
-              title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+              title: const Text(
+                'Logout',
+                style: TextStyle(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 final confirmed = await showDialog<bool>(
@@ -119,10 +159,15 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                     title: const Text('Log Out'),
                     content: const Text('Are you sure you want to log out?'),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                        ),
                         child: const Text('Log Out'),
                       ),
                     ],
@@ -132,7 +177,11 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => const Center(child: CircularProgressIndicator(color: AppColors.textInverse)),
+                    builder: (_) => const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.textInverse,
+                      ),
+                    ),
                   );
                   await performLogout();
                   if (context.mounted) {
@@ -164,12 +213,39 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Operational Modules', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+              Text(
+                'Operational Modules',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
               const SizedBox(height: 16),
-              _buildMoreTile(context, Icons.analytics_outlined, 'Reports & Insights', '/admin/reports'),
-              _buildMoreTile(context, Icons.monetization_on_outlined, 'P2P Monitoring', '/admin/p2p-monitoring'),
-              _buildMoreTile(context, Icons.notifications_outlined, 'Notification Control', '/admin/notifications'),
-              _buildMoreTile(context, Icons.person_add_alt_1_outlined, 'Doctor Subscriptions', '/admin/doctor-subscriptions'),
+              _buildMoreTile(
+                context,
+                Icons.analytics_outlined,
+                'Reports & Insights',
+                '/admin/reports',
+              ),
+              _buildMoreTile(
+                context,
+                Icons.monetization_on_outlined,
+                'P2P Monitoring',
+                '/admin/p2p-monitoring',
+              ),
+              _buildMoreTile(
+                context,
+                Icons.notifications_outlined,
+                'Notification Control',
+                '/admin/notifications',
+              ),
+              _buildMoreTile(
+                context,
+                Icons.person_add_alt_1_outlined,
+                'Doctor Subscriptions',
+                '/admin/doctor-subscriptions',
+              ),
               const SizedBox(height: 16),
             ],
           ),
@@ -178,7 +254,12 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
     );
   }
 
-  Widget _buildMoreTile(BuildContext context, IconData icon, String title, String? route) {
+  Widget _buildMoreTile(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String? route,
+  ) {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
@@ -196,14 +277,27 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
     );
   }
 
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, String route, {bool isCurrent = false}) {
+  Widget _buildDrawerItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String route, {
+    bool isCurrent = false,
+  }) {
     return ListTile(
-      leading: Icon(icon, color: isCurrent ? AppColors.primary : AppColors.textSecondaryOf(context)),
+      leading: Icon(
+        icon,
+        color: isCurrent
+            ? AppColors.primary
+            : AppColors.textSecondaryOf(context),
+      ),
       title: Text(
         title,
         style: TextStyle(
           fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
-          color: isCurrent ? AppColors.primary : AppColors.textPrimaryOf(context),
+          color: isCurrent
+              ? AppColors.primary
+              : AppColors.textPrimaryOf(context),
         ),
       ),
       selected: isCurrent,
@@ -225,7 +319,11 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu_rounded, color: AppColors.textPrimaryOf(context), size: 28),
+            icon: Icon(
+              Icons.menu_rounded,
+              color: AppColors.textPrimaryOf(context),
+              size: 28,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -241,7 +339,11 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications_none_rounded, color: AppColors.textPrimaryOf(context), size: 28),
+            icon: Icon(
+              Icons.notifications_none_rounded,
+              color: AppColors.textPrimaryOf(context),
+              size: 28,
+            ),
             onPressed: () => context.push('/notifications'),
           ),
           Padding(
@@ -284,7 +386,11 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                           shape: BoxShape.circle,
                         ),
                         child: const Center(
-                          child: Icon(Icons.shield_rounded, color: Colors.white, size: 26),
+                          child: Icon(
+                            Icons.shield_rounded,
+                            color: Colors.white,
+                            size: 26,
+                          ),
                         ),
                       ),
                     ),
@@ -314,18 +420,82 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    _buildDrawerItem(context, Icons.dashboard_outlined, 'Dashboard', '/admin-dashboard', isCurrent: activeIndex == 0),
-                    _buildDrawerItem(context, Icons.people_outline, 'User Management', '/admin/user-management', isCurrent: activeIndex == 1),
-                    _buildDrawerItem(context, Icons.verified_user_outlined, 'Doctor Verification', '/admin/doctor-verification', isCurrent: activeIndex == 2),
-                    _buildDrawerItem(context, Icons.account_balance_wallet_outlined, 'Financial Moderation', '/admin/financial'),
-                    _buildDrawerItem(context, Icons.monetization_on_outlined, 'P2P Monitoring', '/admin/p2p-monitoring'),
-                    _buildDrawerItem(context, Icons.emergency_outlined, 'Emergency Queue', '/admin/emergency-queue'),
-                    _buildDrawerItem(context, Icons.forum_outlined, 'Forum Moderation', '/admin/forum-moderation', isCurrent: activeIndex == 3),
-                    _buildDrawerItem(context, Icons.analytics_outlined, 'Reports', '/admin/reports'),
-                    _buildDrawerItem(context, Icons.history_outlined, 'Audit Timeline', '/admin/audit-timeline'),
-                    _buildDrawerItem(context, Icons.card_membership_outlined, 'Subscription Plans', '/admin/subscription-control'),
-                    _buildDrawerItem(context, Icons.gavel_outlined, 'Dispute Resolution', '/admin/disputes'),
-                    _buildDrawerItem(context, Icons.settings_outlined, 'Platform Settings', '/settings-privacy'),
+                    _buildDrawerItem(
+                      context,
+                      Icons.dashboard_outlined,
+                      'Dashboard',
+                      '/admin-dashboard',
+                      isCurrent: activeIndex == 0,
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.people_outline,
+                      'User Management',
+                      '/admin/user-management',
+                      isCurrent: activeIndex == 1,
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.verified_user_outlined,
+                      'Doctor Verification',
+                      '/admin/doctor-verification',
+                      isCurrent: activeIndex == 2,
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.account_balance_wallet_outlined,
+                      'Financial Moderation',
+                      '/admin/financial',
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.monetization_on_outlined,
+                      'P2P Monitoring',
+                      '/admin/p2p-monitoring',
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.emergency_outlined,
+                      'Emergency Queue',
+                      '/admin/emergency-queue',
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.forum_outlined,
+                      'Forum Moderation',
+                      '/admin/forum-moderation',
+                      isCurrent: activeIndex == 3,
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.analytics_outlined,
+                      'Reports',
+                      '/admin/reports',
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.history_outlined,
+                      'Audit Timeline',
+                      '/admin/audit-timeline',
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.card_membership_outlined,
+                      'Subscription Plans',
+                      '/admin/subscription-control',
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.gavel_outlined,
+                      'Dispute Resolution',
+                      '/admin/disputes',
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      Icons.settings_outlined,
+                      'Platform Settings',
+                      '/settings-privacy',
+                    ),
                   ],
                 ),
               ),
@@ -334,50 +504,89 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
         ),
       ),
       body: _isShell
-          ? IndexedStack(
-              index: _currentIndex,
-              children: _tabScreens,
-            )
+          ? IndexedStack(index: _currentIndex, children: _tabScreens)
           : widget.body!,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceOf(context),
-          border: Border(top: BorderSide(color: AppColors.borderLightOf(context))),
+          border: Border(
+            top: BorderSide(color: AppColors.borderLightOf(context)),
+          ),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         child: SafeArea(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(context, Icons.home_rounded, 'Dashboard', isSelected: activeIndex == 0, activeColor: AppColors.primary, onTap: () {
-                if (_isShell) {
-                  setState(() => _currentIndex = 0);
-                } else {
-                  context.go('/admin-dashboard');
-                }
-              }),
-              _buildNavItem(context, Icons.people_alt_rounded, 'Users', isSelected: activeIndex == 1, activeColor: AppColors.primary, onTap: () {
-                if (_isShell) {
-                  setState(() => _currentIndex = 1);
-                } else {
-                  context.go('/admin/user-management');
-                }
-              }),
-              _buildNavItem(context, Icons.medical_services_rounded, 'Doctors', isSelected: activeIndex == 2, activeColor: AppColors.primary, badgeCount: ref.watch(pendingVerificationsProvider).whenOrNull(data: (v) => v) ?? 0, onTap: () {
-                if (_isShell) {
-                  setState(() => _currentIndex = 2);
-                } else {
-                  context.go('/admin/doctor-verification');
-                }
-              }),
-              _buildNavItem(context, Icons.forum_rounded, 'Forum', isSelected: activeIndex == 3, activeColor: AppColors.primary, onTap: () {
-                if (_isShell) {
-                  setState(() => _currentIndex = 3);
-                } else {
-                  context.go('/admin/forum-moderation');
-                }
-              }),
-              _buildNavItem(context, Icons.more_horiz_rounded, 'More', isSelected: activeIndex == 4, activeColor: AppColors.primary, onTap: () => _showMoreSheet(context)),
+              _buildNavItem(
+                context,
+                Icons.home_rounded,
+                'Dashboard',
+                isSelected: activeIndex == 0,
+                activeColor: AppColors.primary,
+                onTap: () {
+                  if (_isShell) {
+                    setState(() => _currentIndex = 0);
+                  } else {
+                    context.go('/admin-dashboard');
+                  }
+                },
+              ),
+              _buildNavItem(
+                context,
+                Icons.people_alt_rounded,
+                'Users',
+                isSelected: activeIndex == 1,
+                activeColor: AppColors.primary,
+                onTap: () {
+                  if (_isShell) {
+                    setState(() => _currentIndex = 1);
+                  } else {
+                    context.go('/admin/user-management');
+                  }
+                },
+              ),
+              _buildNavItem(
+                context,
+                Icons.medical_services_rounded,
+                'Doctors',
+                isSelected: activeIndex == 2,
+                activeColor: AppColors.primary,
+                badgeCount:
+                    ref
+                        .watch(pendingVerificationsProvider)
+                        .whenOrNull(data: (v) => v) ??
+                    0,
+                onTap: () {
+                  if (_isShell) {
+                    setState(() => _currentIndex = 2);
+                  } else {
+                    context.go('/admin/doctor-verification');
+                  }
+                },
+              ),
+              _buildNavItem(
+                context,
+                Icons.forum_rounded,
+                'Forum',
+                isSelected: activeIndex == 3,
+                activeColor: AppColors.primary,
+                onTap: () {
+                  if (_isShell) {
+                    setState(() => _currentIndex = 3);
+                  } else {
+                    context.go('/admin/forum-moderation');
+                  }
+                },
+              ),
+              _buildNavItem(
+                context,
+                Icons.more_horiz_rounded,
+                'More',
+                isSelected: activeIndex == 4,
+                activeColor: AppColors.primary,
+                onTap: () => _showMoreSheet(context),
+              ),
             ],
           ),
         ),
@@ -385,7 +594,15 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, IconData icon, String label, {required bool isSelected, required Color activeColor, VoidCallback? onTap, int? badgeCount}) {
+  Widget _buildNavItem(
+    BuildContext context,
+    IconData icon,
+    String label, {
+    required bool isSelected,
+    required Color activeColor,
+    VoidCallback? onTap,
+    int? badgeCount,
+  }) {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -395,7 +612,13 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(icon, color: isSelected ? activeColor : AppColors.textTertiaryOf(context), size: 26),
+              Icon(
+                icon,
+                color: isSelected
+                    ? activeColor
+                    : AppColors.textTertiaryOf(context),
+                size: 26,
+              ),
               if (badgeCount != null && badgeCount > 0)
                 Positioned(
                   right: -6,
@@ -422,7 +645,9 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? activeColor : AppColors.textTertiaryOf(context),
+              color: isSelected
+                  ? activeColor
+                  : AppColors.textTertiaryOf(context),
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             ),

@@ -312,7 +312,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       case 'disputed':
         return AppColors.error;
       default:
-        return AppColors.slate400;
+        return AppColors.textTertiaryOf(context);
     }
   }
 
@@ -361,7 +361,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                         _error!,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryOf(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -516,14 +516,14 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
               children: [
                 Icon(
                   Icons.search_rounded,
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                   size: 20,
                 ),
                 SizedBox(width: 12),
                 Text(
                   'Search by transaction ID, sender, receiver...',
                   style: TextStyle(
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryOf(context),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -578,9 +578,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                       child: CircularProgressIndicator(
                         value: riskFraction,
                         strokeWidth: 12,
-                        backgroundColor: AppColors.slate200.withValues(
-                          alpha: 0.3,
-                        ),
+                        backgroundColor: AppColors.borderLightOf(
+                          context,
+                        ).withValues(alpha: 0.3),
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           AppColors.error,
                         ),
@@ -590,10 +590,10 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                       children: [
                         Text(
                           _highRiskCount.toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.textPrimary,
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         const Text(
@@ -601,7 +601,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryOf(context),
                           ),
                         ),
                       ],
@@ -661,7 +661,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                   icon: Icons.flag_rounded,
                   label: 'Flagged / Rejected',
                   count: _flaggedCount.toString(),
-                  color: AppColors.slate500,
+                  color: AppColors.textTertiaryOf(context),
                 ),
                 _DisputeBreakdownItem(
                   icon: Icons.check_circle_outline_rounded,
@@ -690,7 +690,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           child: Text(
             'No P2P transactions found',
             style: TextStyle(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryOf(context),
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -752,7 +752,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                     child: Text(
                       'No data yet',
                       style: TextStyle(
-                        color: AppColors.textTertiary,
+                        color: AppColors.textTertiaryOf(context),
                         fontSize: 12,
                       ),
                     ),
@@ -856,7 +856,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           color: AppColors.error,
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Navigate to Disputes from the sidebar menu.')),
+              const SnackBar(
+                content: Text('Navigate to Disputes from the sidebar menu.'),
+              ),
             );
           },
         ),
@@ -866,7 +868,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           color: AppColors.warning,
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Select a user first to block them.')),
+              const SnackBar(
+                content: Text('Select a user first to block them.'),
+              ),
             );
           },
         ),
@@ -882,7 +886,9 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           color: AppColors.success,
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Risk settings panel is under development.')),
+              const SnackBar(
+                content: Text('Risk settings panel is under development.'),
+              ),
             );
           },
         ),
@@ -896,10 +902,10 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
             letterSpacing: -0.5,
           ),
         ),
@@ -967,10 +973,10 @@ class _P2PStatCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryOf(context),
                   letterSpacing: -0.5,
                 ),
               ),
@@ -979,7 +985,7 @@ class _P2PStatCard extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 10,
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1064,12 +1070,16 @@ class _FilterButton extends StatelessWidget {
       ),
       child: const Row(
         children: [
-          Icon(Icons.tune_rounded, color: AppColors.textSecondary, size: 20),
+          Icon(
+            Icons.tune_rounded,
+            color: AppColors.textSecondaryOf(context),
+            size: 20,
+          ),
           SizedBox(width: 8),
           Text(
             'Filter',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -1113,14 +1123,14 @@ class _DateRangePicker extends StatelessWidget {
         children: [
           const Icon(
             Icons.calendar_today_rounded,
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryOf(context),
             size: 18,
           ),
           const SizedBox(width: 12),
           Text(
             dateLabel,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: AppColors.textPrimaryOf(context),
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -1128,7 +1138,7 @@ class _DateRangePicker extends StatelessWidget {
           const SizedBox(width: 8),
           Icon(
             Icons.keyboard_arrow_down_rounded,
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryOf(context),
           ),
         ],
       ),
@@ -1147,10 +1157,10 @@ class _CardHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
       ],
@@ -1189,16 +1199,16 @@ class _RiskLegend extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
             ),
           ),
           Text(
             count,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           const SizedBox(width: 8),
@@ -1206,7 +1216,7 @@ class _RiskLegend extends StatelessWidget {
             '($percentage)',
             style: const TextStyle(
               fontSize: 10,
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryOf(context),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1250,16 +1260,16 @@ class _DisputeBreakdownItem extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
             ),
           ),
           Text(
             count,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
         ],
@@ -1308,12 +1318,17 @@ class _P2PTransactionItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _UserStack(initial: senderInitial, label: 'Sender', name: senderName, avatarUrl: senderAvatar),
+          _UserStack(
+            initial: senderInitial,
+            label: 'Sender',
+            name: senderName,
+            avatarUrl: senderAvatar,
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Icon(
               Icons.arrow_forward_rounded,
-              color: AppColors.slate300,
+              color: AppColors.textTertiaryOf(context),
               size: 18,
             ),
           ),
@@ -1329,16 +1344,16 @@ class _P2PTransactionItem extends StatelessWidget {
             children: [
               Text(
                 amount,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 14,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
               Text(
                 '$date • $id',
                 style: const TextStyle(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryOf(context),
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1371,7 +1386,14 @@ class _P2PTransactionItem extends StatelessWidget {
                   insetPadding: const EdgeInsets.all(16),
                   child: Stack(
                     children: [
-                      Center(child: InteractiveViewer(child: Image.network(receiptUrl!, fit: BoxFit.contain))),
+                      Center(
+                        child: InteractiveViewer(
+                          child: Image.network(
+                            receiptUrl!,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
                       Positioned(
                         top: 8,
                         right: 8,
@@ -1389,15 +1411,24 @@ class _P2PTransactionItem extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(color: AppColors.borderLightOf(context)),
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: Image.network(receiptUrl!, fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(Icons.receipt_rounded, color: AppColors.slate300, size: 20),
+                child: Image.network(
+                  receiptUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.receipt_rounded,
+                    color: AppColors.textTertiaryOf(context),
+                    size: 20,
+                  ),
                 ),
               ),
             ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.slate300),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.textTertiaryOf(context),
+          ),
         ],
       ),
     );
@@ -1427,16 +1458,16 @@ class _UserStack extends StatelessWidget {
           children: [
             Text(
               name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 13,
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             Text(
               label,
               style: const TextStyle(
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryOf(context),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
@@ -1472,8 +1503,8 @@ class _TopUserItem extends StatelessWidget {
         Container(
           width: 24,
           height: 24,
-          decoration: const BoxDecoration(
-            color: AppColors.slate100,
+          decoration: BoxDecoration(
+            color: AppColors.borderLightOf(context),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -1482,7 +1513,7 @@ class _TopUserItem extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
             ),
           ),
@@ -1496,10 +1527,10 @@ class _TopUserItem extends StatelessWidget {
             children: [
               Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryOf(context),
                 ),
               ),
             ],
@@ -1510,16 +1541,16 @@ class _TopUserItem extends StatelessWidget {
           children: [
             Text(
               amount,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 13,
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             Text(
               txnCount,
               style: const TextStyle(
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryOf(context),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
@@ -1563,22 +1594,22 @@ class _MonitorItem extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
             ),
           ),
         ),
         Text(
           count,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         const SizedBox(width: 8),
-        const Icon(
+        Icon(
           Icons.chevron_right_rounded,
-          color: AppColors.slate300,
+          color: AppColors.textTertiaryOf(context),
           size: 18,
         ),
       ],

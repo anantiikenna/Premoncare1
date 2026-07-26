@@ -56,7 +56,11 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: primaryColor,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('New users register through the patient portal. Send them the registration link.')),
+                const SnackBar(
+                  content: Text(
+                    'New users register through the patient portal. Send them the registration link.',
+                  ),
+                ),
               );
             },
           ),
@@ -67,7 +71,11 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Bulk actions are being developed. Manage users individually through the list above.')),
+                const SnackBar(
+                  content: Text(
+                    'Bulk actions are being developed. Manage users individually through the list above.',
+                  ),
+                ),
               );
             },
           ),
@@ -78,7 +86,11 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Export is being developed. Use your device\'s screenshot feature to save user data.')),
+                const SnackBar(
+                  content: Text(
+                    'Export is being developed. Use your device\'s screenshot feature to save user data.',
+                  ),
+                ),
               );
             },
           ),
@@ -89,7 +101,11 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Invitations are sent automatically when users register. Direct them to the signup page.')),
+                const SnackBar(
+                  content: Text(
+                    'Invitations are sent automatically when users register. Direct them to the signup page.',
+                  ),
+                ),
               );
             },
           ),
@@ -100,7 +116,11 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Audit logs are being developed. All admin actions are tracked in the system for compliance.')),
+                const SnackBar(
+                  content: Text(
+                    'Audit logs are being developed. All admin actions are tracked in the system for compliance.',
+                  ),
+                ),
               );
             },
           ),
@@ -120,46 +140,49 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
         onRefresh: () async => setState(() {}),
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'User Management',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimaryOf(context),
-                      letterSpacing: -1,
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'User Management',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textPrimaryOf(context),
+                        letterSpacing: -1,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'View, manage and take actions on all platform users',
-                    style: TextStyle(
-                      color: AppColors.textSecondaryOf(context),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(height: 4),
+                    Text(
+                      'View, manage and take actions on all platform users',
+                      style: TextStyle(
+                        color: AppColors.textSecondaryOf(context),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildStatsGrid(adminService),
-                  const SizedBox(height: 24),
-                  _buildQuickActionStrip(primaryColor),
-                  const SizedBox(height: 24),
-                  _buildSearchAndFilter(primaryColor),
-                  const SizedBox(height: 24),
-                  _buildTabHeader(primaryColor),
-                ],
+                    const SizedBox(height: 24),
+                    _buildStatsGrid(adminService),
+                    const SizedBox(height: 24),
+                    _buildQuickActionStrip(primaryColor),
+                    const SizedBox(height: 24),
+                    _buildSearchAndFilter(primaryColor),
+                    const SizedBox(height: 24),
+                    _buildTabHeader(primaryColor),
+                  ],
+                ),
               ),
             ),
-          ),
-          _buildUserList(adminService),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
+            _buildUserList(adminService),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
         ),
       ),
     );
@@ -341,7 +364,6 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
       },
     );
   }
-
 }
 
 class _QuickActionBtn extends StatelessWidget {
@@ -369,18 +391,12 @@ class _QuickActionBtn extends StatelessWidget {
         backgroundColor: isPrimary ? color : AppColors.surfaceOf(context),
         foregroundColor: isPrimary ? AppColors.textInverse : color,
         elevation: 0,
-        side: isPrimary ? BorderSide.none : BorderSide(color: AppColors.borderLightOf(context)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
+        side: isPrimary
+            ? BorderSide.none
+            : BorderSide(color: AppColors.borderLightOf(context)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
       ),
     );
   }
@@ -452,9 +468,7 @@ class _StatCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                trend.startsWith('+')
-                    ? Icons.trending_up
-                    : Icons.trending_down,
+                trend.startsWith('+') ? Icons.trending_up : Icons.trending_down,
                 color: trend.startsWith('+')
                     ? AppColors.success
                     : AppColors.error,
@@ -485,7 +499,10 @@ class _UserListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(user['account_status'] ?? 'active');
+    final statusColor = _getStatusColor(
+      user['account_status'] ?? 'active',
+      context,
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -515,7 +532,10 @@ class _UserListItem extends StatelessWidget {
                         ? AppColors.success
                         : AppColors.textTertiaryOf(context),
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.surfaceOf(context), width: 2),
+                    border: Border.all(
+                      color: AppColors.surfaceOf(context),
+                      width: 2,
+                    ),
                   ),
                 ),
               ),
@@ -584,7 +604,7 @@ class _UserListItem extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(String status, BuildContext context) {
     switch (status.toLowerCase()) {
       case 'active':
         return AppColors.success;
@@ -593,7 +613,7 @@ class _UserListItem extends StatelessWidget {
       case 'suspended':
         return AppColors.error;
       default:
-        return AppColors.textSecondary;
+        return AppColors.textSecondaryOf(context);
     }
   }
 

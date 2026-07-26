@@ -18,6 +18,13 @@ class AdminCard extends StatelessWidget {
           color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.borderLightOf(context)),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadowLight,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: child,
       ),
@@ -94,7 +101,12 @@ class AdminEmptyState extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const AdminEmptyState({super.key, required this.icon, required this.title, required this.subtitle});
+  const AdminEmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +122,11 @@ class AdminEmptyState extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 40, color: AppColors.primary.withValues(alpha: 0.4)),
+              child: Icon(
+                icon,
+                size: 40,
+                color: AppColors.primary.withValues(alpha: 0.4),
+              ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -158,7 +174,11 @@ class AdminErrorState extends StatelessWidget {
                 color: AppColors.errorLightOf(context),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.error),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                size: 40,
+                color: AppColors.error,
+              ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -184,12 +204,20 @@ class AdminErrorState extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Retry', style: TextStyle(fontWeight: FontWeight.w800)),
+                label: const Text(
+                  'Retry',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ],
@@ -205,7 +233,12 @@ class AdminTabBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabChanged;
 
-  const AdminTabBar({super.key, required this.tabs, required this.selectedIndex, required this.onTabChanged});
+  const AdminTabBar({
+    super.key,
+    required this.tabs,
+    required this.selectedIndex,
+    required this.onTabChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -224,10 +257,14 @@ class AdminTabBar extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.surfaceOf(context),
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.surfaceOf(context),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.borderLightOf(context),
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.borderLightOf(context),
                 ),
               ),
               child: Text(
@@ -235,7 +272,9 @@ class AdminTabBar extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
+                  color: isSelected
+                      ? Colors.white
+                      : AppColors.textSecondaryOf(context),
                 ),
               ),
             ),
@@ -254,7 +293,15 @@ class AdminStatCard extends StatelessWidget {
   final String? trend;
   final bool? isTrendUp;
 
-  const AdminStatCard({super.key, required this.title, required this.value, required this.icon, required this.color, this.trend, this.isTrendUp});
+  const AdminStatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+    this.trend,
+    this.isTrendUp,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -264,6 +311,13 @@ class AdminStatCard extends StatelessWidget {
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.borderLightOf(context)),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,18 +336,29 @@ class AdminStatCard extends StatelessWidget {
               ),
               if (trend != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
-                    color: (isTrendUp == true ? AppColors.success : AppColors.error).withValues(alpha: 0.1),
+                    color:
+                        (isTrendUp == true
+                                ? AppColors.success
+                                : AppColors.error)
+                            .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isTrendUp == true ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                        isTrendUp == true
+                            ? Icons.trending_up_rounded
+                            : Icons.trending_down_rounded,
                         size: 10,
-                        color: isTrendUp == true ? AppColors.success : AppColors.error,
+                        color: isTrendUp == true
+                            ? AppColors.success
+                            : AppColors.error,
                       ),
                       const SizedBox(width: 2),
                       Text(
@@ -301,7 +366,9 @@ class AdminStatCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,
-                          color: isTrendUp == true ? AppColors.success : AppColors.error,
+                          color: isTrendUp == true
+                              ? AppColors.success
+                              : AppColors.error,
                         ),
                       ),
                     ],
@@ -340,62 +407,72 @@ class AdminListSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(itemCount, (i) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceOf(context),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderLightOf(context)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.borderLightOf(context),
-                  borderRadius: BorderRadius.circular(14),
+      children: List.generate(
+        itemCount,
+        (i) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceOf(context),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.borderLightOf(context)),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppColors.shadowLight,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 120 + (i * 20).toDouble(),
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: AppColors.borderLightOf(context),
-                        borderRadius: BorderRadius.circular(7),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderLightOf(context),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 120 + (i * 20).toDouble(),
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: AppColors.borderLightOf(context),
+                          borderRadius: BorderRadius.circular(7),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: 80,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: AppColors.borderLightOf(context),
-                        borderRadius: BorderRadius.circular(5),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 80,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: AppColors.borderLightOf(context),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                width: 60,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: AppColors.borderLightOf(context),
-                  borderRadius: BorderRadius.circular(8),
+                Container(
+                  width: 60,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderLightOf(context),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      )),
+      ),
     );
   }
 }
@@ -406,42 +483,59 @@ class AdminStatsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: List.generate(4, (i) => Expanded(
-        child: Padding(
-          padding: EdgeInsets.only(right: i < 3 ? 12 : 0),
-          child: Container(
-            height: 100,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceOf(context),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.borderLightOf(context)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.borderLightOf(context),
-                    borderRadius: BorderRadius.circular(12),
+      children: List.generate(
+        4,
+        (i) => Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: i < 3 ? 12 : 0),
+            child: Container(
+              height: 100,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceOf(context),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.borderLightOf(context)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.borderLightOf(context),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(width: 50, height: 18, decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(9))),
-                    const SizedBox(height: 4),
-                    Container(width: 70, height: 10, decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(5))),
-                  ],
-                ),
-              ],
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: AppColors.borderLightOf(context),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        width: 70,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: AppColors.borderLightOf(context),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      )),
+      ),
     );
   }
 }
