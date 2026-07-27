@@ -24,7 +24,26 @@ import Image from 'next/image'
 import { OTPForm } from '@/components/auth/otp-form'
 import { toast } from 'sonner'
 import { getUserFacingError } from '@/lib/user-facing-errors'
-import { dispatchNotification } from '@/lib/notifications-dispatch'
+async function dispatchNotificationViaApi(payload: {
+  userId: string;
+  title: string;
+  message: string;
+  type: string;
+  link?: string;
+  sendEmail?: boolean;
+  emailTemplate?: string;
+  emailData?: Record<string, any>;
+}) {
+  try {
+    await fetch('/api/notifications/dispatch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch (err) {
+    console.error('Failed to dispatch notification:', err)
+  }
+}
 
 interface EmergencyDoctor {
   id: string
@@ -170,7 +189,7 @@ export default function EmergencyBookingPage() {
       }
 
       // Notify the doctor via full notification pipeline (DB + FCM push + email)
-      dispatchNotification({
+      dispatchNotificationViaApi({
         userId: selectedDoctor.id,
         title: 'EMERGENCY Consultation Request',
         message: `A patient has requested an EMERGENCY ${duration}-minute consultation. Fee: ₦${totalAmount.toLocaleString()}`,
@@ -185,8 +204,6 @@ export default function EmergencyBookingPage() {
           amount: totalAmount,
           isEmergency: true,
         },
-      }).catch((err) => {
-        console.error('Failed to send doctor notification:', err)
       })
 
       // Redirect to waiting page (patient waits for doctor acceptance)

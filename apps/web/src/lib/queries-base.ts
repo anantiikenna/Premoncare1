@@ -12,10 +12,26 @@ import {
     Profile
 } from './types'
 
-// Lazy import to prevent firebase-admin/nodemailer from leaking into client bundles
-async function getDispatchNotification() {
-    const mod = await import('./notifications-dispatch');
-    return mod.dispatchNotification;
+// Fire-and-forget notification via API route to avoid leaking firebase-admin/nodemailer into client bundles
+async function dispatchNotificationViaApi(payload: {
+    userId: string;
+    title: string;
+    message: string;
+    type: string;
+    link?: string;
+    sendEmail?: boolean;
+    emailTemplate?: string;
+    emailData?: Record<string, any>;
+}) {
+    try {
+        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || ''}/api/notifications/dispatch`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+    } catch (e) {
+        console.error('Notification dispatch failed', e);
+    }
 }
 
 export async function getProfile(supabase: SupabaseClient, userId: string) {
@@ -213,13 +229,13 @@ export async function createPayment(supabase: SupabaseClient, payment: PaymentPa
         // If recipientId is null, we might need a way to find all admins, 
         // but for now, we dispatch to the specific recipient or system alert.
         if (recipientId) {
-            getDispatchNotification().then(dispatch => dispatch({
+            dispatchNotificationViaApi({
                 userId: recipientId,
                 title: 'New Payment Receipt',
                 message: `A patient has uploaded a manual receipt for verification.`,
                 type: 'payment',
                 link: '/doctor/payments'
-            })).catch(e => console.error('Manager notification failed', e));
+            });
         } else {
             // For subscriptions, we could notify all admins or a system log.
             // For now, let's assume there's an admin notification service or we ignore if handled by dashboard polling.
@@ -259,7 +275,7 @@ export async function approvePayment(supabase: SupabaseClient, paymentId: string
 
     if (!error) {
         // Unified Dispatch (Push + Email) to the Patient
-        getDispatchNotification().then(dispatch => dispatch({
+        dispatchNotificationViaApi({
             userId: (payment as any).user_id,
             title: 'Payment Approved',
             message: `Your payment of ₦${(payment as any).amount.toLocaleString()} has been verified.`,
@@ -271,7 +287,7 @@ export async function approvePayment(supabase: SupabaseClient, paymentId: string
                 amount: (payment as any).amount,
                 status: 'approved'
             }
-        })).catch(e => console.error('Dispatch failed', e))
+        })
 
         // Broadcast Transparency Notification to Admins
         const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin')
@@ -280,13 +296,13 @@ export async function approvePayment(supabase: SupabaseClient, paymentId: string
                 // Do not notify if the admin was the one who processed it
                 if (admin.id === adminOrDoctorId) continue;
                 
-                getDispatchNotification().then(dispatch => dispatch({
+                dispatchNotificationViaApi({
                     userId: admin.id,
                     title: 'P2P Payment Verified',
                     message: `A payment of ₦${(payment as any).amount.toLocaleString()} was verified by an auditor.`,
                     type: 'system',
                     link: '/admin/finance'
-                })).catch(e => console.error('Admin broadcast failed', e))
+                })
             }
         }
     }
@@ -328,13 +344,13 @@ export async function updateAppointmentStatus(supabase: SupabaseClient, appointm
         const message = `Dr. ${(oldApt.doctor as unknown as { full_name: string }).full_name} has ${updates.status} your appointment.`
         
         // Unified Dispatch
-        getDispatchNotification().then(dispatch => dispatch({
+        dispatchNotificationViaApi({
             userId: oldApt.patient_id,
             title,
             message,
             type: 'appointment',
             link: '/patient/appointments'
-        })).catch(e => console.error('Dispatch failed', e))
+        })
     }
     return result
 }
@@ -411,13 +427,13 @@ export async function createPrescription(supabase: SupabaseClient, prescriptionD
         const message = `Dr. ${(doctor as { full_name: string })?.full_name || 'Your doctor'} has issued a new prescription for ${prescriptionData.medication_name}.`
         
         // Unified Dispatch
-        getDispatchNotification().then(dispatch => dispatch({
+        dispatchNotificationViaApi({
             userId: prescriptionData.patient_id,
             title,
             message,
             type: 'prescription',
             link: '/patient/prescriptions'
-        })).catch(e => console.error('Dispatch failed', e))
+        })
     }
     return result
 }
@@ -453,13 +469,13 @@ export async function sendMessage(supabase: SupabaseClient, senderId: string, re
         const message = `You have a new message from ${(sender as { full_name: string })?.full_name || 'a user'}: "${content.slice(0, 30)}${content.length > 30 ? '...' : ''}"`
 
         // Unified Dispatch
-        getDispatchNotification().then(dispatch => dispatch({
+        dispatchNotificationViaApi({
             userId: receiverId,
             title,
             message,
             type: 'message',
             link: messageLink
-        })).catch(e => console.error('Dispatch failed', e))
+        })
     }
     return result
 }

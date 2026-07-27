@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Loader2, Settings2, Save, Bell, Mail } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
+import { toast } from 'sonner'
 
 export function AdminSettings() {
     const [enabled, setEnabled] = useState(false)

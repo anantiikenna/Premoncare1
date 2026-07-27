@@ -21,26 +21,26 @@ export interface AppointmentUpdates {
 export interface ProfileUpdates {
     full_name?: string;
     avatar_url?: string;
-    dob?: string;
-    gender?: string;
-    phone?: string;
-    address?: string;
-    next_of_kin_name?: string;
-    next_of_kin_phone?: string;
-    emergency_contact_name?: string;
-    emergency_contact_phone?: string;
-    blood_group?: string;
-    identity_document_url?: string;
-    bank_name?: string;
-    account_name?: string;
-    account_number?: string;
-    specialty?: string;
-    experience_years?: number;
-    clinic_address?: string;
-    consultation_fee?: number;
-    payment_instructions?: string;
-    email_alerts_enabled?: boolean;
-    verification_status?: 'pending' | 'approved' | 'rejected' | 'unsubmitted';
+    dob?: string | null;
+    gender?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    next_of_kin_name?: string | null;
+    next_of_kin_phone?: string | null;
+    emergency_contact_name?: string | null;
+    emergency_contact_phone?: string | null;
+    blood_group?: string | null;
+    identity_document_url?: string | null;
+    bank_name?: string | null;
+    account_name?: string | null;
+    account_number?: string | null;
+    specialty?: string | null;
+    experience_years?: number | null;
+    clinic_address?: string | null;
+    consultation_fee?: number | null;
+    payment_instructions?: string | null;
+    email_alerts_enabled?: boolean | null;
+    verification_status?: 'pending' | 'approved' | 'rejected' | 'unsubmitted' | null;
     updated_at?: string;
 }
 
