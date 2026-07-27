@@ -37,9 +37,14 @@ interface DoctorListing {
 }
 
 export default async function Home() {
-  const supabase = await createClient();
-  const { data: doctors } = await getDoctorsWithRatings(supabase);
-  const featuredDoctors = doctors?.slice(0, 3) || [];
+  let featuredDoctors: DoctorListing[] = [];
+  try {
+    const supabase = await createClient();
+    const { data: doctors } = await getDoctorsWithRatings(supabase);
+    featuredDoctors = doctors?.slice(0, 3) || [];
+  } catch (err) {
+    console.error('[Home] Failed to fetch doctors:', err);
+  }
 
   const doctorPortraits = [
     "/doctor_portrait_01_1775234120792.png",

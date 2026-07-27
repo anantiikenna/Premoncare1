@@ -1,6 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/emergency', '/emergency-waiting', '/support', '/account-conversion']
+
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
@@ -30,12 +32,17 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
+    const pathname = request.nextUrl.pathname
+
+    // Skip auth check for purely public routes to avoid blocking page loads
+    if (PUBLIC_ROUTES.includes(pathname)) {
+        return supabaseResponse
+    }
+
     // refreshing the auth token
     const { data: { user } } = await supabase.auth.getUser()
 
     // Handle protected routes
-    const pathname = request.nextUrl.pathname
-
     if (!user && (
         pathname.startsWith('/admin') ||
         pathname.startsWith('/doctor') ||
