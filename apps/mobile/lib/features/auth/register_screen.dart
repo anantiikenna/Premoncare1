@@ -17,82 +17,24 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   bool _isLoading = false;
   bool _agreeToTerms = false;
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
-  bool _submitted = false;
 
   @override
   void dispose() {
     _pageController.dispose();
     _fullNameController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
-  int _getPasswordStrength(String password) {
-    if (password.isEmpty) return 0;
-    int score = 0;
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (RegExp(r'[A-Z]').hasMatch(password) && RegExp(r'[a-z]').hasMatch(password)) score++;
-    if (RegExp(r'[0-9]').hasMatch(password)) score++;
-    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) score++;
-    return score.clamp(0, 4);
-  }
-
-  String _getPasswordStrengthLabel(int strength) {
-    switch (strength) {
-      case 0: return '';
-      case 1: return 'Weak';
-      case 2: return 'Fair';
-      case 3: return 'Good';
-      case 4: return 'Strong';
-      default: return '';
-    }
-  }
-
-  Color _getPasswordStrengthColor(int strength) {
-    switch (strength) {
-      case 0: return AppColors.border;
-      case 1: return AppColors.error;
-      case 2: return AppColors.warning;
-      case 3: return AppColors.info;
-      case 4: return AppColors.success;
-      default: return AppColors.border;
-    }
-  }
-
-  bool get _passwordsMatch {
-    return _passwordController.text.isNotEmpty &&
-        _passwordController.text == _confirmPasswordController.text;
-  }
-
-  bool get _passwordsMismatch {
-    return _confirmPasswordController.text.isNotEmpty &&
-        _passwordController.text != _confirmPasswordController.text;
-  }
-
   void _nextPage() {
-    setState(() => _submitted = true);
-
     if (_currentStep == 0) {
-      if (_fullNameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill in all fields')));
-        return;
-      }
-      if (_passwordController.text.length < 8) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password must be at least 8 characters')));
-        return;
-      }
-      if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      if (_fullNameController.text.isEmpty || _emailController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill in your name and email')));
         return;
       }
       _pageController.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeOutCubic);
@@ -112,23 +54,22 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   Future<void> _register() async {
     setState(() => _isLoading = true);
     try {
-      final res = await supabase.auth.signUp(
+      final res = await supabase.auth.signInWithOtp(
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
         data: {
           'full_name': _fullNameController.text.trim(),
           'requested_role': 'patient',
-        }
+          if (_phoneController.text.trim().isNotEmpty)
+            'phone': _phoneController.text.trim(),
+        },
       );
 
-      if (res.user != null) {
-        if (mounted) {
-          context.push('/otp-verification', extra: {
-            'email': _emailController.text.trim(),
-            'role': 'patient',
-            'isSignup': true,
-          });
-        }
+      if (mounted) {
+        context.push('/otp-verification', extra: {
+          'email': _emailController.text.trim(),
+          'role': 'patient',
+          'isSignup': true,
+        });
       }
     } catch (e, stackTrace) {
       logHandledError('Registration failed', e, stackTrace);
@@ -208,10 +149,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   }
 
   Widget _buildStepIdentity(BuildContext context) {
-    final strength = _getPasswordStrength(_passwordController.text);
-    final strengthLabel = _getPasswordStrengthLabel(strength);
-    final strengthColor = _getPasswordStrengthColor(strength);
-
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -230,87 +167,31 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           const SizedBox(height: 16),
 
           _ClinicalInput(controller: _emailController, hint: 'Clinical Email Address', icon: Icons.mail_rounded, keyboardType: TextInputType.emailAddress),
-          const SizedBox(height: 20),
-
-          Text('PASSWORD', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-          const SizedBox(height: 10),
-          _ClinicalInput(
-            controller: _passwordController,
-            hint: 'Create Password',
-            icon: Icons.lock_rounded,
-            isPassword: true,
-            obscureText: !_isPasswordVisible,
-            suffixIcon: Icon(_isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: AppColors.textTertiaryOf(context), size: 20),
-            onSuffixTap: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-            onChanged: (_) => setState(() {}),
-          ),
-
-          if (_passwordController.text.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    children: List.generate(4, (i) {
-                      final isActive = strength > i;
-                      return Expanded(
-                        child: Container(
-                          height: 4,
-                          margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
-                          decoration: BoxDecoration(
-                            color: isActive ? strengthColor : AppColors.borderOf(context),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(strengthLabel, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: strengthColor)),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text('Min 8 characters. Use uppercase, numbers & symbols for a stronger password.', style: TextStyle(fontSize: 10, color: strength >= 3 ? AppColors.success : AppColors.textTertiaryOf(context), fontWeight: FontWeight.w600)),
-          ],
-
           const SizedBox(height: 16),
 
-          Text('CONFIRM PASSWORD', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-          const SizedBox(height: 10),
-          _ClinicalInput(
-            controller: _confirmPasswordController,
-            hint: 'Re-enter Password',
-            icon: Icons.verified_user_rounded,
-            isPassword: true,
-            obscureText: !_isConfirmPasswordVisible,
-            suffixIcon: Icon(_isConfirmPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: AppColors.textTertiaryOf(context), size: 20),
-            onSuffixTap: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
-            onChanged: (_) => setState(() {}),
-            hasError: _passwordsMismatch && _submitted,
-          ),
+          _ClinicalInput(controller: _phoneController, hint: 'Phone Number (optional)', icon: Icons.phone_rounded, keyboardType: TextInputType.phone),
+          const SizedBox(height: 20),
 
-          if (_confirmPasswordController.text.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
+            ),
+            child: Row(
               children: [
-                Icon(
-                  _passwordsMatch ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                  size: 16,
-                  color: _passwordsMatch ? AppColors.success : AppColors.error,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  _passwordsMatch ? 'Passwords match' : 'Passwords do not match',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: _passwordsMatch ? AppColors.success : AppColors.error,
+                Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 18),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'We will send a seven digit verification code to your email. No password required.',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context)),
                   ),
                 ),
               ],
             ),
-          ],
+          ),
 
           const SizedBox(height: 40),
         ],
@@ -387,7 +268,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           child: _isLoading ? const CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 3) : Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(_currentStep == 1 ? 'AUTHORIZE & FINALIZE' : 'CONTINUE', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+              Text(_currentStep == 1 ? 'VERIFY & FINALIZE' : 'CONTINUE', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
               const SizedBox(width: 12),
               const Icon(Icons.arrow_forward_rounded, size: 20),
             ],
@@ -430,59 +311,34 @@ class _ClinicalInput extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final IconData icon;
-  final bool isPassword;
-  final bool obscureText;
-  final Widget? suffixIcon;
-  final VoidCallback? onSuffixTap;
   final TextInputType? keyboardType;
-  final ValueChanged<String>? onChanged;
-  final bool hasError;
 
   const _ClinicalInput({
     required this.controller,
     required this.hint,
     required this.icon,
-    this.isPassword = false,
-    this.obscureText = false,
-    this.suffixIcon,
-    this.onSuffixTap,
     this.keyboardType,
-    this.onChanged,
-    this.hasError = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = hasError ? AppColors.error : AppColors.borderLightOf(context);
-
     return Semantics(
       label: hint,
       textField: true,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceOf(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor, width: hasError ? 1.5 : 1),
+          border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: TextField(
           controller: controller,
-          obscureText: obscureText,
           keyboardType: keyboardType,
-          onChanged: onChanged,
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimaryOf(context)),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600),
             prefixIcon: Container(padding: const EdgeInsets.all(12), child: Icon(icon, color: AppColors.primary.withValues(alpha: 0.6), size: 20)),
-            suffixIcon: suffixIcon != null
-                ? IconButton(
-                    icon: suffixIcon!,
-                    onPressed: onSuffixTap,
-                    splashRadius: 20,
-                    padding: EdgeInsets.zero,
-                  )
-                : null,
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           ),

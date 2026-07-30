@@ -17,9 +17,6 @@ export function getUserFacingError(error: unknown, fallback = 'Something went wr
   const text = errorText(error).toLowerCase()
 
   if (!text) return fallback
-  if (text.includes('invalid login') || text.includes('invalid credentials') || text.includes('invalid_grant')) {
-    return 'The email or password is incorrect. Please check your details and try again.'
-  }
   if (text.includes('otp') || text.includes('token') || text.includes('code')) {
     if (text.includes('expired')) return 'That code has expired. Request a new code and try again.'
     if (text.includes('invalid')) return 'That code is incorrect. Please check the digits and try again.'
@@ -28,10 +25,7 @@ export function getUserFacingError(error: unknown, fallback = 'Something went wr
     return 'Please verify your email address before signing in.'
   }
   if (text.includes('already registered') || text.includes('already exists') || text.includes('duplicate')) {
-    return 'An account already exists for this email. Please sign in or reset your password.'
-  }
-  if (text.includes('weak password') || text.includes('password')) {
-    return 'Please choose a stronger password and try again.'
+    return 'An account already exists for this email. Please sign in with your email code.'
   }
   if (text.includes('rate limit') || text.includes('too many') || text.includes('429')) {
     return 'Too many attempts. Please wait a moment before trying again.'

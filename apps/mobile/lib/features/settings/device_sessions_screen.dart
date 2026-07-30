@@ -58,7 +58,7 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'If you see a session you don\'t recognize, change your password immediately and log out of all sessions.',
+                    'If you see a session you don\'t recognize, log out of all sessions immediately.',
                     style: AppTypography.bodySmallOf(context).copyWith(height: 1.4),
                   ),
                 ),

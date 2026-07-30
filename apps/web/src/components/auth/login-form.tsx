@@ -15,72 +15,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { OTPForm } from "./otp-form";
 import { getUserFacingError } from "@/lib/user-facing-errors";
 
-type AuthMode = "password" | "otp";
-
 export function LoginForm() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>("password");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const {
-        data: { user },
-        error: loginError,
-      } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (loginError) throw loginError;
-
-      if (user) {
-        // Fetch user role from profiles
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError) throw profileError;
-
-        // Redirect based on role
-        const role = profile?.role;
-        if (role === "admin") {
-          router.push("/admin/dashboard");
-        } else if (role === "doctor") {
-          router.push("/doctor/dashboard");
-        } else {
-          router.push("/patient/dashboard");
-        }
-
-        router.refresh();
-      }
-    } catch (err: unknown) {
-      console.error("Login failed", err);
-      setError(
-        getUserFacingError(
-          err,
-          "We could not sign you in. Please check your details and try again.",
-        ),
-      );
-      setLoading(false);
-    }
-  };
 
   const redirectAfterLogin = async () => {
     const {
@@ -178,24 +123,8 @@ export function LoginForm() {
           Sign in to your secure health portal
         </CardDescription>
       </CardHeader>
-      <form onSubmit={authMode === "password" ? handleLogin : (e) => handleSendOtp(e)}>
+      <form onSubmit={(e) => handleSendOtp(e)}>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-1">
-            <button
-              type="button"
-              onClick={() => setAuthMode("password")}
-              className={`h-11 rounded-xl text-[11px] font-black uppercase tracking-widest transition-colors ${authMode === "password" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Password
-            </button>
-            <button
-              type="button"
-              onClick={() => setAuthMode("otp")}
-              className={`h-11 rounded-xl text-[11px] font-black uppercase tracking-widest transition-colors ${authMode === "otp" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Email Code
-            </button>
-          </div>
           <div className="space-y-3">
             <Label
               htmlFor="email"
@@ -213,42 +142,10 @@ export function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          {authMode === "password" ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between ml-1">
-                <Label
-                  htmlFor="password"
-                  className="text-xs font-black uppercase tracking-widest"
-                >
-                  Password
-                </Label>
-              </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  required
-                  className="h-14 rounded-2xl bg-background/50 border-border/50 focus:ring-primary/20 transition-all font-bold pr-12"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4 text-xs font-bold leading-relaxed text-muted-foreground">
-              We will send a seven digit verification code to sign in to your
-              existing Premon Care account.
-            </div>
-          )}
+          <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4 text-xs font-bold leading-relaxed text-muted-foreground">
+            We will send a seven digit verification code to sign in to your
+            Premon Care account.
+          </div>
           {error && (
             <div className="p-4 text-[13px] bg-destructive/5 text-destructive rounded-2xl border border-destructive/10 font-bold animate-shake text-center">
               {error}
@@ -258,29 +155,15 @@ export function LoginForm() {
         <CardFooter className="pt-6 pb-2 flex flex-col gap-4">
           <Button
             className="w-full h-16 rounded-3xl text-lg font-black shadow-xl shadow-primary/30 hover:scale-[1.02] transition-transform"
-            type={authMode === "otp" ? "button" : "submit"}
+            type="submit"
             disabled={loading}
-            onClick={authMode === "otp" ? (e) => { e.preventDefault(); handleSendOtp(e as any); } : undefined}
           >
             {loading ? (
               <Loader2 className="h-6 w-6 animate-spin" />
-            ) : authMode === "password" ? (
-              "Sign In"
             ) : (
               "Send Email Code"
             )}
           </Button>
-          <button
-            type="button"
-            onClick={() =>
-              toast.info(
-                "Password recovery is managed via the Administration help desk. Please contact support@premoncare.com",
-              )
-            }
-            className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-widest hover:text-primary transition-colors"
-          >
-            Forgot your password?
-          </button>
         </CardFooter>
         <div className="px-6 pb-6 space-y-3">
           <div className="relative">
@@ -298,7 +181,7 @@ export function LoginForm() {
               variant="outline"
               type="button"
               className="w-full h-12 rounded-2xl justify-center font-bold border-muted-foreground/20 hover:bg-muted/50"
-              onClick={() => toast.info("Google Sign-In is not yet enabled. Please use your email and password to sign in.")}
+              onClick={() => toast.info("Google Sign-In is not yet enabled. Please use your email to sign in.")}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path

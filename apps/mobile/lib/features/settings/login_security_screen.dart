@@ -13,47 +13,6 @@ class LoginSecurityScreen extends StatefulWidget {
 }
 
 class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
-  bool _obscureCurrent = true;
-  bool _obscureNew = true;
-  bool _obscureConfirm = true;
-  final _currentPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _loading = false;
-
-  @override
-  void dispose() {
-    _currentPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _changePassword() async {
-    if (_newPasswordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
-      return;
-    }
-    if (_newPasswordController.text.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password must be at least 8 characters')));
-      return;
-    }
-    setState(() => _loading = true);
-    try {
-      await supabase.auth.updateUser(UserAttributes(password: _newPasswordController.text));
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated successfully')));
-        _currentPasswordController.clear();
-        _newPasswordController.clear();
-        _confirmPasswordController.clear();
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final color = AppColors.textPrimaryOf(context);
@@ -75,29 +34,6 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('CHANGE PASSWORD', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
-            const SizedBox(height: 16),
-            _buildPasswordField('Current Password', _currentPasswordController, _obscureCurrent, () => setState(() => _obscureCurrent = !_obscureCurrent), color, secondary),
-            const SizedBox(height: 12),
-            _buildPasswordField('New Password', _newPasswordController, _obscureNew, () => setState(() => _obscureNew = !_obscureNew), color, secondary),
-            const SizedBox(height: 12),
-            _buildPasswordField('Confirm New Password', _confirmPasswordController, _obscureConfirm, () => setState(() => _obscureConfirm = !_obscureConfirm), color, secondary),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _loading ? null : _changePassword,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                child: _loading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text('Update Password', style: AppTypography.labelLarge.copyWith(color: Colors.white)),
-              ),
-            ),
-            const SizedBox(height: 32),
             Text('ACCOUNT', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
             const SizedBox(height: 12),
             _buildTile(
@@ -107,35 +43,29 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
               subtitle: supabase.auth.currentUser?.email ?? '',
               trailing: Text('Verified', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
             ),
-            _buildTile(
-              icon: Icons.lock_reset_rounded,
-              color: AppColors.warning,
-              title: 'Forgot Password',
-              subtitle: 'Send a reset link to your email',
-              onTap: () => context.push('/forgot-password'),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.infoLightOf(context),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.info.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline_rounded, color: AppColors.info, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Premoncare uses email verification codes (OTP) for secure sign-in. No password is required.',
+                      style: AppTypography.bodySmallOf(context).copyWith(height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField(String label, TextEditingController controller, bool obscure, VoidCallback toggle, Color color, Color secondary) {
-    return TextField(
-      controller: controller,
-      obscureText: obscure,
-      style: TextStyle(color: color),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: secondary),
-        filled: true,
-        fillColor: AppColors.surfaceOf(context),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.borderOf(context))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.borderOf(context))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.primary)),
-        suffixIcon: IconButton(
-          icon: Icon(obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: secondary),
-          onPressed: toggle,
         ),
       ),
     );

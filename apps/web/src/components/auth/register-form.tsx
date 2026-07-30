@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, ArrowRight, CheckCircle2, ChevronLeft, Eye, EyeOff } from 'lucide-react'
+import { Loader2, ArrowRight, CheckCircle2, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { OTPForm } from './otp-form'
 import { toast } from 'sonner'
@@ -18,43 +18,18 @@ type Step = 'identity' | 'terms' | 'otp' | 'success'
 export function RegisterForm() {
     const [step, setStep] = useState<Step>('identity')
     const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [showPassword, setShowPassword] = useState(false)
     const [fullName, setFullName] = useState('')
+    const [phone, setPhone] = useState('')
     const [agreed, setAgreed] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const router = useRouter()
-    const searchParams = useSearchParams()
     const supabase = createClient()
-
-    // Guest-to-user migration params
-    const guestAppointmentId = searchParams.get('appointment_id')
-    const guestEmail = searchParams.get('guest_email')
-
-    const validatePassword = (pass: string) => {
-        const minLength = 8
-        const hasUpperCase = /[A-Z]/.test(pass)
-        const hasLowerCase = /[a-z]/.test(pass)
-        const hasNumber = /[0-9]/.test(pass)
-        const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(pass)
-
-        if (pass.length < minLength) return 'Password must be at least 8 characters long'
-        if (!hasUpperCase || !hasLowerCase) return 'Password must contain both uppercase and lowercase letters'
-        if (!hasNumber) return 'Password must contain at least one number'
-        if (!hasSymbol) return 'Password must contain at least one symbol'
-        return null
-    }
 
     const handleNext = () => {
         if (step === 'identity') {
-            if (!email || !password || !fullName) {
-                setError('Please fill in all identity fields')
-                return
-            }
-            const pwdError = validatePassword(password)
-            if (pwdError) {
-                setError(pwdError)
+            if (!email || !fullName) {
+                setError('Please fill in your name and email address')
                 return
             }
             setError(null)
@@ -77,26 +52,20 @@ export function RegisterForm() {
         setError(null)
 
         try {
-            const { data, error: authError } = await supabase.auth.signUp({
+            const { error: otpError } = await supabase.auth.signInWithOtp({
                 email,
-                password,
                 options: {
                     data: {
                         full_name: fullName,
-                        requested_role: 'patient', // Force patient role for ALL registrations
+                        requested_role: 'patient',
+                        phone: phone || null,
                     },
                 },
             })
 
-            if (authError) throw authError
-
-            // If Supabase auto-confirmed (email confirmation disabled or OTP already verified),
-            // user is signed in immediately — skip OTP step
-            if (data.session) {
-                setStep('success')
-            } else {
-                setStep('otp')
-            }
+            if (otpError) throw otpError
+            setStep('otp')
+            toast.success('Verification code sent to your email')
         } catch (err: unknown) {
             console.error('Registration failed', err)
             setError(getUserFacingError(err, 'We could not complete registration. Please review your details and try again.'))
@@ -117,9 +86,15 @@ export function RegisterForm() {
     }
 
     const handleResendOtp = async () => {
-        const { error: resendError } = await supabase.auth.resend({
-            type: 'signup',
-            email
+        const { error: resendError } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+                data: {
+                    full_name: fullName,
+                    requested_role: 'patient',
+                    phone: phone || null,
+                },
+            },
         })
         if (resendError) throw resendError
         toast.success('New code sent to your email')
@@ -141,28 +116,7 @@ export function RegisterForm() {
                     </CardDescription>
                 </CardHeader>
                 <CardFooter className="pt-10">
-                    <Button className="w-full h-16 rounded-[2rem] text-lg font-black shadow-xl shadow-primary/30" onClick={async () => {
-                        // Link emergency appointment to new user if coming from guest flow
-                        if (guestAppointmentId) {
-                            try {
-                                const { data: { user } } = await supabase.auth.getUser()
-                                if (user) {
-                                    await supabase
-                                        .from('appointments')
-                                        .update({ patient_id: user.id })
-                                        .eq('id', guestAppointmentId)
-                                        .is('patient_id', null)
-                                    localStorage.removeItem('premon_emergency_appointment_id')
-                                    localStorage.removeItem('premon_guest_token')
-                                    localStorage.removeItem('premon_guest_email')
-                                    localStorage.removeItem('premon_guest_phone')
-                                }
-                            } catch (err) {
-                                console.error('Failed to link emergency appointment:', err)
-                            }
-                        }
-                        router.push('/patient/dashboard')
-                    }}>
+                    <Button className="w-full h-16 rounded-[2rem] text-lg font-black shadow-xl shadow-primary/30" onClick={() => router.push('/patient/dashboard')}>
                         Enter Dashboard
                     </Button>
                 </CardFooter>
@@ -212,7 +166,7 @@ export function RegisterForm() {
                 {step === 'identity' && (
                     <div className="space-y-6">
                         <div className="space-y-3">
-                            <Label htmlFor="full_name" className="text-xs font-black uppercase tracking-widest ml-1">Legal Name</Label>
+                            <Label htmlFor="full_name" className="text-xs font-black uppercase tracking-widest ml-1">Legal Name *</Label>
                             <Input
                                 id="full_name"
                                 placeholder="Full Name"
@@ -224,7 +178,7 @@ export function RegisterForm() {
                             />
                         </div>
                         <div className="space-y-3">
-                            <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest ml-1">Email Address</Label>
+                            <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest ml-1">Email Address *</Label>
                             <Input
                                 id="email"
                                 type="email"
@@ -237,27 +191,19 @@ export function RegisterForm() {
                             />
                         </div>
                         <div className="space-y-3">
-                            <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest ml-1">Password</Label>
-                            <div className="relative">
-                                <Input
-                                    id="password"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="••••••••"
-                                    className="h-14 rounded-2xl bg-background/50 border-border/50 font-bold focus:ring-primary/20 transition-all pr-12"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    aria-required="true"
-                                    aria-label="Secure Password"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
-                                >
-                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                </button>
-                            </div>
+                            <Label htmlFor="phone" className="text-xs font-black uppercase tracking-widest ml-1">Phone Number</Label>
+                            <Input
+                                id="phone"
+                                type="tel"
+                                placeholder="+234 xxx xxx xxxx"
+                                className="h-14 rounded-2xl bg-background/50 border-border/50 font-bold focus:ring-primary/20 transition-all"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                aria-label="Phone Number"
+                            />
+                        </div>
+                        <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4 text-xs font-bold leading-relaxed text-muted-foreground">
+                            We will send a seven digit verification code to your email to complete registration. No password required.
                         </div>
                     </div>
                 )}
@@ -316,7 +262,7 @@ export function RegisterForm() {
                     >
                         {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
                             <>
-                                {step === 'terms' ? 'Complete & Verify' : 'Continue'}
+                                {step === 'terms' ? 'Verify & Complete' : 'Continue'}
                                 <ArrowRight className="ml-2 h-5 w-5" />
                             </>
                         )}

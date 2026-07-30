@@ -16,10 +16,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _isEmailTab = true;
-  bool _isPasswordVisible = false;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -50,86 +47,7 @@ class _LoginScreenState extends State<LoginScreen>
   void dispose() {
     _animationController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
-  }
-
-  Future<void> _login() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your credentials')),
-      );
-      return;
-    }
-    setState(() => _isLoading = true);
-    try {
-      final email = _emailController.text.trim();
-
-      final profile = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('email', email)
-          .maybeSingle();
-
-      if (!mounted) return;
-
-      if (profile == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'No account found with this email. Please sign up first.',
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        return;
-      }
-
-      if (profile['role'] == 'admin') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Admin accounts cannot access the patient/doctor app. Please use the Admin app.',
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        return;
-      }
-
-      await supabase.auth.signInWithPassword(
-        email: email,
-        password: _passwordController.text.trim(),
-      );
-
-      final role = await getUserRole();
-      if (!mounted) return;
-
-      await NotificationService().syncToken();
-      clearRoleCache();
-      if (mounted)
-        context.go(
-          role == 'doctor' ? '/doctor_dashboard' : '/patient_dashboard',
-        );
-    } catch (e, stackTrace) {
-      logHandledError('Login failed', e, stackTrace);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              userFacingError(
-                e,
-                fallback:
-                    'We could not sign you in. Please check your details and try again.',
-              ),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
   }
 
   Future<void> _loginWithOtp() async {
@@ -261,84 +179,21 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         const SizedBox(height: 36),
 
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceAltOf(context),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              _TabButton(
-                                label: 'EMAIL ACCESS',
-                                isSelected: _isEmailTab,
-                                onTap: () => setState(() => _isEmailTab = true),
-                              ),
-                              _TabButton(
-                                label: 'SECURE OTP',
-                                isSelected: !_isEmailTab,
-                                onTap: () =>
-                                    setState(() => _isEmailTab = false),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
                         _ClinicalInput(
                           controller: _emailController,
-                          hint: _isEmailTab
-                              ? 'Clinical Email or Phone'
-                              : 'Clinical Email Address',
+                          hint: 'Clinical Email Address',
                           icon: Icons.person_rounded,
                         ),
-                        const SizedBox(height: 16),
-                        if (_isEmailTab) ...[
-                          _ClinicalInput(
-                            controller: _passwordController,
-                            hint: 'Access Password',
-                            icon: Icons.lock_rounded,
-                            isPassword: true,
-                            obscureText: !_isPasswordVisible,
-                            suffixIcon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility_off_rounded
-                                  : Icons.visibility_rounded,
-                              color: AppColors.textTertiaryOf(context),
-                              size: 20,
-                            ),
-                            onSuffixTap: () => setState(
-                              () => _isPasswordVisible = !_isPasswordVisible,
-                            ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'We\'ll send a seven digit one-time code to your email to log you in securely.',
+                          style: TextStyle(
+                            color: AppColors.textSecondaryOf(context),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            height: 1.5,
                           ),
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () => context.push('/forgot-password'),
-                              child: Text(
-                                'FORGOT ACCESS KEY?',
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 12,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ] else ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            'We\'ll send a one-time code to your email to log you in securely.',
-                            style: TextStyle(
-                              color: AppColors.textSecondaryOf(context),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
+                        ),
 
                         const SizedBox(height: 32),
 
@@ -346,9 +201,7 @@ class _LoginScreenState extends State<LoginScreen>
                           width: double.infinity,
                           height: 64,
                           child: ElevatedButton(
-                            onPressed: _isLoading
-                                ? null
-                                : (_isEmailTab ? _login : _loginWithOtp),
+                            onPressed: _isLoading ? null : _loginWithOtp,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: AppColors.textInverse,
@@ -365,21 +218,19 @@ class _LoginScreenState extends State<LoginScreen>
                                     color: AppColors.textInverse,
                                     strokeWidth: 3,
                                   )
-                                : Row(
+                                : const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        _isEmailTab
-                                            ? 'INITIATE SESSION'
-                                            : 'SEND OTP CODE',
-                                        style: const TextStyle(
+                                        'SEND OTP CODE',
+                                        style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w900,
                                           letterSpacing: 0.5,
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
-                                      const Icon(
+                                      SizedBox(width: 12),
+                                      Icon(
                                         Icons.arrow_forward_rounded,
                                         size: 20,
                                       ),
@@ -583,76 +434,15 @@ class _SectionDivider extends StatelessWidget {
   }
 }
 
-class _TabButton extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _TabButton({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.surfaceOf(context)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: AppColors.shadowLight,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [],
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? AppColors.primary
-                    : AppColors.textSecondaryOf(context),
-                fontWeight: FontWeight.w900,
-                fontSize: 12,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _ClinicalInput extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final IconData icon;
-  final bool isPassword;
-  final bool obscureText;
-  final Widget? suffixIcon;
-  final VoidCallback? onSuffixTap;
 
   const _ClinicalInput({
     required this.controller,
     required this.hint,
     required this.icon,
-    this.isPassword = false,
-    this.obscureText = false,
-    this.suffixIcon,
-    this.onSuffixTap,
   });
 
   @override
@@ -665,7 +455,7 @@ class _ClinicalInput extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        obscureText: obscureText,
+        keyboardType: TextInputType.emailAddress,
         style: TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 15,
@@ -686,14 +476,6 @@ class _ClinicalInput extends StatelessWidget {
               size: 20,
             ),
           ),
-          suffixIcon: suffixIcon != null
-              ? IconButton(
-                  icon: suffixIcon!,
-                  onPressed: onSuffixTap,
-                  splashRadius: 20,
-                  padding: EdgeInsets.zero,
-                )
-              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 24,
