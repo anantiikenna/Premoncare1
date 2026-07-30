@@ -110,8 +110,8 @@ export function LoginForm() {
     router.refresh();
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setLoading(true);
     setError(null);
 
@@ -178,7 +178,7 @@ export function LoginForm() {
           Sign in to your secure health portal
         </CardDescription>
       </CardHeader>
-      <form onSubmit={authMode === "password" ? handleLogin : handleSendOtp}>
+      <form onSubmit={authMode === "password" ? handleLogin : (e) => handleSendOtp(e)}>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-1">
             <button
@@ -258,8 +258,9 @@ export function LoginForm() {
         <CardFooter className="pt-6 pb-2 flex flex-col gap-4">
           <Button
             className="w-full h-16 rounded-3xl text-lg font-black shadow-xl shadow-primary/30 hover:scale-[1.02] transition-transform"
-            type="submit"
+            type={authMode === "otp" ? "button" : "submit"}
             disabled={loading}
+            onClick={authMode === "otp" ? (e) => { e.preventDefault(); handleSendOtp(e as any); } : undefined}
           >
             {loading ? (
               <Loader2 className="h-6 w-6 animate-spin" />
