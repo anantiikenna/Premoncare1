@@ -949,6 +949,78 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================================
+-- OTP RATE LIMITING FUNCTIONS
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.cleanup_old_login_attempts()
+RETURNS void AS $$
+BEGIN
+    DELETE FROM public.login_attempts WHERE attempted_at < now() - interval '1 hour';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.check_otp_rate_limit(p_email text)
+RETURNS jsonb AS $$
+DECLARE
+    v_max_attempts int := 5;
+    v_lockout_minutes int := 15;
+    v_recent_failures int;
+    v_locked_until timestamp with time zone;
+BEGIN
+    SELECT count(*) INTO v_recent_failures
+    FROM public.login_attempts
+    WHERE email = lower(p_email)
+        AND success = false
+        AND attempted_at > now() - (v_lockout_minutes || ' minutes')::interval;
+
+    IF v_recent_failures >= v_max_attempts THEN
+        SELECT max(attempted_at) + (v_lockout_minutes || ' minutes')::interval
+            INTO v_locked_until
+        FROM public.login_attempts
+        WHERE email = lower(p_email)
+            AND success = false
+            AND attempted_at > now() - (v_lockout_minutes || ' minutes')::interval;
+
+        RETURN jsonb_build_object(
+            'allowed', false,
+            'attempts_remaining', 0,
+            'locked_until', v_locked_until
+        );
+    END IF;
+
+    RETURN jsonb_build_object(
+        'allowed', true,
+        'attempts_remaining', v_max_attempts - v_recent_failures,
+        'locked_until', null
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.record_otp_attempt(p_email text, p_ip_address text DEFAULT null)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO public.login_attempts (email, ip_address, success)
+    VALUES (lower(p_email), p_ip_address, false);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.reset_otp_attempts(p_email text)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO public.login_attempts (email, success)
+    VALUES (lower(p_email), true);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE EXECUTE ON FUNCTION public.check_otp_rate_limit(text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.record_otp_attempt(text, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.reset_otp_attempts(text) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.check_otp_rate_limit(text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.record_otp_attempt(text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.reset_otp_attempts(text) TO anon, authenticated;
+
+-- ============================================================
 -- REALTIME
 -- ============================================================
 DO $$ BEGIN
@@ -1051,6 +1123,27 @@ create policy "Users can view their own device sessions" on device_sessions
 
 create policy "Users can delete their own device sessions" on device_sessions
     for delete using (auth.uid() = user_id);
+
+-- ============================================================
+-- OTP RATE LIMITING & ACCOUNT LOCKOUT
+-- ============================================================
+
+create table login_attempts (
+    id uuid default uuid_generate_v4() primary key,
+    email text not null,
+    attempted_at timestamp with time zone default now(),
+    success boolean default false,
+    ip_address text
+);
+
+alter table login_attempts enable row level security;
+
+create policy "Service role manages login_attempts"
+    on login_attempts for all
+    using (true);
+
+create index if not exists idx_login_attempts_email
+    on login_attempts (email, attempted_at desc);
 
 
 -- ============================================================
@@ -1346,6 +1439,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.audit_logs TO service_role;
 GRANT SELECT ON public.device_sessions TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.device_sessions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.device_sessions TO service_role;
+
+-- login_attempts
+GRANT SELECT, INSERT, DELETE ON public.login_attempts TO service_role;
 
 -- payouts
 GRANT SELECT ON public.payouts TO anon;
