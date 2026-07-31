@@ -1175,3 +1175,130 @@ SELECT column_name, data_type FROM information_schema.columns
 WHERE table_name = 'appointments'
 AND column_name IN ('accepted_at', 'reason', 'consultation_mode', 'is_emergency', 'total_amount', 'metadata')
 ORDER BY ordinal_position;
+
+-- ============================================================
+-- SECURITY: OTP Rate Limiting & Account Lockout
+-- Tracks failed OTP verification attempts per email.
+-- After MAX_ATTEMPTS (5), the email is locked for LOCKOUT_MINUTES (15).
+-- ============================================================
+
+-- 1. login_attempts table
+CREATE TABLE IF NOT EXISTS public.login_attempts (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email text NOT NULL,
+  attempted_at timestamp with time zone DEFAULT now(),
+  success boolean DEFAULT false,
+  ip_address text
+);
+
+ALTER TABLE public.login_attempts ENABLE ROW LEVEL SECURITY;
+
+-- Only service_role can manage login_attempts (RPC functions use SECURITY DEFINER)
+CREATE POLICY "Service role manages login_attempts"
+  ON public.login_attempts FOR ALL
+  USING (true);
+
+-- Index for fast lookups by email
+CREATE INDEX IF NOT EXISTS idx_login_attempts_email
+  ON public.login_attempts (email, attempted_at DESC);
+
+-- Auto-cleanup: delete attempts older than 1 hour
+CREATE OR REPLACE FUNCTION public.cleanup_old_login_attempts()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.login_attempts WHERE attempted_at < now() - interval '1 hour';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 2. Constants
+DO $$ BEGIN
+  PERFORM set_config('app.max_otp_attempts', '5', false);
+  PERFORM set_config('app.lockout_minutes', '15', false);
+END $$;
+
+-- 3. Check rate limit: returns { allowed, attempts_remaining, locked_until }
+CREATE OR REPLACE FUNCTION public.check_otp_rate_limit(p_email text)
+RETURNS jsonb AS $$
+DECLARE
+  v_max_attempts int := 5;
+  v_lockout_minutes int := 15;
+  v_recent_failures int;
+  v_locked_until timestamp with time zone;
+BEGIN
+  -- Count failed attempts in the lockout window
+  SELECT count(*) INTO v_recent_failures
+  FROM public.login_attempts
+  WHERE email = lower(p_email)
+    AND success = false
+    AND attempted_at > now() - (v_lockout_minutes || ' minutes')::interval;
+
+  -- Check if locked out
+  IF v_recent_failures >= v_max_attempts THEN
+    SELECT max(attempted_at) + (v_lockout_minutes || ' minutes')::interval
+      INTO v_locked_until
+    FROM public.login_attempts
+    WHERE email = lower(p_email)
+      AND success = false
+      AND attempted_at > now() - (v_lockout_minutes || ' minutes')::interval;
+
+    RETURN jsonb_build_object(
+      'allowed', false,
+      'attempts_remaining', 0,
+      'locked_until', v_locked_until
+    );
+  END IF;
+
+  RETURN jsonb_build_object(
+    'allowed', true,
+    'attempts_remaining', v_max_attempts - v_recent_failures,
+    'locked_until', null
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 4. Record an OTP attempt (call before sending OTP)
+CREATE OR REPLACE FUNCTION public.record_otp_attempt(p_email text, p_ip_address text DEFAULT null)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO public.login_attempts (email, ip_address, success)
+  VALUES (lower(p_email), p_ip_address, false);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 5. Reset attempts on successful verification
+CREATE OR REPLACE FUNCTION public.reset_otp_attempts(p_email text)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO public.login_attempts (email, success)
+  VALUES (lower(p_email), true);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 6. Revoke direct access — only callable via RPC
+REVOKE EXECUTE ON FUNCTION public.check_otp_rate_limit(text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.record_otp_attempt(text, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.reset_otp_attempts(text) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.check_otp_rate_limit(text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.record_otp_attempt(text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.reset_otp_attempts(text) TO anon, authenticated;
+
+-- 7. GRANT on login_attempts for service_role (cleanup cron)
+GRANT SELECT, INSERT, DELETE ON public.login_attempts TO service_role;
+
+-- ============================================================
+-- SECURITY: Supabase Auth Hardening (manual dashboard config)
+-- ============================================================
+-- Run these in Supabase Dashboard → Authentication → Settings:
+--
+-- 1. OTP Expiry: Set to 300 seconds (5 minutes)
+--    Dashboard → Auth → Settings → "Email OTP expiry" → 300
+--
+-- 2. Max OTP Attempts: Set to 3
+--    Dashboard → Auth → Settings → "Max number of attempts" → 3
+--
+-- 3. Enable "Protect against leaked passwords"
+--    Dashboard → Auth → Settings → Password Protection → Toggle ON
+--
+-- These settings work in conjunction with the login_attempts
+-- table and RPC functions above for defense-in-depth.

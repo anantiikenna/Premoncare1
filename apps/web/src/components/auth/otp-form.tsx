@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, ArrowRight, ShieldCheck, Timer } from 'lucide-react'
@@ -18,7 +19,10 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
     const [timer, setTimer] = useState(60)
     const [error, setError] = useState<string | null>(null)
     const [focusedIndex, setFocusedIndex] = useState<number>(0)
+    const [attemptsRemaining, setAttemptsRemaining] = useState<number>(5)
+    const [isLocked, setIsLocked] = useState(false)
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+    const supabase = createClient()
 
     useEffect(() => {
         const countdown = setInterval(() => {
@@ -82,13 +86,36 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
     }
 
     const handleSubmitWithCode = async (code: string) => {
+        if (isLocked) {
+            setError('Too many failed attempts. Please try again later.')
+            return
+        }
+
         setLoading(true)
         setError(null)
         try {
             await onVerify(code)
+            // Reset attempts on success
+            if (email) {
+                await supabase.rpc('reset_otp_attempts', { p_email: email })
+            }
         } catch (err: unknown) {
             console.error('OTP verification failed', err)
             setError(getUserFacingError(err, 'That code could not be verified. Please check it and try again.'))
+
+            // Check rate limit after failure
+            if (email) {
+                const { data: limitResult } = await supabase.rpc('check_otp_rate_limit', {
+                    p_email: email,
+                })
+                if (limitResult) {
+                    setAttemptsRemaining(limitResult.attempts_remaining ?? 0)
+                    if (!limitResult.allowed) {
+                        setIsLocked(true)
+                        setError('Too many failed attempts. Account temporarily locked. Please try again later.')
+                    }
+                }
+            }
         } finally {
             setLoading(false)
         }
@@ -143,6 +170,12 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                     {error && (
                         <div className="p-3 text-sm bg-destructive/10 text-destructive rounded-xl border border-destructive/20 font-semibold text-center animate-shake">
                             {error}
+                        </div>
+                    )}
+
+                    {!isLocked && attemptsRemaining < 5 && (
+                        <div className="text-center text-xs font-bold text-muted-foreground">
+                            {attemptsRemaining} attempt{attemptsRemaining !== 1 ? 's' : ''} remaining
                         </div>
                     )}
 

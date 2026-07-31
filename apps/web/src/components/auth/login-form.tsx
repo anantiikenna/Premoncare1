@@ -61,6 +61,20 @@ export function LoginForm() {
     setError(null);
 
     try {
+      // Check rate limit before sending OTP
+      const { data: limitResult } = await supabase.rpc('check_otp_rate_limit', {
+        p_email: email,
+      });
+
+      if (limitResult && !limitResult.allowed) {
+        setError('Too many failed attempts. Please try again later.');
+        setLoading(false);
+        return;
+      }
+
+      // Record the attempt
+      await supabase.rpc('record_otp_attempt', { p_email: email });
+
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: { shouldCreateUser: false },

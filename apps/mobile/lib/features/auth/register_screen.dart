@@ -54,8 +54,28 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   Future<void> _register() async {
     setState(() => _isLoading = true);
     try {
+      final email = _emailController.text.trim();
+
+      // Check rate limit before sending OTP
+      final limitResult = await supabase
+          .rpc('check_otp_rate_limit', params: {'p_email': email});
+      if (limitResult != null && limitResult['allowed'] == false) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Too many failed attempts. Please try again later.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Record the attempt
+      await supabase.rpc('record_otp_attempt', params: {'p_email': email});
+
       final res = await supabase.auth.signInWithOtp(
-        email: _emailController.text.trim(),
+        email: email,
         data: {
           'full_name': _fullNameController.text.trim(),
           'requested_role': 'patient',
@@ -66,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       if (mounted) {
         context.push('/otp-verification', extra: {
-          'email': _emailController.text.trim(),
+          'email': email,
           'role': 'patient',
           'isSignup': true,
         });

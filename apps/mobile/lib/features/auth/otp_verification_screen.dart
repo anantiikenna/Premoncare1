@@ -34,6 +34,9 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   int _secondsRemaining = 60;
   Timer? _timer;
   bool _isLoading = false;
+  int _attemptsRemaining = 5;
+  bool _isLocked = false;
+  DateTime? _lockedUntil;
 
   @override
   void initState() {
@@ -104,6 +107,17 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       return;
     }
 
+    if (_isLocked) {
+      final remaining = _lockedUntil?.difference(DateTime.now()).inMinutes ?? 15;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Too many failed attempts. Try again in $remaining minutes.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       await supabase.auth.verifyOTP(
@@ -111,6 +125,9 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         token: otp,
         type: widget.isSignup ? OtpType.signup : OtpType.email,
       );
+
+      // Reset attempts on success
+      await supabase.rpc('reset_otp_attempts', params: {'p_email': widget.email});
 
       if (!mounted) return;
 
@@ -149,6 +166,22 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       }
     } on AuthException catch (e, stackTrace) {
       logHandledError('OTP verification failed', e, stackTrace);
+
+      // Track failed attempt
+      final limitResult = await supabase
+          .rpc('check_otp_rate_limit', params: {'p_email': widget.email});
+      if (limitResult != null && mounted) {
+        final remaining = limitResult['attempts_remaining'] as int? ?? 0;
+        final locked = limitResult['allowed'] == false;
+        setState(() {
+          _attemptsRemaining = remaining;
+          if (locked) {
+            _isLocked = true;
+            _lockedUntil = DateTime.tryParse(limitResult['locked_until'] ?? '');
+          }
+        });
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -156,7 +189,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
               userFacingError(
                 e,
                 fallback:
-                    'That code could not be verified. Please check it and try again.',
+                    'That code could not be verified. ${_attemptsRemaining > 0 ? '$_attemptsRemaining attempts remaining.' : 'Account temporarily locked.'}',
               ),
             ),
             backgroundColor: AppColors.error,
@@ -167,7 +200,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       logHandledError('OTP verification failed', e, stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('An error occurred. Please try again.'),
             backgroundColor: AppColors.error,
           ),
@@ -278,7 +311,24 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         const SizedBox(height: 20),
 
                         _EmailInfoCard(email: widget.email),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 12),
+
+                        if (_attemptsRemaining < 5)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              _isLocked
+                                  ? 'Too many failed attempts. Account temporarily locked.'
+                                  : '$_attemptsRemaining attempt${_attemptsRemaining != 1 ? 's' : ''} remaining',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: _isLocked ? AppColors.error : AppColors.textSecondaryOf(context),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 12),
 
                         _TimerModule(
                           secondsRemaining: _secondsRemaining,

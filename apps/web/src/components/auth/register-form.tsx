@@ -47,32 +47,46 @@ export function RegisterForm() {
         if (step === 'terms') setStep('identity')
     }
 
-    const handleRegister = async () => {
-        setLoading(true)
-        setError(null)
+  const handleRegister = async () => {
+    setLoading(true)
+    setError(null)
 
-        try {
-            const { error: otpError } = await supabase.auth.signInWithOtp({
-                email,
-                options: {
-                    data: {
-                        full_name: fullName,
-                        requested_role: 'patient',
-                        phone: phone || null,
-                    },
-                },
-            })
+    try {
+      // Check rate limit before sending OTP
+      const { data: limitResult } = await supabase.rpc('check_otp_rate_limit', {
+        p_email: email,
+      })
 
-            if (otpError) throw otpError
-            setStep('otp')
-            toast.success('Verification code sent to your email')
-        } catch (err: unknown) {
-            console.error('Registration failed', err)
-            setError(getUserFacingError(err, 'We could not complete registration. Please review your details and try again.'))
-        } finally {
-            setLoading(false)
-        }
+      if (limitResult && !limitResult.allowed) {
+        setError('Too many failed attempts. Please try again later.')
+        setLoading(false)
+        return
+      }
+
+      // Record the attempt
+      await supabase.rpc('record_otp_attempt', { p_email: email })
+
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          data: {
+            full_name: fullName,
+            requested_role: 'patient',
+            phone: phone || null,
+          },
+        },
+      })
+
+      if (otpError) throw otpError
+      setStep('otp')
+      toast.success('Verification code sent to your email')
+    } catch (err: unknown) {
+      console.error('Registration failed', err)
+      setError(getUserFacingError(err, 'We could not complete registration. Please review your details and try again.'))
+    } finally {
+      setLoading(false)
     }
+  }
 
     const handleVerifyOtp = async (otp: string) => {
         const { error: verifyError } = await supabase.auth.verifyOtp({
