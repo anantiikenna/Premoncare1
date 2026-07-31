@@ -13,11 +13,8 @@ class AdminLoginScreen extends StatefulWidget {
 
 class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _emailFocus = FocusNode();
-  final _passwordFocus = FocusNode();
   bool _isLoading = false;
-  bool _isPasswordVisible = false;
   String? _errorMessage;
 
   late AnimationController _animController;
@@ -38,18 +35,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
   void dispose() {
     _animController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     _emailFocus.dispose();
-    _passwordFocus.dispose();
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _sendOtp() async {
     final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      setState(() => _errorMessage = 'Please enter both email and password.');
+    if (email.isEmpty) {
+      setState(() => _errorMessage = 'Please enter your admin email address.');
       return;
     }
 
@@ -59,13 +53,23 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
     });
 
     try {
-      await supabase.auth.signInWithPassword(email: email, password: password);
+      final profile = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('email', email)
+          .maybeSingle();
 
-      final role = await getUserRole();
       if (!mounted) return;
 
-      if (role != 'admin') {
-        await performLogout();
+      if (profile == null) {
+        setState(() {
+          _errorMessage = 'No account found with this email. Please contact the platform administrator.';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      if (profile['role'] != 'admin') {
         setState(() {
           _errorMessage = 'Access denied. This account does not have admin privileges.';
           _isLoading = false;
@@ -73,12 +77,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
         return;
       }
 
-      context.go('/admin-dashboard');
+      await supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
+      if (mounted) {
+        context.push(
+          '/otp-verification',
+          extra: {'email': email, 'isEmergency': false, 'isSignup': false},
+        );
+      }
     } catch (e, stackTrace) {
-      logHandledError('Admin login failed', e, stackTrace);
+      logHandledError('Admin OTP send failed', e, stackTrace);
       if (mounted) {
         setState(() {
-          _errorMessage = userFacingError(e, fallback: 'Sign in failed. Please check your credentials.');
+          _errorMessage = userFacingError(e, fallback: 'We could not send the verification code. Please try again.');
           _isLoading = false;
         });
       }
@@ -167,26 +177,16 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                               hint: 'Admin Email',
                               icon: Icons.mail_outline_rounded,
                               keyboardType: TextInputType.emailAddress,
-                              textInputAction: TextInputAction.next,
-                              onSubmitted: (_) => _passwordFocus.requestFocus(),
-                            ),
-                            const SizedBox(height: 14),
-
-                            _AdminInput(
-                              controller: _passwordController,
-                              focusNode: _passwordFocus,
-                              hint: 'Password',
-                              icon: Icons.lock_outline_rounded,
-                              obscure: !_isPasswordVisible,
                               textInputAction: TextInputAction.done,
-                              onSubmitted: (_) => _login(),
-                              suffix: IconButton(
-                                icon: Icon(
-                                  _isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                                  color: AppColors.textTertiaryOf(context),
-                                  size: 19,
-                                ),
-                                onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                              onSubmitted: (_) => _sendOtp(),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'We\'ll send a seven digit verification code to your email.',
+                              style: TextStyle(
+                                color: AppColors.textSecondaryOf(context),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 28),
@@ -195,7 +195,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                               width: double.infinity,
                               height: 52,
                               child: ElevatedButton(
-                                onPressed: _isLoading ? null : _login,
+                                onPressed: _isLoading ? null : _sendOtp,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: AppColors.textInverse,
@@ -211,7 +211,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                                         child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2.5),
                                       )
                                     : const Text(
-                                        'Sign In',
+                                        'Send Admin Code',
                                         style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.2),
                                       ),
                               ),
@@ -255,22 +255,18 @@ class _AdminInput extends StatelessWidget {
   final FocusNode? focusNode;
   final String hint;
   final IconData icon;
-  final bool obscure;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
-  final Widget? suffix;
 
   const _AdminInput({
     required this.controller,
     this.focusNode,
     required this.hint,
     required this.icon,
-    this.obscure = false,
     this.keyboardType,
     this.textInputAction,
     this.onSubmitted,
-    this.suffix,
   });
 
   @override
@@ -285,7 +281,6 @@ class _AdminInput extends StatelessWidget {
       child: TextField(
         controller: controller,
         focusNode: focusNode,
-        obscureText: obscure,
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         onSubmitted: onSubmitted,
@@ -295,8 +290,6 @@ class _AdminInput extends StatelessWidget {
           hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
           prefixIcon: Padding(padding: const EdgeInsets.only(left: 14, right: 10), child: Icon(icon, color: AppColors.textTertiaryOf(context), size: 19)),
           prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-          suffixIcon: suffix != null ? Padding(padding: const EdgeInsets.only(right: 8), child: suffix!) : null,
-          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),

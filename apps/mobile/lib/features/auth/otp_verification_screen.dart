@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart'
     show supabase, getUserRole, clearRoleCache, performLogout;
+import '../../core/flavor_config.dart';
 import '../../core/user_facing_errors.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
@@ -118,6 +119,13 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       if (!mounted) return;
 
       if (role == 'admin') {
+        if (FlavorConfig.isAdmin) {
+          clearRoleCache();
+          if (mounted) {
+            context.go('/admin-dashboard');
+          }
+          return;
+        }
         await performLogout();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
