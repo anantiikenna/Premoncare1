@@ -322,7 +322,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         childAspectRatio: 1.5,
         children: List.generate(
           4,
-          (_) => const AdminStatCard(
+          (_) => AdminStatCard(
             title: '',
             value: '...',
             icon: Icons.hourglass_empty_rounded,

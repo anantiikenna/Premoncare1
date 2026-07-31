@@ -298,7 +298,7 @@ class _FinancialModerationScreenState
                       Text(
                         _error!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondaryOf(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -446,7 +446,7 @@ class _FinancialModerationScreenState
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.borderLightOf(context)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(
                       Icons.search_rounded,
@@ -521,7 +521,7 @@ class _FinancialModerationScreenState
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.borderLightOf(context)),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             'No transactions found',
             style: TextStyle(
@@ -626,7 +626,7 @@ class _FinancialModerationScreenState
                 const SizedBox(height: 16),
                 Text(
                   _formatAmount(_totalRevenue),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textPrimaryOf(context),
@@ -680,13 +680,13 @@ class _FinancialModerationScreenState
                       children: [
                         Text(
                           _formatAmount(_totalRevenue),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
                             color: AppColors.textPrimaryOf(context),
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Total',
                           style: TextStyle(
                             fontSize: 10,
@@ -759,7 +759,7 @@ class _FinancialModerationScreenState
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimaryOf(context),
@@ -767,7 +767,7 @@ class _FinancialModerationScreenState
         ),
         Row(
           children: [
-            const Text(
+            Text(
               'This Week',
               style: TextStyle(
                 fontSize: 11,
@@ -895,7 +895,7 @@ class _FinancialModerationScreenState
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
             color: AppColors.textPrimaryOf(context),
@@ -981,7 +981,7 @@ class _FinancialModerationScreenState
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.check_circle_rounded, color: AppColors.success),
             SizedBox(width: 12),
@@ -997,7 +997,7 @@ class _FinancialModerationScreenState
         ),
         content: Text(
           'Are you sure you want to approve all pending payouts? This will process ${_formatAmount(_pendingPayouts)} across $_pendingPayoutCount transactions.',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondaryOf(context),
             height: 1.5,
             fontSize: 13,
@@ -1007,7 +1007,7 @@ class _FinancialModerationScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
@@ -1069,7 +1069,7 @@ class _FinancialModerationScreenState
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
             color: AppColors.textPrimaryOf(context),
@@ -1140,7 +1140,7 @@ class _FinanceStatCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: AppColors.textPrimaryOf(context),
@@ -1150,7 +1150,7 @@ class _FinanceStatCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w700,
@@ -1255,7 +1255,7 @@ class _IconButton extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondaryOf(context),
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -1323,7 +1323,7 @@ class _AlertCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimaryOf(context),
@@ -1336,7 +1336,7 @@ class _AlertCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             sub,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: AppColors.textTertiaryOf(context),
@@ -1422,7 +1422,7 @@ class _TransactionItem extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
                     color: AppColors.textPrimaryOf(context),
@@ -1431,7 +1431,7 @@ class _TransactionItem extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   type,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondaryOf(context),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -1446,7 +1446,7 @@ class _TransactionItem extends StatelessWidget {
               children: [
                 Text(
                   id,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
                     color: AppColors.textTertiaryOf(context),
@@ -1580,7 +1580,7 @@ class _BreakdownItem extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textSecondaryOf(context),
@@ -1592,7 +1592,7 @@ class _BreakdownItem extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   color: AppColors.textPrimaryOf(context),
@@ -1600,7 +1600,7 @@ class _BreakdownItem extends StatelessWidget {
               ),
               Text(
                 '($percentage)',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w600,
@@ -1655,7 +1655,7 @@ class _DisputeItem extends StatelessWidget {
             children: [
               Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
                   color: AppColors.textPrimaryOf(context),
@@ -1663,7 +1663,7 @@ class _DisputeItem extends StatelessWidget {
               ),
               Text(
                 sub,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondaryOf(context),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -1671,7 +1671,7 @@ class _DisputeItem extends StatelessWidget {
               ),
               Text(
                 '$id \u2022 $time',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
@@ -1729,7 +1729,7 @@ class _PayoutItem extends StatelessWidget {
             children: [
               Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
                   color: AppColors.textPrimaryOf(context),
@@ -1737,7 +1737,7 @@ class _PayoutItem extends StatelessWidget {
               ),
               Text(
                 txnCount,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondaryOf(context),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -1745,7 +1745,7 @@ class _PayoutItem extends StatelessWidget {
               ),
               Text(
                 date,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
@@ -1756,7 +1756,7 @@ class _PayoutItem extends StatelessWidget {
         ),
         Text(
           amount,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 14,
             color: AppColors.textPrimaryOf(context),

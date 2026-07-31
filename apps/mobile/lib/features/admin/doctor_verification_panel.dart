@@ -179,7 +179,7 @@ class _DoctorVerificationPanelState
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.check_circle_rounded, color: AppColors.success),
             SizedBox(width: 12),
@@ -195,7 +195,7 @@ class _DoctorVerificationPanelState
         ),
         content: Text(
           'Are you sure you want to approve ${doctor['full_name'] ?? 'this doctor'}? This will immediately grant them practitioner access and operational scheduling capabilities.',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textTertiaryOf(context),
             height: 1.5,
             fontSize: 13,
@@ -205,7 +205,7 @@ class _DoctorVerificationPanelState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
@@ -268,7 +268,7 @@ class _DoctorVerificationPanelState
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.cancel_rounded, color: AppColors.error),
             SizedBox(width: 12),
@@ -286,7 +286,7 @@ class _DoctorVerificationPanelState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Please provide a reason for rejecting this application. This will be sent to the user.',
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
@@ -300,7 +300,7 @@ class _DoctorVerificationPanelState
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'Reason for rejection...',
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 13,
                 ),
@@ -318,7 +318,7 @@ class _DoctorVerificationPanelState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
@@ -386,7 +386,7 @@ class _DoctorVerificationPanelState
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.help_rounded, color: AppColors.warning),
             SizedBox(width: 12),
@@ -404,7 +404,7 @@ class _DoctorVerificationPanelState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'What additional information do you need from the applicant?',
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
@@ -419,7 +419,7 @@ class _DoctorVerificationPanelState
               decoration: InputDecoration(
                 hintText:
                     'E.g. Please upload a clearer copy of your Medical License.',
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 13,
                 ),
@@ -437,7 +437,7 @@ class _DoctorVerificationPanelState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
@@ -677,27 +677,27 @@ class _DoctorVerificationPanelState
               controller: _searchController,
               onSubmitted: (_) => _fetchDoctors(),
               onChanged: (v) => setState(() => _searchQuery = v),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimaryOf(context),
               ),
               decoration: InputDecoration(
-                icon: const Icon(
+                icon: Icon(
                   Icons.search_rounded,
                   color: AppColors.textTertiaryOf(context),
                   size: 20,
                 ),
                 border: InputBorder.none,
                 hintText: 'Search by name or email...',
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
                           color: AppColors.textTertiaryOf(context),
                           size: 18,
@@ -732,7 +732,7 @@ class _DoctorVerificationPanelState
                       color: AppColors.primary,
                     ),
                   )
-                : const Icon(
+                : Icon(
                     Icons.tune_rounded,
                     color: AppColors.textSecondaryOf(context),
                     size: 20,
@@ -800,7 +800,7 @@ class _DoctorVerificationPanelState
                 size: 48,
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'No doctors found',
                 style: TextStyle(
                   color: AppColors.textTertiaryOf(context),
@@ -808,8 +808,8 @@ class _DoctorVerificationPanelState
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 4),
-              const Text(
+              SizedBox(height: 4),
+              Text(
                 'All caught up for this category!',
                 style: TextStyle(
                   color: AppColors.textTertiaryOf(context),
@@ -932,7 +932,7 @@ class _DoctorVerificationPanelState
                 children: [
                   Text(
                     'Dr. $name',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: AppColors.textPrimaryOf(context),
@@ -941,7 +941,7 @@ class _DoctorVerificationPanelState
                   const SizedBox(height: 2),
                   Text(
                     specialty,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textTertiaryOf(context),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -950,7 +950,7 @@ class _DoctorVerificationPanelState
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.email_outlined,
                         color: AppColors.textTertiaryOf(context),
                         size: 13,
@@ -959,7 +959,7 @@ class _DoctorVerificationPanelState
                       Expanded(
                         child: Text(
                           email,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textTertiaryOf(context),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -979,14 +979,14 @@ class _DoctorVerificationPanelState
                 if (createdAt != null)
                   Text(
                     '${createdAt.day}/${createdAt.month}/${createdAt.year}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textTertiaryOf(context),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 const SizedBox(height: 8),
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
                   color: AppColors.textTertiaryOf(context),
                   size: 20,
@@ -1106,7 +1106,7 @@ class _DoctorVerificationPanelState
                             children: [
                               Text(
                                 'Dr. $name',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
                                   color: AppColors.textPrimaryOf(context),
@@ -1115,7 +1115,7 @@ class _DoctorVerificationPanelState
                               const SizedBox(height: 2),
                               Text(
                                 specialty,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.textTertiaryOf(context),
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -1127,7 +1127,7 @@ class _DoctorVerificationPanelState
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text(
+                            Text(
                               'User ID',
                               style: TextStyle(
                                 fontSize: 10,
@@ -1137,7 +1137,7 @@ class _DoctorVerificationPanelState
                             ),
                             Text(
                               id.toString().substring(0, 8),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.textPrimaryOf(context),
@@ -1151,7 +1151,7 @@ class _DoctorVerificationPanelState
                     if (email.isNotEmpty)
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.email_outlined,
                             color: AppColors.textTertiaryOf(context),
                             size: 14,
@@ -1159,7 +1159,7 @@ class _DoctorVerificationPanelState
                           const SizedBox(width: 8),
                           Text(
                             email,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textTertiaryOf(context),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1171,7 +1171,7 @@ class _DoctorVerificationPanelState
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.phone_outlined,
                             color: AppColors.textTertiaryOf(context),
                             size: 14,
@@ -1179,7 +1179,7 @@ class _DoctorVerificationPanelState
                           const SizedBox(width: 8),
                           Text(
                             phone,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textTertiaryOf(context),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1196,7 +1196,7 @@ class _DoctorVerificationPanelState
                           createdAt != null
                               ? 'Applied on: ${createdAt.day} ${_monthName(createdAt.month)} ${createdAt.year}'
                               : 'Application date unknown',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textTertiaryOf(context),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1224,7 +1224,7 @@ class _DoctorVerificationPanelState
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.borderLightOf(context)),
         ),
-        child: const Column(
+        child: Column(
           children: [
             Icon(
               Icons.folder_off_outlined,
@@ -1374,7 +1374,7 @@ class _DoctorVerificationPanelState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Admin Notes',
           style: TextStyle(
             fontSize: 16,
@@ -1395,12 +1395,12 @@ class _DoctorVerificationPanelState
           child: TextField(
             controller: _adminNotesController,
             maxLines: 4,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimaryOf(context),
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'Add a note (optional)...',
               hintStyle: TextStyle(
                 color: AppColors.textTertiaryOf(context),
@@ -1536,7 +1536,7 @@ class _DoctorVerificationPanelState
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w900,
         color: AppColors.textPrimaryOf(context),
@@ -1729,7 +1729,7 @@ class _DocumentCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
-                      errorBuilder: (_, __, ___) => const Icon(
+                      errorBuilder: (_, __, ___) => Icon(
                         Icons.broken_image_rounded,
                         color: AppColors.textTertiaryOf(context),
                         size: 40,
@@ -1743,7 +1743,7 @@ class _DocumentCard extends StatelessWidget {
                       size: 40,
                     )
                   else
-                    const Icon(
+                    Icon(
                       Icons.description_rounded,
                       color: AppColors.textTertiaryOf(context),
                       size: 40,
@@ -1772,7 +1772,7 @@ class _DocumentCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w900,
               fontSize: 13,
               color: AppColors.textPrimaryOf(context),
@@ -1781,7 +1781,7 @@ class _DocumentCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             fileName,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textTertiaryOf(context),
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -1842,7 +1842,7 @@ class _DetailItem extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w700,
@@ -1851,7 +1851,7 @@ class _DetailItem extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
                   color: AppColors.textPrimaryOf(context),

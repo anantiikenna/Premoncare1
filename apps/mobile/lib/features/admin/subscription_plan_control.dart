@@ -183,7 +183,7 @@ class _SubscriptionPlanControlState
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondaryOf(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -265,7 +265,7 @@ class _SubscriptionPlanControlState
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         color: AppColors.textTertiaryOf(context),
         fontSize: 11,
         fontWeight: FontWeight.w900,
@@ -397,7 +397,7 @@ class _SubscriptionPlanControlState
             children: [
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.people_outline_rounded,
                     size: 16,
                     color: AppColors.textTertiaryOf(context),
@@ -405,7 +405,7 @@ class _SubscriptionPlanControlState
                   const SizedBox(width: 8),
                   Text(
                     '$subscribers active users',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondaryOf(context),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -485,7 +485,7 @@ class _SubscriptionPlanControlState
               const SizedBox(height: 8),
               Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondaryOf(context),
                   height: 1.5,
@@ -530,7 +530,7 @@ class _SubscriptionPlanControlState
                         Expanded(
                           child: Text(
                             f.toString(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondaryOf(context),
                               fontWeight: FontWeight.w600,
@@ -558,7 +558,7 @@ class _SubscriptionPlanControlState
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.info.withValues(alpha: 0.2)),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.info_outline_rounded, color: AppColors.info, size: 24),
           SizedBox(width: 14),
@@ -604,7 +604,7 @@ class _SmallStatCard extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textTertiaryOf(context),
               fontSize: 10,
               fontWeight: FontWeight.w800,

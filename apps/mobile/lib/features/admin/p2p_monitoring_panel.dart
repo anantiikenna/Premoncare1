@@ -360,7 +360,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                       Text(
                         _error!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondaryOf(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -512,7 +512,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.borderLightOf(context)),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(
                   Icons.search_rounded,
@@ -596,7 +596,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                             color: AppColors.textPrimaryOf(context),
                           ),
                         ),
-                        const Text(
+                        Text(
                           'High Risk',
                           style: TextStyle(
                             fontSize: 11,
@@ -686,7 +686,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.borderLightOf(context)),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             'No P2P transactions found',
             style: TextStyle(
@@ -747,7 +747,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                 const _CardHeader(title: 'Top P2P Users (By Volume)'),
                 const SizedBox(height: 24),
                 if (_topUsers.isEmpty)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       'No data yet',
@@ -983,7 +983,7 @@ class _P2PStatCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.w700,
@@ -1068,7 +1068,7 @@ class _FilterButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderLightOf(context)),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(
             Icons.tune_rounded,
@@ -1121,7 +1121,7 @@ class _DateRangePicker extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.calendar_today_rounded,
             color: AppColors.textSecondaryOf(context),
             size: 18,
@@ -1196,7 +1196,7 @@ class _RiskLegend extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textSecondaryOf(context),
@@ -1214,7 +1214,7 @@ class _RiskLegend extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             '($percentage)',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               color: AppColors.textTertiaryOf(context),
               fontWeight: FontWeight.w600,
@@ -1257,7 +1257,7 @@ class _DisputeBreakdownItem extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textSecondaryOf(context),
@@ -1324,7 +1324,7 @@ class _P2PTransactionItem extends StatelessWidget {
             name: senderName,
             avatarUrl: senderAvatar,
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Icon(
               Icons.arrow_forward_rounded,
@@ -1352,7 +1352,7 @@ class _P2PTransactionItem extends StatelessWidget {
               ),
               Text(
                 '$date • $id',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
@@ -1466,7 +1466,7 @@ class _UserStack extends StatelessWidget {
             ),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -1510,7 +1510,7 @@ class _TopUserItem extends StatelessWidget {
           child: Center(
             child: Text(
               rank.toString(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textSecondaryOf(context),
@@ -1549,7 +1549,7 @@ class _TopUserItem extends StatelessWidget {
             ),
             Text(
               txnCount,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -1591,11 +1591,11 @@ class _MonitorItem extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textSecondaryOf(context),
-            ),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondaryOf(context),
+              ),
           ),
         ),
         Text(

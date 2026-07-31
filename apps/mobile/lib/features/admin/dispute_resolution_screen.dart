@@ -479,7 +479,7 @@ class _DisputeResolutionScreenState
           const SizedBox(height: 16),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimaryOf(context),
@@ -488,7 +488,7 @@ class _DisputeResolutionScreenState
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.textTertiaryOf(context),
@@ -611,7 +611,7 @@ class _DisputeResolutionScreenState
                               Expanded(
                                 child: Text(
                                   dispute['title'] ?? 'Untitled Dispute',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.textPrimaryOf(context),
@@ -658,7 +658,7 @@ class _DisputeResolutionScreenState
                             dispute['description'] ?? '',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondaryOf(context),
                               height: 1.4,
@@ -680,14 +680,14 @@ class _DisputeResolutionScreenState
                     const SizedBox(width: 8),
                     Text(
                       patientName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimaryOf(context),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         'vs',
                         style: TextStyle(
@@ -707,7 +707,7 @@ class _DisputeResolutionScreenState
                     Expanded(
                       child: Text(
                         doctorName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimaryOf(context),
@@ -744,7 +744,7 @@ class _DisputeResolutionScreenState
                   children: [
                     Text(
                       '#DSP-${dispute['id'].toString().substring(0, math.min(8, dispute['id'].toString().length)).toUpperCase()}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textTertiaryOf(context),
@@ -753,7 +753,7 @@ class _DisputeResolutionScreenState
                     _buildDividerDot(),
                     Text(
                       _timeAgo(createdAt),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textTertiaryOf(context),
                       ),
@@ -762,7 +762,7 @@ class _DisputeResolutionScreenState
                       _buildDividerDot(),
                       Text(
                         _formatAmount(dispute['amount']),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textTertiaryOf(context),
@@ -785,7 +785,7 @@ class _DisputeResolutionScreenState
       child: Container(
         width: 4,
         height: 4,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.textTertiaryOf(context),
           shape: BoxShape.circle,
         ),
@@ -818,7 +818,7 @@ class _DisputeResolutionScreenState
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Dispute Insights',
               style: TextStyle(
                 fontSize: 16,
@@ -879,13 +879,13 @@ class _DisputeResolutionScreenState
                       children: [
                         Text(
                           total.toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w900,
                             color: AppColors.textPrimaryOf(context),
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Total',
                           style: TextStyle(
                             fontSize: 13,
@@ -944,7 +944,7 @@ class _DisputeResolutionScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'We ensure fair, secure and transparent resolution for all parties involved.',
                 style: TextStyle(
                   fontSize: 14,
@@ -992,7 +992,7 @@ class _DisputeResolutionScreenState
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Dispute Details',
                 style: TextStyle(
@@ -1004,7 +1004,7 @@ class _DisputeResolutionScreenState
             ),
             GestureDetector(
               onTap: () => setState(() => _selectedDispute = null),
-              child: const Icon(
+              child: Icon(
                 Icons.close,
                 size: 20,
                 color: AppColors.textTertiaryOf(context),
@@ -1054,7 +1054,7 @@ class _DisputeResolutionScreenState
                       children: [
                         Text(
                           d['title'] ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
                             color: AppColors.textPrimaryOf(context),
@@ -1099,7 +1099,7 @@ class _DisputeResolutionScreenState
               if (d['description'] != null &&
                   d['description'].toString().isNotEmpty) ...[
                 const Divider(height: 32),
-                const Text(
+                Text(
                   'Description',
                   style: TextStyle(
                     fontSize: 12,
@@ -1110,7 +1110,7 @@ class _DisputeResolutionScreenState
                 const SizedBox(height: 8),
                 Text(
                   d['description'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondaryOf(context),
                     height: 1.5,
@@ -1140,7 +1140,7 @@ class _DisputeResolutionScreenState
                       const SizedBox(height: 4),
                       Text(
                         d['resolution_notes'],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondaryOf(context),
                         ),
@@ -1172,7 +1172,7 @@ class _DisputeResolutionScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Resolution Actions',
                   style: TextStyle(
                     fontSize: 14,
@@ -1329,7 +1329,7 @@ class _DisputeResolutionScreenState
             width: 100,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textTertiaryOf(context),
@@ -1364,7 +1364,7 @@ class _DisputeResolutionScreenState
           const SizedBox(width: 12),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: AppColors.textPrimaryOf(context),
