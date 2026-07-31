@@ -95,26 +95,28 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         setError(null)
         try {
             await onVerify(code)
-            // Reset attempts on success
+            // Reset attempts on success (non-blocking)
             if (email) {
-                await supabase.rpc('reset_otp_attempts', { p_email: email })
+                try { await supabase.rpc('reset_otp_attempts', { p_email: email }) } catch (_) {}
             }
         } catch (err: unknown) {
             console.error('OTP verification failed', err)
             setError(getUserFacingError(err, 'That code could not be verified. Please check it and try again.'))
 
-            // Check rate limit after failure
+            // Check rate limit after failure (non-blocking)
             if (email) {
-                const { data: limitResult } = await supabase.rpc('check_otp_rate_limit', {
-                    p_email: email,
-                })
-                if (limitResult) {
-                    setAttemptsRemaining(limitResult.attempts_remaining ?? 0)
-                    if (!limitResult.allowed) {
-                        setIsLocked(true)
-                        setError('Too many failed attempts. Account temporarily locked. Please try again later.')
+                try {
+                    const { data: limitResult } = await supabase.rpc('check_otp_rate_limit', {
+                        p_email: email,
+                    })
+                    if (limitResult) {
+                        setAttemptsRemaining(limitResult.attempts_remaining ?? 0)
+                        if (!limitResult.allowed) {
+                            setIsLocked(true)
+                            setError('Too many failed attempts. Account temporarily locked. Please try again later.')
+                        }
                     }
-                }
+                } catch (_) {}
             }
         } finally {
             setLoading(false)

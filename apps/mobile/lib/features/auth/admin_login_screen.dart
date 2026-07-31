@@ -77,21 +77,27 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
         return;
       }
 
-      // Check rate limit before sending OTP
-      final limitResult = await supabase
-          .rpc('check_otp_rate_limit', params: {'p_email': email});
-      if (limitResult != null && limitResult['allowed'] == false) {
-        if (mounted) {
-          setState(() {
-            _errorMessage = 'Too many failed attempts. Please try again later.';
-            _isLoading = false;
-          });
+      // Check rate limit before sending OTP (non-blocking if table doesn't exist)
+      try {
+        final limitResult = await supabase
+            .rpc('check_otp_rate_limit', params: {'p_email': email});
+        if (limitResult != null && limitResult['allowed'] == false) {
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'Too many failed attempts. Please try again later.';
+              _isLoading = false;
+            });
+          }
+          return;
         }
-        return;
+      } catch (_) {
+        // Rate limit table may not exist yet — proceed with OTP anyway
       }
 
-      // Record the attempt
-      await supabase.rpc('record_otp_attempt', params: {'p_email': email});
+      // Record the attempt (non-blocking)
+      try {
+        await supabase.rpc('record_otp_attempt', params: {'p_email': email});
+      } catch (_) {}
 
       await supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
       if (mounted) {

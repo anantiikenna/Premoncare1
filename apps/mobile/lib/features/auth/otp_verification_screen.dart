@@ -126,8 +126,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         type: widget.isSignup ? OtpType.signup : OtpType.email,
       );
 
-      // Reset attempts on success
-      await supabase.rpc('reset_otp_attempts', params: {'p_email': widget.email});
+      // Reset attempts on success (non-blocking)
+      try {
+        await supabase.rpc('reset_otp_attempts', params: {'p_email': widget.email});
+      } catch (_) {}
 
       if (!mounted) return;
 
@@ -167,20 +169,22 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     } on AuthException catch (e, stackTrace) {
       logHandledError('OTP verification failed', e, stackTrace);
 
-      // Track failed attempt
-      final limitResult = await supabase
-          .rpc('check_otp_rate_limit', params: {'p_email': widget.email});
-      if (limitResult != null && mounted) {
-        final remaining = limitResult['attempts_remaining'] as int? ?? 0;
-        final locked = limitResult['allowed'] == false;
-        setState(() {
-          _attemptsRemaining = remaining;
-          if (locked) {
-            _isLocked = true;
-            _lockedUntil = DateTime.tryParse(limitResult['locked_until'] ?? '');
-          }
-        });
-      }
+      // Track failed attempt (non-blocking)
+      try {
+        final limitResult = await supabase
+            .rpc('check_otp_rate_limit', params: {'p_email': widget.email});
+        if (limitResult != null && mounted) {
+          final remaining = limitResult['attempts_remaining'] as int? ?? 0;
+          final locked = limitResult['allowed'] == false;
+          setState(() {
+            _attemptsRemaining = remaining;
+            if (locked) {
+              _isLocked = true;
+              _lockedUntil = DateTime.tryParse(limitResult['locked_until'] ?? '');
+            }
+          });
+        }
+      } catch (_) {}
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

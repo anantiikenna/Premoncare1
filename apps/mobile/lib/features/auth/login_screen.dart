@@ -92,26 +92,27 @@ class _LoginScreenState extends State<LoginScreen>
         return;
       }
 
-      // Check rate limit before sending OTP
-      final limitResult = await supabase
-          .rpc('check_otp_rate_limit', params: {'p_email': email});
-      if (limitResult != null && limitResult['allowed'] == false) {
-        if (mounted) {
-          final lockedUntil = limitResult['locked_until'] as String?;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Too many failed attempts. Please try again later.',
+      // Check rate limit before sending OTP (non-blocking if table doesn't exist)
+      try {
+        final limitResult = await supabase
+            .rpc('check_otp_rate_limit', params: {'p_email': email});
+        if (limitResult != null && limitResult['allowed'] == false) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Too many failed attempts. Please try again later.'),
+                backgroundColor: AppColors.error,
               ),
-              backgroundColor: AppColors.error,
-            ),
-          );
+            );
+          }
+          return;
         }
-        return;
-      }
+      } catch (_) {}
 
-      // Record the attempt
-      await supabase.rpc('record_otp_attempt', params: {'p_email': email});
+      // Record the attempt (non-blocking)
+      try {
+        await supabase.rpc('record_otp_attempt', params: {'p_email': email});
+      } catch (_) {}
 
       await supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
       if (mounted) {

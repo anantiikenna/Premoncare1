@@ -52,19 +52,23 @@ export function RegisterForm() {
     setError(null)
 
     try {
-      // Check rate limit before sending OTP
-      const { data: limitResult } = await supabase.rpc('check_otp_rate_limit', {
-        p_email: email,
-      })
+      // Check rate limit before sending OTP (non-blocking if table doesn't exist)
+      try {
+        const { data: limitResult } = await supabase.rpc('check_otp_rate_limit', {
+          p_email: email,
+        })
 
-      if (limitResult && !limitResult.allowed) {
-        setError('Too many failed attempts. Please try again later.')
-        setLoading(false)
-        return
-      }
+        if (limitResult && !limitResult.allowed) {
+          setError('Too many failed attempts. Please try again later.')
+          setLoading(false)
+          return
+        }
+      } catch (_) {}
 
-      // Record the attempt
-      await supabase.rpc('record_otp_attempt', { p_email: email })
+      // Record the attempt (non-blocking)
+      try {
+        await supabase.rpc('record_otp_attempt', { p_email: email })
+      } catch (_) {}
 
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,

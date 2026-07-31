@@ -56,23 +56,27 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     try {
       final email = _emailController.text.trim();
 
-      // Check rate limit before sending OTP
-      final limitResult = await supabase
-          .rpc('check_otp_rate_limit', params: {'p_email': email});
-      if (limitResult != null && limitResult['allowed'] == false) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Too many failed attempts. Please try again later.'),
-              backgroundColor: AppColors.error,
-            ),
-          );
+      // Check rate limit before sending OTP (non-blocking if table doesn't exist)
+      try {
+        final limitResult = await supabase
+            .rpc('check_otp_rate_limit', params: {'p_email': email});
+        if (limitResult != null && limitResult['allowed'] == false) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Too many failed attempts. Please try again later.'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+          return;
         }
-        return;
-      }
+      } catch (_) {}
 
-      // Record the attempt
-      await supabase.rpc('record_otp_attempt', params: {'p_email': email});
+      // Record the attempt (non-blocking)
+      try {
+        await supabase.rpc('record_otp_attempt', params: {'p_email': email});
+      } catch (_) {}
 
       final res = await supabase.auth.signInWithOtp(
         email: email,
