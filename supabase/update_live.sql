@@ -6,6 +6,17 @@
 
 SET ROLE postgres;
 
+-- Helper: safely recreate a policy (drop + create, no errors on re-run)
+CREATE OR REPLACE FUNCTION public._safe_policy(p_name text, p_table text, p_sql text)
+RETURNS void AS $$
+BEGIN
+  EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', p_name, p_table);
+  EXECUTE p_sql;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping policy % on %: %', p_name, p_table, SQLERRM;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
 -- 1. Add missing columns (safe if already exists)
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS metadata jsonb DEFAULT '{}'::jsonb;
 ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS is_emergency boolean DEFAULT false;
@@ -1242,9 +1253,14 @@ CREATE TABLE IF NOT EXISTS public.login_attempts (
 ALTER TABLE public.login_attempts ENABLE ROW LEVEL SECURITY;
 
 -- Only service_role can manage login_attempts (RPC functions use SECURITY DEFINER)
-CREATE POLICY "Service role manages login_attempts"
-  ON public.login_attempts FOR ALL
-  USING (true);
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "Service role manages login_attempts" ON public.login_attempts;
+  CREATE POLICY "Service role manages login_attempts"
+    ON public.login_attempts FOR ALL
+    USING (true);
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping login_attempts policy: %', SQLERRM;
+END $$;
 
 -- Index for fast lookups by email
 CREATE INDEX IF NOT EXISTS idx_login_attempts_email
