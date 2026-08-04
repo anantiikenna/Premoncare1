@@ -950,7 +950,7 @@ BEGIN
     UPDATE public.profiles SET is_online = false 
     WHERE role = 'doctor' AND is_online = true AND last_seen < now() - interval '2 minutes';
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- ============================================================
 -- GDPR: RIGHT TO ERASURE (SOFT DELETE + PURGE)
@@ -1625,6 +1625,32 @@ REVOKE EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) TO authenticated;
+
+-- SECURITY: Explicit REVOKE from anon for all SECURITY DEFINER functions
+-- (Supabase grants anon EXECUTE by default; REVOKE FROM PUBLIC is insufficient)
+-- Only check_otp_rate_limit, record_otp_attempt, reset_otp_attempts
+-- are callable by anon (pre-auth login flow).
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_review_count() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_consultation_count() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.sweep_offline_doctors() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.doctor_has_record_access(UUID, UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.get_admin_financial_stats() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FROM anon;
+
+-- SECURITY: Explicit REVOKE from authenticated for admin/service-only functions
+-- These functions have internal auth checks but should not be callable by
+-- arbitrary authenticated users.
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_review_count() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_consultation_count() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.sweep_offline_doctors() FROM authenticated;
 
 -- forum_posts & forum_replies grants are in the FORUM ECOSYSTEM section below
 

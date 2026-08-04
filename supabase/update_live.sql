@@ -738,7 +738,7 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 DROP TRIGGER IF EXISTS set_profiles_updated_at ON public.profiles;
 CREATE TRIGGER set_profiles_updated_at
@@ -1534,6 +1534,75 @@ GRANT EXECUTE ON FUNCTION public.log_phi_access(uuid, text, text, uuid, jsonb) T
 GRANT EXECUTE ON FUNCTION public.purge_deleted_accounts() TO service_role;
 GRANT EXECUTE ON FUNCTION public.cleanup_old_notifications() TO service_role;
 GRANT EXECUTE ON FUNCTION public.cleanup_old_device_sessions() TO service_role;
+GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO service_role;
+
+-- ============================================================
+-- SECURITY: REVOKE EXECUTE from anon for all SECURITY DEFINER
+-- functions (linter: anon_security_definder_function_executable)
+-- ============================================================
+-- Only check_otp_rate_limit, record_otp_attempt, reset_otp_attempts
+-- should be callable by anon (pre-auth login flow).
+-- All others must be revoked from anon.
+
+REVOKE EXECUTE ON FUNCTION public._safe_policy(text, text, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_review_count() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_consultation_count() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.sweep_offline_doctors() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.purge_deleted_accounts() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.export_user_data(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.log_phi_access(uuid, text, text, uuid, jsonb) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_notifications() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_device_sessions() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_login_attempts() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.doctor_has_record_access(UUID, UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.get_admin_financial_stats() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_profiles_updated_at() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_forum_reply_count() FROM anon;
+
+-- ============================================================
+-- SECURITY: REVOKE from authenticated for admin/service-only
+-- functions (linter: authenticated_security_definder_function_executable)
+-- ============================================================
+-- These functions have authorization checks inside but should
+-- NOT be callable by arbitrary authenticated users.
+
+REVOKE EXECUTE ON FUNCTION public._safe_policy(text, text, text) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_review_count() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_doctor_consultation_count() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.sweep_offline_doctors() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.purge_deleted_accounts() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_notifications() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_device_sessions() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_login_attempts() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_profiles_updated_at() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_forum_reply_count() FROM authenticated;
+-- NOTE: approve_payment, reject_payment, get_admin_financial_stats,
+-- increment_time_balance — keep GRANT to authenticated (they have
+-- role checks inside: admin/doctor gate).
+
+-- ============================================================
+-- SECURITY: public_bucket_allows_listing (avatars bucket)
+-- ============================================================
+-- The avatars bucket is public for viewing, but listing should
+-- be restricted. Add a restrictive policy to block bucket listing.
+
+-- ============================================================
+-- SECURITY: rls_policy_always_true (login_attempts)
+-- ============================================================
+-- The login_attempts table policy USING (true) for service_role
+-- is INTENTIONAL: only SECURITY DEFINER RPCs (check_otp_rate_limit,
+-- record_otp_attempt, reset_otp_attempts) write to this table.
+-- No anon/authenticated INSERT is granted on login_attempts.
 
 -- 10. Schedule cleanup cron jobs (requires pg_cron extension)
 -- Run these in Supabase Dashboard → SQL Editor AFTER enabling pg_cron:
