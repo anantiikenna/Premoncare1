@@ -264,6 +264,33 @@ export function DashboardLayout({
         getProfile()
     }, [supabase, router])
 
+    // Realtime subscription for profile changes
+    useEffect(() => {
+        if (!userId) return
+
+        const channel = supabase
+            .channel('profile:realtime')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'profiles',
+                    filter: `id=eq.${userId}`,
+                },
+                (payload) => {
+                    if (payload.new) {
+                        setProfile(payload.new)
+                    }
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [userId, supabase])
+
     const handleSignOut = async () => {
         if (userId) localStorage.removeItem(`active_portal_${userId}`)
         await supabase.auth.signOut()
@@ -440,9 +467,17 @@ export function DashboardLayout({
                         )}
                         <div className="flex items-center gap-3">
                             {userId && <NotificationBell userId={userId} />}
-                            <div className="h-10 w-10 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 border-2 border-white cursor-pointer hover:scale-105 transition-transform">
-                                <User className="h-5 w-5" />
-                            </div>
+                            <Link href={`/${activePortal || 'patient'}/profile`} className="h-10 w-10 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 border-2 border-white cursor-pointer hover:scale-105 transition-transform overflow-hidden">
+                                {profile?.avatar_url ? (
+                                    <img 
+                                        src={profile.avatar_url.includes('?') ? profile.avatar_url : `${profile.avatar_url}?t=${Date.now()}`} 
+                                        alt="Profile" 
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <User className="h-5 w-5" />
+                                )}
+                            </Link>
                         </div>
                     </div>
                 </header>

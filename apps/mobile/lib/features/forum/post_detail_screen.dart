@@ -573,8 +573,32 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               onTap: () async {
                 Navigator.pop(context);
                 if (post != null) {
+                  final reasonController = TextEditingController();
+                  final reason = await showDialog<String>(
+                    context: context,
+                    builder: (dctx) => AlertDialog(
+                      title: const Text('Report Post'),
+                      content: TextField(
+                        controller: reasonController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          hintText: 'Why are you reporting this post?',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(dctx), child: const Text('Cancel')),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dctx, reasonController.text.trim()),
+                          child: const Text('Submit', style: TextStyle(color: AppColors.error)),
+                        ),
+                      ],
+                    ),
+                  );
+                  reasonController.dispose();
+                  if (reason == null || reason.isEmpty) return;
                   try {
-                    await ForumService.report(postId: post.id, reason: 'Reported by user');
+                    await ForumService.report(postId: post.id, reason: reason);
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post reported'), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));

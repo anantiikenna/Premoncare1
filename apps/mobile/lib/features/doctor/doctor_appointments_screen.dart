@@ -4,36 +4,37 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 
-final doctorAppointmentsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+final doctorAppointmentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
-  if (user == null) return [];
+  if (user == null) return Stream.value([]);
 
-  final data = await supabase
+  return supabase
       .from('appointments')
-      .select('id, appointment_date, status, reason, consultation_mode, duration_minutes, is_emergency, total_amount, metadata, patient_id')
+      .stream(primaryKey: ['id'])
       .eq('doctor_id', user.id)
-      .order('appointment_date', ascending: false);
+      .order('appointment_date', ascending: false)
+      .asyncMap((data) async {
+        if (data.isEmpty) return <Map<String, dynamic>>[];
 
-  if (data.isEmpty) return [];
+        final patientIds = data.map((e) => e['patient_id'] as String?).whereType<String>().toSet().toList();
+        if (patientIds.isEmpty) return data;
 
-  final patientIds = data.map((e) => e['patient_id'] as String?).whereType<String>().toSet().toList();
-  if (patientIds.isEmpty) return data;
+        final patientsResult = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .inFilter('id', patientIds);
 
-  final patientsResult = await supabase
-      .from('profiles')
-      .select('id, full_name, avatar_url')
-      .inFilter('id', patientIds);
+        final patientMap = {for (final p in patientsResult) p['id'] as String: p};
 
-  final patientMap = {for (final p in patientsResult) p['id'] as String: p};
-
-  return data.map((item) {
-    final patientData = patientMap[item['patient_id'] as String?];
-    return {
-      ...item,
-      'patient_name': patientData?['full_name'] ?? 'Guest',
-      'patient_avatar': patientData?['avatar_url'],
-    };
-  }).toList();
+        return data.map((item) {
+          final patientData = patientMap[item['patient_id'] as String?];
+          return {
+            ...item,
+            'patient_name': patientData?['full_name'] ?? 'Guest',
+            'patient_avatar': patientData?['avatar_url'],
+          };
+        }).toList();
+      });
 });
 
 class DoctorAppointmentsScreen extends ConsumerStatefulWidget {

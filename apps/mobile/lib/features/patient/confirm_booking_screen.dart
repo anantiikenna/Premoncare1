@@ -208,20 +208,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
 
       ref.invalidate(patientAppointmentsProvider);
 
-      try {
-        await supabase.from('notifications').insert({
-          'user_id': widget.doctorId,
-          'title': widget.isEmergency
-              ? 'EMERGENCY Consultation Request'
-              : 'New Appointment Request',
-          'message':
-              'A patient has requested a ${widget.isEmergency ? "EMERGENCY " : ""}${widget.durationMinutes}-minute consultation.',
-          'type': 'appointment',
-          'is_read': false,
-          'metadata': {'appointment_id': appointmentId},
-        });
-      } catch (_) {}
-
+      // Dispatch notification via web API (handles both DB insert + FCM push)
       try {
         final siteUrl = const String.fromEnvironment(
           'NEXT_PUBLIC_SITE_URL',

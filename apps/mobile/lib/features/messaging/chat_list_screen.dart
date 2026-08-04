@@ -4,11 +4,25 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import 'messaging_provider.dart';
 
-class ChatListScreen extends ConsumerWidget {
+class ChatListScreen extends ConsumerStatefulWidget {
   const ChatListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
+}
+
+class _ChatListScreenState extends ConsumerState<ChatListScreen> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final conversationsAsync = ref.watch(conversationsProvider);
 
     return Scaffold(
@@ -69,10 +83,21 @@ class ChatListScreen extends ConsumerWidget {
                 border: Border.all(color: AppColors.borderLightOf(context)),
               ),
               child: TextField(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
                 decoration: InputDecoration(
                   hintText: 'Search chats...',
                   hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                   prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 18),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                        )
+                      : null,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -97,12 +122,24 @@ class ChatListScreen extends ConsumerWidget {
                 if (conversations.isEmpty) {
                   return _buildEmptyState(context);
                 }
+                final filtered = _searchQuery.isEmpty
+                    ? conversations
+                    : conversations.where((c) =>
+                        c.fullName.toLowerCase().contains(_searchQuery) ||
+                        (c.specialty?.toLowerCase().contains(_searchQuery) ?? false) ||
+                        c.lastMessage.content.toLowerCase().contains(_searchQuery)
+                      ).toList();
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Text('No matches for "$_searchQuery"', style: TextStyle(color: AppColors.textSecondaryOf(context))),
+                  );
+                }
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: conversations.length,
+                  itemCount: filtered.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final contact = conversations[index];
+                    final contact = filtered[index];
                     return _ChatTile(contact: contact);
                   },
                 );

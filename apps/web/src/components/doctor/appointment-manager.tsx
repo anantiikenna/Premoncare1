@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -35,6 +35,7 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
     const [confirmingPaymentId, setConfirmingPaymentId] = useState<string | null>(null)
     const [creditedMinutes, setCreditedMinutes] = useState(15)
     const [isCrediting, setIsCrediting] = useState(false)
+    const supabase = createClient()
     
     // Prescription State
     const [prescription, setPrescription] = useState({
@@ -46,8 +47,30 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
     })
     const [savingPrescription, setSavingPrescription] = useState(false)
 
-    const supabase = createClient()
     const todayStr = new Date().toISOString().split('T')[0]
+
+    // Realtime subscription for appointment changes
+    useEffect(() => {
+        const channel = supabase
+            .channel('doctor:appointments')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'appointments',
+                    filter: `doctor_id=eq.${docId}`,
+                },
+                () => {
+                    router.refresh()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [docId, supabase, router])
 
     // Stats Calculation
     const todayAppointments = appointments.filter(a => a.appointment_date.startsWith(todayStr)).sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())

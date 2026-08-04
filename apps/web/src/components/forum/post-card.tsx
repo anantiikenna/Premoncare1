@@ -9,7 +9,7 @@ interface PostCardProps {
         id: string
         title: string
         content: string
-        category: string
+        category: string | { id: string; name: string; icon_name?: string }
         created_at: string
         author: {
             full_name: string
@@ -19,13 +19,17 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, role }: PostCardProps) {
+    const categoryName = typeof post.category === 'object' && post.category !== null
+        ? post.category.name
+        : (post.category || 'Uncategorized')
+
     return (
         <div className="relative group">
             <Link href={`/${role}/forum/${post.id}`}>
                 <Card className="hover:border-primary/50 transition-colors cursor-pointer overflow-hidden h-full flex flex-col">
                     <CardHeader className="pb-3">
                         <div className="flex justify-between items-start gap-4">
-                            <Badge variant="secondary" className="mb-2 shrink-0">{post.category}</Badge>
+                            <Badge variant="secondary" className="mb-2 shrink-0">{categoryName}</Badge>
                             <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
                                 <Calendar className="h-3 w-3" />
                                 {new Date(post.created_at).toLocaleDateString()}

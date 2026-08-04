@@ -5,14 +5,61 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
-## [Unreleased] - 2026-07-27
+## [Unreleased] - 2026-07-31
 
-### Fixed
-- **Netlify Build**: Dynamic import `notifications-dispatch` in `queries-base.ts` to prevent `firebase-admin` and `nodemailer` (Node.js-only packages) from leaking into Client Component bundles via `queries-client.ts`, causing 55 Turbopack build errors (`fs`, `child_process`, `net`, `tls`, `dns` module-not-found).
-- **SQL Schema**: Added `SET ROLE postgres` to `schema.sql` to bypass `42501: must be owner of table` errors in Supabase SQL Editor.
-- **SQL Schema**: Wrapped all `ALTER PUBLICATION`, `ALTER TABLE realtime.messages`, and forum publication statements in `DO $$ ... EXCEPTION WHEN OTHERS` safe blocks.
-- **SQL Migration**: Added `SET ROLE postgres` to `update_live.sql` to bypass ownership errors.
-- **SQL Migration**: Wrapped `ALTER PUBLICATION` statements in safe `DO` blocks with exception handling.
+### Added
+- **GDPR Right to Erasure**: `soft_delete_user()` RPC marks profile as deleted, anonymizes auth email. `purge_deleted_accounts()` permanently deletes after 30-day grace period. Both web and mobile settings updated to use soft-delete API.
+- **GDPR Right to Portability**: `export_user_data()` RPC returns JSON of all user data (profile, appointments, messages, medical records, prescriptions, payments, reviews, forum posts/replies). Web: `/api/user/export` download endpoint. Mobile: `download_data_screen.dart` calls RPC and copies to clipboard.
+- **HIPAA PHI Audit Logging**: `log_phi_access()` RPC for tracking medical records, prescriptions, and messages access. Audit logs include user_id, action, resource_type, and details.
+- **HIPAA Breach Notification**: Documented 60-day HIPAA and 72-hour GDPR breach notification procedures in `AGENTS.md` incident response section.
+- **Data Retention Auto-Cleanup**: `cleanup_old_notifications()` (30 days), `cleanup_old_device_sessions()` (90 days) functions with pg_cron schedule templates.
+- **SQL Migration**: Added `user_id`, `action`, `details` columns to `audit_logs` table. Added RLS policies for user self-service (view own logs, insert own logs).
+- **SQL Migration**: Added `deleted_at`, `deletion_reason` columns to `profiles` table for GDPR soft-delete.
+- **Web API**: `/api/user/export` — authenticated data export endpoint. `/api/user/delete` — soft-delete endpoint.
+- **Web Settings**: Added "Download My Data (GDPR)" button in Privacy & Data section.
+- **Mobile Download Data**: Updated to call `export_user_data()` RPC and copy JSON to clipboard instead of just logging an audit entry.
+- **AGENTS.md**: Updated HIPAA audit logging status to Implemented. Updated GDPR Right to Erasure and Portability to Implemented. Added breach notification documentation with HIPAA 60-day and GDPR 72-hour windows. Added agent rule for security incident flagging. Updated BAA status — self-hosted Supabase on Coolify means no BAA with Supabase Inc. required.
+- **Testing**: Jest config + 3 test suites for web (security sanitization, user-facing-errors, Badge component). Added `@testing-library/react`, `@testing-library/jest-dom`, `ts-jest`, `jest-environment-jsdom` dev dependencies.
+- **CI/CD**: GitHub Actions workflows for web (lint → typecheck → test → build) and mobile (analyze → test → build Android). Runs on push to main/develop and PRs.
+- **Code Formatting**: Prettier config (`.prettierrc`) for web. Added `format`, `format:check`, `typecheck`, `test` scripts to web `package.json`.
+- **Pre-commit Hooks**: `.githooks/pre-commit` script runs ESLint + TypeScript check on web files and `flutter analyze` on mobile files before allowing commits.
+- **PR Template**: `.github/PULL_REQUEST_TEMPLATE.md` with security checklist, testing checklist, and deployment notes.
+- **Task Runner**: `Makefile` with targets for `dev`, `lint`, `test`, `build`, `format`, `typecheck`, `analyze`, `ci`, `clean`, `hooks`.
+- **Root Scripts**: Workspace-level npm scripts for `dev:web`, `build:web`, `lint:web`, `test:web`, `typecheck:web`, `format:web`, `analyze:mobile`, `test:mobile`.
+- **Mobile Avatar Upload RLS**: Changed storage path from `avatars/{userId}.{ext}` to `{userId}/avatar_{timestamp}.{ext}` to comply with RLS policy `(storage.foldername(name))[1] = auth.uid()`.
+- **Mobile Gender Casing**: Standardized to lowercase (`'male'`/`'female'`/`'other'`) on save, with display capitalization. Matches web behavior.
+- **Web Profile Realtime**: Added Realtime subscription on `profiles` table in `dashboard-layout.tsx` for live profile updates across tabs.
+- **Web Avatar in Header**: Replaced generic `User` icon with actual `profile?.avatar_url` image in the header.
+- **Web Profile State Refresh**: Replaced `window.location.reload()` with re-fetch + `setState` in both patient and doctor `profile-settings.tsx`.
+- **Mobile Forum Report**: Added `status: 'pending'` to Supabase insert in `forum_provider.dart`.
+- **Web Forum Category**: `post-form.tsx` now looks up `category_id` from `forum_categories` table. `post-card.tsx` handles object/string category. `post-detail.tsx` added category join to query.
+- **Mobile Dispute Status**: Changed all `'closed'` references to `'dismissed'` (valid enum value) in `dispute_resolution_screen.dart` and `financial_moderation_screen.dart`.
+- **Mobile Dispute Status Standardization**: Changed all `'in_review'` to `'under_review'` across dispute resolution and financial moderation screens.
+- **Mobile Doctor Verification**: Added role promotion from `patient` to `doctor` on admin approval with guard to prevent overwriting existing roles. Added notification dispatch via web API.
+- **Mobile Emergency Booking**: Removed duplicate direct DB notification insert; dispatches only via `/api/notifications/dispatch` to prevent duplicates.
+- **Mobile Emergency Accept/Decline**: Removed duplicate direct DB notification insert; dispatches only via `/api/notifications/dispatch`.
+- **Web Doctor Dashboard Status**: Fixed `'scheduled'` → `'confirmed'` for pending appointments in `doctor/dashboard/page.tsx`.
+- **Mobile Messaging Notifications**: Added FCM push dispatch via web API after message insert in `messaging_provider.dart`.
+- **Web Moderation Report Status**: Changed `'resolved'` → `'action_taken'` (valid enum value) in `moderation-dashboard.tsx`. Added `resolved_at` timestamp.
+- **Web Booking Form**: Added missing `consultation_mode: 'video'`, `total_amount: 0`, `is_emergency: false` fields to insert.
+- **Web Admin Emergency Queue**: Fixed `.eq('type', 'emergency')` → `.eq('is_emergency', true)`.
+- **SQL Schema**: Added `REPLICA IDENTITY FULL` on `profiles`, `forum_posts`, `forum_replies`, `forum_reports`. Added `forum_reports` to Realtime publication.
+- **Web Forum Realtime**: Added Realtime subscription for `forum_replies` in `comment-section.tsx`.
+- **Mobile Doctor Appointments**: Changed `FutureProvider` → `StreamProvider` using `.stream(primaryKey: ['id'])` for real-time updates.
+- **Mobile Bulk Payment Audit**: Added `processed_by: adminId` to approve update in `financial_moderation_screen.dart`.
+- **Mobile Report Reason Dialog**: Replaced hardcoded `'Reported by user'` with user input `AlertDialog` in both `forum_list_screen.dart` and `post_detail_screen.dart`.
+- **iOS Foreground Notifications**: Removed `android != null` check, added `DarwinNotificationDetails` in `notification_service.dart`.
+- **Mobile FCM Token Refresh**: Added `_fcm.onTokenRefresh.listen()` + `_syncTokenToServer()` method in `notification_service.dart`.
+- **Mobile Admin Broadcasts**: Added FCM push dispatch via web API loop in `sendSystemNotification()` in `admin_service.dart`.
+- **Mobile Notification Preferences**: Added server-side sync of `email_alerts_enabled` to `profiles` table alongside local SharedPreferences.
+- **Mobile Chat List Search**: Converted `ChatListScreen` to `ConsumerStatefulWidget` with search filtering by name/specialty/message content.
+- **Web Forum Search**: Converted `ForumFeed` to client component with local state search filtering by title/content/author name.
+- **Web Patient/Doctor Appointments Realtime**: Added `postgres_changes` subscription on `appointments` table for live updates.
+- **Web Doctor Appointments Realtime**: Added `postgres_changes` subscription on `appointments` table for doctor-side live updates.
+
+### Added
+- **SQL Migration**: Added `under_review` enum value to `dispute_status` for standardized dispute workflow.
+- **SQL Migration**: Added `email_alerts_enabled` boolean column to `profiles` table for notification preference sync.
 
 ---
 

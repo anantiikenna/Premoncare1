@@ -20,6 +20,9 @@ export async function PostDetail({ id, role }: PostDetailProps) {
 
     if (!post) notFound()
 
+    const categoryName = post.category && typeof post.category === 'object'
+        ? (post.category as { name: string }).name
+        : (post.category || 'Uncategorized')
     const backHref = `/${role}/forum`
 
     return (
@@ -33,7 +36,7 @@ export async function PostDetail({ id, role }: PostDetailProps) {
                 <header className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="px-3 py-1 text-sm font-medium">{post.category}</Badge>
+                            <Badge variant="secondary" className="px-3 py-1 text-sm font-medium">{categoryName}</Badge>
                             {role === 'admin' && (
                                 <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 gap-1 px-3 py-1">
                                     <ShieldAlert className="h-3 w-3" />

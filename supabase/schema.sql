@@ -1,5 +1,5 @@
 -- Premon Care Unified Database Schema
--- Last Updated: 2026-05-15
+-- Last Updated: 2026-07-31
 -- Includes: Profiles, Medical Vault, Subscriptions, Appointments, Real-time Messaging, and Doctor Scheduling.
 
 SET ROLE postgres;
@@ -94,7 +94,11 @@ create table profiles (
   -- Privacy & Security
   biometric_enabled boolean default false,
   two_factor_enabled boolean default false,
-  medical_records_shared_by_default boolean default false
+  medical_records_shared_by_default boolean default false,
+  
+  -- GDPR: Soft delete
+  deleted_at timestamp with time zone,
+  deletion_reason text
 );
 
 -- Doctor Schedules (Flexible JSONB structure)
@@ -949,6 +953,172 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================================
+-- GDPR: RIGHT TO ERASURE (SOFT DELETE + PURGE)
+-- ============================================================
+
+-- Soft-delete: marks profile and related data for deletion
+CREATE OR REPLACE FUNCTION public.soft_delete_user(p_user_id uuid, p_reason text DEFAULT null)
+RETURNS jsonb AS $$
+BEGIN
+  -- Only the user themselves or an admin can trigger
+  IF auth.uid() != p_user_id AND NOT EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
+  ) THEN
+    RETURN jsonb_build_object('error', 'Unauthorized');
+  END IF;
+
+  -- Mark profile as soft-deleted
+  UPDATE public.profiles
+  SET deleted_at = now(),
+      deletion_reason = p_reason,
+      account_status = 'suspended'
+  WHERE id = p_user_id;
+
+  -- Anonymize the auth email to prevent re-use
+  UPDATE auth.users
+  SET email = 'deleted-' || p_user_id || '@premoncare.invalid',
+      raw_user_meta_data = raw_user_meta_data || '{"deleted": true}'::jsonb
+  WHERE id = p_user_id;
+
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description)
+  VALUES (p_user_id, 'account_soft_deleted', 'security', 'high',
+          'User requested account deletion. Reason: ' || COALESCE(p_reason, 'Not provided'));
+
+  RETURN jsonb_build_object('success', true, 'message', 'Account scheduled for deletion in 30 days');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Purge: permanently deletes accounts soft-deleted 30+ days ago
+CREATE OR REPLACE FUNCTION public.purge_deleted_accounts()
+RETURNS void AS $$
+DECLARE
+  v_user record;
+BEGIN
+  FOR v_user IN
+    SELECT id FROM profiles
+    WHERE deleted_at IS NOT NULL AND deleted_at < now() - interval '30 days'
+  LOOP
+    -- Delete from auth (cascades to profiles via FK)
+    DELETE FROM auth.users WHERE id = v_user.id;
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- ============================================================
+-- GDPR: RIGHT TO DATA PORTABILITY (EXPORT)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.export_user_data(p_user_id uuid)
+RETURNS jsonb AS $$
+DECLARE
+  v_profile jsonb;
+  v_appointments jsonb;
+  v_messages jsonb;
+  v_medical_records jsonb;
+  v_prescriptions jsonb;
+  v_payments jsonb;
+  v_reviews jsonb;
+  v_forum_posts jsonb;
+  v_forum_replies jsonb;
+BEGIN
+  -- Only the user themselves can export
+  IF auth.uid() != p_user_id THEN
+    RETURN jsonb_build_object('error', 'Unauthorized');
+  END IF;
+
+  SELECT to_jsonb(p.*) INTO v_profile
+  FROM profiles p WHERE p.id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(a.*)) INTO v_appointments
+  FROM appointments a WHERE a.patient_id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(m.*)) INTO v_messages
+  FROM messages m WHERE m.sender_id = p_user_id OR m.receiver_id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(mr.*)) INTO v_medical_records
+  FROM medical_records mr WHERE mr.patient_id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(pr.*)) INTO v_prescriptions
+  FROM prescriptions pr WHERE pr.patient_id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(pay.*)) INTO v_payments
+  FROM payments pay WHERE pay.user_id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(r.*)) INTO v_reviews
+  FROM reviews r WHERE r.patient_id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(fp.*)) INTO v_forum_posts
+  FROM forum_posts fp WHERE fp.author_id = p_user_id;
+
+  SELECT jsonb_agg(to_jsonb(fr.*)) INTO v_forum_replies
+  FROM forum_replies fr WHERE fr.author_id = p_user_id;
+
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description)
+  VALUES (p_user_id, 'data_export_completed', 'security', 'info',
+          'User exercised right to data portability');
+
+  RETURN jsonb_build_object(
+    'profile', v_profile,
+    'appointments', COALESCE(v_appointments, '[]'::jsonb),
+    'messages', COALESCE(v_messages, '[]'::jsonb),
+    'medical_records', COALESCE(v_medical_records, '[]'::jsonb),
+    'prescriptions', COALESCE(v_prescriptions, '[]'::jsonb),
+    'payments', COALESCE(v_payments, '[]'::jsonb),
+    'reviews', COALESCE(v_reviews, '[]'::jsonb),
+    'forum_posts', COALESCE(v_forum_posts, '[]'::jsonb),
+    'forum_replies', COALESCE(v_forum_replies, '[]'::jsonb),
+    'exported_at', now()
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- ============================================================
+-- HIPAA: PHI ACCESS AUDIT LOGGING
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.log_phi_access(
+  p_user_id uuid,
+  p_action text,
+  p_resource_type text,
+  p_resource_id uuid DEFAULT NULL,
+  p_details jsonb DEFAULT '{}'::jsonb
+)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description, details)
+  VALUES (
+    p_user_id,
+    p_action,
+    'security',
+    CASE
+      WHEN p_action IN ('medical_record_accessed', 'prescription_accessed', 'phi_exported') THEN 'moderate'
+      ELSE 'info'
+    END,
+    p_resource_type || ' ' || COALESCE(p_action, '') || ' by ' || p_user_id::text,
+    p_details || jsonb_build_object('resource_type', p_resource_type, 'resource_id', p_resource_id)
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- ============================================================
+-- DATA RETENTION: AUTO-CLEANUP FUNCTIONS
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.cleanup_old_notifications()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.notifications WHERE created_at < now() - interval '30 days';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.cleanup_old_device_sessions()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.device_sessions WHERE last_active_at < now() - interval '90 days';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- ============================================================
 -- OTP RATE LIMITING FUNCTIONS
 -- ============================================================
 
@@ -1020,6 +1190,18 @@ GRANT EXECUTE ON FUNCTION public.check_otp_rate_limit(text) TO anon, authenticat
 GRANT EXECUTE ON FUNCTION public.record_otp_attempt(text, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.reset_otp_attempts(text) TO anon, authenticated;
 
+-- GDPR function GRANTs
+GRANT EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.export_user_data(uuid) TO authenticated;
+
+-- HIPAA audit function GRANTs
+GRANT EXECUTE ON FUNCTION public.log_phi_access(uuid, text, text, uuid, jsonb) TO authenticated;
+
+-- Data retention function GRANTs (service_role only — for cron jobs)
+GRANT EXECUTE ON FUNCTION public.purge_deleted_accounts() TO service_role;
+GRANT EXECUTE ON FUNCTION public.cleanup_old_notifications() TO service_role;
+GRANT EXECUTE ON FUNCTION public.cleanup_old_device_sessions() TO service_role;
+
 -- ============================================================
 -- REALTIME
 -- ============================================================
@@ -1057,6 +1239,24 @@ EXCEPTION WHEN OTHERS THEN
   RAISE NOTICE 'Skipping REPLICA IDENTITY on notifications: %', SQLERRM;
 END $$;
 
+DO $$ BEGIN
+  ALTER TABLE profiles REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on profiles: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE forum_posts REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on forum_posts: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE forum_replies REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on forum_replies: %', SQLERRM;
+END $$;
+
 -- Realtime messages RLS policies (required for private channels)
 DO $$ BEGIN
   ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
@@ -1080,10 +1280,13 @@ END $$;
 create table audit_logs (
     id uuid default uuid_generate_v4() primary key,
     created_at timestamp with time zone default now(),
+    user_id uuid references profiles(id) on delete set null,
     admin_id uuid references profiles(id) on delete set null,
-    action_type audit_action_type not null,
+    action text not null,
+    action_type audit_action_type default 'system',
     severity audit_severity not null default 'info',
-    description text not null,
+    description text,
+    details jsonb default '{}'::jsonb,
     metadata jsonb default '{}'::jsonb
 );
 
@@ -1097,12 +1300,22 @@ create policy "Admins can view audit logs" on audit_logs
         )
     );
 
+create policy "Users can view own audit logs" on audit_logs
+    for select using (
+        auth.uid() = user_id
+    );
+
 create policy "Admins can insert audit logs" on audit_logs
     for insert with check (
         exists (
             select 1 from profiles
             where id = auth.uid() and role = 'admin'
         )
+    );
+
+create policy "Authenticated users can insert own audit logs" on audit_logs
+    for insert with check (
+        auth.uid() = user_id
     );
 
 create table device_sessions (
@@ -1577,8 +1790,15 @@ alter table forum_follows enable row level security;
 DO $$ BEGIN
   alter publication supabase_realtime add table forum_posts;
   alter publication supabase_realtime add table forum_replies;
+  alter publication supabase_realtime add table forum_reports;
 EXCEPTION WHEN OTHERS THEN
   RAISE NOTICE 'Skipping forum publication adds: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE forum_reports REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on forum_reports: %', SQLERRM;
 END $$;
 
 -- ── forum_categories ──

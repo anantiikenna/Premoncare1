@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loader2, MessageCircle, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 interface Comment {
     id: string
@@ -30,6 +31,40 @@ export function CommentSection({ postId, initialComments }: CommentListProps) {
     const [submitting, setSubmitting] = useState(false)
     const supabase = createClient()
     const router = useRouter()
+
+    // Realtime subscription for new replies
+    useEffect(() => {
+        const channel = supabase
+            .channel(`forum:replies:${postId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'forum_replies',
+                    filter: `post_id=eq.${postId}`,
+                },
+                async (payload) => {
+                    // Fetch the full reply with author info
+                    const { data } = await supabase
+                        .from('forum_replies')
+                        .select('*, author:profiles!forum_replies_author_id_fkey(full_name, avatar_url)')
+                        .eq('id', payload.new.id)
+                        .single()
+                    if (data) {
+                        setComments((prev) => {
+                            if (prev.some(c => c.id === data.id)) return prev
+                            return [...prev, data]
+                        })
+                    }
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [postId, supabase])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -60,7 +95,7 @@ export function CommentSection({ postId, initialComments }: CommentListProps) {
             if (data) setComments([...comments, data])
             setNewComment('')
         } catch (err) {
-            console.error('Failed to add comment:', err)
+            toast.error('Failed to add comment. Please try again.')
         } finally {
             setSubmitting(false)
         }

@@ -14,6 +14,7 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS payment_instructions text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_emergency boolean DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email_alerts_enabled boolean DEFAULT true;
 ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS rejection_reason text;
 
 -- 2. Update status check constraint for emergency flow (safe version)
@@ -101,6 +102,44 @@ DO $$ BEGIN
   ALTER TABLE notifications REPLICA IDENTITY FULL;
 EXCEPTION WHEN OTHERS THEN
   RAISE NOTICE 'Skipping REPLICA IDENTITY on notifications: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE profiles REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on profiles: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE forum_posts REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on forum_posts: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE forum_replies REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on forum_replies: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE forum_reports REPLICA IDENTITY FULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping REPLICA IDENTITY on forum_reports: %', SQLERRM;
+END $$;
+
+-- Add forum_reports to Realtime publication
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+    AND tablename = 'forum_reports'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.forum_reports;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping publication add for forum_reports: %', SQLERRM;
 END $$;
 
 -- Realtime messages RLS policies (required for private channels)
@@ -376,6 +415,14 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'in_review' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'dispute_status')) THEN
     ALTER TYPE public.dispute_status ADD VALUE 'in_review' AFTER 'open';
+  END IF;
+END $$;
+
+-- dispute_status: add 'under_review' (standardized across mobile dispute_resolution_screen.dart)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'under_review' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'dispute_status')) THEN
+    ALTER TYPE public.dispute_status ADD VALUE 'under_review' AFTER 'in_review';
   END IF;
 END $$;
 
@@ -1303,3 +1350,180 @@ GRANT SELECT, INSERT, DELETE ON public.login_attempts TO service_role;
 --
 -- These settings work in conjunction with the login_attempts
 -- table and RPC functions above for defense-in-depth.
+
+-- ============================================================
+-- GDPR & HIPAA COMPLIANCE: Audit, Export, Erasure, Retention
+-- Run this in your Supabase SQL Editor
+-- Each statement runs independently — safe to re-run
+-- ============================================================
+
+-- 1. Audit logs: add user_id, action, details columns (safe if already exists)
+ALTER TABLE public.audit_logs ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES profiles(id) ON DELETE SET NULL;
+ALTER TABLE public.audit_logs ADD COLUMN IF NOT EXISTS action text;
+ALTER TABLE public.audit_logs ADD COLUMN IF NOT EXISTS details jsonb DEFAULT '{}'::jsonb;
+
+-- Backfill action from action_type where action is null
+UPDATE public.audit_logs SET action = action_type::text WHERE action IS NULL AND action_type IS NOT NULL;
+
+-- Make action NOT NULL after backfill
+DO $$ BEGIN
+  ALTER TABLE public.audit_logs ALTER COLUMN action SET NOT NULL;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping SET NOT NULL on audit_logs.action: %', SQLERRM;
+END $$;
+
+-- 2. Audit logs: add user-friendly RLS policies
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "Users can view own audit logs" ON public.audit_logs;
+  CREATE POLICY "Users can view own audit logs" ON public.audit_logs
+    FOR SELECT USING (auth.uid() = user_id);
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping user audit_logs SELECT policy: %', SQLERRM;
+END $$;
+
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "Authenticated users can insert own audit logs" ON public.audit_logs;
+  CREATE POLICY "Authenticated users can insert own audit logs" ON public.audit_logs
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping user audit_logs INSERT policy: %', SQLERRM;
+END $$;
+
+-- 3. Profiles: add soft-delete columns
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS deleted_at timestamp with time zone;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS deletion_reason text;
+
+-- 4. GDPR: Soft-delete user function
+CREATE OR REPLACE FUNCTION public.soft_delete_user(p_user_id uuid, p_reason text DEFAULT null)
+RETURNS jsonb AS $$
+BEGIN
+  IF auth.uid() != p_user_id AND NOT EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
+  ) THEN
+    RETURN jsonb_build_object('error', 'Unauthorized');
+  END IF;
+
+  UPDATE public.profiles
+  SET deleted_at = now(), deletion_reason = p_reason, account_status = 'suspended'
+  WHERE id = p_user_id;
+
+  UPDATE auth.users
+  SET email = 'deleted-' || p_user_id || '@premoncare.invalid',
+      raw_user_meta_data = raw_user_meta_data || '{"deleted": true}'::jsonb
+  WHERE id = p_user_id;
+
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description)
+  VALUES (p_user_id, 'account_soft_deleted', 'security', 'high',
+          'User requested account deletion. Reason: ' || COALESCE(p_reason, 'Not provided'));
+
+  RETURN jsonb_build_object('success', true, 'message', 'Account scheduled for deletion in 30 days');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 5. GDPR: Purge deleted accounts (30-day grace period)
+CREATE OR REPLACE FUNCTION public.purge_deleted_accounts()
+RETURNS void AS $$
+DECLARE
+  v_user record;
+BEGIN
+  FOR v_user IN SELECT id FROM profiles WHERE deleted_at IS NOT NULL AND deleted_at < now() - interval '30 days'
+  LOOP
+    DELETE FROM auth.users WHERE id = v_user.id;
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 6. GDPR: Data export function
+CREATE OR REPLACE FUNCTION public.export_user_data(p_user_id uuid)
+RETURNS jsonb AS $$
+DECLARE
+  v_profile jsonb;
+  v_appointments jsonb;
+  v_messages jsonb;
+  v_medical_records jsonb;
+  v_prescriptions jsonb;
+  v_payments jsonb;
+  v_reviews jsonb;
+  v_forum_posts jsonb;
+  v_forum_replies jsonb;
+BEGIN
+  IF auth.uid() != p_user_id THEN
+    RETURN jsonb_build_object('error', 'Unauthorized');
+  END IF;
+
+  SELECT to_jsonb(p.*) INTO v_profile FROM profiles p WHERE p.id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(a.*)) INTO v_appointments FROM appointments a WHERE a.patient_id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(m.*)) INTO v_messages FROM messages m WHERE m.sender_id = p_user_id OR m.receiver_id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(mr.*)) INTO v_medical_records FROM medical_records mr WHERE mr.patient_id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(pr.*)) INTO v_prescriptions FROM prescriptions pr WHERE pr.patient_id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(pay.*)) INTO v_payments FROM payments pay WHERE pay.user_id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(r.*)) INTO v_reviews FROM reviews r WHERE r.patient_id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(fp.*)) INTO v_forum_posts FROM forum_posts fp WHERE fp.author_id = p_user_id;
+  SELECT jsonb_agg(to_jsonb(fr.*)) INTO v_forum_replies FROM forum_replies fr WHERE fr.author_id = p_user_id;
+
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description)
+  VALUES (p_user_id, 'data_export_completed', 'security', 'info', 'User exercised right to data portability');
+
+  RETURN jsonb_build_object(
+    'profile', v_profile,
+    'appointments', COALESCE(v_appointments, '[]'::jsonb),
+    'messages', COALESCE(v_messages, '[]'::jsonb),
+    'medical_records', COALESCE(v_medical_records, '[]'::jsonb),
+    'prescriptions', COALESCE(v_prescriptions, '[]'::jsonb),
+    'payments', COALESCE(v_payments, '[]'::jsonb),
+    'reviews', COALESCE(v_reviews, '[]'::jsonb),
+    'forum_posts', COALESCE(v_forum_posts, '[]'::jsonb),
+    'forum_replies', COALESCE(v_forum_replies, '[]'::jsonb),
+    'exported_at', now()
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 7. HIPAA: PHI access audit logging function
+CREATE OR REPLACE FUNCTION public.log_phi_access(
+  p_user_id uuid, p_action text, p_resource_type text,
+  p_resource_id uuid DEFAULT NULL, p_details jsonb DEFAULT '{}'::jsonb
+)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description, details)
+  VALUES (
+    p_user_id, p_action, 'security',
+    CASE WHEN p_action IN ('medical_record_accessed', 'prescription_accessed', 'phi_exported') THEN 'moderate' ELSE 'info' END,
+    p_resource_type || ' ' || COALESCE(p_action, '') || ' by ' || p_user_id::text,
+    p_details || jsonb_build_object('resource_type', p_resource_type, 'resource_id', p_resource_id)
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 8. Data retention: cleanup functions
+CREATE OR REPLACE FUNCTION public.cleanup_old_notifications()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.notifications WHERE created_at < now() - interval '30 days';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.cleanup_old_device_sessions()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.device_sessions WHERE last_active_at < now() - interval '90 days';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 9. GRANTs for new functions
+GRANT EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.export_user_data(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.log_phi_access(uuid, text, text, uuid, jsonb) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.purge_deleted_accounts() TO service_role;
+GRANT EXECUTE ON FUNCTION public.cleanup_old_notifications() TO service_role;
+GRANT EXECUTE ON FUNCTION public.cleanup_old_device_sessions() TO service_role;
+
+-- 10. Schedule cleanup cron jobs (requires pg_cron extension)
+-- Run these in Supabase Dashboard → SQL Editor AFTER enabling pg_cron:
+--
+-- SELECT cron.schedule('cleanup-login-attempts', '5 * * * *', 'SELECT cleanup_old_login_attempts()');
+-- SELECT cron.schedule('cleanup-notifications', '0 2 * * *', 'SELECT cleanup_old_notifications()');
+-- SELECT cron.schedule('cleanup-device-sessions', '0 3 * * *', 'SELECT cleanup_old_device_sessions()');
+-- SELECT cron.schedule('purge-deleted-accounts', '0 4 * * *', 'SELECT purge_deleted_accounts()');
+-- SELECT cron.schedule('sweep-offline-doctors', '* * * * *', 'SELECT sweep_offline_doctors()');

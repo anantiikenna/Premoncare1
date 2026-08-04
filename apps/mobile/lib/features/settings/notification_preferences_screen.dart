@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../core/supabase_locator.dart';
 
 class NotificationPreferencesScreen extends StatefulWidget {
   const NotificationPreferencesScreen({super.key});
@@ -44,6 +45,18 @@ class _NotificationPreferencesScreenState extends State<NotificationPreferencesS
   Future<void> _savePreference(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+
+    // Sync email_alerts_enabled to server (used by web backend for notification dispatch)
+    if (key == 'notif_email') {
+      try {
+        final user = supabase.auth.currentUser;
+        if (user != null) {
+          await supabase.from('profiles').update({
+            'email_alerts_enabled': value,
+          }).eq('id', user.id);
+        }
+      } catch (_) {}
+    }
   }
 
   @override

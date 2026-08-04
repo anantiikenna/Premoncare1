@@ -24,6 +24,7 @@ const categories = [
 export function PostForm({ role }: { role: string }) {
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [categoryList, setCategoryList] = useState<Array<{id: string, name: string}>>([])
     const router = useRouter()
     const supabase = createClient()
 
@@ -31,6 +32,13 @@ export function PostForm({ role }: { role: string }) {
         title: '',
         category: '',
         content: ''
+    })
+
+    // Fetch categories from database on mount
+    useState(() => {
+        supabase.from('forum_categories').select('id, name').then(({ data }) => {
+            if (data && data.length > 0) setCategoryList(data)
+        })
     })
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -42,12 +50,27 @@ export function PostForm({ role }: { role: string }) {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error('Not authenticated')
 
+            // Look up category_id from the selected category name
+            let categoryId: string | null = null
+            if (categoryList.length > 0) {
+                const matched = categoryList.find(c => c.name === formData.category)
+                categoryId = matched?.id ?? null
+            } else {
+                // Fallback: try to find by name directly
+                const { data: cat } = await supabase
+                    .from('forum_categories')
+                    .select('id')
+                    .eq('name', formData.category)
+                    .single()
+                categoryId = cat?.id ?? null
+            }
+
             const { error: postError } = await supabase
                 .from('forum_posts')
                 .insert({
                     author_id: user.id,
                     title: formData.title,
-                    category: formData.category,
+                    category_id: categoryId,
                     content: formData.content,
                     status: 'pending'
                 })

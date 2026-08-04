@@ -153,7 +153,10 @@ export function BookingForm() {
                     duration_minutes: formData.duration_minutes,
                     status: 'pending',
                     is_patient_approved: true,
-                    is_doctor_approved: false
+                    is_doctor_approved: false,
+                    consultation_mode: 'video',
+                    total_amount: 0,
+                    is_emergency: false
                 })
 
             if (bookingError) throw bookingError

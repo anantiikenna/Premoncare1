@@ -41,6 +41,29 @@ export function PatientAppointmentsList({ userId }: { userId: string }) {
         fetchAppointments()
     }, [userId])
 
+    // Realtime subscription for appointment changes
+    useEffect(() => {
+        const channel = supabase
+            .channel('patient:appointments')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'appointments',
+                    filter: `patient_id=eq.${userId}`,
+                },
+                () => {
+                    fetchAppointments()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [userId, supabase])
+
     const upcomingApts = appointments.filter(a => a.status === 'pending' || a.status === 'confirmed')
     const completedApts = appointments.filter(a => a.status === 'completed')
 

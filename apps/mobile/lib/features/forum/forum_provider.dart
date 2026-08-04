@@ -440,6 +440,7 @@ class ForumService {
       'post_id': postId,
       'reply_id': replyId,
       'reason': reason,
+      'status': 'pending',
     });
   }
 

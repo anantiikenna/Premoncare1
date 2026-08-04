@@ -1,111 +1,295 @@
-# 🏥 Premon Care - Premium Care
+# Premon Care — Premium Healthcare Platform
 
-Premon Care is a comprehensive, state-of-the-art healthcare management system built with Next.js (Web), Flutter (Mobile), and Supabase. It features a decentralized **P2P Financial Model**, **Biometric Identity Verification**, real-time clinical messaging, smart appointment scheduling, and encrypted video consultations, offering true cross-platform parity between Web and Mobile clients.
+A comprehensive healthcare management system built with **Next.js 16** (Web), **Flutter** (Mobile), and **Supabase** (self-hosted on Coolify). Features P2P financial model, biometric identity verification, real-time clinical messaging, smart appointment scheduling, and encrypted video consultations.
 
-## 🚀 Quick Start Guide
+---
 
-Follow these steps to get your own instance of Premon Care up and running.
+## Prerequisites
 
-### 1. Prerequisites
-- **Node.js** (v18 or higher)
-- **Supabase Account**: You'll need a project on [Supabase](https://supabase.com).
-- **Gmail SMTP**: Required for the premium branded notification engine.
+| Tool | Version | Purpose |
+|---|---|---|
+| **Node.js** | 20+ | Web app runtime |
+| **npm** | 10+ | Web dependency management |
+| **Flutter** | 3.29+ | Mobile app |
+| **Dart** | 3.7+ | Mobile SDK |
+| **Java** | 17+ | Android builds |
+| **Supabase** | Self-hosted (Coolify) | Auth, Database, Storage, Realtime |
+| **Firebase** | Free tier | FCM push notifications |
 
-### 2. Installation
-Clone the repository (or download the source) and install the dependencies:
+### Self-Hosted Supabase (Coolify)
+
+This project uses a self-hosted Supabase instance on Coolify. You need:
+
+- A running Supabase instance (URL + Anon Key + Service Role Key)
+- PostgreSQL access for schema migrations
+- Storage buckets configured (see below)
+
+If you don't have Supabase self-hosted yet, follow the [Coolify Supabase guide](https://coolify.io/docs/knowledge-base/supabase).
+
+---
+
+## Installation
+
+### 1. Clone & Install
 
 ```bash
-# Navigate to the project directory
-cd health-app
+git clone https://github.com/your-org/premoncare.git
+cd premoncare
 
-# Install dependencies
-npm install
+# Install all dependencies
+make install
+# OR manually:
+cd apps/web && npm install && cd ../..
+cd apps/mobile && flutter pub get && cd ../..
 ```
 
-### 3. Environment Configuration
-Create a `.env.local` file in the root directory and add your Supabase and SMTP credentials.
+### 2. Environment Variables
+
+#### Web (`apps/web/.env.local`)
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
-NEXT_PUBLIC_SITE_URL=https://premoncare.netlify.app
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-url.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# Email Notifications (Gmail SMTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-SMTP_FROM_NAME='Premon Care'
-SMTP_FROM_EMAIL=no-reply@premoncare.com
+# Firebase (FCM Push Notifications) — Server-side ONLY
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=your-client-email
+FIREBASE_PRIVATE_KEY=your-private-key
+
+# Email (Loops)
+LOOPS_API_KEY=your-loops-api-key
+
+# Site
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-### 4. Database Setup (Supabase)
-This project uses a custom schema with automated triggers and strict RLS policies.
-1. Go to your **Supabase SQL Editor**.
-2. Copy and paste the contents of `supabase/schema.sql`.
-3. Run the script. This will initialize `profiles`, `appointments`, `medical_profiles`, `health_records`, and the `notifications` engine.
-4. If updating an existing instance, run `supabase/update_live.sql` to apply the emergency handshake flow, RLS policies, and latest schema patches.
+> **Security:** `SUPABASE_SERVICE_ROLE_KEY`, `FIREBASE_*`, and `LOOPS_API_KEY` are server-side only. Never add them to mobile or client bundles.
 
-### 5. Storage Setup
-Create the following buckets in the **Supabase Storage** tab to enable the identity vault and financial engine:
-- **`avatars`** (Public): For user profile pictures.
-- **`doctor-verifications`** (Private): For medical licenses and credentials.
-- **`doctor-identities`** (Private): For government IDs and Biometric Selfie captures.
-- **`payment-receipts`** (Private): For manual P2P consultation fee proofs and doctor subscription receipts.
-- **`health-records`** (Private): For clinical record attachments.
-- **`patient-verifications`** (Private): For general user identity verification.
+#### Mobile (`apps/mobile/.env`)
 
-### 6. Running the App
-Start the development server:
+```env
+SUPABASE_URL=https://your-supabase-url.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+```
+
+> **Security:** Mobile only uses the anon key + RLS. Never put Firebase Admin SDK or service role keys here.
+
+### 3. Database Setup
+
+#### Fresh Install
+1. Go to your Supabase SQL Editor
+2. Run `supabase/schema.sql` — creates all tables, RLS policies, functions, triggers
+3. Run `supabase/mock_data.sql` — optional, seeds demo data
+
+#### Existing Instance
+1. Run `supabase/update_live.sql` — cumulative migrations, safe to re-run
+
+### 4. Storage Buckets
+
+Create these in Supabase Dashboard → Storage:
+
+| Bucket | Visibility | Purpose |
+|---|---|---|
+| `avatars` | Public | User profile pictures |
+| `doctor-verifications` | Private | Medical licenses, credentials |
+| `doctor-identities` | Private | Government IDs, biometric selfies |
+| `payment-receipts` | Private | P2P payment proofs |
+| `health-records` | Private | Clinical record attachments |
+| `patient-verifications` | Private | Patient identity verification |
+
+### 5. Realtime Publications
+
+Ensure these tables are in the Supabase Realtime publication:
+- `appointments`, `messages`, `notifications`, `profiles`, `payments`, `forum_posts`, `forum_replies`, `forum_reports`
+
+Run in SQL Editor:
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE public.forum_reports;
+```
+
+### 6. pg_cron Schedules
+
+Enable `pg_cron` extension, then schedule:
+```sql
+SELECT cron.schedule('cleanup-login-attempts', '5 * * * *', 'SELECT cleanup_old_login_attempts()');
+SELECT cron.schedule('cleanup-notifications', '0 2 * * *', 'SELECT cleanup_old_notifications()');
+SELECT cron.schedule('cleanup-device-sessions', '0 3 * * *', 'SELECT cleanup_old_device_sessions()');
+SELECT cron.schedule('purge-deleted-accounts', '0 4 * * *', 'SELECT purge_deleted_accounts()');
+SELECT cron.schedule('sweep-offline-doctors', '* * * * *', 'SELECT sweep_offline_doctors()');
+```
+
+---
+
+## Running the Apps
+
+### Web
 
 ```bash
-npm run dev
+make dev          # Start dev server (http://localhost:3000)
+make build        # Production build
+make lint         # ESLint
+make typecheck    # TypeScript check
+make test         # Jest tests
+make format       # Prettier formatting
 ```
-Open [http://localhost:3000](http://localhost:3000) to see the live application.
+
+### Mobile
+
+```bash
+cd apps/mobile
+
+flutter run --flavor user          # Run user app (patients/doctors)
+flutter run --flavor admin         # Run admin app
+flutter run --flavor user --release  # Release build
+```
+
+### Build APKs
+
+```bash
+cd apps/mobile
+flutter build apk --flavor user --dart-define=ENV=production
+flutter build apk --flavor admin --dart-define=ENV=production
+```
+
+### Full CI (Local)
+
+```bash
+make ci    # Runs lint + typecheck + test + build for web
+make lint  # Runs all linters
+make test  # Runs all tests
+```
 
 ---
 
-## 🏗️ Architecture & Features
+## Project Structure
 
-### 🔐 Identity & Biometric Security
-- **4-Step Verification Wizard**: A rigorous induction flow for practitioners including professional credentials, government identity, and **Live Facial Biometrics**.
-- **Private Vault Storage**: Sensitive identity documents are stored with 256-bit encryption in restricted storage buckets.
-- **Role Flexibility**: Approved practitioners maintain a "Universal Profile," allowed to switch between providing care and managing their own personal health.
-
-### 📅 P2P Financial Architecture
-- **Direct P2P Model**: Patients pay doctors directly for consultations. No middleman fees.
-- **Consultation Credits**: Consultation minutes are tracked as "Consultation Credits," unlocked only after manual receipt verification by the practitioner.
-- **Emergency Consultations**: A high-priority flow allowing guest users to bypass registration for immediate care. Emergency sessions carry a **5x premium rate** (500% base) for rapid intervention.
-- **Naira (₦) Localization**: Full platform localization for the Nigerian market, including dynamic fee calculations.
-
-### 🎥 Virtual Consultations (Zero-Config)
-The video calling system is integrated via the **Jitsi Meet iframe API**. 
-- **No Server Installation Required**: Connects securely to the Jitsi/8x8 global infrastructure.
-- **Automated Room Creation**: Meeting rooms are dynamically created and destroyed based on appointment IDs.
-
-### 🏛️ Multi-Admin Governance & Mobile Administration
-- **Audit Trail & Live Monitoring**: Every critical action is recorded in the `audit_logs` table. Administrators have access to a real-time Audit Timeline Viewer across both Web and Mobile platforms to instantly trace fraud, system configuration changes, and suspicious logins.
-- **Financial Moderation**: Admins verify platform subscription receipts to unlock practitioner dashboards.
-- **Mobile Admin Power**: Full administrative control ported to the mobile application, featuring instant Verification Approval dialogs and mass Payout Execution directly from the mobile Admin dashboard.
-- **Granular Security Controls**: Users can manage Biometrics, 2FA, and actively monitor their `device_sessions` via the high-fidelity Settings & Privacy Center, achieving true Web-to-Mobile feature parity.
-
-### 💬 Real-Time Clinical Communications
-- **Secure Messaging**: HIPAA-ready messaging system available on both platforms.
-- **Rich Media**: Support for sharing Prescriptions, Lab Reports, Images, and Geolocation data directly within consultation threads.
-- **High-Fidelity Notifications**: A dedicated mobile Notification Center providing sticky emergency alerts, categorized views, and contextual actions (e.g., immediate "Join Call" buttons).
+```
+premoncare/
+├── apps/
+│   ├── web/                    # Next.js 16 (App Router)
+│   │   ├── src/
+│   │   │   ├── app/            # Pages & API routes
+│   │   │   ├── components/     # React components
+│   │   │   ├── lib/            # Utilities, security, queries
+│   │   │   └── __tests__/      # Jest tests
+│   │   ├── jest.config.ts      # Jest configuration
+│   │   └── .prettierrc         # Prettier config
+│   └── mobile/                 # Flutter
+│       ├── lib/
+│       │   ├── core/           # Theme, router, supabase, colors
+│       │   ├── features/       # Feature modules (auth, forum, etc.)
+│       │   └── main_*.dart     # Flavor entry points
+│       ├── test/               # Flutter tests
+│       └── analysis_options.yaml
+├── supabase/
+│   ├── schema.sql              # Single source of truth (DB)
+│   ├── update_live.sql         # Cumulative live migrations
+│   └── mock_data.sql           # Demo data seed
+├── .github/
+│   ├── workflows/
+│   │   ├── web-ci.yml          # Web CI pipeline
+│   │   └── mobile-ci.yml       # Mobile CI pipeline
+│   └── PULL_REQUEST_TEMPLATE.md
+├── .githooks/
+│   └── pre-commit              # Lint + analyze before commit
+├── AGENTS.md                   # AI agent guidelines
+├── AGENTS.template.md          # Universal template for new projects
+├── CHANGELOG.md                # Version history
+├── Makefile                    # Task runner
+└── package.json                # Root workspace config
+```
 
 ---
 
-## 🛠️ Tech Stack
-- **Framework**: Next.js 15+ (App Router)
-- **Backend**: Supabase (Auth, DB, Storage)
-- **Email**: Nodemailer with Gmail SMTP & Branded HTML Templates
-- **UI Components**: Radix UI (via shadcn/ui) & Lucide Icons
-- **Video**: Jitsi Meet Iframe API
+## Flavors (Mobile)
+
+| Flavor | Package ID | Audience |
+|---|---|---|
+| `user` | `com.premoncare.app` | Patients & Doctors |
+| `admin` | `com.premoncare.admin` | Platform Administrators |
+
+Admin users are blocked from the user app at 3 layers (login, splash, router).
 
 ---
 
-## 📄 Documentation Links
-- [System Walkthrough](SYSTEM_WALKTHROUGH.md)
-- [Project Readme (This File)](README.md)
-- [AI Agent Config](AGENTS.md)
+## API Security Pattern
+
+Every API route MUST use the `withSecurity` wrapper:
+
+```typescript
+import { withSecurity } from '@/lib/security'
+
+// CORRECT
+export const POST = withSecurity(async (req, sessionUser) => {
+  // sessionUser.id is trusted — extracted from JWT
+})
+
+// WRONG — never do this
+export const POST = async (req) => {
+  const { userId } = await req.json() // UNTRUSTED
+}
+```
+
+---
+
+## HIPAA & GDPR Compliance
+
+| Requirement | Status |
+|---|---|
+| **RLS on all tables** | Implemented |
+| **Role-based access (patient/doctor/admin)** | Implemented |
+| **PHI audit logging** | Implemented (`log_phi_access()` RPC) |
+| **GDPR Right to Erasure** | Implemented (`soft_delete_user()` RPC) |
+| **GDPR Right to Portability** | Implemented (`export_user_data()` RPC) |
+| **Breach notification** | Documented (60-day HIPAA, 72-hour GDPR) |
+| **BAA with Supabase** | Not needed — self-hosted on Coolify |
+| **Encryption in transit** | Supabase enforces TLS |
+| **Encryption at rest** | Configure on your VPS (LUKS/dm-crypt) |
+
+### Self-Hosted Infrastructure Responsibilities
+
+Since Supabase is self-hosted on Coolify:
+- **You** manage disk encryption on your VPS
+- **You** manage PostgreSQL SSL (`sslmode=require`)
+- **You** manage backups (encrypted, access-controlled)
+- **You** manage SSH access and VPN
+- **You** need a BAA from your VPS provider (Hetzner, DigitalOcean, AWS, etc.)
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Web** | Next.js 16, React 19, TypeScript, TailwindCSS 4 |
+| **Mobile** | Flutter 3.29, Dart, Riverpod |
+| **Backend** | Supabase (self-hosted), PostgreSQL, PostgREST |
+| **Auth** | Supabase Auth (email OTP) |
+| **Storage** | Supabase Storage (private buckets) |
+| **Realtime** | Supabase Realtime (`postgres_changes`) |
+| **Push** | Firebase Cloud Messaging (server-side only) |
+| **Email** | Loops (transactional) |
+| **Video** | Jitsi Meet (native SDK on mobile) |
+| **Payments** | Manual P2P only (no gateways) |
+
+---
+
+## Documentation
+
+| File | Purpose |
+|---|---|
+| [README.md](README.md) | Setup, installation, architecture |
+| [AGENTS.md](AGENTS.md) | AI agent guidelines, compliance, security |
+| [AGENTS.template.md](AGENTS.template.md) | Universal template for new projects |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+| [SYSTEM_WALKTHROUGH.md](SYSTEM_WALKTHROUGH.md) | Full system walkthrough |
+| [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) | UI component architecture |
+| [DESIGN.md](DESIGN.md) | Design system documentation |
+
+---
+
+## License
+
+Private — All rights reserved.

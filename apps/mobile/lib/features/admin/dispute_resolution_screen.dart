@@ -66,7 +66,7 @@ class _DisputeResolutionScreenState
       final inReviewRes = await _client
           .from('disputes')
           .select('id')
-          .eq('status', 'in_review');
+          .eq('status', 'under_review');
       final resolvedRes = await _client
           .from('disputes')
           .select('id')
@@ -195,7 +195,7 @@ class _DisputeResolutionScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Dispute ${status == 'resolved' ? 'resolved' : 'closed'} successfully.',
+              'Dispute ${status == 'resolved' ? 'resolved' : 'dismissed'} successfully.',
             ),
             backgroundColor: AppColors.success,
           ),
@@ -219,11 +219,11 @@ class _DisputeResolutionScreenState
     switch (status) {
       case 'open':
         return AppColors.warning;
-      case 'in_review':
+      case 'under_review':
         return AppColors.warning;
       case 'resolved':
         return AppColors.success;
-      case 'closed':
+      case 'dismissed':
         return AppColors.textTertiaryOf(context);
       default:
         return AppColors.textTertiaryOf(context);
@@ -234,11 +234,11 @@ class _DisputeResolutionScreenState
     switch (status) {
       case 'open':
         return 'Open';
-      case 'in_review':
+      case 'under_review':
         return 'In Review';
       case 'resolved':
         return 'Resolved';
-      case 'closed':
+      case 'dismissed':
         return 'Closed';
       default:
         return status;
@@ -1152,7 +1152,7 @@ class _DisputeResolutionScreenState
             ],
           ),
         ),
-        if (status != 'resolved' && status != 'closed') ...[
+        if (status != 'resolved' && status != 'dismissed') ...[
           const SizedBox(height: 20),
           Container(
             width: double.infinity,
@@ -1186,7 +1186,7 @@ class _DisputeResolutionScreenState
                   child: ElevatedButton.icon(
                     onPressed: () => _showResolveDialog(
                       d['id'],
-                      'in_review',
+                      'under_review',
                       'Mark as Under Review',
                     ),
                     icon: const Icon(Icons.search, size: 18),
@@ -1228,7 +1228,7 @@ class _DisputeResolutionScreenState
                       child: ElevatedButton.icon(
                         onPressed: () => _showResolveDialog(
                           d['id'],
-                          'closed',
+                          'dismissed',
                           'Close Dispute',
                         ),
                         icon: const Icon(Icons.close, size: 18),
@@ -1268,7 +1268,7 @@ class _DisputeResolutionScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Are you sure you want to ${targetStatus == 'in_review'
+              'Are you sure you want to ${targetStatus == 'under_review'
                   ? 'mark this dispute as in review'
                   : targetStatus == 'resolved'
                   ? 'resolve'
@@ -1307,7 +1307,7 @@ class _DisputeResolutionScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: targetStatus == 'resolved'
                   ? AppColors.success
-                  : targetStatus == 'closed'
+                  : targetStatus == 'dismissed'
                   ? AppColors.slate600
                   : AppColors.warning,
               foregroundColor: AppColors.textInverse,

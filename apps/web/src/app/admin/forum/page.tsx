@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
-import { getProfile } from '@/lib/queries'
+import { getProfile, getForumPosts } from '@/lib/queries'
 import { ForumFeed } from "@/components/forum/forum-feed"
 import { ModerationDashboard } from "@/components/admin/moderation-dashboard"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -18,6 +18,8 @@ export default async function AdminForumFeedPage({
     if (profile?.role !== 'admin') redirect('/patient/dashboard')
 
     const params = await searchParams
+    const { data: posts } = await getForumPosts(params.category, 'all')
+
     return (
         <div className="space-y-8">
             <Tabs defaultValue="feed">
@@ -27,7 +29,7 @@ export default async function AdminForumFeedPage({
                 </TabsList>
                 
                 <TabsContent value="feed">
-                    <ForumFeed category={params.category} role="admin" />
+                    <ForumFeed category={params.category} role="admin" posts={posts ?? []} profile={profile} />
                 </TabsContent>
                 
                 <TabsContent value="moderation">

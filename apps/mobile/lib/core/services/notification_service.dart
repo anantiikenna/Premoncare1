@@ -44,9 +44,8 @@ class NotificationService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) debugPrint('Got a message whilst in the foreground!');
       RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
 
-      if (notification != null && android != null) {
+      if (notification != null) {
         _localNotifications.show(
           id: notification.hashCode,
           title: notification.title,
@@ -58,6 +57,11 @@ class NotificationService {
               importance: Importance.max,
               priority: Priority.high,
               icon: '@mipmap/ic_launcher',
+            ),
+            iOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
             ),
           ),
         );
@@ -82,6 +86,12 @@ class NotificationService {
       if (event == AuthChangeEvent.signedIn || event == AuthChangeEvent.initialSession) {
         syncToken();
       }
+    });
+
+    // 6. Listen for FCM token refresh (Firebase can rotate tokens at any time)
+    _fcm.onTokenRefresh.listen((newToken) {
+      if (kDebugMode) debugPrint('FCM token refreshed');
+      _syncTokenToServer(newToken);
     });
   }
 
@@ -126,6 +136,19 @@ class NotificationService {
       }).eq('id', user.id);
     } catch (e) {
       if (kDebugMode) debugPrint('Error syncing FCM token: $e');
+    }
+  }
+
+  Future<void> _syncTokenToServer(String token) async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+
+      await supabase.from('profiles').update({
+        'fcm_token': token,
+      }).eq('id', user.id);
+    } catch (e) {
+      if (kDebugMode) debugPrint('Error syncing refreshed FCM token: $e');
     }
   }
 

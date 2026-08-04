@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminService {
@@ -11,7 +13,38 @@ class AdminService {
     };
     if (reason != null) updates['rejection_reason'] = reason;
 
+    // Promote to doctor role on approval (matching web doctor-management.tsx behavior)
+    // Guard: only promote if not already 'doctor' — preserves unified account switching
+    if (status == 'approved') {
+      final current = await _client.from('profiles').select('role').eq('id', userId).single();
+      if (current['role'] != 'doctor') {
+        updates['role'] = 'doctor';
+      }
+    }
+
     await _client.from('profiles').update(updates).eq('id', userId);
+
+    // Send notification to the user
+    try {
+      final title = status == 'approved'
+          ? 'Account Verified'
+          : status == 'rejected'
+              ? 'Verification Update'
+              : 'Verification Under Review';
+      final message = status == 'approved'
+          ? 'Congratulations! Your professional account has been verified. You now have access to the Doctor Dashboard. Please negotiate your platform fee with the admin to unlock full features.'
+          : status == 'rejected'
+              ? 'Your verification was not approved. ${reason ?? "Please contact support for details."}'
+              : 'Your verification is being reviewed. We will update you soon.';
+
+      await _client.from('notifications').insert({
+        'user_id': userId,
+        'title': title,
+        'message': message,
+        'type': 'system',
+        'is_read': false,
+      });
+    } catch (_) {}
   }
 
   Future<void> resetVerification(String userId) async {
@@ -121,8 +154,7 @@ class AdminService {
     required String message,
     required String targetRole, // 'all', 'patient', 'doctor'
   }) async {
-    // This would typically trigger a background function via Supabase Edge Functions
-    // But we can insert into notifications table for a trigger to handle FCM
+    // First, insert notifications into DB for in-app display
     final query = _client.from('profiles').select('id');
     if (targetRole != 'all') {
       query.eq('role', targetRole);
@@ -137,5 +169,28 @@ class AdminService {
     }).toList();
 
     await _client.from('notifications').insert(notifications);
+
+    // Dispatch FCM push to each user via web API
+    try {
+      final session = _client.auth.currentSession;
+      final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
+      for (final user in users) {
+        try {
+          await http.post(
+            Uri.parse('$siteUrl/api/notifications/dispatch'),
+            headers: {
+              'Content-Type': 'application/json',
+              if (session != null) 'Authorization': 'Bearer ${session.accessToken}',
+            },
+            body: jsonEncode({
+              'userId': user['id'],
+              'title': title,
+              'message': message,
+              'type': 'system',
+            }),
+          );
+        } catch (_) {}
+      }
+    } catch (_) {}
   }
 }

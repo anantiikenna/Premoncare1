@@ -95,6 +95,26 @@ export function DoctorProfileSettings({ doctorId }: { doctorId: string }) {
             }
             const { error } = await updateProfile(doctorId, updates)
             if (error) throw error
+
+            // Re-fetch profile to keep state in sync
+            const { data: refreshed } = await supabase.from('profiles').select('*').eq('id', doctorId).single()
+            if (refreshed) {
+                setProfile({
+                    full_name: refreshed.full_name || '',
+                    avatar_url: refreshed.avatar_url || '',
+                    specialty: refreshed.specialty || '',
+                    experience_years: refreshed.experience_years ? refreshed.experience_years.toString() : '',
+                    clinic_address: refreshed.clinic_address || '',
+                    consultation_fee: refreshed.consultation_fee ? refreshed.consultation_fee.toString() : '0',
+                    payment_instructions: refreshed.payment_instructions || '',
+                    dob: refreshed.dob || '',
+                    gender: refreshed.gender || '',
+                    bank_name: refreshed.bank_name || '',
+                    account_name: refreshed.account_name || '',
+                    account_number: refreshed.account_number || ''
+                })
+            }
+
             toast.success('Professional profile updated successfully')
         } catch (error: unknown) {
             toast.error('Failed to update profile: ' + (error instanceof Error ? error.message : String(error)))

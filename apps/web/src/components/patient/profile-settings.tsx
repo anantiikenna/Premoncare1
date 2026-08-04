@@ -107,8 +107,26 @@ export function PatientProfileSettings({ patientId }: { patientId: string }) {
                 } catch (_) {}
             }
 
+            // Re-fetch profile to keep state in sync
+            const { data: refreshed } = await getProfile(patientId)
+            if (refreshed) {
+                setFullName(refreshed.full_name || '')
+                setAvatarUrl(refreshed.avatar_url || '')
+                setEmailAlerts(refreshed.email_alerts_enabled !== false)
+                setPhone(refreshed.phone || '')
+                setAddress(refreshed.address || '')
+                setDob(refreshed.dob || '')
+                setGender(refreshed.gender || '')
+                setBloodGroup(refreshed.blood_group || '')
+                setNextOfKinName(refreshed.next_of_kin_name || '')
+                setNextOfKinPhone(refreshed.next_of_kin_phone || '')
+                setEmergencyName(refreshed.emergency_contact_name || '')
+                setEmergencyPhone(refreshed.emergency_contact_phone || '')
+                setIdUrl(refreshed.identity_document_url || '')
+                setOriginalIdUrl(refreshed.identity_document_url || '')
+            }
+
             toast.success('Profile updated successfully')
-            window.location.reload()
         } catch (error: unknown) {
             toast.error('Failed to update profile: ' + (error instanceof Error ? error.message : String(error)))
         } finally {

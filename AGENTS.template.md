@@ -1,0 +1,281 @@
+# AI Agents Configuration — [PROJECT NAME]
+
+> **Purpose:** This file tells AI agents how to work in this codebase. Every agent MUST read this file before making changes. Update this file when the project evolves.
+
+---
+
+## Project Overview
+
+- **Name:** [PROJECT NAME]
+- **Description:** [One sentence]
+- **Stack:** [e.g., Next.js + Flutter + Supabase]
+- **Monorepo:** [Yes/No — describe workspace layout]
+- **Domain:** [e.g., Healthcare, Fintech, E-commerce]
+
+---
+
+## Project Architecture
+
+### Directory Structure
+```
+/
+├── apps/
+│   ├── web/          # [Framework, e.g., Next.js 16]
+│   └── mobile/       # [Framework, e.g., Flutter]
+├── packages/         # [Shared libraries]
+├── supabase/         # [Database schema, migrations]
+│   ├── schema.sql    # Single source of truth for DB
+│   └── update_live.sql  # Cumulative live migrations
+└── AGENTS.md         # This file
+```
+
+### Tech Stack
+| Layer | Technology | Notes |
+|---|---|---|
+| **Frontend (Web)** | [e.g., Next.js 16] | [Key config] |
+| **Frontend (Mobile)** | [e.g., Flutter] | [Key config] |
+| **Backend** | [e.g., Supabase] | [Auth, DB, Storage, Realtime] |
+| **Database** | [e.g., PostgreSQL] | [RLS enabled] |
+| **Push Notifications** | [e.g., FCM] | [Server-side only] |
+| **Email** | [e.g., Loops/Resend/SendGrid] | [Transactional] |
+| **Deployment (Web)** | [e.g., Netlify/Vercel] | [CI/CD] |
+| **Deployment (Mobile)** | [e.g., Firebase App Distribution] | [Flavors] |
+| **Payments** | [e.g., Stripe/Manual P2P] | [Status] |
+
+---
+
+## Context for Agents
+
+### What You Must Know Before Changing Code
+
+1. **Data flows through multiple layers.** A change to the database schema affects Supabase, the web API, and the mobile client. Always check all three.
+2. **RLS is the primary security boundary.** Application code can have bugs. RLS policies cannot be bypassed by application bugs. Always verify RLS when touching data access.
+3. **Realtime is event-driven.** Many features depend on Supabase Realtime subscriptions. Adding a new table or column for real-time sync requires adding it to the Realtime publication and setting `REPLICA IDENTITY FULL`.
+4. **Secrets have strict boundaries.** Server-side keys (Firebase Admin SDK, payment gateway keys, service role keys) MUST NEVER exist in client-side code. Mobile never holds server credentials.
+5. **Admin is isolated.** Admin users are blocked from patient/doctor interfaces at multiple layers. Never route admin users through patient/doctor flows.
+
+### API Security Pattern
+Every API route MUST use the security wrapper:
+```
+// ALWAYS
+withSecurity(handler) → extracts sessionUser from JWT → enforces role check
+
+// NEVER
+raw handler → reads userId from request body → trusts client-supplied data
+```
+
+### Session Handling
+- Web: Use the proxy/middleware to validate sessions on every request
+- Mobile: Use Supabase client with anon key + RLS only
+- Never store session tokens in localStorage on web (use httpOnly cookies)
+
+---
+
+## Compliance & Regulatory
+
+### [HIPAA / GDPR / SOC 2 / PCI-DSS / CCPA — Pick what applies]
+
+| Requirement | Status | Notes |
+|---|---|---|
+| Access Controls | [Implemented/Partial/Needed] | [How] |
+| Encryption in Transit | [Implemented] | [TLS] |
+| Encryption at Rest | [Inherited/Implemented] | [Provider] |
+| Audit Logging | [Implemented/Partial/Needed] | [What's logged] |
+| Right to Erasure | [Implemented/Needed] | [Deletion flow] |
+| Data Export | [Implemented/Needed] | [Format] |
+| Consent Collection | [Implemented/Needed] | [At signup] |
+| BAA | [Executed/Needed] | [Provider] |
+| Breach Notification | [Documented/Needed] | [Timeframe] |
+
+**Agent rules for compliance:**
+- Never log PHI/PII to console or log files
+- Never store sensitive data in localStorage/SharedPreferences/cookies
+- Never share user data with third parties without explicit opt-in
+- Never add tracking without consent
+- Always provide users a way to view and export their data
+- Never hardcode patient/user IDs in client-visible URLs
+
+---
+
+## Security Posture
+
+### Threat Model
+| Threat | Mitigation |
+|---|---|
+| SQL Injection | Use parameterized queries (Supabase does this) |
+| XSS | Sanitize all API inputs (e.g., DOMPurify) |
+| CSRF | JWT in headers, SameSite cookies |
+| IDOR | RLS ensures users access only their own rows |
+| Privilege Escalation | Role checks at DB + API + UI layers |
+| Session Hijacking | Refresh token rotation, session validation |
+| Data Leakage | Private storage buckets, role-gated access |
+
+### Secrets Management
+| Secret | Location | NEVER |
+|---|---|---|
+| [Service Role Key] | [Server .env ONLY] | Never in client/mobile code |
+| [Admin SDK Key] | [Server .env ONLY] | Never in mobile workspace |
+| [Payment Keys] | [Server .env ONLY] | Never in client bundles |
+| [Anon Key] | [Client bundles OK] | Never expose to server admin ops |
+
+**Agent rule:** Before adding any credential: "Is this public or secret?" Public keys go in client bundles. Secret keys stay in server-only `.env` files and are never imported in client components.
+
+### Mobile Security Boundary
+- Mobile NEVER holds server-side credentials
+- Mobile dispatches sensitive operations via web API
+- Mobile uses anon key + RLS only
+
+---
+
+## Engineering Discipline
+
+### Code Review Policy
+- All changes require review before merge
+- Security-sensitive changes require [1/2] reviewer(s)
+- Agent-generated code follows the same review process
+
+### Testing Strategy
+| Layer | Tool | What to Test |
+|---|---|---|
+| Unit | [Jest/Vitest/Dart test] | Business logic, data transforms |
+| Component | [React Testing Library/Flutter widget tests] | UI rendering, interactions |
+| Integration | [Playwright/Cypress/Flutter integration] | End-to-end flows |
+| API | [curl/Postman/Supabase SQL Editor] | RLS policies, RPCs |
+| Security | Manual review | RLS bypass, role escalation |
+
+**Agent rule:** Check for existing test patterns before adding tests. Match the existing framework. Never remove existing tests.
+
+### CI/CD Gates
+- All linters must pass (`npm run lint`, `flutter analyze`)
+- All type checks must pass (`tsc --noEmit`, `dart analyze`)
+- Build must succeed
+- No secrets in committed files
+- No hardcoded URLs — use environment variables
+- No `console.log`/`print()` with sensitive data in production
+
+### Error Handling Convention
+```
+User-facing errors: Friendly message via toast/snackbar
+Internal errors: Log with context (never expose stack traces)
+Security errors: Return generic "Unauthorized" (never reveal why)
+Database errors: Never expose raw error messages to client
+```
+
+**Agent rule:** Every `catch` block must handle the error. Never swallow silently. Never expose internals to users.
+
+### Dependency Management
+- Pin major versions
+- Audit dependencies monthly (`npm audit`, `dart pub outdated`)
+- Never add a dependency without checking if functionality already exists
+- Prefer built-in SDK methods over third-party packages
+- Document major dependencies in this file
+
+### Naming Conventions
+| Element | Convention | Example |
+|---|---|---|
+| Files (JS/TS) | `camelCase` / `kebab-case` | `userService.ts`, `user-profile.tsx` |
+| Files (Dart) | `snake_case` | `user_service.dart` |
+| Database tables | `snake_case`, plural | `user_profiles`, `forum_posts` |
+| Database columns | `snake_case` | `created_at`, `user_id` |
+| Enums | `snake_case` values | `emergency_request`, `action_taken` |
+| React components | `PascalCase` | `UserProfile`, `BookingCard` |
+| Dart widgets | `PascalCase` | `UserProfileScreen` |
+| Constants | `UPPER_SNAKE_CASE` | `MAX_RETRY_COUNT` |
+| Functions | `camelCase` | `getUserProfile` |
+
+### Git Conventions
+- Commit messages: `type(scope): description`
+- Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `perf`
+- Never commit `.env` files or secrets
+- Branch naming: `feature/description`, `fix/description`
+- Always run lint/typecheck before committing
+
+---
+
+## Data Architecture
+
+### Database Schema
+- **Single source of truth:** `supabase/schema.sql`
+- **Live migrations:** `supabase/update_live.sql`
+- **All tables MUST include:** `GRANT` statements, RLS policies, `REPLICA IDENTITY FULL` (if using Realtime)
+
+### Data Flow Pattern
+```
+User Action → Client UI → API/SDK → Database (RLS enforced) → Realtime (if applicable) → Other Clients
+```
+
+### Realtime Requirements
+For any table that needs real-time sync:
+1. Add `REPLICA IDENTITY FULL`
+2. Add to `supabase_realtime` publication
+3. Add RLS policies for `SELECT` (authenticated users)
+4. Add client-side subscription filtering by relevant ID
+
+---
+
+## Error & Incident Protocol
+
+### When You Find a Bug
+1. **Check if it's a security issue** (auth bypass, data leak, privilege escalation)
+2. **Check if it affects data integrity** (wrong writes, missing validation)
+3. **Check if it affects real-time sync** (stale data, missing events)
+4. **Fix the root cause**, not the symptom
+5. **Update CHANGELOG.md** with the fix
+6. **Verify the fix** with tests or manual verification
+
+### When You're Unsure
+1. Read the existing code patterns in similar files
+2. Check `CHANGELOG.md` for context on past decisions
+3. Search for related issues in git history
+4. Ask the user for clarification — don't guess on security-critical decisions
+
+---
+
+## Monitoring & Alerting
+| System | Where to Check |
+|---|---|
+| Web build errors | [e.g., Vercel/Netlify dashboard] |
+| Database errors | [e.g., Supabase Dashboard → Logs] |
+| Push notification delivery | [e.g., Firebase Console → Cloud Messaging] |
+| Mobile crashes | [e.g., Firebase Crashlytics] |
+| API errors | [e.g., Server logs, Sentry] |
+
+---
+
+## Data Retention & Deletion
+| Data Type | Retention | Deletion |
+|---|---|---|
+| User profiles | Until account deletion | Cascade delete |
+| [Domain-specific data] | [Duration] | [Method] |
+| Audit logs | [7 years recommended] | Never delete |
+| Session data | [90 days] | Auto-cleanup |
+
+---
+
+## Compliance Certification Path
+1. **Document** — This file IS your documentation baseline
+2. **Implement** — Technical controls (RLS, encryption, audit logs)
+3. **Verify** — Test controls, run security reviews
+4. **Certify** — Engage auditor for SOC 2 / HIPAA / ISO 27001
+5. **Maintain** — Update this file when controls change
+
+---
+
+## Agent Workflow Checklist
+
+When starting ANY task in this codebase:
+
+- [ ] Read this `AGENTS.md` file
+- [ ] Read `CHANGELOG.md` for recent context
+- [ ] Identify affected files across all layers (DB → API → UI)
+- [ ] Check existing patterns in similar files
+- [ ] Verify RLS policies if touching data access
+- [ ] Check secrets boundary (server vs client)
+- [ ] Run lint/typecheck before committing
+- [ ] Update `CHANGELOG.md` if the change is user-facing
+- [ ] Never commit secrets or PHI
+
+---
+
+*Last Updated: [DATE]*
+*Template version: 1.0.0*

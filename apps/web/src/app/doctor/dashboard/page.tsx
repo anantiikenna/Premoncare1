@@ -67,7 +67,7 @@ export default async function DoctorDashboard() {
         sessionEarnings: sessionEarnings.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         activePatients: (appointments?.map(a => a.patient_id).filter((v,i,arr) => arr.indexOf(v) === i) || []).length,
         pendingVerifications: pendingPaymentsCount ?? 0,
-        upcomingSessions: todaysAppointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length,
+        upcomingSessions: todaysAppointments.filter(a => a.status === 'pending' || a.status === 'confirmed').length,
         consultationRate: profile?.consultation_fee ? `₦${Number(profile.consultation_fee).toLocaleString()}` : '₦15,000',
         expectedRevenue,
         taskCompletion

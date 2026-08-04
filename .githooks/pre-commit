@@ -1,0 +1,48 @@
+#!/bin/bash
+# Pre-commit hook — runs lint and typecheck before allowing commits
+# Install: git config core.hooksPath .githooks
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Get staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Check if any web files are staged
+WEB_FILES=$(echo "$STAGED_FILES" | grep -E "^apps/web/" || true)
+if [ -n "$WEB_FILES" ]; then
+  echo "📦 Web files changed — running lint + typecheck..."
+  cd apps/web
+
+  echo "  → ESLint..."
+  npx eslint --max-warnings 0 $(echo "$WEB_FILES" | grep -E "\.(ts|tsx)$" | sed 's|^apps/web/||') 2>/dev/null || {
+    echo "❌ ESLint failed. Fix errors before committing."
+    exit 1
+  }
+
+  echo "  → TypeScript..."
+  npx tsc --noEmit 2>/dev/null || {
+    echo "❌ Type check failed. Fix errors before committing."
+    exit 1
+  }
+
+  cd ../..
+fi
+
+# Check if any mobile files are staged
+MOBILE_FILES=$(echo "$STAGED_FILES" | grep -E "^apps/mobile/" || true)
+if [ -n "$MOBILE_FILES" ]; then
+  echo "📱 Mobile files changed — running analyze..."
+  cd apps/mobile
+
+  echo "  → Flutter analyze..."
+  flutter analyze --no-fatal-infos 2>/dev/null || {
+    echo "❌ Flutter analyze failed. Fix errors before committing."
+    exit 1
+  }
+
+  cd ../..
+fi
+
+echo "✅ Pre-commit checks passed."

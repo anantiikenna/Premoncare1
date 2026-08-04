@@ -47,7 +47,7 @@ The core Next.js project uses `apps/web/src/proxy.ts` (formerly `middleware.ts`)
 - **FCM Notifications**: Backend logic for push notifications resides in `apps/web/src/lib/notification-service.ts`.
 - **Transactional Emails (Loops)**: The backend unifies Push and Email notifications. When a payload sets `send_email: true`, the service fetches the user's secure email from `auth.users` via Supabase Admin API and dispatches an email via `loops`. **Requires `LOOPS_API_KEY` in `apps/web/.env`**.
 - **Security Boundary**: **Firebase Admin SDK keys (Private Key, etc.) and Loops API keys MUST NEVER be added to `apps/mobile` or `.env` files in that workspace.** They are strictly server-side credentials and must only reside in `apps/web`.
-- **Token Sync**: Mobile clients only retrieve and sync their `fcm_token` to the Supabase `profiles` table. They do not trigger the push itself.
+- **Token Sync**: Mobile clients only retrieve and sync their `fcm_token` to the Supabase `profiles` table. For push notifications (admin broadcasts, emergency alerts), mobile dispatches via the web API `/api/notifications/dispatch` to leverage Firebase Admin SDK server-side. Mobile never holds Firebase credentials.
 
 ## AI Build Diagnostics
 Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a web build error occurs, check the forwarded logs from the server-side build agent.
@@ -80,7 +80,7 @@ Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a we
 - **Migration**: All 2,046 inline `Color(0xFF...)` values migrated to `AppColors` tokens.
 
 ## Settings & Privacy Persistence
-- **Notification Preferences**: 8 toggles (push, email, appointments, payments, clinical, forum, emergency, marketing) persist to `SharedPreferences`.
+- **Notification Preferences**: 8 toggles (push, email, appointments, payments, clinical, forum, emergency, marketing) persist to `SharedPreferences`. The `email` toggle also syncs `email_alerts_enabled` to the `profiles` table server-side.
 - **Biometric & Privacy**: 5 toggles (biometric lock, profile visibility, online status, research data, crash reporting) persist to `SharedPreferences`.
 - **Accessibility**: Text scale slider, high contrast, reduce animations, screen reader hints — all persist.
 - **Health Preferences**: Weight/height/temperature units, date format — all persist.
@@ -98,3 +98,232 @@ Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a we
 - **Interactive Toggles**: Doctors manually toggle their clinical availability via dynamic sliders on their dashboards (Web & Mobile), writing `profiles.is_online = true` and updating `profiles.last_seen`.
 - **Heartbeat & Sweep**: While active, background routines (`setInterval` on Web, `Timer.periodic` on Mobile) dispatch heartbeat pings every 60 seconds updating `profiles.last_seen`. A secure database routine (`sweep_offline_doctors()`) automatically sets `is_online = false` if a doctor fails to heartbeat for 2 minutes (preventing zombie listings).
 - **Admin Live Operations Monitor**: Realtime operations are audited via administrative widgets subscribing to **Supabase Realtime Stream channels** to monitor active consultations (`status = 'ongoing'`) and active clinical availability.
+
+---
+
+## Compliance & Regulatory Posture
+
+### HIPAA (Health Insurance Portability and Accountability Act)
+Premoncare handles **Protected Health Information (PHI)**: medical records, prescriptions, symptoms, diagnoses, consultation notes, and emergency requests.
+
+| Requirement | Current Status | Implementation |
+|---|---|---|
+| **Access Controls** | Implemented | RLS on every table; role-based `patient`/`doctor`/`admin` enforced at DB + API + UI layers |
+| **Audit Logging** | Implemented | `audit_logs` table with `log_phi_access()` RPC for medical records, prescriptions, messages. User-initiated actions (deletion, export) logged |
+| **Encryption in Transit** | Implemented | Supabase enforces TLS on all connections |
+| **Encryption at Rest** | Inherited | Supabase Storage encrypts at rest (AES-256). Verify via Supabase dashboard |
+| **Minimum Necessary** | Implemented | Doctors see only their own patients via RLS. Admin sees all but is role-gated |
+| **BAA (Business Associate Agreement)** | Self-Hosted | Supabase is self-hosted on Coolify — Supabase Inc. has no access to PHI. BAA with Supabase Inc. not required. Infrastructure BAA obligations fall on the hosting provider (see below) |
+| **Breach Notification** | Implemented | See Incident Response section below. 60-day notification window documented |
+| **Physical Safeguards** | Inherited | Supabase hosts on AWS/GCP with SOC 2 Type II |
+
+**What an agent must NEVER do with PHI:**
+- Never log patient names, medical records, or symptoms to console/log files
+- Never store PHI in localStorage, SharedPreferences, or browser cookies
+- Never transmit PHI to third-party analytics or tracking services
+- Never hardcode patient IDs in URLs visible to other users
+- Never bypass RLS policies by using service_role client in client-side code
+
+### GDPR (General Data Protection Regulation)
+Applies to any EU user. Premoncare must support:
+
+| Right | Implementation Required |
+|---|---|
+| **Right to Access** | Users can view all their data in their dashboard |
+| **Right to Rectification** | Profile editing, medical record updates |
+| **Right to Erasure** | Implemented: `soft_delete_user()` RPC marks profile as deleted, anonymizes auth email. `purge_deleted_accounts()` permanently deletes after 30 days |
+| **Right to Portability** | Implemented: `export_user_data()` RPC returns JSON of all user data. Web: `/api/user/export` download. Mobile: clipboard copy |
+| **Consent** | Registration collects health data — explicit consent required at signup (HIPAA checkbox) |
+| **Data Minimization** | Only collect what's needed. No unnecessary tracking |
+| **Breach Notification** | 72-hour notification to supervisory authority |
+
+**What an agent must do for GDPR:**
+- Never add tracking cookies without consent
+- Never share user data with third parties without explicit opt-in
+- Never retain data longer than necessary — implement soft-delete with 30-day purge
+- Always provide a way for users to see what data you hold about them
+
+### SOC 2 (Service Organization Control)
+SOC 2 applies to cloud infrastructure providers, not directly to Premoncare. However:
+- **Supabase** holds SOC 2 Type II — inherit their compliance posture
+- **Firebase/Google Cloud** holds SOC 2 — inherit for FCM
+- Premoncare can cite these reports in its own compliance documentation
+- If Premoncare grows, pursue SOC 2 Type II independently (requires 6-12 month audit period)
+
+### WCAG (Web Content Accessibility Guidelines)
+- Web app uses semantic HTML, ARIA labels, keyboard navigation
+- Mobile uses `Semantics` widgets, `accessibleNavigation`, screen reader hints
+- Text scale slider in settings, high contrast mode, reduce animations toggle
+- Agents must not regress accessibility: always add `Semantics` labels to interactive elements, maintain color contrast ratios
+
+---
+
+## Security Posture & Data Protection
+
+### Threat Model
+| Threat | Mitigation |
+|---|---|
+| **SQL Injection** | Supabase uses parameterized queries. Never interpolate user input into raw SQL |
+| **XSS (Cross-Site Scripting)** | `isomorphic-dompurify` sanitizes all API inputs. Never render raw HTML |
+| **CSRF** | Supabase uses JWT tokens in headers, not cookies. SameSite cookies enabled |
+| **IDOR (Insecure Direct Object Reference)** | RLS ensures users can only access their own rows. Never expose IDs in URLs without auth checks |
+| **Privilege Escalation** | Admin routes blocked at 3 layers (login, splash, router). Never trust client-side role claims |
+| **Session Hijacking** | Supabase refresh token rotation. Proxy validates session on every request |
+| **Broken Access Control** | `withSecurity` HOF enforces role checking on all API routes |
+| **Data Leakage** | Private storage buckets. Guest data isolated via `guest_token`. Medical records use `record_permissions` join table |
+
+### Secrets Management
+| Secret | Location | NEVER |
+|---|---|---|
+| Supabase Anon Key | `apps/web/.env.local`, `apps/mobile` (public) | Never expose to server-side admin operations |
+| Supabase Service Role Key | `apps/web/.env.local` ONLY | Never add to mobile, never commit to git, never expose in client bundles |
+| Firebase Admin SDK | `apps/web/.env.local` ONLY | Never add to mobile workspace |
+| Loops API Key | `apps/web/.env.local` ONLY | Never add to mobile workspace |
+| Stripe/Payment Keys | N/A (disabled) | Payment gateways are disabled |
+
+**Agent rule:** Before adding any credential, ask: "Is this a public or secret key?" Public keys go in client bundles. Secret keys stay in server-only `.env` files and are never imported in `'use client'` components.
+
+### API Security Boundary
+Every API route MUST follow this pattern:
+```typescript
+// CORRECT
+import { withSecurity } from '@/lib/security'
+export const POST = withSecurity(async (req, { sessionUser }) => {
+  // sessionUser.id is trusted — extracted from JWT
+  // sessionUser.role is trusted — extracted from profiles table
+})
+
+// WRONG — never do this
+export const POST = async (req) => {
+  const { userId } = await req.json() // UNTRUSTED — attacker controls this
+}
+```
+
+### Mobile Security Boundary
+- Mobile NEVER holds Firebase Admin SDK credentials
+- Mobile NEVER holds server-side API keys
+- Mobile dispatches push notifications via web API (`/api/notifications/dispatch`)
+- Mobile syncs only `fcm_token` to Supabase profiles table
+- Mobile uses `supabase-js` client with anon key + RLS only
+
+---
+
+## Engineering Discipline
+
+### Code Review Policy
+- All changes require review before merge to `main`
+- Security-sensitive changes (auth, payments, RLS, API routes) require 2 reviewers
+- Agent-generated code follows the same review process as human code
+
+### Testing Strategy
+| Layer | Tool | Command | What to Test |
+|---|---|---|---|
+| **Unit** | Dart `test`, Jest | `flutter test`, `npm run test` | Business logic, data transforms, utility functions |
+| **Widget/Component** | Flutter widget tests, React Testing Library | `flutter test`, `npm run test` | UI rendering, user interactions |
+| **Integration** | Flutter integration tests, Playwright/Cypress | `flutter test integration_test/` | End-to-end flows (booking, payment, messaging) |
+| **API** | Supabase SQL Editor, curl/Postman | Manual | RLS policies, RPC functions, edge functions |
+| **Security** | Manual review | Manual | RLS bypass attempts, role escalation, IDOR |
+
+**Test locations:**
+- Web: `apps/web/src/__tests__/` — Jest + React Testing Library
+- Mobile: `apps/mobile/test/` — Flutter widget tests
+
+**Agent rule:** When adding a new feature, always check for existing test patterns in the codebase. Match the existing test framework and conventions. Never remove existing tests.
+
+### CI/CD Gates
+GitHub Actions runs on every push to `main`/`develop` and all PRs:
+
+**Web (`.github/workflows/web-ci.yml`):**
+1. `npm run lint` — ESLint with zero warnings
+2. `npm run typecheck` — TypeScript strict mode
+3. `npm run test -- --coverage --ci` — Jest with coverage thresholds (30% branches/functions/lines)
+4. `npm run build` — Next.js production build
+
+**Mobile (`.github/workflows/mobile-ci.yml`):**
+1. `flutter analyze` — Dart static analysis
+2. `flutter test --coverage` — Widget and unit tests
+3. `flutter build apk --flavor user` — Android build
+
+**Pre-commit (`.githooks/pre-commit`):**
+- Runs ESLint + TypeScript on staged web files
+- Runs `flutter analyze` on staged mobile files
+- Install: `make hooks` or `git config core.hooksPath .githooks`
+
+**Local CI:**
+- `make ci` — runs lint + typecheck + test + build for web
+- `make lint` — runs all linters
+- `make test` — runs all tests
+
+### Error Handling Convention
+```
+User-facing errors: Show friendly message via toast/snackbar
+Internal errors: Log to console/error service with context
+Security errors: Return generic "Unauthorized" — never reveal why
+Database errors: Never expose raw Supabase error messages to client
+```
+
+**Agent rule:** Every `catch` block must handle the error appropriately. Never swallow errors silently. Never expose stack traces to users.
+
+### Dependency Management
+- Pin major versions in `package.json` / `pubspec.yaml`
+- Run `npm audit` / `dart pub outdated` monthly
+- Never add a new dependency without checking if the functionality already exists
+- Prefer built-in SDK methods over third-party packages
+- Document why each major dependency is used in `AGENTS.md`
+
+### Monitoring & Alerting
+- Web build errors: Check `browserLogForwarding` in `next.config.ts`
+- Supabase errors: Check Supabase Dashboard → Logs
+- FCM delivery: Check Firebase Console → Cloud Messaging
+- Mobile crashes: Check Firebase Crashlytics (if enabled)
+
+### Incident Response
+1. **Detect** — Monitor error rates, user reports, audit log anomalies
+2. **Contain** — Revoke compromised credentials, disable affected features, isolate affected systems
+3. **Eradicate** — Fix the root cause, deploy patch, rotate all potentially exposed secrets
+4. **Recover** — Restore service, verify functionality, confirm RLS policies intact
+5. **Document** — Update `CHANGELOG.md`, notify affected users if PHI was exposed
+6. **Improve** — Add monitoring/test to prevent recurrence
+
+**HIPAA Breach Notification (60-day window):**
+- If PHI is exposed, notify affected individuals within **60 days** of discovery
+- Notify HHS (Department of Health and Human Services) if >500 individuals affected
+- Notify media if >500 individuals in a single state/jurisdiction
+- Document the breach: what data, how many users, root cause, remediation
+- Maintain breach log for 6 years (HIPAA requirement)
+
+**GDPR Breach Notification (72-hour window):**
+- Notify supervisory authority within **72 hours** of becoming aware of a breach
+- If high risk to individuals, notify affected users without undue delay
+- Document: nature of breach, categories/number of individuals, likely consequences, measures taken
+
+**Agent rule:** If you discover a potential data exposure during code review or development, IMMEDIATELY flag it as a security incident. Do not attempt to fix it silently.
+
+### Data Retention & Deletion
+| Data Type | Retention | Deletion Method |
+|---|---|---|
+| User profiles | Until account deletion | Cascade delete via `auth.users on delete cascade` |
+| Medical records | Until account deletion | Soft-delete with 30-day purge |
+| Messages | Until account deletion | Soft-delete with 30-day purge |
+| Forum posts | Permanent (unless deleted by user/admin) | Hard delete with author confirmation |
+| Audit logs | 7 years (regulatory requirement) | Never delete |
+| Device sessions | 90 days | Auto-cleanup cron |
+| Login attempts | 1 hour | Auto-cleanup function `cleanup_old_login_attempts()` |
+| Notifications | 30 days | Auto-cleanup cron |
+
+### Naming Conventions
+- **Files**: `snake_case` (Dart/Flutter), `kebab-case` (Next.js routes), `camelCase` (TS/JS modules)
+- **Database tables**: `snake_case`, plural (`profiles`, `forum_posts`, `medical_records`)
+- **Database columns**: `snake_case` (`created_at`, `patient_id`, `is_emergency`)
+- **Enums**: `snake_case` values (`emergency_request`, `action_taken`)
+- **React components**: `PascalCase` (`PostCard`, `BookingForm`)
+- **Dart widgets**: `PascalCase` (`ChatListScreen`, `EmergencyWaitingScreen`)
+- **Functions**: `camelCase` in JS/TS, `camelCase` in Dart (methods), `snake_case` for DB functions
+- **Constants**: `UPPER_SNAKE_CASE` for global constants, `camelCase` for local constants
+
+### Git Conventions
+- Commit messages: `type(scope): description` (e.g., `fix(mobile): avatar upload RLS path`)
+- Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `perf`
+- Never commit `.env` files, secrets, or API keys
+- Branch naming: `feature/short-description`, `fix/short-description`
+- Always run lint/typecheck before committing

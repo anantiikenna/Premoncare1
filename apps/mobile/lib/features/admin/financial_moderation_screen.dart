@@ -94,7 +94,7 @@ class _FinancialModerationScreenState
 
       final disputes = await supabase.from('disputes').select('id, status');
       final openDisputes = disputes
-          .where((d) => (d['status'] == 'open') || (d['status'] == 'in_review'))
+          .where((d) => (d['status'] == 'open') || (d['status'] == 'under_review'))
           .length;
 
       if (mounted) {
@@ -261,10 +261,10 @@ class _FinancialModerationScreenState
         return AppColors.warning;
       case 'open':
         return AppColors.warning;
-      case 'in_review':
+      case 'under_review':
         return AppColors.info;
       case 'resolved':
-      case 'closed':
+      case 'dismissed':
         return AppColors.success;
       default:
         return AppColors.textTertiaryOf(context);
@@ -1020,9 +1020,10 @@ class _FinancialModerationScreenState
               Navigator.pop(context);
               final messenger = ScaffoldMessenger.of(context);
               try {
+                final adminId = supabase.auth.currentUser?.id;
                 await supabase
                     .from('payments')
-                    .update({'status': 'approved'})
+                    .update({'status': 'approved', 'processed_by': adminId})
                     .eq('status', 'pending');
                 if (mounted) {
                   messenger.showSnackBar(

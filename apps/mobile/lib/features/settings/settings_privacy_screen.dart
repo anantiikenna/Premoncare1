@@ -521,13 +521,22 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                                   try {
                                     final currentUser = supabase.auth.currentUser;
                                     if (currentUser != null) {
-                                      await supabase.from('audit_logs').insert({
-                                        'user_id': currentUser.id,
-                                        'action': 'account_deletion_requested',
+                                      // GDPR: Soft-delete via server API
+                                      final baseUrl = supabase.rest.url.replaceAll('/rest/v1', '');
+                                      final apiKey = supabase.rest.apiKey;
+                                      // Use Supabase RPC for soft-delete
+                                      await supabase.rpc('soft_delete_user', params: {
+                                        'p_user_id': currentUser.id,
+                                        'p_reason': 'User requested account deletion',
                                       });
                                     }
                                     await performLogout();
-                                    if (context.mounted) context.go('/login');
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Account scheduled for deletion in 30 days.')),
+                                      );
+                                      context.go('/login');
+                                    }
                                   } catch (e) {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(

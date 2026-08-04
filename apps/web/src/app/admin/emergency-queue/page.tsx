@@ -37,7 +37,7 @@ export default function AdminEmergencyQueuePage() {
             const { data: pending } = await supabase
                 .from('appointments')
                 .select('id')
-                .eq('type', 'emergency')
+                .eq('is_emergency', true)
                 .eq('status', 'emergency_request')
                 .is('doctor_id', null)
                 .limit(10)

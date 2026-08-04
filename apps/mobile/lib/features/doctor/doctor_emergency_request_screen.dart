@@ -139,22 +139,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
       ref.invalidate(upcomingAppointmentsProvider);
 
       // Notify patient (skip in-app for guests — patient_id is null)
-      if (widget.patientId != null && widget.patientId!.isNotEmpty) {
-        try {
-          await Supabase.instance.client.from('notifications').insert({
-            'user_id': widget.patientId,
-            'title': accept ? 'Emergency Request Accepted' : 'Emergency Request Declined',
-            'message': accept
-                ? 'Dr. has accepted your emergency consultation request. Please proceed with payment.'
-                : 'Unfortunately, Dr. is unable to take your case right now.',
-            'type': 'appointment',
-            'is_read': false,
-            'metadata': {'appointment_id': widget.appointmentId},
-          });
-        } catch (_) {}
-      }
-
-      // Dispatch FCM push via web notification pipeline
+      // Dispatch FCM push via web notification pipeline (handles both DB insert + FCM)
       if (widget.patientId != null && widget.patientId!.isNotEmpty) {
         try {
           final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');

@@ -85,7 +85,7 @@ export function ModerationDashboard() {
         try {
             const { error } = await supabase
                 .from('forum_reports')
-                .update({ status: 'resolved' })
+                .update({ status: 'action_taken', resolved_at: new Date().toISOString(), resolved_by: null })
                 .eq('id', reportId)
 
             if (error) throw error

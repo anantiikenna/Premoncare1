@@ -177,7 +177,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     if (user == null) return null;
 
     final ext = _selectedPhoto!.path.split('.').last;
-    final path = 'avatars/${user.id}.$ext';
+    final path = '${user.id}/avatar_${DateTime.now().millisecondsSinceEpoch}.$ext';
 
     final bytes = await _selectedPhoto!.readAsBytes();
 
@@ -237,7 +237,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         'full_name': _fullNameController.text.trim().isNotEmpty ? _fullNameController.text.trim() : null,
         'phone': _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
         'dob': _dobController.text.trim().isNotEmpty ? _dobController.text.trim() : null,
-        'gender': _genderController.text.trim().isNotEmpty ? _genderController.text.trim() : null,
+        'gender': _genderController.text.trim().isNotEmpty ? _genderController.text.trim().toLowerCase() : null,
         'address': _addressController.text.trim().isNotEmpty ? _addressController.text.trim() : null,
         'blood_group': _bloodGroupController.text.trim().isNotEmpty ? _bloodGroupController.text.trim() : null,
         'next_of_kin_name': _nextOfKinNameController.text.trim().isNotEmpty ? _nextOfKinNameController.text.trim() : null,
@@ -369,7 +369,10 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           _buildInfoField(context, 'Email Address', email),
           _buildInfoField(context, 'Phone Number', profile?['phone'] ?? 'Not set'),
           _buildInfoField(context, 'Date of Birth', profile?['dob'] ?? 'Not set'),
-          _buildInfoField(context, 'Gender', profile?['gender'] ?? 'Not set'),
+          _buildInfoField(context, 'Gender', () {
+            final g = (profile?['gender'] ?? 'Not set').toString();
+            return g.isNotEmpty ? '${g[0].toUpperCase()}${g.substring(1)}' : g;
+          }()),
           _buildInfoField(context, 'Address', profile?['address'] ?? 'Not set'),
           _buildInfoField(context, 'Blood Group', profile?['blood_group'] ?? 'Not set'),
           _buildInfoField(context, 'Next of Kin Name', profile?['next_of_kin_name'] ?? 'Not set'),
@@ -730,9 +733,9 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
               const SizedBox(height: 20),
               Text('Select Gender', style: AppTypography.h4Of(ctx)),
               const SizedBox(height: 16),
-              for (final gender in ['Male', 'Female', 'Other', 'Prefer not to say'])
+              for (final gender in ['male', 'female', 'other', 'prefer not to say'])
                 ListTile(
-                  title: Text(gender, style: AppTypography.bodyLargeOf(ctx)),
+                  title: Text('${gender[0].toUpperCase()}${gender.substring(1)}', style: AppTypography.bodyLargeOf(ctx)),
                   trailing: _genderController.text == gender
                       ? const Icon(Icons.check_circle_rounded, color: AppColors.primary)
                       : null,

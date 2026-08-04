@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import '../../core/supabase_locator.dart';
 
 enum MessageType { text, attachment, audio, location }
@@ -157,6 +159,32 @@ class MessagingService {
         'attachments': attachments,
         'metadata': metadata,
       });
+
+      // Dispatch notification to recipient via web API (DB + FCM push)
+      try {
+        final senderProfile = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+        final senderName = senderProfile['full_name'] ?? 'Someone';
+
+        final siteUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
+        final session = supabase.auth.currentSession;
+        await http.post(
+          Uri.parse('$siteUrl/api/notifications/dispatch'),
+          headers: {
+            'Content-Type': 'application/json',
+            if (session != null) 'Authorization': 'Bearer ${session.accessToken}',
+          },
+          body: jsonEncode({
+            'userId': receiverId,
+            'title': 'New Message',
+            'message': 'You have a new message from $senderName: "${content.length > 30 ? content.substring(0, 30) + '...' : content}"',
+            'type': 'message',
+          }),
+        );
+      } catch (_) {}
     } catch (e) {
       if (kDebugMode) debugPrint('Error sending message: $e');
     }

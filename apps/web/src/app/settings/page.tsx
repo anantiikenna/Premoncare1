@@ -47,23 +47,42 @@ export default function SettingsPrivacyPage() {
 
   const handleDeleteAccount = async () => {
     setDeleting(true)
-    const supabase = createClient()
     try {
-      await supabase.from('audit_logs').insert({
-        user_id: profile!.id,
-        action: 'account_deletion_requested',
+      const res = await fetch('/api/user/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'User requested account deletion' }),
       })
-    } catch {}
-    const { error } = await supabase.auth.admin.deleteUser(profile!.id)
-    if (error) {
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || 'Failed to delete account. Please contact support.')
+      } else {
+        toast.success(data.message || 'Account scheduled for deletion in 30 days.')
+        router.push('/')
+      }
+    } catch {
       toast.error('Failed to delete account. Please contact support.')
-    } else {
-      toast.success('Account deleted successfully.')
-      router.push('/')
     }
     setDeleting(false)
     setShowDeleteDialog(false)
     setDeleteConfirmEmail('')
+  }
+
+  const handleExportData = async () => {
+    try {
+      const res = await fetch('/api/user/export')
+      if (!res.ok) throw new Error('Export failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `premoncare-data-${new Date().toISOString().split('T')[0]}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Data exported successfully.')
+    } catch {
+      toast.error('Failed to export data. Please try again.')
+    }
   }
 
   if (loading) {
@@ -142,6 +161,8 @@ export default function SettingsPrivacyPage() {
             <SettingsRow icon="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" iconColor="text-blue-500" iconBg="bg-blue-50" title="Biometric & Privacy Controls" subtitle="Face ID and app locking" onClick={() => toast.info('Biometric authentication and app lock features are coming soon. Your data is protected by Supabase Row-Level Security in the meantime.')} />
             <div className="h-px bg-slate-100 mx-6"></div>
             <SettingsRow icon="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" iconColor="text-slate-500" iconBg="bg-slate-100" title="Device Sessions & Activity" subtitle="Review active logins" onClick={() => toast.info('Active session monitoring is under development. You can revoke access by changing your password from the Login & Security section.')} />
+            <div className="h-px bg-slate-100 mx-6"></div>
+            <SettingsRow icon="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" iconColor="text-emerald-500" iconBg="bg-emerald-50" title="Download My Data" subtitle="Export all your data (GDPR)" onClick={handleExportData} />
           </div>
         </div>
 

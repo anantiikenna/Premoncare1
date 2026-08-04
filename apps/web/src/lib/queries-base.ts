@@ -96,7 +96,8 @@ export async function getForumPostById(supabase: SupabaseClient, postId: string)
         .from('forum_posts')
         .select(`
             *,
-            author:profiles!forum_posts_author_id_fkey(full_name, avatar_url)
+            author:profiles!forum_posts_author_id_fkey(full_name, avatar_url),
+            category:forum_categories!forum_posts_category_id_fkey(id, name, icon_name)
         `)
         .eq('id', postId)
         .single()

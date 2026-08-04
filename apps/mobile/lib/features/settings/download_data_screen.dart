@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
@@ -20,11 +22,20 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
-      await supabase.from('audit_logs').insert({
-        'user_id': user.id,
-        'action': 'data_export_requested',
-        'details': {'email': user.email},
+
+      // GDPR: Right to Data Portability — call export_user_data RPC
+      final data = await supabase.rpc('export_user_data', params: {
+        'p_user_id': user.id,
       });
+
+      if (data == null || data is Map && data.containsKey('error')) {
+        throw Exception(data?['error'] ?? 'Export failed');
+      }
+
+      // Copy JSON to clipboard as a simple export mechanism
+      final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
+      await Clipboard.setData(ClipboardData(text: jsonStr));
+
       setState(() {
         _loading = false;
         _requested = true;
@@ -65,12 +76,17 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                 children: [
                   const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 48),
                   const SizedBox(height: 12),
-                  Text('Export Requested', style: AppTypography.h4Of(context)),
+                  Text('Data Exported', style: AppTypography.h4Of(context)),
                   const SizedBox(height: 8),
                   Text(
-                    'We\'ll prepare your data and send a download link to your email within 48 hours.',
+                    'Your data has been copied to the clipboard as JSON. You can paste it into a secure document.',
                     style: AppTypography.bodySmallOf(context),
                     textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => _requestExport(),
+                    child: const Text('Export Again'),
                   ),
                 ],
               ),
@@ -90,7 +106,7 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                   Text('Export Your Data', style: AppTypography.h4Of(context)),
                   const SizedBox(height: 8),
                   Text(
-                    'Request a copy of all your health data, consultation history, and account information.',
+                    'Get a copy of all your health data, consultation history, and account information.',
                     style: AppTypography.bodySmallOf(context),
                     textAlign: TextAlign.center,
                   ),
@@ -105,6 +121,7 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
             _buildIncludedItem(Icons.calendar_today_rounded, 'Appointment History'),
             _buildIncludedItem(Icons.chat_rounded, 'Messages & Consultations'),
             _buildIncludedItem(Icons.receipt_rounded, 'Payment History'),
+            _buildIncludedItem(Icons.forum_rounded, 'Forum Posts & Replies'),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -117,7 +134,7 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                 ),
                 child: _loading
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Request Data Export', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                    : const Text('Export My Data', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
               ),
             ),
           ],
