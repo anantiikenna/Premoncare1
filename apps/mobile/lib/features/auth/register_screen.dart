@@ -78,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         await supabase.rpc('record_otp_attempt', params: {'p_email': email});
       } catch (_) {}
 
-      final res = await supabase.auth.signInWithOtp(
+      await supabase.auth.signInWithOtp(
         email: email,
         data: {
           'full_name': _fullNameController.text.trim(),

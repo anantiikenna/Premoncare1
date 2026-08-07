@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../core/supabase_locator.dart';
@@ -16,7 +15,6 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
   @override
   Widget build(BuildContext context) {
     final color = AppColors.textPrimaryOf(context);
-    final secondary = AppColors.textSecondaryOf(context);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),

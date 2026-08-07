@@ -12,10 +12,12 @@ class SettingsPrivacyCenterScreen extends ConsumerStatefulWidget {
   const SettingsPrivacyCenterScreen({super.key});
 
   @override
-  ConsumerState<SettingsPrivacyCenterScreen> createState() => _SettingsPrivacyCenterScreenState();
+  ConsumerState<SettingsPrivacyCenterScreen> createState() =>
+      _SettingsPrivacyCenterScreenState();
 }
 
-class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCenterScreen> {
+class _SettingsPrivacyCenterScreenState
+    extends ConsumerState<SettingsPrivacyCenterScreen> {
   String _currentLanguage = 'English';
 
   @override
@@ -98,11 +100,31 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                     color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.medical_services_rounded, color: AppColors.primary, size: 18),
+                  child: const Icon(
+                    Icons.medical_services_rounded,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 8),
-                Text('Premon', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
-                Text('Care', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
+                Text(
+                  'Premon',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 18,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  'Care',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 18,
+                    letterSpacing: -0.5,
+                  ),
+                ),
               ],
             ),
           ),
@@ -110,15 +132,15 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
       ),
       centerTitle: true,
       actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_none_rounded, color: color),
-            onPressed: () => context.push('/notifications'),
-          ),
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: () => context.push('/personal-info'),
-            child: const GlobalUserAvatar(radius: 16),
-          ),
+        IconButton(
+          icon: Icon(Icons.notifications_none_rounded, color: color),
+          onPressed: () => context.push('/notifications'),
+        ),
+        const SizedBox(width: 4),
+        GestureDetector(
+          onTap: () => context.push('/personal-info'),
+          child: const GlobalUserAvatar(radius: 16),
+        ),
         const SizedBox(width: 16),
       ],
     );
@@ -135,16 +157,35 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
             color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 28),
+          child: const Icon(
+            Icons.shield_rounded,
+            color: AppColors.primary,
+            size: 28,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Settings & Privacy', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color, letterSpacing: -0.5)),
+              Text(
+                'Settings & Privacy',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                  letterSpacing: -0.5,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text('Manage your account and preferences', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: secondary)),
+              Text(
+                'Manage your account and preferences',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: secondary,
+                ),
+              ),
             ],
           ),
         ),
@@ -152,7 +193,11 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
     );
   }
 
-  Widget _buildProfileSummary(BuildContext context, String email, Map<String, dynamic>? profile) {
+  Widget _buildProfileSummary(
+    BuildContext context,
+    String email,
+    Map<String, dynamic>? profile,
+  ) {
     final color = AppColors.textPrimaryOf(context);
     final secondary = AppColors.textSecondaryOf(context);
     return GestureDetector(
@@ -171,11 +216,15 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
               children: [
                 const GlobalUserAvatar(radius: 20),
                 Container(
-                  width: 14, height: 14,
+                  width: 14,
+                  height: 14,
                   decoration: BoxDecoration(
                     color: AppColors.success,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.surfaceOf(context), width: 2),
+                    border: Border.all(
+                      color: AppColors.surfaceOf(context),
+                      width: 2,
+                    ),
                   ),
                 ),
               ],
@@ -185,25 +234,60 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(profile?['full_name'] ?? 'User', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color)),
-                  Text(email, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: secondary)),
+                  Text(
+                    profile?['full_name'] ?? 'User',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: color,
+                    ),
+                  ),
+                  Text(
+                    email,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: secondary,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.verified_rounded, color: AppColors.success, size: 10),
+                        Icon(
+                          Icons.verified_rounded,
+                          color: AppColors.success,
+                          size: 10,
+                        ),
                         SizedBox(width: 4),
-                        Text('Verified', style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w800)),
+                        Text(
+                          'Verified',
+                          style: TextStyle(
+                            color: AppColors.success,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textTertiaryOf(context),
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -211,42 +295,146 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(title, style: AppTypography.labelMediumOf(context).copyWith(letterSpacing: -0.3, fontSize: 15, fontWeight: FontWeight.w900));
+    return Text(
+      title,
+      style: AppTypography.labelMediumOf(context).copyWith(
+        letterSpacing: -0.3,
+        fontSize: 15,
+        fontWeight: FontWeight.w900,
+      ),
+    );
   }
 
   Widget _buildAccountSettings(BuildContext context) {
     return _buildGroup(context, [
-      _SettingsTileData(icon: Icons.person_outline_rounded, color: AppColors.info, title: 'Personal Information', subtitle: 'Update your details', onTap: () => context.push('/personal-info')),
-      _SettingsTileData(icon: Icons.lock_outline_rounded, color: AppColors.success, title: 'Login & Security', subtitle: 'Password and security settings', onTap: () => context.push('/login-security')),
-      _SettingsTileData(icon: Icons.notifications_none_rounded, color: AppColors.primary, title: 'Notification Preferences', subtitle: 'Choose what notifications to receive', onTap: () => context.push('/notification-preferences')),
-      _SettingsTileData(icon: Icons.language_rounded, color: AppColors.warning, title: 'Language & Region', subtitle: 'Language and region', trailingText: _currentLanguage, onTap: () => context.push('/language-region')),
+      _SettingsTileData(
+        icon: Icons.person_outline_rounded,
+        color: AppColors.info,
+        title: 'Personal Information',
+        subtitle: 'Update your details',
+        onTap: () => context.push('/personal-info'),
+      ),
+      _SettingsTileData(
+        icon: Icons.lock_outline_rounded,
+        color: AppColors.success,
+        title: 'Login & Security',
+        subtitle: 'Password and security settings',
+        onTap: () => context.push('/login-security'),
+      ),
+      _SettingsTileData(
+        icon: Icons.notifications_none_rounded,
+        color: AppColors.primary,
+        title: 'Notification Preferences',
+        subtitle: 'Choose what notifications to receive',
+        onTap: () => context.push('/notification-preferences'),
+      ),
+      _SettingsTileData(
+        icon: Icons.language_rounded,
+        color: AppColors.warning,
+        title: 'Language & Region',
+        subtitle: 'Language and region',
+        trailingText: _currentLanguage,
+        onTap: () => context.push('/language-region'),
+      ),
     ]);
   }
 
   Widget _buildPrivacyDataSettings(BuildContext context) {
     return _buildGroup(context, [
-      _SettingsTileData(icon: Icons.shield_outlined, color: AppColors.success, title: 'Biometric & Privacy', subtitle: 'Privacy and biometric controls', onTap: () => context.push('/biometric-privacy')),
-      _SettingsTileData(icon: Icons.medical_information_outlined, color: AppColors.info, title: 'Record Permissions', subtitle: 'Manage doctor record access', onTap: () => context.push('/medical-record-permissions')),
-      _SettingsTileData(icon: Icons.devices_rounded, color: AppColors.primary, title: 'Device Sessions', subtitle: 'Active sessions and activity', onTap: () => context.push('/device-sessions')),
-      _SettingsTileData(icon: Icons.file_download_outlined, color: AppColors.warning, title: 'Download My Data', subtitle: 'Export your health data', onTap: () => context.push('/download-data')),
-      _SettingsTileData(icon: Icons.delete_outline_rounded, color: AppColors.error, title: 'Delete Account', subtitle: 'Permanently delete your account', onTap: () => _showDeleteAccountDialog(context)),
+      _SettingsTileData(
+        icon: Icons.shield_outlined,
+        color: AppColors.success,
+        title: 'Biometric & Privacy',
+        subtitle: 'Privacy and biometric controls',
+        onTap: () => context.push('/biometric-privacy'),
+      ),
+      _SettingsTileData(
+        icon: Icons.medical_information_outlined,
+        color: AppColors.info,
+        title: 'Record Permissions',
+        subtitle: 'Manage doctor record access',
+        onTap: () => context.push('/medical-record-permissions'),
+      ),
+      _SettingsTileData(
+        icon: Icons.devices_rounded,
+        color: AppColors.primary,
+        title: 'Device Sessions',
+        subtitle: 'Active sessions and activity',
+        onTap: () => context.push('/device-sessions'),
+      ),
+      _SettingsTileData(
+        icon: Icons.file_download_outlined,
+        color: AppColors.warning,
+        title: 'Download My Data',
+        subtitle: 'Export your health data',
+        onTap: () => context.push('/download-data'),
+      ),
+      _SettingsTileData(
+        icon: Icons.delete_outline_rounded,
+        color: AppColors.error,
+        title: 'Delete Account',
+        subtitle: 'Permanently delete your account',
+        onTap: () => _showDeleteAccountDialog(context),
+      ),
     ]);
   }
 
   Widget _buildPreferencesSettings(BuildContext context) {
     return _buildGroup(context, [
-      _SettingsTileData(icon: Icons.dark_mode_outlined, color: AppColors.success, title: 'Appearance', subtitle: 'Choose light or dark mode', onTap: () => context.push('/appearance')),
-      _SettingsTileData(icon: Icons.accessibility_new_rounded, color: AppColors.info, title: 'Accessibility', subtitle: 'Text size and display options', onTap: () => context.push('/accessibility')),
-      _SettingsTileData(icon: Icons.favorite_border_rounded, color: AppColors.primary, title: 'Health Preferences', subtitle: 'Units and health settings', onTap: () => context.push('/health-preferences')),
+      _SettingsTileData(
+        icon: Icons.dark_mode_outlined,
+        color: AppColors.success,
+        title: 'Appearance',
+        subtitle: 'Choose light or dark mode',
+        onTap: () => context.push('/appearance'),
+      ),
+      _SettingsTileData(
+        icon: Icons.accessibility_new_rounded,
+        color: AppColors.info,
+        title: 'Accessibility',
+        subtitle: 'Text size and display options',
+        onTap: () => context.push('/accessibility'),
+      ),
+      _SettingsTileData(
+        icon: Icons.favorite_border_rounded,
+        color: AppColors.primary,
+        title: 'Health Preferences',
+        subtitle: 'Units and health settings',
+        onTap: () => context.push('/health-preferences'),
+      ),
     ]);
   }
 
   Widget _buildSupportLegalSettings(BuildContext context) {
     return _buildGroup(context, [
-      _SettingsTileData(icon: Icons.headset_mic_outlined, color: AppColors.info, title: 'Help & Support', subtitle: 'FAQs and contact support', onTap: () => context.push('/help-support')),
-      _SettingsTileData(icon: Icons.description_outlined, color: AppColors.success, title: 'Terms of Service', subtitle: 'Read our terms', onTap: () => context.push('/terms-of-service')),
-      _SettingsTileData(icon: Icons.verified_user_outlined, color: AppColors.primary, title: 'Privacy Policy', subtitle: 'How we protect your data', onTap: () => context.push('/privacy-policy')),
-      _SettingsTileData(icon: Icons.info_outline_rounded, color: AppColors.warning, title: 'About Premon Care', subtitle: 'App version 2.4.1', onTap: () => context.push('/about')),
+      _SettingsTileData(
+        icon: Icons.headset_mic_outlined,
+        color: AppColors.info,
+        title: 'Help & Support',
+        subtitle: 'FAQs and contact support',
+        onTap: () => context.push('/help-support'),
+      ),
+      _SettingsTileData(
+        icon: Icons.description_outlined,
+        color: AppColors.success,
+        title: 'Terms of Service',
+        subtitle: 'Read our terms',
+        onTap: () => context.push('/terms-of-service'),
+      ),
+      _SettingsTileData(
+        icon: Icons.verified_user_outlined,
+        color: AppColors.primary,
+        title: 'Privacy Policy',
+        subtitle: 'How we protect your data',
+        onTap: () => context.push('/privacy-policy'),
+      ),
+      _SettingsTileData(
+        icon: Icons.info_outline_rounded,
+        color: AppColors.warning,
+        title: 'About Premon Care',
+        subtitle: 'App version 2.4.1',
+        onTap: () => context.push('/about'),
+      ),
     ]);
   }
 
@@ -288,10 +476,19 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
   }) {
     return Column(
       children: [
-        if (isDivider) Divider(height: 1, indent: 64, endIndent: 20, color: AppColors.dividerOf(context)),
+        if (isDivider)
+          Divider(
+            height: 1,
+            indent: 64,
+            endIndent: 20,
+            color: AppColors.dividerOf(context),
+          ),
         ListTile(
           onTap: onTap ?? () {},
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 8,
+          ),
           leading: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -300,18 +497,43 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
             ),
             child: Icon(icon, color: color, size: 22),
           ),
-          title: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context))),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Text(subtitle, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context))),
+            child: Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryOf(context),
+              ),
+            ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (trailingText != null)
-                Text(trailingText, style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w800)),
+                Text(
+                  trailingText,
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               const SizedBox(width: 4),
-              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textTertiaryOf(context),
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -336,9 +558,23 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Your privacy is our priority', style: TextStyle(color: AppColors.success, fontSize: 13, fontWeight: FontWeight.w800)),
+                Text(
+                  'Your privacy is our priority',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text('We use industry-standard encryption to protect your data.', style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w600)),
+                Text(
+                  'We use industry-standard encryption to protect your data.',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
@@ -365,7 +601,9 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
             ),
             decoration: BoxDecoration(
               color: AppColors.surfaceOf(ctx),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(28),
+              ),
             ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
@@ -392,7 +630,11 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                           color: AppColors.error.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.warning_rounded, color: AppColors.error, size: 24),
+                        child: const Icon(
+                          Icons.warning_rounded,
+                          color: AppColors.error,
+                          size: 24,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Text(
@@ -412,7 +654,9 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                     decoration: BoxDecoration(
                       color: AppColors.error.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.error.withValues(alpha: 0.15)),
+                      border: Border.all(
+                        color: AppColors.error.withValues(alpha: 0.15),
+                      ),
                     ),
                     child: Text(
                       'You are about to permanently delete your account. This action is irreversible and all data will be lost.',
@@ -434,12 +678,30 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const _DeleteSummaryItem(icon: Icons.person_outline_rounded, text: 'Your profile and personal information'),
-                  const _DeleteSummaryItem(icon: Icons.calendar_today_rounded, text: 'All appointments and consultation history'),
-                  const _DeleteSummaryItem(icon: Icons.folder_outlined, text: 'Medical records and uploaded documents'),
-                  const _DeleteSummaryItem(icon: Icons.chat_bubble_outline_rounded, text: 'All messages and chat history'),
-                  const _DeleteSummaryItem(icon: Icons.receipt_long_rounded, text: 'Payment records and transaction history'),
-                  const _DeleteSummaryItem(icon: Icons.star_border_rounded, text: 'Reviews and ratings you\'ve given'),
+                  const _DeleteSummaryItem(
+                    icon: Icons.person_outline_rounded,
+                    text: 'Your profile and personal information',
+                  ),
+                  const _DeleteSummaryItem(
+                    icon: Icons.calendar_today_rounded,
+                    text: 'All appointments and consultation history',
+                  ),
+                  const _DeleteSummaryItem(
+                    icon: Icons.folder_outlined,
+                    text: 'Medical records and uploaded documents',
+                  ),
+                  const _DeleteSummaryItem(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    text: 'All messages and chat history',
+                  ),
+                  const _DeleteSummaryItem(
+                    icon: Icons.receipt_long_rounded,
+                    text: 'Payment records and transaction history',
+                  ),
+                  const _DeleteSummaryItem(
+                    icon: Icons.star_border_rounded,
+                    text: 'Reviews and ratings you\'ve given',
+                  ),
                   const SizedBox(height: 20),
                   Text(
                     'Type your email to confirm:',
@@ -476,7 +738,10 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                           fontWeight: FontWeight.w500,
                         ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -485,7 +750,11 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         'Email does not match',
-                        style: TextStyle(fontSize: 11, color: AppColors.error, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.error,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   const SizedBox(height: 24),
@@ -498,8 +767,12 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                             Navigator.pop(ctx);
                           },
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: AppColors.borderLightOf(ctx)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            side: BorderSide(
+                              color: AppColors.borderLightOf(ctx),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           child: Text(
@@ -519,27 +792,37 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                               ? () async {
                                   Navigator.pop(ctx);
                                   try {
-                                    final currentUser = supabase.auth.currentUser;
+                                    final currentUser =
+                                        supabase.auth.currentUser;
                                     if (currentUser != null) {
-                                      // GDPR: Soft-delete via server API
-                                      final baseUrl = supabase.rest.url.replaceAll('/rest/v1', '');
-                                      final apiKey = supabase.rest.apiKey;
                                       // Use Supabase RPC for soft-delete
-                                      await supabase.rpc('soft_delete_user', params: {
-                                        'p_user_id': currentUser.id,
-                                        'p_reason': 'User requested account deletion',
-                                      });
+                                      await supabase.rpc(
+                                        'soft_delete_user',
+                                        params: {
+                                          'p_user_id': currentUser.id,
+                                          'p_reason':
+                                              'User requested account deletion',
+                                        },
+                                      );
                                     }
                                     await performLogout();
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Account scheduled for deletion in 30 days.')),
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Account scheduled for deletion in 30 days.',
+                                          ),
+                                        ),
                                       );
                                       context.go('/login');
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(content: Text('Error: $e')),
                                       );
                                     }
@@ -548,8 +831,12 @@ class _SettingsPrivacyCenterScreenState extends ConsumerState<SettingsPrivacyCen
                               : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.error,
-                            disabledBackgroundColor: AppColors.error.withValues(alpha: 0.3),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            disabledBackgroundColor: AppColors.error.withValues(
+                              alpha: 0.3,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           child: const Text(
