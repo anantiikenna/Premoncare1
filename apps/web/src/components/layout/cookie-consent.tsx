@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { ShieldCheck, Cookie, Info } from 'lucide-react'
+import { Cookie } from 'lucide-react'
+import { getConsent, setConsent } from '@/lib/cookie-consent'
 
 export function CookieConsent() {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    const consent = localStorage.getItem('premon_cookie_consent')
+    const consent = getConsent()
     if (!consent) {
-      // Trigger short delay for smooth fade in entrance
       const timer = setTimeout(() => {
         setIsOpen(true)
       }, 1500)
@@ -19,21 +19,23 @@ export function CookieConsent() {
   }, [])
 
   const handleAccept = () => {
-    localStorage.setItem('premon_cookie_consent', 'accepted')
+    setConsent('accepted')
     setIsOpen(false)
+    window.dispatchEvent(new CustomEvent('cookie-consent', { detail: 'accepted' }))
   }
 
   const handleReject = () => {
-    localStorage.setItem('premon_cookie_consent', 'rejected')
+    setConsent('rejected')
     setIsOpen(false)
+    window.dispatchEvent(new CustomEvent('cookie-consent', { detail: 'rejected' }))
   }
 
   if (!isOpen) return null
 
   return (
-    <div 
-      role="region" 
-      aria-label="Cookie Consent Banner" 
+    <div
+      role="region"
+      aria-label="Cookie Consent Banner"
       className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-50 animate-in-fade"
     >
       <div className="glass-panel border-none p-6 rounded-[2.5rem] bg-white/70 backdrop-blur-xl shadow-2xl flex flex-col gap-5 border border-white/40">
@@ -46,7 +48,7 @@ export function CookieConsent() {
               Cookie Consent <span className="text-[10px] font-black bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full lowercase tracking-normal">secure</span>
             </h4>
             <p className="text-xs text-slate-500 font-bold leading-relaxed pt-1">
-              We value your privacy. We use standard session tokens and security telemetry logs to authenticate clinical visits, verify payments, and keep video streams functional.
+              We value your privacy. We use essential session tokens for authentication and clinical security. If you accept, anonymised analytics help us improve the platform. You can change your preference at any time in Settings.
             </p>
           </div>
         </div>
