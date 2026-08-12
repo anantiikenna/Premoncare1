@@ -14,7 +14,8 @@ This project is structured as a **Monorepo (npm workspaces)** with frontend clie
 The core Next.js project uses `apps/web/src/proxy.ts` (formerly `middleware.ts`) for session management and route protection.
 
 ## Context for Agents
-- **Session Handling**: Use `apps/web/src/lib/supabase-middleware.ts` within the Next.js `proxy` function.
+- **Session Handling**: Next.js uses `apps/web/src/proxy.ts` -> `apps/web/src/lib/supabase-middleware.ts`. **Performance Rule**: Middleware matcher must exclude `/api/` routes (since `withSecurity` protects them). Middleware caches the user role in a `premon_role` cookie to eliminate redundant database queries on page loads. Agents must preserve this caching architecture.
+- **Inactivity Timeout**: Both Web (`InactivityProvider`) and Mobile (`InactivityDetector`) implement a strict 15-minute inactivity auto-logout to comply with HIPAA. The timers are tied to active Supabase sessions and reset via user pointer/keyboard events.
 - **API Endpoints**: Any core API route (`apps/web/src/app/api/...`) MUST be wrapped in the `withSecurity` higher-order function from `apps/web/src/lib/security.ts` to enforce Rate Limiting, strict CORS, and Role-Based Access checking. Never read sensitive IDs directly from the request body—extract them securely from the `sessionUser` parameter.
 - **Input Validation**: Use `zod` and `isomorphic-dompurify` integrated in `security.ts` to guarantee payload sanitization against server-side XSS.
 - **Data Fetching**: Prefer Server Components in the web app with `createServerClient` from `apps/web/src/lib/supabase-server.ts`.
@@ -109,6 +110,7 @@ Premoncare handles **Protected Health Information (PHI)**: medical records, pres
 | Requirement | Current Status | Implementation |
 |---|---|---|
 | **Access Controls** | Implemented | RLS on every table; role-based `patient`/`doctor`/`admin` enforced at DB + API + UI layers |
+| **Inactivity Timeout** | Implemented | 15-minute auto-logout on Web and Mobile platforms (HIPAA Addressable Spec) |
 | **Audit Logging** | Implemented | `audit_logs` table with `log_phi_access()` RPC for medical records, prescriptions, messages. User-initiated actions (deletion, export) logged |
 | **Encryption in Transit** | Implemented | Supabase enforces TLS on all connections |
 | **Encryption at Rest** | Inherited | Supabase Storage encrypts at rest (AES-256). Verify via Supabase dashboard |
