@@ -108,7 +108,7 @@ final goRouter = GoRouter(
 
     if (FlavorConfig.isAdmin) {
       if (!loggedIn) {
-        return isAdminLogin ? null : '/admin-login';
+        return (isAdminLogin || state.matchedLocation == '/otp-verification') ? null : '/admin-login';
       }
 
       final role = await getUserRole();
