@@ -38,7 +38,8 @@ async function runTest() {
 
   console.log('📌 FCM Token found:', profile.fcm_token.substring(0, 20) + '...');
 
-  const { messaging } = await import('../src/lib/firebase-admin');
+  const { getMessaging } = await import('../src/lib/firebase-admin');
+  const messaging = getMessaging();
 
   if (!messaging) {
     console.error('Firebase Admin SDK is not initialized correctly. Check .env.local keys.');

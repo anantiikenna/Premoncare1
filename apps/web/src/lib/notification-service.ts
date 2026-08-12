@@ -1,5 +1,5 @@
 import { createClient } from './supabase-server';
-import { messaging } from './firebase-admin';
+import { getMessaging } from './firebase-admin';
 import { NotificationPayload } from './types';
 import { sendLoopsEmail } from './loops-service';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
@@ -75,7 +75,13 @@ export async function sendNotification(payload: NotificationPayload) {
       .eq('id', payload.user_id)
       .single();
 
-    if (profile?.fcm_token && messaging) {
+    if (profile?.fcm_token) {
+      const messaging = getMessaging();
+      if (!messaging) {
+        await updateStatus('skipped');
+        return { success: true, dbId: dbRecord?.id };
+      }
+
       const message = {
         notification: {
           title: payload.title,

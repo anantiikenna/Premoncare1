@@ -1,34 +1,30 @@
 import * as admin from 'firebase-admin';
 
-/**
- * Initialize Firebase Admin SDK
- * Uses environment variables for security.
- * Singleton pattern for Next.js development.
- */
+let _app: admin.app.App | null = null;
 
-const getFirebaseAdmin = () => {
+function getFirebaseAdmin(): admin.app.App | null {
+  if (_app) return _app;
+
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  // Handle escaped newlines in private key if they were pasted as literals
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
   if (!projectId || !clientEmail || !privateKey) {
-    console.warn('Firebase Admin credentials missing. FCM will be disabled.');
     return null;
   }
 
   if (admin.apps.length > 0) {
-    return admin.app();
+    _app = admin.apps[0]!;
+    return _app;
   }
 
-  return admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
+  _app = admin.initializeApp({
+    credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
   });
-};
+  return _app;
+}
 
-export const firebaseAdmin = getFirebaseAdmin();
-export const messaging = firebaseAdmin ? firebaseAdmin.messaging() : null;
+export function getMessaging(): admin.messaging.Messaging | null {
+  const app = getFirebaseAdmin();
+  return app ? app.messaging() : null;
+}
