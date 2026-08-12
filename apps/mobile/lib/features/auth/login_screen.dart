@@ -78,18 +78,6 @@ class _LoginScreenState extends State<LoginScreen>
         return;
       }
 
-      if (profile['role'] == 'admin') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Admin accounts cannot access the patient/doctor app. Please use the Admin app.',
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        return;
-      }
-
       // Check rate limit before sending OTP (non-blocking if table doesn't exist)
       try {
         final limitResult = await supabase
