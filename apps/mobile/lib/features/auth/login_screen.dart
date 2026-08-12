@@ -78,6 +78,18 @@ class _LoginScreenState extends State<LoginScreen>
         return;
       }
 
+      if (profile['role'] == 'admin') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No account found with this email. Please sign up first.',
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+
       // Check rate limit before sending OTP (non-blocking if table doesn't exist)
       try {
         final limitResult = await supabase
