@@ -11,6 +11,7 @@ import 'core/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'core/services/notification_service.dart';
+import 'core/widgets/inactivity_detector.dart';
 
 Future<void> mainCommon() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,11 @@ class PremonCareApp extends ConsumerWidget {
       themeMode: themeMode,
       routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return InactivityDetector(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 

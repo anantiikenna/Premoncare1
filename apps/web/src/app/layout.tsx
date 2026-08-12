@@ -6,6 +6,8 @@ import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { Toaster } from "sonner";
 import { CookieConsent } from "@/components/layout/cookie-consent";
 
+import { InactivityProvider } from "@/components/providers/inactivity-provider";
+
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -57,7 +59,9 @@ export default function RootLayout({
       >
         <PostHogProvider>
           <QueryProvider>
-            {children}
+            <InactivityProvider>
+              {children}
+            </InactivityProvider>
           </QueryProvider>
         </PostHogProvider>
         <Toaster position="top-center" richColors theme="light" />
