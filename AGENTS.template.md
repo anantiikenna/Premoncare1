@@ -65,9 +65,10 @@ raw handler → reads userId from request body → trusts client-supplied data
 ```
 
 ### Session Handling
-- Web: Use the proxy/middleware to validate sessions on every request
+- Web: Use the proxy/middleware to validate sessions on every request. **Performance Rule**: Exclude API routes from middleware matcher and cache user roles in cookies to prevent redundant DB queries.
 - Mobile: Use Supabase client with anon key + RLS only
 - Never store session tokens in localStorage on web (use httpOnly cookies)
+- **Inactivity Timeout**: Implement an auto-logout mechanism (e.g., 15 minutes) based on user interaction (pointer/keyboard events) to comply with healthcare and security standards.
 
 ---
 
@@ -78,6 +79,7 @@ raw handler → reads userId from request body → trusts client-supplied data
 | Requirement | Status | Notes |
 |---|---|---|
 | Access Controls | [Implemented/Partial/Needed] | [How] |
+| Inactivity Timeout | [Implemented/Needed] | [Auto-logout duration, e.g., 15 mins] |
 | Encryption in Transit | [Implemented] | [TLS] |
 | Encryption at Rest | [Inherited/Implemented] | [Provider] |
 | Audit Logging | [Implemented/Partial/Needed] | [What's logged] |
