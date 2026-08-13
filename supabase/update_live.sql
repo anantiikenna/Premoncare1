@@ -1612,3 +1612,365 @@ REVOKE EXECUTE ON FUNCTION public.update_forum_reply_count() FROM authenticated;
 -- SELECT cron.schedule('cleanup-device-sessions', '0 3 * * *', 'SELECT cleanup_old_device_sessions()');
 -- SELECT cron.schedule('purge-deleted-accounts', '0 4 * * *', 'SELECT purge_deleted_accounts()');
 -- SELECT cron.schedule('sweep-offline-doctors', '* * * * *', 'SELECT sweep_offline_doctors()');
+
+-- ============================================================
+-- LIVE DB MIGRATION PATCH (2026-08-13)
+-- Fills gaps between schema.sql and update_live.sql
+-- Safe to re-run on any live Supabase instance
+-- ============================================================
+
+-- ── 1. Missing profile columns (safe ADD IF NOT EXISTS) ──────
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS specializations_list text[] DEFAULT '{}'::text[];
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS biometric_enabled boolean DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS two_factor_enabled boolean DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS medical_records_shared_by_default boolean DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_guest boolean DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS rejection_reason text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dob date;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS gender text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS blood_group text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS next_of_kin_name text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS next_of_kin_phone text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS emergency_contact_name text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS emergency_contact_phone text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS identity_document_back_url text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS live_selfie_url text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address_document_url text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS hourly_rate numeric DEFAULT 0;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS negotiated_fee numeric DEFAULT 0;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS verified_by uuid REFERENCES profiles(id);
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS identity_document_url text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS identity_document_front_url text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS identity_type text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS medical_license_number text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS languages_spoken text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS preferred_consultation_types text[] DEFAULT '{}'::text[];
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS deleted_at timestamp with time zone;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS deletion_reason text;
+
+-- ── 2. Missing appointments columns ──────────────────────────
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS accepted_at timestamp with time zone;
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS meeting_link text;
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS reminder_sent boolean DEFAULT false;
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS is_doctor_approved boolean DEFAULT false;
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS is_patient_approved boolean DEFAULT true;
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS consultation_mode text;
+ALTER TABLE public.appointments ADD COLUMN IF NOT EXISTS duration_minutes integer DEFAULT 15;
+
+-- Add consultation_mode CHECK constraint if missing
+DO $$ BEGIN
+  ALTER TABLE public.appointments
+    ADD CONSTRAINT appointments_consultation_mode_check
+    CHECK (consultation_mode IN ('video', 'audio', 'text', 'in_person'));
+EXCEPTION WHEN duplicate_object THEN
+  RAISE NOTICE 'appointments_consultation_mode_check already exists, skipping';
+END $$;
+
+-- ── 3. Ensure payment_status enum has 'disputed' ─────────────
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'disputed'
+    AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'payment_status'))
+  THEN
+    ALTER TYPE public.payment_status ADD VALUE 'disputed' AFTER 'rejected';
+  END IF;
+END $$;
+
+-- ── 4. admin_notification_settings table (full idempotent create) ──
+CREATE TABLE IF NOT EXISTS public.admin_notification_settings (
+  admin_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE PRIMARY KEY,
+  alert_types text[] DEFAULT '{}'::text[],
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE public.admin_notification_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Admins can manage notification settings" ON public.admin_notification_settings;
+CREATE POLICY "Admins can manage notification settings"
+  ON public.admin_notification_settings FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Grants
+GRANT SELECT ON public.admin_notification_settings TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.admin_notification_settings TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.admin_notification_settings TO service_role;
+
+-- Add to realtime publication
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'admin_notification_settings')
+  THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.admin_notification_settings;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping publication add for admin_notification_settings: %', SQLERRM;
+END $$;
+
+-- ── 5. device_sessions: add INSERT + UPDATE RLS ───────────────
+DROP POLICY IF EXISTS "Users can insert own device sessions" ON public.device_sessions;
+DROP POLICY IF EXISTS "Users can update own device sessions" ON public.device_sessions;
+DROP POLICY IF EXISTS "Admins can view all device sessions" ON public.device_sessions;
+
+CREATE POLICY "Users can insert own device sessions"
+  ON public.device_sessions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own device sessions"
+  ON public.device_sessions FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can view all device sessions"
+  ON public.device_sessions FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Grants for device_sessions (idempotent)
+GRANT SELECT ON public.device_sessions TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.device_sessions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.device_sessions TO service_role;
+
+-- ── 6. payouts: add INSERT RLS for admins ────────────────────
+DROP POLICY IF EXISTS "Admins can insert payouts" ON public.payouts;
+CREATE POLICY "Admins can insert payouts"
+  ON public.payouts FOR INSERT
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Grants for payouts (idempotent)
+GRANT SELECT ON public.payouts TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payouts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payouts TO service_role;
+
+-- ── 7. refunds: add INSERT RLS for patients ──────────────────
+DROP POLICY IF EXISTS "Patients can create refund requests" ON public.refunds;
+CREATE POLICY "Patients can create refund requests"
+  ON public.refunds FOR INSERT
+  WITH CHECK (auth.uid() = patient_id);
+
+-- Grants for refunds (idempotent)
+GRANT SELECT ON public.refunds TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.refunds TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.refunds TO service_role;
+
+-- ── 8. blocked_users: grants (idempotent) ────────────────────
+GRANT SELECT ON public.blocked_users TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.blocked_users TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.blocked_users TO service_role;
+
+-- ── 9. notification_channels_config: grants (idempotent) ─────
+GRANT SELECT ON public.notification_channels_config TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.notification_channels_config TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.notification_channels_config TO service_role;
+
+-- ── 10. audit_logs: add DELETE policy for admins ─────────────
+DROP POLICY IF EXISTS "Admins can delete audit logs" ON public.audit_logs;
+-- NOTE: Audit logs should NEVER be deleted per HIPAA (7-year retention).
+-- This policy is intentionally absent — deletion is blocked even for admins.
+
+-- ── 11. Missing notifications policy for SECURITY DEFINER insert ──
+-- SECURITY DEFINER functions (approve_payment, etc.) bypass RLS, so they
+-- can insert notifications for any user_id. This policy covers explicit
+-- admin insertions from the dashboard.
+DROP POLICY IF EXISTS "Admins can create notifications" ON public.notifications;
+CREATE POLICY "Admins can create notifications"
+  ON public.notifications FOR INSERT
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── 12. forum_categories: idempotent create ──────────────────
+CREATE TABLE IF NOT EXISTS public.forum_categories (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT now(),
+  name text NOT NULL,
+  description text,
+  icon_name text,
+  is_active boolean DEFAULT true
+);
+
+ALTER TABLE public.forum_categories ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can view active categories" ON public.forum_categories;
+CREATE POLICY "Anyone can view active categories"
+  ON public.forum_categories FOR SELECT
+  USING (is_active = true);
+
+DROP POLICY IF EXISTS "Admins can manage categories" ON public.forum_categories;
+CREATE POLICY "Admins can manage categories"
+  ON public.forum_categories FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+GRANT SELECT ON public.forum_categories TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_categories TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_categories TO service_role;
+
+-- ── 13. forum_posts: idempotent create ───────────────────────
+CREATE TABLE IF NOT EXISTS public.forum_posts (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  author_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  category_id uuid REFERENCES forum_categories(id) ON DELETE SET NULL,
+  title text NOT NULL,
+  content text NOT NULL,
+  attachments text[],
+  is_anonymous boolean DEFAULT false,
+  is_ask_doctor_queue boolean DEFAULT false,
+  status forum_post_status DEFAULT 'approved'::forum_post_status,
+  upvotes integer DEFAULT 0,
+  view_count integer DEFAULT 0
+);
+
+ALTER TABLE public.forum_posts ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT ON public.forum_posts TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_posts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_posts TO service_role;
+
+-- ── 14. forum_replies: idempotent create ─────────────────────
+CREATE TABLE IF NOT EXISTS public.forum_replies (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  post_id uuid REFERENCES forum_posts(id) ON DELETE CASCADE NOT NULL,
+  author_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  content text NOT NULL,
+  attachments text[],
+  is_anonymous boolean DEFAULT false,
+  replied_as_doctor boolean DEFAULT false,
+  helpful_votes integer DEFAULT 0,
+  is_accepted_answer boolean DEFAULT false,
+  status forum_post_status DEFAULT 'approved'::forum_post_status
+);
+
+ALTER TABLE public.forum_replies ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT ON public.forum_replies TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_replies TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_replies TO service_role;
+
+-- ── 15. forum_reports: idempotent create ─────────────────────
+CREATE TABLE IF NOT EXISTS public.forum_reports (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT now(),
+  reporter_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  post_id uuid REFERENCES forum_posts(id) ON DELETE CASCADE,
+  reply_id uuid REFERENCES forum_replies(id) ON DELETE CASCADE,
+  reason text NOT NULL,
+  status forum_report_status DEFAULT 'pending'::forum_report_status,
+  resolved_at timestamp with time zone,
+  resolved_by uuid REFERENCES profiles(id)
+);
+
+ALTER TABLE public.forum_reports ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT ON public.forum_reports TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_reports TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_reports TO service_role;
+
+-- ── 16. forum_saves: idempotent create ───────────────────────
+CREATE TABLE IF NOT EXISTS public.forum_saves (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT now(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  post_id uuid REFERENCES forum_posts(id) ON DELETE CASCADE NOT NULL,
+  UNIQUE(user_id, post_id)
+);
+
+ALTER TABLE public.forum_saves ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage own saves" ON public.forum_saves;
+CREATE POLICY "Users can manage own saves"
+  ON public.forum_saves FOR ALL
+  USING (auth.uid() = user_id);
+
+GRANT SELECT ON public.forum_saves TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_saves TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_saves TO service_role;
+
+-- ── 17. forum_follows: idempotent create ─────────────────────
+CREATE TABLE IF NOT EXISTS public.forum_follows (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT now(),
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  post_id uuid REFERENCES forum_posts(id) ON DELETE CASCADE,
+  category_id uuid REFERENCES forum_categories(id) ON DELETE CASCADE,
+  CHECK ((post_id IS NOT NULL AND category_id IS NULL) OR (post_id IS NULL AND category_id IS NOT NULL))
+);
+
+ALTER TABLE public.forum_follows ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage own follows" ON public.forum_follows;
+CREATE POLICY "Users can manage own follows"
+  ON public.forum_follows FOR ALL
+  USING (auth.uid() = user_id);
+
+GRANT SELECT ON public.forum_follows TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_follows TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.forum_follows TO service_role;
+
+-- ── 18. Realtime publication additions (all forum tables) ─────
+DO $$
+DECLARE t text;
+BEGIN
+  FOR t IN SELECT unnest(ARRAY[
+    'forum_posts', 'forum_replies', 'forum_reports', 'forum_saves', 'forum_follows',
+    'payouts', 'refunds', 'disputes', 'blocked_users',
+    'notification_channels_config', 'admin_notification_settings',
+    'device_sessions', 'login_attempts'
+  ]) LOOP
+    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables
+      WHERE pubname = 'supabase_realtime' AND tablename = t)
+    THEN
+      EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', t);
+    END IF;
+  END LOOP;
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Skipping realtime publication additions: %', SQLERRM;
+END $$;
+
+-- ── 19. Missing performance indexes ──────────────────────────
+CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles (role);
+CREATE INDEX IF NOT EXISTS idx_profiles_specialty ON public.profiles (specialty) WHERE specialty IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_is_online ON public.profiles (is_online) WHERE is_online = true;
+CREATE INDEX IF NOT EXISTS idx_appointments_patient_id ON public.appointments (patient_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_doctor_id ON public.appointments (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_status ON public.appointments (status);
+CREATE INDEX IF NOT EXISTS idx_appointments_date ON public.appointments (appointment_date);
+CREATE INDEX IF NOT EXISTS idx_appointments_emergency ON public.appointments (doctor_id, created_at DESC) WHERE is_emergency = true;
+CREATE INDEX IF NOT EXISTS idx_payments_user_id ON public.payments (user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON public.payments (status);
+CREATE INDEX IF NOT EXISTS idx_payments_recipient_id ON public.payments (recipient_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications (user_id, created_at DESC) WHERE is_read = false;
+CREATE INDEX IF NOT EXISTS idx_forum_posts_status ON public.forum_posts (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_forum_posts_category ON public.forum_posts (category_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_forum_replies_post ON public.forum_replies (post_id);
+CREATE INDEX IF NOT EXISTS idx_messages_thread ON public.messages (sender_id, receiver_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_medical_records_patient ON public.medical_records (patient_id);
+
+-- ── 20. Ensure REPLICA IDENTITY FULL on all tables in realtime ──
+DO $$ BEGIN ALTER TABLE public.payouts REPLICA IDENTITY FULL; EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'Skipping: %', SQLERRM; END $$;
+DO $$ BEGIN ALTER TABLE public.refunds REPLICA IDENTITY FULL; EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'Skipping: %', SQLERRM; END $$;
+DO $$ BEGIN ALTER TABLE public.disputes REPLICA IDENTITY FULL; EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'Skipping: %', SQLERRM; END $$;
+DO $$ BEGIN ALTER TABLE public.device_sessions REPLICA IDENTITY FULL; EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'Skipping: %', SQLERRM; END $$;
+
+-- ── 21. Final verification selects ───────────────────────────
+SELECT 'profiles columns' AS check_name,
+  COUNT(*) AS column_count
+FROM information_schema.columns
+WHERE table_name = 'profiles';
+
+SELECT 'appointments columns' AS check_name,
+  string_agg(column_name, ', ' ORDER BY ordinal_position) AS columns
+FROM information_schema.columns
+WHERE table_name = 'appointments'
+  AND column_name IN ('metadata','is_emergency','total_amount','accepted_at','consultation_mode');
+
+SELECT 'realtime tables' AS check_name,
+  COUNT(*) AS table_count
+FROM pg_publication_tables
+WHERE pubname = 'supabase_realtime';
+
+SELECT 'rls enabled tables' AS check_name,
+  COUNT(*) AS table_count
+FROM pg_tables
+WHERE schemaname = 'public'
+  AND rowsecurity = true;
+
