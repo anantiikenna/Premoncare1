@@ -40,7 +40,12 @@ export default async function Home() {
   let featuredDoctors: DoctorListing[] = [];
   try {
     const supabase = await createClient();
-    const { data: doctors } = await getDoctorsWithRatings(supabase);
+    // Race the DB call against a 4-second timeout so the page never hangs
+    const timeoutPromise = new Promise<{ data: null }>((resolve) =>
+      setTimeout(() => resolve({ data: null }), 4000)
+    );
+    const fetchPromise = getDoctorsWithRatings(supabase);
+    const { data: doctors } = await Promise.race([fetchPromise, timeoutPromise]);
     featuredDoctors = doctors?.slice(0, 3) || [];
   } catch (err) {
     console.error('[Home] Failed to fetch doctors:', err);
