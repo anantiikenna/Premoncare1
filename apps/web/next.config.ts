@@ -35,9 +35,9 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              // SECURITY: Removed 'unsafe-eval' — not needed in production Next.js builds.
-              // If dev mode breaks, use next.config.ts devCsp override instead.
-              "script-src 'self'",
+              // SECURITY: Added 'unsafe-inline' and 'unsafe-eval' to allow Next.js streaming (Suspense replacements) and dev mode to function.
+              // Without 'unsafe-inline', Next.js cannot stream the actual page content to replace loading.tsx.
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               // SECURITY: 'unsafe-inline' retained only for styles (TailwindCSS inline styles).
               // If migrating to CSS Modules or styled-components, remove this.
               "style-src 'self' 'unsafe-inline'",
