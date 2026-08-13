@@ -68,7 +68,7 @@ export async function updateSession(request: NextRequest) {
             role = profile?.role || 'patient'
             
             // Cache role in cookie to skip DB query on next request
-            supabaseResponse.cookies.set('premon_role', role, {
+            supabaseResponse.cookies.set('premon_role', role as string, {
                 path: '/',
                 maxAge: 60 * 60 * 24 * 7, // 1 week
                 httpOnly: false,
