@@ -21,35 +21,13 @@ import {
   Instagram,
   Linkedin
 } from "lucide-react";
-import { getDoctorsWithRatings } from "@/lib/queries-base";
-import { createClient } from "@/lib/supabase-server";
 import { Header } from "@/components/layout/header";
 
-interface DoctorListing {
-  id: string;
-  full_name: string;
-  avatar_url?: string;
-  specialty?: string;
-  experience_years?: number;
-  clinic_address?: string;
-  consultation_fee?: number;
-  reviews?: { rating: number }[];
-}
+// Pre-render at build time; silently revalidate in the background every hour.
+// Users always get instant static HTML — no DB call at request time.
+export const revalidate = 3600;
 
 export default async function Home() {
-  let featuredDoctors: DoctorListing[] = [];
-  try {
-    const supabase = await createClient();
-    // Race the DB call against a 4-second timeout so the page never hangs
-    const timeoutPromise = new Promise<{ data: null }>((resolve) =>
-      setTimeout(() => resolve({ data: null }), 4000)
-    );
-    const fetchPromise = getDoctorsWithRatings(supabase);
-    const { data: doctors } = await Promise.race([fetchPromise, timeoutPromise]);
-    featuredDoctors = doctors?.slice(0, 3) || [];
-  } catch (err) {
-    console.error('[Home] Failed to fetch doctors:', err);
-  }
 
   const doctorPortraits = [
     "/doctor_portrait_01_1775234120792.png",
