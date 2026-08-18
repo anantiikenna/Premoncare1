@@ -168,9 +168,10 @@ export function AdminPaymentReview() {
                                                 <button
                                                     onClick={async () => {
                                                         try {
+                                                            const url = p.receipt_url!
                                                             const { data, error } = await supabase.storage
                                                                 .from('payment-receipts')
-                                                                .createSignedUrl(p.receipt_url, 60)
+                                                                .createSignedUrl(url, 60)
                                                             if (error) throw error
                                                             if (data?.signedUrl) window.open(data.signedUrl, '_blank')
                                                         } catch (err: unknown) {

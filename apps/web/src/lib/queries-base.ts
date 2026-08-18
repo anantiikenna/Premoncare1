@@ -685,7 +685,7 @@ export async function getAdminUserDetail(supabase: SupabaseClient, userId: strin
     const [profileRes, appointmentsRes, paymentsRes, medProfileRes, prescriptionsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).single(),
         supabase.from('appointments').select(`
-            id, status, appointment_date, reason,
+            id, created_at, status, appointment_date, reason, doctor_id, patient_id,
             doctor:profiles!appointments_doctor_id_fkey(full_name, specialty),
             patient:profiles!appointments_patient_id_fkey(full_name)
         `).or(`patient_id.eq.${userId},doctor_id.eq.${userId}`).order('appointment_date', { ascending: false }),
@@ -698,7 +698,7 @@ export async function getAdminUserDetail(supabase: SupabaseClient, userId: strin
         profile: profileRes.data,
         appointments: appointmentsRes.data || [],
         payments: paymentsRes.data || [],
-        medicalProfile: medProfileRes.data,
+        medical_profile: medProfileRes.data,
         prescriptions: prescriptionsRes.data || []
     }
 }

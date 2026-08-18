@@ -512,7 +512,7 @@ function AdminChatPanel({ doctorId, adminId, doctorName, onClose }: { doctorId: 
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'fee_negotiation_messages', filter: `doctor_id=eq.${doctorId}` },
-                (payload) => setMessages(cur => [...cur, payload.new])
+                (payload) => setMessages(cur => [...cur, payload.new as FeeNegotiationMessage])
             )
             .subscribe()
 

@@ -139,6 +139,7 @@ export interface Profile {
     account_name?: string;
     account_number?: string;
     created_at: string;
+    last_seen?: string;
     auditor?: { full_name: string };
 }
 
@@ -228,8 +229,8 @@ export interface AdminAppointment {
     reason?: string;
     doctor_id: string;
     patient_id: string;
-    doctor?: { full_name: string; avatar_url?: string };
-    patient?: { full_name: string; avatar_url?: string };
+    doctor?: { full_name: string; specialty?: string }[] | { full_name: string; specialty?: string };
+    patient?: { full_name: string }[] | { full_name: string };
 }
 
 export interface AdminPayment {
@@ -240,10 +241,15 @@ export interface AdminPayment {
     status: 'pending' | 'approved' | 'rejected';
     category?: string;
     proof_url?: string;
+    receipt_url?: string;
+    transaction_id?: string;
     rejection_reason?: string;
     processed_by?: string;
     user_id: string;
     recipient_id?: string;
+    user?: { full_name: string; role?: string };
+    recipient?: { full_name: string };
+    auditor?: { full_name: string };
 }
 
 export interface AdminPrescription {

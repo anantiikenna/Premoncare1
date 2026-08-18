@@ -262,38 +262,42 @@ export function UserDetailDrawer({ userId, userName, userRole, requestedRole, is
 
                             {/* Medical Profile Tab */}
                             <TabsContent value="medical" className="mt-4">
-                                {!detail.medicalProfile ? (
+                                {!detail.medical_profile ? (
                                     <div className="text-center py-10 text-muted-foreground text-sm">No medical profile on file</div>
                                 ) : (
                                     <div className="space-y-4">
                                         <div className="p-4 rounded-xl border space-y-3">
                                             <div>
-                                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Blood Type</p>
-                                                <p className="text-sm mt-1">{detail.medicalProfile.blood_type || 'Not specified'}</p>
+                                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Blood Group</p>
+                                                <p className="text-sm mt-1">{detail.medical_profile.blood_group || 'Not specified'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Genotype</p>
+                                                <p className="text-sm mt-1">{detail.medical_profile.genotype || 'Not specified'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Allergies</p>
                                                 <div className="flex flex-wrap gap-1 mt-1">
-                                                    {detail.medicalProfile.allergies?.length > 0
-                                                        ? detail.medicalProfile.allergies.map((a: string) => (
-                                                            <Badge key={a} variant="outline" className="text-rose-600 border-rose-200 bg-rose-50">{a}</Badge>
+                                                    {detail.medical_profile.allergies
+                                                        ? detail.medical_profile.allergies.split(',').map((a: string) => (
+                                                            <Badge key={a.trim()} variant="outline" className="text-rose-600 border-rose-200 bg-rose-50">{a.trim()}</Badge>
                                                         ))
                                                         : <p className="text-sm text-muted-foreground">None on file</p>}
                                                 </div>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Current Medications</p>
+                                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Chronic Conditions</p>
                                                 <div className="flex flex-wrap gap-1 mt-1">
-                                                    {detail.medicalProfile.current_medications?.length > 0
-                                                        ? detail.medicalProfile.current_medications.map((m: string) => (
-                                                            <Badge key={m} variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">{m}</Badge>
+                                                    {detail.medical_profile.chronic_conditions
+                                                        ? detail.medical_profile.chronic_conditions.split(',').map((c: string) => (
+                                                            <Badge key={c.trim()} variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">{c.trim()}</Badge>
                                                         ))
                                                         : <p className="text-sm text-muted-foreground">None on file</p>}
                                                 </div>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Past Medical History</p>
-                                                <p className="text-sm mt-1 text-muted-foreground">{detail.medicalProfile.past_medical_history || 'None recorded'}</p>
+                                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Emergency Contact</p>
+                                                <p className="text-sm mt-1 text-muted-foreground">{detail.medical_profile.emergency_contact_name || 'None recorded'}{detail.medical_profile.emergency_contact_phone ? ` (${detail.medical_profile.emergency_contact_phone})` : ''}</p>
                                             </div>
                                         </div>
                                     </div>
