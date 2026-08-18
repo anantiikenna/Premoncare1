@@ -209,3 +209,122 @@ export interface MedicalRecord {
     authorized_doctors: string[];
     created_at: string;
 }
+
+// ─── Admin Types ───────────────────────────────────────────────────
+
+export interface AdminUserDetail {
+    profile: Profile;
+    appointments: AdminAppointment[];
+    payments: AdminPayment[];
+    medical_profile: MedicalProfileData | null;
+    prescriptions: AdminPrescription[];
+}
+
+export interface AdminAppointment {
+    id: string;
+    created_at: string;
+    appointment_date: string;
+    status: string;
+    reason?: string;
+    doctor_id: string;
+    patient_id: string;
+    doctor?: { full_name: string; avatar_url?: string };
+    patient?: { full_name: string; avatar_url?: string };
+}
+
+export interface AdminPayment {
+    id: string;
+    created_at: string;
+    amount: number;
+    method: string;
+    status: 'pending' | 'approved' | 'rejected';
+    category?: string;
+    proof_url?: string;
+    rejection_reason?: string;
+    processed_by?: string;
+    user_id: string;
+    recipient_id?: string;
+}
+
+export interface AdminPrescription {
+    id: string;
+    created_at: string;
+    medication_name: string;
+    dosage: string;
+    frequency: string;
+    duration: string;
+    instructions?: string;
+    doctor?: { full_name: string };
+}
+
+export interface FeeNegotiationMessage {
+    id: string;
+    doctor_id: string;
+    sender_id: string;
+    sender_role: 'admin' | 'doctor';
+    message: string;
+    created_at: string;
+}
+
+export interface AdminDispute {
+    id: string;
+    created_at: string;
+    transaction_id: string;
+    patient_id: string | null;
+    doctor_id: string | null;
+    amount: number | null;
+    risk_level: 'low' | 'medium' | 'high';
+    category: 'payment' | 'consultation' | 'refund' | 'fraud' | 'behavior' | 'other';
+    title: string;
+    description: string | null;
+    status: 'open' | 'under_review' | 'resolved' | 'dismissed';
+    resolution_notes: string | null;
+    resolved_at: string | null;
+    resolved_by: string | null;
+    patient?: { full_name: string; avatar_url?: string } | null;
+    doctor?: { full_name: string; avatar_url?: string } | null;
+}
+
+export interface ForumReport {
+    id: string;
+    post_id: string;
+    reporter_id: string;
+    reason: string;
+    status: 'pending' | 'action_taken' | 'dismissed';
+    created_at: string;
+    resolved_at: string | null;
+    resolved_by: string | null;
+    post: ForumPostWithAuthor;
+    reporter: { full_name: string };
+}
+
+export interface AuditLogEntry {
+    id: string;
+    created_at: string;
+    actor_id: string;
+    action: string;
+    target_user_id?: string;
+    resource_type?: string;
+    resource_id?: string;
+    details?: Record<string, unknown>;
+    actor?: { full_name: string };
+}
+
+export interface SystemSettings {
+    id: string;
+    auto_approve_documents: boolean;
+    approval_delay_minutes: number;
+    payment_gateway_strategy: 'manual' | 'digital' | 'both';
+    allow_doctor_pricing: boolean;
+    base_consultation_fee: number;
+    updated_at: string;
+}
+
+export interface AdminNotificationSettings {
+    id: string;
+    admin_id: string;
+    new_verifications: boolean;
+    new_payments: boolean;
+    emergency_alerts: boolean;
+    subscription_expiry: boolean;
+}

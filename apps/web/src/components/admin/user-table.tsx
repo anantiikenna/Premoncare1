@@ -11,11 +11,12 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { User, FileText, Check, X, Loader2, ExternalLink, Search, Eye } from "lucide-react"
+import { User, FileText, Check, X, Loader2, ExternalLink, Search, Eye, AlertTriangle, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { UserDetailDrawer } from './user-detail-drawer'
 import { toast } from 'sonner'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 
 interface Profile {
     id: string
@@ -35,6 +36,7 @@ export function UserTable({ profiles: initialProfiles }: { profiles: Profile[] }
     const [drawerUserName, setDrawerUserName] = useState('')
     const [drawerUserRole, setDrawerUserRole] = useState('')
     const [drawerUserRequestedRole, setDrawerUserRequestedRole] = useState('')
+    const [confirmAction, setConfirmAction] = useState<{ userId: string; userName: string; action: 'approved' | 'rejected' } | null>(null)
     const supabase = createClient()
 
     const handleUpdateStatus = async (userId: string, status: 'approved' | 'rejected') => {
@@ -136,7 +138,9 @@ export function UserTable({ profiles: initialProfiles }: { profiles: Profile[] }
                                             <User className="h-5 w-5 text-primary" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-black text-slate-900 leading-none mb-1">{profile.full_name || 'Unnamed User'}</p>
+                                            <p className="text-sm font-black text-slate-900 leading-none mb-1">
+                                                {profile.role === 'doctor' && profile.verification_status === 'approved' ? 'Dr. ' : ''}{profile.full_name || 'Unnamed User'}
+                                            </p>
                                             <p className="text-xs text-muted-foreground font-mono">ID: {profile.id.slice(0, 8)}</p>
                                         </div>
                                     </div>
@@ -181,7 +185,7 @@ export function UserTable({ profiles: initialProfiles }: { profiles: Profile[] }
                                                     size="icon"
                                                     variant="ghost"
                                                     className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                                    onClick={() => handleUpdateStatus(profile.id, 'approved')}
+                                                    onClick={() => setConfirmAction({ userId: profile.id, userName: profile.full_name || 'Unnamed User', action: 'approved' })}
                                                     disabled={updating === profile.id}
                                                 >
                                                     {updating === profile.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
@@ -190,7 +194,7 @@ export function UserTable({ profiles: initialProfiles }: { profiles: Profile[] }
                                                     size="icon"
                                                     variant="ghost"
                                                     className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                    onClick={() => handleUpdateStatus(profile.id, 'rejected')}
+                                                    onClick={() => setConfirmAction({ userId: profile.id, userName: profile.full_name || 'Unnamed User', action: 'rejected' })}
                                                     disabled={updating === profile.id}
                                                 >
                                                     <X className="h-4 w-4" />
@@ -220,6 +224,43 @@ export function UserTable({ profiles: initialProfiles }: { profiles: Profile[] }
                 isOpen={!!drawerUserId}
                 onClose={() => setDrawerUserId(null)}
             />
+
+            {/* Confirmation Dialog */}
+            <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            {confirmAction?.action === 'approved' ? (
+                                <ShieldCheck className="h-5 w-5 text-green-600" />
+                            ) : (
+                                <AlertTriangle className="h-5 w-5 text-red-600" />
+                            )}
+                            {confirmAction?.action === 'approved' ? 'Approve Verification' : 'Reject Verification'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {confirmAction?.action === 'approved'
+                                ? `Are you sure you want to approve ${confirmAction?.userName}'s verification? This will promote them to ${confirmAction?.userId ? profiles.find(p => p.id === confirmAction.userId)?.requested_role || '' : ''} role.`
+                                : `Are you sure you want to reject ${confirmAction?.userName}'s verification?`}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setConfirmAction(null)}>Cancel</Button>
+                        <Button
+                            variant={confirmAction?.action === 'approved' ? 'default' : 'destructive'}
+                            className={confirmAction?.action === 'approved' ? 'bg-green-600 hover:bg-green-700' : ''}
+                            disabled={updating === confirmAction?.userId}
+                            onClick={async () => {
+                                if (!confirmAction) return
+                                await handleUpdateStatus(confirmAction.userId, confirmAction.action)
+                                setConfirmAction(null)
+                            }}
+                        >
+                            {updating === confirmAction?.userId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            {confirmAction?.action === 'approved' ? 'Approve' : 'Reject'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     )
 }

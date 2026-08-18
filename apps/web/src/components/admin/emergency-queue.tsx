@@ -14,11 +14,12 @@ import {
 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Profile, AdminAppointment } from '@/lib/types'
 
 export function EmergencyQueue() {
     const [loading, setLoading] = useState(true)
-    const [requests, setRequests] = useState<any[]>([])
-    const [availableDoctors, setAvailableDoctors] = useState<any[]>([])
+    const [requests, setRequests] = useState<(AdminAppointment & { priority?: string; profiles?: Profile })[]>([])
+    const [availableDoctors, setAvailableDoctors] = useState<Profile[]>([])
     const [assigningId, setAssigningId] = useState<string | null>(null)
     const [resolvedToday, setResolvedToday] = useState(0)
     const [activeTab, setActiveTab] = useState('All')
@@ -237,27 +238,68 @@ export function EmergencyQueue() {
                 <div className="grid grid-cols-2 gap-4">
                     <QuickAction icon={Radio} label="Broadcast Alert" color="text-rose-600" bg="bg-rose-50" onClick={async () => {
                         const supabase = createClient()
+                        const { data: { user } } = await supabase.auth.getUser()
+                        if (!user) return
                         const { data: onlineDoctors } = await supabase
                             .from('profiles')
                             .select('id')
                             .eq('role', 'doctor')
                             .eq('is_online', true)
                         if (onlineDoctors && onlineDoctors.length > 0) {
-                            const notifications = onlineDoctors.map(doc => ({
-                                user_id: doc.id,
-                                title: 'Emergency Broadcast Alert',
-                                message: 'A new emergency broadcast has been issued. Please check the emergency queue immediately.',
-                                type: 'admin_message' as const
-                            }))
-                            await supabase.from('notifications').insert(notifications)
-                            toast.success(`Broadcast sent to ${onlineDoctors.length} online doctor(s)`)
+                            try {
+                                for (const doc of onlineDoctors) {
+                                    await fetch('/api/notifications/dispatch', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            user_id: doc.id,
+                                            title: 'Emergency Broadcast Alert',
+                                            message: 'A new emergency broadcast has been issued. Please check the emergency queue immediately.',
+                                            type: 'system',
+                                        })
+                                    })
+                                }
+                                toast.success(`Broadcast sent to ${onlineDoctors.length} online doctor(s)`)
+                            } catch {
+                                toast.error('Failed to send broadcast. Please try again.')
+                            }
                         } else {
                             toast.info('No online doctors to broadcast to')
                         }
                     }} />
-                    <QuickAction icon={ArrowUpRight} label="Escalate Case" color="text-amber-600" bg="bg-amber-50" onClick={() => toast.info('Select an emergency request to escalate')} />
-                    <QuickAction icon={RefreshCw} label="Reassign Doctor" color="text-blue-600" bg="bg-blue-50" onClick={() => toast.info('Select an emergency request to reassign')} />
-                    <QuickAction icon={CheckCircle2} label="End Emergency" color="text-emerald-600" bg="bg-emerald-50" onClick={() => toast.info('Select an emergency request to end')} />
+                    <QuickAction icon={ArrowUpRight} label="Escalate Case" color="text-amber-600" bg="bg-amber-50" onClick={async () => {
+                        const supabase = createClient()
+                        const waiting = requests.find(r => !r.doctor_id && r.status === 'emergency_request')
+                        if (!waiting) { toast.info('No waiting emergencies to escalate'); return }
+                        const { error } = await supabase
+                            .from('appointments')
+                            .update({ priority: 'Critical' })
+                            .eq('id', waiting.id)
+                        if (!error) { toast.success('Emergency escalated to Critical priority'); fetchQueue() }
+                    }} />
+                    <QuickAction icon={RefreshCw} label="Reassign Doctor" color="text-blue-600" bg="bg-blue-50" onClick={async () => {
+                        const supabase = createClient()
+                        const ongoing = requests.find(r => r.doctor_id && r.status === 'ongoing')
+                        if (!ongoing) { toast.info('No ongoing consultations to reassign'); return }
+                        if (availableDoctors.length === 0) { toast.info('No online doctors available for reassignment'); return }
+                        const nextDoctor = availableDoctors.find(d => d.id !== ongoing.doctor_id)
+                        if (!nextDoctor) { toast.info('No other doctors available'); return }
+                        const { error } = await supabase
+                            .from('appointments')
+                            .update({ doctor_id: nextDoctor.id })
+                            .eq('id', ongoing.id)
+                        if (!error) { toast.success(`Reassigned to ${nextDoctor.full_name}`); fetchQueue() }
+                    }} />
+                    <QuickAction icon={CheckCircle2} label="End Emergency" color="text-emerald-600" bg="bg-emerald-50" onClick={async () => {
+                        const supabase = createClient()
+                        const ongoing = requests.find(r => r.status === 'ongoing')
+                        if (!ongoing) { toast.info('No ongoing consultations to end'); return }
+                        const { error } = await supabase
+                            .from('appointments')
+                            .update({ status: 'completed' })
+                            .eq('id', ongoing.id)
+                        if (!error) { toast.success('Emergency consultation ended'); fetchQueue() }
+                    }} />
                 </div>
             </div>
         </div>
@@ -353,7 +395,7 @@ function StatCard({ label, value, icon: Icon, color, bg, trend }: { label: strin
 function QueueTab({ label, count, active = false, onClick }: { label: string, count: number, active?: boolean; onClick?: () => void }) {
     return (
         <button onClick={onClick} className={cn(
-            "flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all",
+            "flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all cursor-pointer",
             active ? "bg-slate-900 text-white shadow-lg" : "bg-white text-slate-500 hover:bg-slate-50"
         )}>
             {label}
@@ -367,7 +409,7 @@ function QueueTab({ label, count, active = false, onClick }: { label: string, co
 
 function QuickAction({ icon: Icon, label, color, bg, onClick }: { icon: any, label: string, color: string, bg: string; onClick?: () => void }) {
     return (
-        <button onClick={onClick} className="bg-white p-5 rounded-[2rem] border shadow-sm hover:shadow-xl transition-all flex flex-col items-center gap-3 text-center group">
+        <button onClick={onClick} className="bg-white p-5 rounded-[2rem] border shadow-sm hover:shadow-xl transition-all flex flex-col items-center gap-3 text-center group cursor-pointer">
             <div className={cn("p-3 rounded-2xl transition-transform group-hover:rotate-12", bg)}>
                 <Icon className={cn("h-5 w-5", color)} />
             </div>

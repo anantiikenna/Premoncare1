@@ -163,7 +163,7 @@ export function AdminSettings() {
                                     min="0"
                                     className="max-w-[120px] bg-background text-lg font-bold h-12"
                                     value={delay}
-                                    onChange={(e) => setDelay(parseInt(e.target.value) || 0)}
+                                    onChange={(e) => setDelay(Math.max(0, parseInt(e.target.value) || 0))}
                                 />
                                 <p className="text-sm text-muted-foreground italic">
                                     A slight delay is recommended for audit logging.

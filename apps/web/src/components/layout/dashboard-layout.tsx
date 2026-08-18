@@ -231,37 +231,63 @@ export function DashboardLayout({
     const [isSwitchDialogOpen, setIsSwitchDialogOpen] = useState(false)
     const [pendingPortal, setPendingPortal] = useState<PortalType | null>(null)
 
+    const [error, setError] = useState<string | null>(null)
+
     useEffect(() => {
+        let timedOut = false
+
         async function getProfile() {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                router.push('/login')
-                return
+            try {
+                const result = await Promise.race([
+                    (async () => {
+                        const { data: { user } } = await supabase.auth.getUser()
+                        if (!user) {
+                            router.push('/login')
+                            return
+                        }
+
+                        const { data: profileData } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .eq('id', user.id)
+                            .single()
+
+                        return { user, profileData }
+                    })(),
+                    new Promise<never>((_, reject) =>
+                        setTimeout(() => reject(new Error('timeout')), 15000)
+                    )
+                ])
+
+                if (timedOut) return
+
+                const { user, profileData } = result as { user: any; profileData: any }
+
+                setUserId(user.id)
+                const dbRole = (profileData?.role || 'patient') as PortalType
+                setRole(dbRole)
+                setProfile(profileData)
+
+                const savedPortal = localStorage.getItem(`active_portal_${user.id}`) as PortalType
+                if (savedPortal && ['patient', 'doctor', 'admin'].includes(savedPortal)) {
+                    setActivePortal(savedPortal)
+                } else {
+                    setActivePortal(dbRole)
+                }
+
+                setLoading(false)
+            } catch (e: any) {
+                if (timedOut) return
+                setError(e?.message === 'timeout'
+                    ? 'Unable to connect to the server. Please check your connection and try again.'
+                    : 'Failed to load your profile. Please try again.')
+                setLoading(false)
             }
-
-            const { data: profileData } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single()
-
-            setUserId(user.id)
-            const dbRole = (profileData?.role || 'patient') as PortalType
-            setRole(dbRole)
-            setProfile(profileData)
-            
-            // Handle Portal Persistence
-            const savedPortal = localStorage.getItem(`active_portal_${user.id}`) as PortalType
-            if (savedPortal && ['patient', 'doctor', 'admin'].includes(savedPortal)) {
-                setActivePortal(savedPortal)
-            } else {
-                setActivePortal(dbRole)
-            }
-
-            setLoading(false)
         }
 
         getProfile()
+
+        return () => { timedOut = true }
     }, [supabase, router])
 
     // Realtime subscription for profile changes
@@ -348,7 +374,31 @@ export function DashboardLayout({
     if (loading) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm text-muted-foreground">Loading Premon Care...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <div className="flex flex-col items-center gap-4 max-w-sm text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+                        <svg className="h-6 w-6 text-destructive" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <p className="text-sm font-medium text-foreground">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors cursor-pointer"
+                    >
+                        Retry
+                    </button>
+                </div>
             </div>
         )
     }

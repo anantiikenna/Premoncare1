@@ -95,6 +95,9 @@ export default function AdminSubscriptionsPage() {
         expiringSoon: doctors.filter(d => getStatus(d) === 'expiring').length,
         expired: doctors.filter(d => getStatus(d) === 'expired').length,
         overdue: doctors.filter(d => getStatus(d) === 'overdue').length,
+        estimatedRevenue: doctors
+            .filter(d => getStatus(d) === 'active' && d.negotiated_fee)
+            .reduce((sum, d) => sum + (d.negotiated_fee || 0), 0),
     }
 
     const filteredDoctors = doctors.filter(doc => {
@@ -130,7 +133,9 @@ export default function AdminSubscriptionsPage() {
     const handleExtendSubscription = async (doctor: Profile) => {
         setProcessingId(doctor.id)
         try {
-            const newExpiry = new Date()
+            const currentExpiry = doctor.subscription_expires_at ? new Date(doctor.subscription_expires_at) : new Date()
+            const baseDate = currentExpiry > new Date() ? currentExpiry : new Date()
+            const newExpiry = new Date(baseDate)
             newExpiry.setMonth(newExpiry.getMonth() + 1)
             const { error } = await supabase
                 .from('profiles')
@@ -239,7 +244,7 @@ export default function AdminSubscriptionsPage() {
                     { label: 'Active', val: stats.active, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50', trend: stats.totalSubscribers ? `${((stats.active / stats.totalSubscribers) * 100).toFixed(1)}%` : '0%', sub: 'of total' },
                     { label: 'Expiring Soon', val: stats.expiringSoon, icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50', trend: 'Next 7 days', sub: 'Action required' },
                     { label: 'Expired / Overdue', val: stats.expired + stats.overdue, icon: AlertCircle, color: 'text-rose-500', bg: 'bg-rose-50', trend: 'Overdue', sub: 'Requires attention' },
-                    { label: 'Revenue (Est.)', val: `₦${stats.active > 0 ? '—' : '0'}`, icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10', trend: 'Per plan', sub: 'Set via billing' },
+                    { label: 'Revenue (Est.)', val: `₦${stats.estimatedRevenue.toLocaleString()}/mo`, icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10', trend: `${stats.active} active`, sub: 'Monthly total' },
                 ].map((stat, i) => (
                     <Card key={i} className="rounded-[2rem] border-slate-100 shadow-sm hover:shadow-xl transition-all group">
                         <CardContent className="p-8 space-y-4">
@@ -332,7 +337,9 @@ export default function AdminSubscriptionsPage() {
                                                                     <AvatarFallback>{doc.full_name?.charAt(0) || 'D'}</AvatarFallback>
                                                                 </Avatar>
                                                                 <div className="space-y-1">
-                                                                    <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">{doc.full_name}</p>
+                                                                    <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">
+                                                                        {doc.verification_status === 'approved' ? 'Dr. ' : ''}{doc.full_name}
+                                                                    </p>
                                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                                                         {doc.email || `ID: ${doc.id.substring(0, 8)}`}
                                                                     </p>

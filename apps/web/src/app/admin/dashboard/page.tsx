@@ -33,25 +33,25 @@ export default async function AdminDashboard() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-4xl font-black tracking-tighter text-slate-900">
+                        <h1 className="text-4xl font-black tracking-tighter text-foreground">
                             Command Center
                         </h1>
                         <Badge className="bg-primary/10 text-primary border-none rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase animate-pulse">Live</Badge>
                     </div>
-                    <p className="text-slate-500 font-medium">Comprehensive system intelligence and operational oversight.</p>
+                    <p className="text-muted-foreground font-medium">Comprehensive system intelligence and operational oversight.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="hidden sm:flex items-center gap-3 pr-6 border-r border-slate-200">
+                    <div className="hidden sm:flex items-center gap-3 pr-6 border-r border-border">
                         <div className="text-right">
-                            <p className="text-xs font-black tracking-tight text-slate-900">System Administrator</p>
+                            <p className="text-xs font-black tracking-tight text-foreground">System Administrator</p>
                             <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1 justify-end">
                                 <Activity className="h-2 w-2" />
                                 Stable
                             </p>
                         </div>
                         <Avatar className="h-10 w-10 ring-2 ring-primary/10 ring-offset-2">
-                            <AvatarImage src="https://i.pravatar.cc/150?u=admin" />
-                            <AvatarFallback>A</AvatarFallback>
+                            <AvatarImage src={profile?.avatar_url} />
+                            <AvatarFallback>{profile?.full_name?.charAt(0) || 'A'}</AvatarFallback>
                         </Avatar>
                     </div>
                     <AdminDashboardActions />
@@ -68,14 +68,14 @@ export default async function AdminDashboard() {
                 {/* User Management Section */}
                 <div className="lg:col-span-8 space-y-6">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+                        <h3 className="text-xl font-black tracking-tight text-foreground flex items-center gap-3">
                             User Directory
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">{profiles?.length || 0} Total</span>
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted px-3 py-1 rounded-full">{profiles?.length || 0} Total</span>
                         </h3>
                         <Link href="/admin/doctors" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Manage All Specialists</Link>
                     </div>
                     
-                    <Card className="rounded-[3rem] border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden bg-white/50 backdrop-blur-xl">
+                    <Card className="rounded-[3rem] border-border shadow-2xl overflow-hidden bg-card/50 backdrop-blur-xl">
                         <CardContent className="p-0">
                             <UserTable profiles={profiles || []} />
                         </CardContent>
@@ -85,8 +85,8 @@ export default async function AdminDashboard() {
                 {/* System Health & Quick Actions */}
                 <div className="lg:col-span-4 space-y-8">
                     {/* Critical Alerts */}
-                    <Card className="rounded-[3rem] border-slate-100 shadow-2xl shadow-slate-200/40 overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b border-dashed p-8">
+                    <Card className="rounded-[3rem] border-border shadow-2xl overflow-hidden">
+                        <CardHeader className="bg-muted/50 border-b border-dashed p-8">
                             <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
                                 <ShieldAlert className="h-5 w-5 text-rose-500" />
                                 Priority Alerts
@@ -128,8 +128,8 @@ export default async function AdminDashboard() {
                                     <div className="h-16 w-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100">
                                         <Activity className="h-8 w-8 text-emerald-500" />
                                     </div>
-                                    <p className="text-sm font-black text-slate-900">System Nominal</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">No urgent alerts found.</p>
+                                    <p className="text-sm font-black text-foreground">System Nominal</p>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">No urgent alerts found.</p>
                                 </div>
                             )}
                         </CardContent>
@@ -137,20 +137,20 @@ export default async function AdminDashboard() {
 
                     {/* Operational Actions */}
                     <div className="grid gap-4">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] px-4">Operations Hub</h4>
+                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] px-4">Operations Hub</h4>
                         {[
                             { title: "Financial Moderation", icon: TrendingUp, href: "/admin/payments", color: "text-emerald-600", bg: "bg-emerald-50" },
                             { title: "Broadcast Systems", icon: Bell, href: "/admin/notifications", color: "text-blue-600", bg: "bg-blue-50" },
                             { title: "Subscription Controls", icon: BarChart3, href: "/admin/subscriptions", color: "text-indigo-600", bg: "bg-indigo-50" },
-                            { title: "Platform Reporting", icon: Activity, href: "/admin/reports", color: "text-slate-600", bg: "bg-slate-50" }
+                            { title: "Platform Reporting", icon: Activity, href: "/admin/reports", color: "text-muted-foreground", bg: "bg-muted" }
                         ].map((action, i) => (
                             <Link key={i} href={action.href}>
-                                <Button variant="ghost" className="h-20 w-full justify-start rounded-[2rem] bg-white border border-slate-100 hover:border-primary/20 hover:shadow-xl transition-all p-6 group">
+                                <Button variant="ghost" className="h-20 w-full justify-start rounded-[2rem] bg-card border border-border hover:border-primary/20 hover:shadow-xl transition-all p-6 group">
                                     <div className={`h-10 w-10 rounded-xl ${action.bg} flex items-center justify-center ${action.color} group-hover:scale-110 transition-transform`}>
                                         <action.icon className="h-5 w-5" />
                                     </div>
-                                    <span className="ml-4 font-black uppercase tracking-widest text-[11px] text-slate-600">{action.title}</span>
-                                    <ArrowUpRight className="ml-auto h-4 w-4 text-slate-300 group-hover:text-primary transition-colors" />
+                                    <span className="ml-4 font-black uppercase tracking-widest text-[11px] text-muted-foreground">{action.title}</span>
+                                    <ArrowUpRight className="ml-auto h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                                 </Button>
                             </Link>
                         ))}

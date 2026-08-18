@@ -132,7 +132,7 @@ export function MedicalProfileForm({ patientId }: { patientId: string }) {
                             {profile.allergies.map((allergy: string, i: number) => (
                                 <div key={i} className="flex items-center gap-1 bg-destructive/10 text-destructive px-3 py-1 rounded-full text-sm">
                                     {allergy}
-                                    <button type="button" onClick={() => removeArrayItem('allergies', i)} className="hover:text-destructive/80">
+                                    <button type="button" onClick={() => removeArrayItem('allergies', i)} className="hover:text-destructive/80 cursor-pointer">
                                         <X className="h-3 w-3" />
                                     </button>
                                 </div>
@@ -159,7 +159,7 @@ export function MedicalProfileForm({ patientId }: { patientId: string }) {
                             {profile.current_medications.map((med: string, i: number) => (
                                 <div key={i} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
                                     {med}
-                                    <button type="button" onClick={() => removeArrayItem('current_medications', i)} className="hover:text-primary/80">
+                                    <button type="button" onClick={() => removeArrayItem('current_medications', i)} className="hover:text-primary/80 cursor-pointer">
                                         <X className="h-3 w-3" />
                                     </button>
                                 </div>

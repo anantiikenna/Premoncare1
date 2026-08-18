@@ -7,16 +7,30 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase'
-import { Loader2, CheckCircle, XCircle, Flag, MessageSquare, User, Calendar, ExternalLink } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Flag, MessageSquare, User, Calendar, ExternalLink, AlertTriangle } from 'lucide-react'
 import { createNotification } from '@/lib/queries-client'
+import { ForumPostWithAuthor, ForumReport } from '@/lib/types'
 import Link from 'next/link'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 
 export function ModerationDashboard() {
     const [loading, setLoading] = useState(true)
-    const [pendingPosts, setPendingPosts] = useState<any[]>([])
-    const [reports, setReports] = useState<any[]>([])
+    const [pendingPosts, setPendingPosts] = useState<ForumPostWithAuthor[]>([])
+    const [reports, setReports] = useState<ForumReport[]>([])
     const [processingId, setProcessingId] = useState<string | null>(null)
+    const [adminId, setAdminId] = useState<string | null>(null)
+    const [rejectDialog, setRejectDialog] = useState<{ postId: string; postTitle: string } | null>(null)
+    const [rejectReason, setRejectReason] = useState('')
     const supabase = createClient()
+
+    useEffect(() => {
+        const getAdmin = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) setAdminId(user.id)
+        }
+        getAdmin()
+    }, [supabase.auth])
 
     const fetchData = async () => {
         setLoading(true)
@@ -48,13 +62,13 @@ export function ModerationDashboard() {
         fetchData()
     }, [])
 
-    const handleAction = async (postId: string, action: 'approved' | 'rejected') => {
+    const handleAction = async (postId: string, action: 'approved' | 'rejected', reason?: string) => {
         setProcessingId(postId)
         try {
             // Update post status
             const { error: postError } = await supabase
                 .from('forum_posts')
-                .update({ status: action })
+                .update({ status: action, rejection_reason: reason || null })
                 .eq('id', postId)
 
             if (postError) throw postError
@@ -65,8 +79,10 @@ export function ModerationDashboard() {
                 await createNotification({
                     user_id: post.author_id,
                     title: `Post ${action === 'approved' ? 'Approved' : 'Rejected'}`,
-                    message: `Your discussion "${post.title}" has been ${action} by moderators.`,
-                    type: 'other', // Forum categorized as other/system
+                    message: action === 'approved'
+                        ? `Your discussion "${post.title}" has been approved by moderators.`
+                        : `Your discussion "${post.title}" has been rejected.${reason ? ` Reason: ${reason}` : ' Please review our community guidelines.'}`,
+                    type: 'other',
                     link: action === 'approved' ? `/patient/forum/${postId}` : '/patient/forum'
                 })
             }
@@ -85,7 +101,7 @@ export function ModerationDashboard() {
         try {
             const { error } = await supabase
                 .from('forum_reports')
-                .update({ status: 'action_taken', resolved_at: new Date().toISOString(), resolved_by: null })
+                .update({ status: 'action_taken', resolved_at: new Date().toISOString(), resolved_by: adminId })
                 .eq('id', reportId)
 
             if (error) throw error
@@ -156,7 +172,7 @@ export function ModerationDashboard() {
                                                 <Button 
                                                     size="sm" 
                                                     variant="destructive"
-                                                    onClick={() => handleAction(post.id, 'rejected')}
+                                                    onClick={() => setRejectDialog({ postId: post.id, postTitle: post.title })}
                                                     disabled={processingId === post.id}
                                                 >
                                                     <XCircle className="h-4 w-4 mr-1" />
@@ -239,6 +255,45 @@ export function ModerationDashboard() {
                     </div>
                 </TabsContent>
             </Tabs>
+
+            {/* Rejection Reason Dialog */}
+            <Dialog open={!!rejectDialog} onOpenChange={() => { setRejectDialog(null); setRejectReason('') }}>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-red-600" />
+                            Reject Post
+                        </DialogTitle>
+                        <DialogDescription>
+                            Provide a reason for rejecting "{rejectDialog?.postTitle}". The author will be notified.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                        <Textarea
+                            placeholder="Reason for rejection (optional but recommended)..."
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            rows={3}
+                        />
+                    </div>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => { setRejectDialog(null); setRejectReason('') }}>Cancel</Button>
+                        <Button
+                            variant="destructive"
+                            disabled={processingId === rejectDialog?.postId}
+                            onClick={async () => {
+                                if (!rejectDialog) return
+                                await handleAction(rejectDialog.postId, 'rejected', rejectReason)
+                                setRejectDialog(null)
+                                setRejectReason('')
+                            }}
+                        >
+                            {processingId === rejectDialog?.postId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            Reject Post
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

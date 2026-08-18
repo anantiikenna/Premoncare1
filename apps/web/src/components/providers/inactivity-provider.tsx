@@ -102,7 +102,7 @@ export function InactivityProvider({ children }: { children: ReactNode }) {
             </p>
             <button
               onClick={handleStayLoggedIn}
-              className="w-full bg-[#0F62FE] hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors"
+              className="w-full bg-[#0F62FE] hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer"
             >
               Stay Logged In
             </button>

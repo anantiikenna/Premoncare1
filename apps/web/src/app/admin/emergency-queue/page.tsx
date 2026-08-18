@@ -36,7 +36,7 @@ export default function AdminEmergencyQueuePage() {
             const supabase = createClient()
             const { data: pending } = await supabase
                 .from('appointments')
-                .select('id')
+                .select('id, reason')
                 .eq('is_emergency', true)
                 .eq('status', 'emergency_request')
                 .is('doctor_id', null)
@@ -49,7 +49,7 @@ export default function AdminEmergencyQueuePage() {
 
             const { data: onlineDoctors } = await supabase
                 .from('profiles')
-                .select('id, full_name')
+                .select('id, full_name, specialty')
                 .eq('role', 'doctor')
                 .eq('is_online', true)
 
@@ -58,20 +58,39 @@ export default function AdminEmergencyQueuePage() {
                 return
             }
 
+            const usedDoctorIds = new Set<string>()
             let assigned = 0
-            for (let i = 0; i < Math.min(pending.length, onlineDoctors.length); i++) {
-                const { error } = await supabase
-                    .from('appointments')
-                    .update({ doctor_id: onlineDoctors[i].id, status: 'confirmed' })
-                    .eq('id', pending[i].id)
-                if (!error) assigned++
+
+            for (const emergency of pending) {
+                const reasonLower = (emergency.reason || '').toLowerCase()
+                const matchedDoctor = onlineDoctors.find(doc => {
+                    if (usedDoctorIds.has(doc.id)) return false
+                    if (!doc.specialty) return true
+                    const specLower = doc.specialty.toLowerCase()
+                    if (reasonLower.includes('cardio') && specLower.includes('cardio')) return true
+                    if (reasonLower.includes('neuro') && specLower.includes('neuro')) return true
+                    if (reasonLower.includes('pediatr') && specLower.includes('pediatr')) return true
+                    if (reasonLower.includes('ortho') && specLower.includes('ortho')) return true
+                    if (reasonLower.includes('dermat') && specLower.includes('dermat')) return true
+                    if (reasonLower.includes('psych') && specLower.includes('psych')) return true
+                    return false
+                }) || onlineDoctors.find(doc => !usedDoctorIds.has(doc.id))
+
+                if (matchedDoctor) {
+                    usedDoctorIds.add(matchedDoctor.id)
+                    const { error } = await supabase
+                        .from('appointments')
+                        .update({ doctor_id: matchedDoctor.id, status: 'emergency_accepted' })
+                        .eq('id', emergency.id)
+                    if (!error) assigned++
+                }
             }
 
             if (assigned > 0) {
                 toast.success(`Auto-assigned ${assigned} emergency request(s)`)
             }
-        } catch (error: any) {
-            toast.error(error.message || 'Auto-assign failed')
+        } catch (error: unknown) {
+            toast.error(error instanceof Error ? error.message : 'Auto-assign failed')
         } finally {
             setAutoAssigning(false)
         }

@@ -35,10 +35,10 @@ export default function SubscriptionPage() {
             <p className="text-[#64748B] font-medium">Manage your plan, billing and premium benefits.</p>
           </div>
           <div className="mt-6 lg:mt-0 flex gap-4 justify-center">
-            <button className="p-3 rounded-xl bg-white border border-[#E2E8F0] text-[#1E293B] hover:bg-[#F1F5F9] transition-all">
+            <button className="p-3 rounded-xl bg-white border border-[#E2E8F0] text-[#1E293B] hover:bg-[#F1F5F9] transition-all cursor-pointer">
               <Headphones className="w-5 h-5" />
             </button>
-            <button className="p-3 rounded-xl bg-white border border-[#E2E8F0] text-[#1E293B] hover:bg-[#F1F5F9] transition-all">
+            <button className="p-3 rounded-xl bg-white border border-[#E2E8F0] text-[#1E293B] hover:bg-[#F1F5F9] transition-all cursor-pointer">
               <Calendar className="w-5 h-5" />
             </button>
           </div>
@@ -120,7 +120,7 @@ function ManageSubscriptionView({ onUpgrade }: { onUpgrade: () => void }) {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-black text-[#1E293B]">Billing & Payment</h3>
-            <button className="text-[#0F62FE] text-sm font-bold flex items-center gap-1 hover:underline">
+            <button className="text-[#0F62FE] text-sm font-bold flex items-center gap-1 hover:underline cursor-pointer">
               View History <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -213,7 +213,7 @@ function ManageSubscriptionView({ onUpgrade }: { onUpgrade: () => void }) {
 function ExplorePlansView({ onBack }: { onBack: () => void }) {
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-700">
-      <button onClick={onBack} className="flex items-center gap-2 text-[#0F62FE] font-black hover:translate-x-[-4px] transition-transform">
+      <button onClick={onBack} className="flex items-center gap-2 text-[#0F62FE] font-black hover:translate-x-[-4px] transition-transform cursor-pointer">
         <ChevronRight className="w-5 h-5 rotate-180" /> Back to Manage
       </button>
 
@@ -291,7 +291,7 @@ function ActionTile({ icon: Icon, title, sub, color, onClick }: any) {
   return (
     <button 
       onClick={onClick}
-      className="w-full flex items-center gap-5 p-5 bg-white border border-[#F1F5F9] rounded-2xl hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/5 transition-all group text-left"
+      className="w-full flex items-center gap-5 p-5 bg-white border border-[#F1F5F9] rounded-2xl hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/5 transition-all group text-left cursor-pointer"
     >
       <div className={`p-3 rounded-xl transition-all group-hover:scale-110 ${colors[color]}`}>
         <Icon className="w-5 h-5" />

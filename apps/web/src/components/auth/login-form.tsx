@@ -228,7 +228,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => router.push("/register")}
-            className="text-primary hover:underline"
+            className="text-primary hover:underline cursor-pointer"
           >
             Sign Up Here
           </button>

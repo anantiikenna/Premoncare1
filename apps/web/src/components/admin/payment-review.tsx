@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase'
 import { Loader2, CheckCircle, XCircle, ExternalLink, FileText } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { AdminPayment } from '@/lib/types'
 import {
     Dialog,
     DialogContent,
@@ -22,7 +23,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 export function AdminPaymentReview() {
     const [loading, setLoading] = useState(true)
-    const [payments, setPayments] = useState<any[]>([])
+    const [payments, setPayments] = useState<AdminPayment[]>([])
     const [processingId, setProcessingId] = useState<string | null>(null)
     const [rejectDialogId, setRejectDialogId] = useState<string | null>(null)
     const [rejectReason, setRejectReason] = useState('')

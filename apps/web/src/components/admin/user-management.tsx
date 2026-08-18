@@ -15,6 +15,7 @@ import {
     Stethoscope, User, Clock, AlertCircle, Download
 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Profile } from '@/lib/types'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -29,16 +30,19 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle,
     DialogDescription, DialogFooter
 } from '@/components/ui/dialog'
+import { DataTablePagination } from './data-table-pagination'
 
 export function UserManagement() {
     const [loading, setLoading] = useState(true)
-    const [users, setUsers] = useState<any[]>([])
+    const [users, setUsers] = useState<Profile[]>([])
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedRole, setSelectedRole] = useState('all')
     const [accountStatusFilter, setAccountStatusFilter] = useState<string | null>(null)
     const [verificationFilter, setVerificationFilter] = useState<string | null>(null)
-    const [banDialogUser, setBanDialogUser] = useState<any>(null)
-    const [resetDialogUser, setResetDialogUser] = useState<any>(null)
+    const [banDialogUser, setBanDialogUser] = useState<Profile | null>(null)
+    const [resetDialogUser, setResetDialogUser] = useState<Profile | null>(null)
+    const [page, setPage] = useState(1)
+    const PAGE_SIZE = 20
     const [stats, setStats] = useState({
         total: 0,
         doctors: 0,
@@ -95,6 +99,20 @@ export function UserManagement() {
     useEffect(() => {
         fetchUsers()
     }, [fetchUsers])
+
+    useEffect(() => {
+        setPage(1)
+    }, [searchTerm, selectedRole, accountStatusFilter, verificationFilter])
+
+    const filteredUsers = users.filter(user => {
+        const matchesSearch = !searchTerm || 
+            user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        return matchesSearch
+    })
+
+    const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE)
+    const paginatedUsers = filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
     const handleUpdateStatus = async (userId: string, status: string) => {
         try {
@@ -217,7 +235,7 @@ export function UserManagement() {
                                     </td>
                                 </tr>
                             ) : (
-                                users.map((user) => (
+                                paginatedUsers.map((user) => (
                                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="p-6">
                                             <div className="flex items-center gap-4">
@@ -316,6 +334,13 @@ export function UserManagement() {
                         </tbody>
                     </table>
                 </div>
+                <DataTablePagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    totalItems={filteredUsers.length}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setPage}
+                />
             </div>
 
             {/* Ban Confirmation Dialog */}

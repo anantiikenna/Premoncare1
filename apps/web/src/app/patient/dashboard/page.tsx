@@ -278,7 +278,7 @@ export default async function PatientDashboard() {
                                 { label: 'Support', icon: Bell, color: 'text-slate-600', bg: 'bg-slate-50', href: '/support' }
                             ].map((action, idx) => (
                                 <Link key={idx} href={action.href}>
-                                    <button className="w-full flex flex-col items-center gap-4 p-6 rounded-[2.5rem] bg-white border border-slate-100 hover:border-primary/20 hover:shadow-2xl transition-all group">
+                                    <button className="w-full flex flex-col items-center gap-4 p-6 rounded-[2.5rem] bg-white border border-slate-100 hover:border-primary/20 hover:shadow-2xl transition-all group cursor-pointer">
                                         <div className={`h-14 w-14 rounded-2xl ${action.bg} flex items-center justify-center ${action.color} group-hover:scale-110 transition-transform shadow-sm`}>
                                             <action.icon className="h-6 w-6" />
                                         </div>

@@ -225,7 +225,7 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
                         ) : (
                             <button
                                 onClick={handleResend}
-                                className="text-primary font-bold hover:underline"
+                                className="text-primary font-bold hover:underline cursor-pointer"
                             >
                                 Resend Code
                             </button>

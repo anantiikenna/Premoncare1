@@ -19,7 +19,7 @@ export default async function AdminDisputesPage() {
     if (profile?.role !== 'admin') redirect('/patient/dashboard')
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-background">
             <DisputeResolutionCenter />
         </div>
     )

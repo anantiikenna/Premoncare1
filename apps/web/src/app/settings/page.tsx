@@ -172,7 +172,7 @@ export default function SettingsPrivacyPage() {
           <div className="bg-white rounded-3xl border border-red-100 overflow-hidden">
             <button
               onClick={() => setShowDeleteDialog(true)}
-              className="w-full flex items-center justify-between p-4 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center justify-between p-4 hover:bg-red-50 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-red-50 rounded-xl text-red-500">
@@ -271,14 +271,14 @@ export default function SettingsPrivacyPage() {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => { setShowDeleteDialog(false); setDeleteConfirmEmail('') }}
-                className="flex-1 h-12 rounded-xl border border-slate-200 font-black text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                className="flex-1 h-12 rounded-xl border border-slate-200 font-black text-sm text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleting || deleteConfirmEmail !== email}
-                className="flex-1 h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex-1 h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               >
                 {deleting ? 'Deleting...' : 'Delete My Account'}
               </button>
@@ -292,7 +292,7 @@ export default function SettingsPrivacyPage() {
 
 function SettingsRow({ icon, iconColor, iconBg, title, subtitle, onClick }: any) {
   return (
-    <button onClick={onClick} className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
+    <button onClick={onClick} className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors cursor-pointer">
       <div className="flex items-center gap-4">
         <div className={`p-3 rounded-xl ${iconBg} ${iconColor}`}>
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

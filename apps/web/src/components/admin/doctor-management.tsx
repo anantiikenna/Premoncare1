@@ -9,9 +9,10 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase'
 import { getUserFacingError } from '@/lib/user-facing-errors'
-import { Loader2, ShieldCheck, UserX, MessageSquare, ShieldAlert, FileText, Search, Banknote, ScanFace, Send, X } from 'lucide-react'
+import { Loader2, ShieldCheck, UserX, MessageSquare, ShieldAlert, FileText, Search, Banknote, ScanFace, Send, X, AlertTriangle, ZoomIn } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Profile } from '@/lib/types'
+import { Profile, FeeNegotiationMessage } from '@/lib/types'
 import { createNotification } from '@/lib/queries-client'
 import { useCallback, useRef } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -24,6 +25,8 @@ export function DoctorManagement() {
     const [editingFee, setEditingFee] = useState<{ id: string, fee: string } | null>(null)
     const [adminId, setAdminId] = useState<string | undefined>(undefined)
     const [chatDoctorId, setChatDoctorId] = useState<string | null>(null)
+    const [confirmAction, setConfirmAction] = useState<{ doctorId: string; doctorName: string; action: 'approved' | 'rejected' } | null>(null)
+    const [docViewer, setDocViewer] = useState<{ url: string; label: string; type: 'image' | 'pdf' } | null>(null)
     const supabase = createClient()
 
     const fetchDoctors = useCallback(async () => {
@@ -96,6 +99,16 @@ export function DoctorManagement() {
         setProcessingId(doctorId)
         try {
             const feeValue = parseFloat(editingFee.fee)
+            if (isNaN(feeValue) || feeValue < 1000) {
+                toast.error('Fee must be at least ₦1,000')
+                setProcessingId(null)
+                return
+            }
+            if (feeValue > 1000000) {
+                toast.error('Fee cannot exceed ₦1,000,000')
+                setProcessingId(null)
+                return
+            }
             const { error } = await supabase
                 .from('profiles')
                 .update({ 
@@ -163,7 +176,9 @@ export function DoctorManagement() {
                                             <AvatarFallback>{doc.full_name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <CardTitle className="text-lg">{doc.full_name}</CardTitle>
+                                            <CardTitle className="text-lg">
+                                                {doc.verification_status === 'approved' ? 'Dr. ' : ''}{doc.full_name}
+                                            </CardTitle>
                                             <CardDescription>{doc.specialty || 'General Practitioner'}</CardDescription>
                                             <div className="flex flex-col gap-0.5 mt-1">
                                                 {doc.medical_license_number && (
@@ -209,12 +224,12 @@ export function DoctorManagement() {
                                 <div className="space-y-4">
                                     <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Verification Actions</h4>
                                      <div className="flex flex-col gap-3">
-                                        <div className="flex gap-2">
+                                         <div className="flex gap-2">
                                             <Button 
                                                 size="sm" 
                                                 variant="outline"
                                                 className="flex-1 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
-                                                onClick={() => handleVerify(doc.id, 'approved')}
+                                                onClick={() => setConfirmAction({ doctorId: doc.id, doctorName: doc.full_name, action: 'approved' })}
                                                 disabled={processingId === doc.id || doc.verification_status === 'approved'}
                                             >
                                                 <ShieldCheck className="h-4 w-4 mr-2" />
@@ -224,7 +239,7 @@ export function DoctorManagement() {
                                                 size="sm" 
                                                 variant="ghost"
                                                 className="flex-1 text-red-600 hover:bg-red-50"
-                                                onClick={() => handleVerify(doc.id, 'rejected')}
+                                                onClick={() => setConfirmAction({ doctorId: doc.id, doctorName: doc.full_name, action: 'rejected' })}
                                                 disabled={processingId === doc.id || doc.verification_status === 'rejected'}
                                             >
                                                 <UserX className="h-4 w-4 mr-2" />
@@ -232,7 +247,7 @@ export function DoctorManagement() {
                                             </Button>
                                         </div>
                                         
-                                        <div className="grid grid-cols-3 gap-2">
+                                         <div className="grid grid-cols-3 gap-2">
                                             {doc.verification_document_url && (
                                                 <Button 
                                                     variant="secondary" 
@@ -241,7 +256,10 @@ export function DoctorManagement() {
                                                     onClick={async () => {
                                                         if (!doc.verification_document_url) return
                                                         const { data } = await supabase.storage.from('doctor-verifications').createSignedUrl(doc.verification_document_url, 600)
-                                                        if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+                                                        if (data?.signedUrl) {
+                                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.verification_document_url)
+                                                            setDocViewer({ url: data.signedUrl, label: 'Medical License', type: isImage ? 'image' : 'pdf' })
+                                                        }
                                                     }}
                                                 >
                                                     <FileText className="h-3 w-3 mr-1" />
@@ -256,7 +274,10 @@ export function DoctorManagement() {
                                                     onClick={async () => {
                                                         if (!doc.identity_document_url) return
                                                         const { data } = await supabase.storage.from('doctor-identities').createSignedUrl(doc.identity_document_url, 600)
-                                                        if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+                                                        if (data?.signedUrl) {
+                                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.identity_document_url)
+                                                            setDocViewer({ url: data.signedUrl, label: 'Government ID', type: isImage ? 'image' : 'pdf' })
+                                                        }
                                                     }}
                                                 >
                                                     <ShieldCheck className="h-3 w-3 mr-1" />
@@ -271,7 +292,10 @@ export function DoctorManagement() {
                                                     onClick={async () => {
                                                         if (!doc.address_document_url) return
                                                         const { data } = await supabase.storage.from('doctor-identities').createSignedUrl(doc.address_document_url, 600)
-                                                        if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+                                                        if (data?.signedUrl) {
+                                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.address_document_url)
+                                                            setDocViewer({ url: data.signedUrl, label: 'Utility Bill', type: isImage ? 'image' : 'pdf' })
+                                                        }
                                                     }}
                                                 >
                                                     <FileText className="h-3 w-3 mr-1" />
@@ -360,6 +384,74 @@ export function DoctorManagement() {
                     onClose={() => setChatDoctorId(null)} 
                 />
             )}
+
+            {/* Confirmation Dialog */}
+            <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            {confirmAction?.action === 'approved' ? (
+                                <ShieldCheck className="h-5 w-5 text-green-600" />
+                            ) : (
+                                <AlertTriangle className="h-5 w-5 text-red-600" />
+                            )}
+                            {confirmAction?.action === 'approved' ? 'Approve Verification' : 'Reject Verification'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {confirmAction?.action === 'approved'
+                                ? `Are you sure you want to approve Dr. ${confirmAction?.doctorName}'s verification? This will promote them to Practitioner role and grant access to the Doctor Dashboard.`
+                                : `Are you sure you want to reject ${confirmAction?.doctorName}'s verification? They will be notified and may reapply.`}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setConfirmAction(null)}>Cancel</Button>
+                        <Button
+                            variant={confirmAction?.action === 'approved' ? 'default' : 'destructive'}
+                            className={confirmAction?.action === 'approved' ? 'bg-green-600 hover:bg-green-700' : ''}
+                            disabled={processingId === confirmAction?.doctorId}
+                            onClick={async () => {
+                                if (!confirmAction) return
+                                await handleVerify(confirmAction.doctorId, confirmAction.action)
+                                setConfirmAction(null)
+                            }}
+                        >
+                            {processingId === confirmAction?.doctorId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            {confirmAction?.action === 'approved' ? 'Approve' : 'Reject'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Document Viewer Modal */}
+            <Dialog open={!!docViewer} onOpenChange={() => setDocViewer(null)}>
+                <DialogContent className="sm:max-w-3xl max-h-[90vh] p-0 overflow-hidden rounded-2xl">
+                    <DialogHeader className="p-6 pb-2">
+                        <DialogTitle className="flex items-center gap-2">
+                            <ZoomIn className="h-5 w-5 text-primary" />
+                            {docViewer?.label}
+                        </DialogTitle>
+                        <DialogDescription>Verification document submitted by the practitioner</DialogDescription>
+                    </DialogHeader>
+                    <div className="px-6 pb-6">
+                        {docViewer?.type === 'image' ? (
+                            <img 
+                                src={docViewer.url} 
+                                alt={docViewer.label} 
+                                className="w-full rounded-xl border object-contain max-h-[60vh]"
+                            />
+                        ) : (
+                            <iframe 
+                                src={docViewer?.url} 
+                                className="w-full h-[60vh] rounded-xl border"
+                                title={docViewer?.label}
+                            />
+                        )}
+                    </div>
+                    <div className="px-6 pb-4 flex justify-end">
+                        <Button variant="outline" onClick={() => setDocViewer(null)}>Close</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
@@ -397,7 +489,7 @@ function IdentityImage({ bucket, path, label }: { bucket: string, path: string |
 }
 
 function AdminChatPanel({ doctorId, adminId, doctorName, onClose }: { doctorId: string, adminId: string, doctorName: string, onClose: () => void }) {
-    const [messages, setMessages] = useState<any[]>([])
+    const [messages, setMessages] = useState<FeeNegotiationMessage[]>([])
     const [newMessage, setNewMessage] = useState('')
     const [sending, setSending] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null)

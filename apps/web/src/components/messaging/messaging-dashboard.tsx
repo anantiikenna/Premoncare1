@@ -152,7 +152,7 @@ export function MessagingDashboard({ currentUserId }: { currentUserId: string })
                             <button
                                 key={conv.contact.id}
                                 onClick={() => setActiveContact(conv.contact)}
-                                className={`w-full p-4 flex items-start gap-4 hover:bg-accent/50 transition-colors text-left border-b last:border-0 ${activeContact?.id === conv.contact.id ? 'bg-accent' : ''}`}
+                                className={`w-full p-4 flex items-start gap-4 hover:bg-accent/50 transition-colors text-left border-b last:border-0 cursor-pointer ${activeContact?.id === conv.contact.id ? 'bg-accent' : ''}`}
                             >
                                 <Avatar>
                                     <AvatarImage src={conv.contact.avatar_url} />

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'sonner'
+import { createNotification } from '@/lib/queries-client'
 import {
     Search, Filter, AlertTriangle, Clock, CheckCircle, Flag,
     Wallet, Video, RefreshCcw, MessageSquare, ChevronRight,
@@ -169,6 +170,20 @@ export function DisputeResolutionCenter() {
                 .eq('id', resolveDispute.id)
 
             if (error) throw error
+
+            const notifyUser = async (userId: string) => {
+                await createNotification({
+                    user_id: userId,
+                    title: `Dispute ${resolveAction === 'resolved' ? 'Resolved' : 'Dismissed'}`,
+                    message: resolveAction === 'resolved'
+                        ? `Your dispute "${resolveDispute.title}" has been resolved.${resolveNotes ? ` Notes: ${resolveNotes}` : ''}`
+                        : `Your dispute "${resolveDispute.title}" has been dismissed.${resolveNotes ? ` Notes: ${resolveNotes}` : ''}`,
+                    type: 'system',
+                })
+            }
+            if (resolveDispute.patient_id) await notifyUser(resolveDispute.patient_id)
+            if (resolveDispute.doctor_id) await notifyUser(resolveDispute.doctor_id)
+
             toast.success(resolveAction === 'resolved' ? 'Dispute resolved' : 'Dispute dismissed')
             setResolveDispute(null)
             setResolveNotes('')

@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { getAdminUserDetail, createNotification } from '@/lib/queries-client'
+import { logPHIAccess } from '@/lib/audit'
+import { createClient } from '@/lib/supabase'
+import { AdminUserDetail } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -23,11 +26,21 @@ interface UserDetailDrawerProps {
 
 export function UserDetailDrawer({ userId, userName, userRole, requestedRole, isOpen, onClose }: UserDetailDrawerProps) {
     const [loading, setLoading] = useState(false)
-    const [detail, setDetail] = useState<any>(null)
+    const [detail, setDetail] = useState<AdminUserDetail | null>(null)
     const [isMessaging, setIsMessaging] = useState(false)
     const [messageTopic, setMessageTopic] = useState('Account Verification')
     const [messageContent, setMessageContent] = useState('')
     const [sendingMessage, setSendingMessage] = useState(false)
+    const [adminId, setAdminId] = useState<string | null>(null)
+
+    useEffect(() => {
+        const getAdmin = async () => {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) setAdminId(user.id)
+        }
+        getAdmin()
+    }, [])
 
     useEffect(() => {
         setIsMessaging(false)
@@ -37,8 +50,11 @@ export function UserDetailDrawer({ userId, userName, userRole, requestedRole, is
         getAdminUserDetail(userId).then(data => {
             setDetail(data)
             setLoading(false)
+            if (adminId) {
+                logPHIAccess(adminId, userId, 'user_detail_view')
+            }
         })
-    }, [isOpen, userId])
+    }, [isOpen, userId, adminId])
 
     if (!isOpen) return null
 

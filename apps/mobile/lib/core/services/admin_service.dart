@@ -120,12 +120,13 @@ class AdminService {
     final doctors = await _client.from('profiles').select('id').eq('role', 'doctor').count(CountOption.exact);
     final patients = await _client.from('profiles').select('id').eq('role', 'patient').count(CountOption.exact);
     final suspended = await _client.from('profiles').select('id').eq('account_status', 'suspended').count(CountOption.exact);
-    
+    final pending = await _client.from('profiles').select('id').eq('verification_status', 'pending').count(CountOption.exact);
+
     return {
       'total': total,
       'doctors': doctors,
       'patients': patients,
-      'pending': 0, // Placeholder for pending verification
+      'pending': pending,
       'suspended': suspended,
     };
   }

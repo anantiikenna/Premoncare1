@@ -49,7 +49,7 @@ export function ProposeFollowupDialog({ doctorProfile, patients = [], appointmen
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={
-        <button className="flex flex-col items-center gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 hover:border-primary/20 hover:shadow-xl transition-all group">
+        <button className="flex flex-col items-center gap-3 p-6 rounded-[2rem] bg-white border border-slate-100 hover:border-primary/20 hover:shadow-xl transition-all group cursor-pointer">
           <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform shadow-sm">
             <History className="h-6 w-6" />
           </div>
