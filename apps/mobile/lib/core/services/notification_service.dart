@@ -13,6 +13,14 @@ class NotificationService {
 
   FirebaseMessaging get _fcm => FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final List<StreamSubscription> _subscriptions = [];
+
+  void dispose() {
+    for (final sub in _subscriptions) {
+      sub.cancel();
+    }
+    _subscriptions.clear();
+  }
 
   Future<void> initialize() async {
     // 1. Request permissions (especially for iOS and Android 13+)
@@ -41,7 +49,7 @@ class NotificationService {
     await _localNotifications.initialize(settings: initializationSettings);
 
     // 3. Handle Foreground Messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    _subscriptions.add(FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) debugPrint('Got a message whilst in the foreground!');
       RemoteNotification? notification = message.notification;
 
@@ -66,13 +74,13 @@ class NotificationService {
           ),
         );
       }
-    });
+    }));
 
     // 4. Handle Background/Terminated state message click
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    _subscriptions.add(FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (kDebugMode) debugPrint('A new onMessageOpenedApp event was published!');
       _handleDeepLink(message.data['link']);
-    });
+    }));
 
     // 4b. Check if app was opened from a terminated state via notification
     RemoteMessage? initialMessage = await _fcm.getInitialMessage();
@@ -81,18 +89,18 @@ class NotificationService {
     }
 
     // 5. Listen to Auth State changes for token syncing
-    supabase.auth.onAuthStateChange.listen((data) {
+    _subscriptions.add(supabase.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
       if (event == AuthChangeEvent.signedIn || event == AuthChangeEvent.initialSession) {
         syncToken();
       }
-    });
+    }));
 
     // 6. Listen for FCM token refresh (Firebase can rotate tokens at any time)
-    _fcm.onTokenRefresh.listen((newToken) {
+    _subscriptions.add(_fcm.onTokenRefresh.listen((newToken) {
       if (kDebugMode) debugPrint('FCM token refreshed');
       _syncTokenToServer(newToken);
-    });
+    }));
   }
 
   void _handleDeepLink(String? webLink) {

@@ -65,7 +65,7 @@ Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a we
     - Core logic is shared, but entry points (`main_user.dart` vs `main_admin.dart`) and UI flows are isolated.
 
 ## Video Consultation (Mobile)
-- **Native SDK**: Mobile uses `jitsi_meet_flutter_sdk: ^12.1.3` for real-time video consultations (not iframe).
+- **Native SDK**: Mobile uses `jitsi_meet_flutter_sdk: ^13.1.0` for real-time video consultations (not iframe).
 - **API**: `JitsiMeet().join(options, listener)` with `JitsiMeetEventListener` callbacks.
 - **Room Naming**: `PremiumHealthcare-{appointmentId}` on server `https://8x8.vc`.
 - **Event Callbacks**: `conferenceJoined`, `conferenceTerminated`, `audioMutedChanged`, `videoMutedChanged`, `readyToClose`.

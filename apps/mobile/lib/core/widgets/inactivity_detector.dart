@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthState;
 import '../app_colors.dart';
 import '../supabase_locator.dart';
 import '../router.dart';
@@ -17,6 +18,7 @@ class _InactivityDetectorState extends State<InactivityDetector> {
   Timer? _inactivityTimer;
   Timer? _warningTimer;
   Timer? _countdownTimer;
+  StreamSubscription<AuthState>? _authSubscription;
   int _remainingSeconds = 60;
   bool _showWarning = false;
 
@@ -29,7 +31,7 @@ class _InactivityDetectorState extends State<InactivityDetector> {
     super.initState();
     _startTimers();
 
-    supabase.auth.onAuthStateChange.listen((event) {
+    _authSubscription = supabase.auth.onAuthStateChange.listen((event) {
       if (event.session != null) {
         _startTimers();
       } else {
@@ -104,6 +106,7 @@ class _InactivityDetectorState extends State<InactivityDetector> {
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     _cancelAllTimers();
     super.dispose();
   }

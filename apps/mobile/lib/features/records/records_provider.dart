@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_locator.dart';
@@ -124,7 +123,7 @@ class RecordsService {
       try {
         final user = supabase.auth.currentUser;
         final session = supabase.auth.currentSession;
-        final baseUrl = dotenv.env['API_BASE_URL'] ?? 'https://premoncare.netlify.app';
+        final baseUrl = const String.fromEnvironment('NEXT_PUBLIC_SITE_URL', defaultValue: 'https://premoncare.com');
         
         if (session != null && user != null) {
           final title = 'Medical Record Shared';
