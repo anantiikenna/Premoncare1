@@ -28,9 +28,10 @@ import {
     Filter,
     ArrowUpDown,
     FileText,
+    Bell,
 } from 'lucide-react'
 
-const FILTERS = ['All', 'Verification', 'Payments', 'Forum', 'Appointments', 'Alerts'] as const
+const FILTERS = ['All', 'Verification', 'Payments', 'Forum', 'Appointments', 'Notifications', 'System', 'Alerts'] as const
 type FilterType = (typeof FILTERS)[number]
 
 const TYPE_CONFIG: Record<AuditEvent['type'], { icon: typeof ShieldCheck; color: string; bg: string; label: string }> = {
@@ -38,14 +39,15 @@ const TYPE_CONFIG: Record<AuditEvent['type'], { icon: typeof ShieldCheck; color:
     payment: { icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'Payment' },
     forum: { icon: MessageSquare, color: 'text-violet-500', bg: 'bg-violet-500/10', label: 'Forum' },
     appointment: { icon: Calendar, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'Appointment' },
-    system: { icon: Activity, color: 'text-slate-500', bg: 'bg-slate-500/10', label: 'System' },
+    system: { icon: Activity, color: 'text-slate-500', bg: 'bg-muted', label: 'System' },
+    notification: { icon: Bell, color: 'text-cyan-500', bg: 'bg-cyan-500/10', label: 'Notification' },
 }
 
 const SEVERITY_CONFIG: Record<AuditEvent['severity'], { badge: string; dot: string }> = {
-    success: { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-    info: { badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
-    warning: { badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
-    danger: { badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
+    success: { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800', dot: 'bg-emerald-500' },
+    info: { badge: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800', dot: 'bg-blue-500' },
+    warning: { badge: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800', dot: 'bg-amber-500' },
+    danger: { badge: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-400 dark:border-rose-800', dot: 'bg-rose-500' },
 }
 
 function formatRelativeTime(timestamp: string) {
@@ -99,7 +101,7 @@ export default function AdminAuditTimelinePage() {
     const fetchAuditData = useCallback(async () => {
         setLoading(true)
         try {
-            const result = await getAuditTimeline(100)
+            const result = await getAuditTimeline(500)
             setEvents(result.events)
             setStats(result.stats)
         } catch (err) {
@@ -117,6 +119,10 @@ export default function AdminAuditTimelinePage() {
         if (activeFilter !== 'All') {
             if (activeFilter === 'Alerts') {
                 if (e.severity !== 'danger' && e.severity !== 'warning') return false
+            } else if (activeFilter === 'Notifications') {
+                if (e.type !== 'notification') return false
+            } else if (activeFilter === 'System') {
+                if (e.type !== 'system') return false
             } else if (e.type !== activeFilter.toLowerCase()) {
                 return false
             }
@@ -146,14 +152,15 @@ export default function AdminAuditTimelinePage() {
     const paginatedGroups = groupEventsByDate(sortedEvents.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE))
 
     const handleExportCSV = () => {
-        const headers = ['Timestamp', 'Type', 'Severity', 'Action', 'User', 'Details']
+        const headers = ['Timestamp', 'Type', 'Severity', 'Title', 'Actor', 'Target', 'Metadata']
         const rows = sortedEvents.map(e => [
             formatTimestamp(e.timestamp),
             e.type,
             e.severity,
-            e.action,
-            e.user_name || e.user_id,
-            e.details ? JSON.stringify(e.details) : ''
+            e.title,
+            e.actor || '',
+            e.target || '',
+            Object.keys(e.meta).length > 0 ? JSON.stringify(e.meta) : ''
         ])
         const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
         const blob = new Blob([csv], { type: 'text/csv' })
@@ -175,8 +182,8 @@ export default function AdminAuditTimelinePage() {
                             <FileText className="h-4 w-4" />
                             Platform Administration
                         </div>
-                        <h1 className="text-3xl font-black text-slate-800 tracking-tight">Audit Timeline</h1>
-                        <p className="text-sm font-semibold text-slate-500">
+                        <h1 className="text-3xl font-black text-foreground tracking-tight">Audit Timeline</h1>
+                        <p className="text-sm font-semibold text-muted-foreground">
                             Track and review all system activities across the platform.
                         </p>
                     </div>
@@ -247,7 +254,11 @@ export default function AdminAuditTimelinePage() {
                                 ? events.length
                                 : filter === 'Alerts'
                                   ? events.filter((e) => e.severity === 'danger' || e.severity === 'warning').length
-                                  : events.filter((e) => e.type === filter.toLowerCase()).length
+                                  : filter === 'Notifications'
+                                    ? events.filter((e) => e.type === 'notification').length
+                                    : filter === 'System'
+                                      ? events.filter((e) => e.type === 'system').length
+                                      : events.filter((e) => e.type === filter.toLowerCase()).length
                         return (
                             <button
                                 key={filter}
@@ -314,16 +325,16 @@ export default function AdminAuditTimelinePage() {
                 {/* Timeline */}
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
-                        <RefreshCw className="h-8 w-8 text-slate-300 animate-spin mb-4" />
-                        <p className="text-sm font-bold text-slate-400">Loading audit events...</p>
+                        <RefreshCw className="h-8 w-8 text-muted-foreground/30 animate-spin mb-4" />
+                        <p className="text-sm font-bold text-muted-foreground">Loading audit events...</p>
                     </div>
                 ) : sortedEvents.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20">
-                        <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                            <Activity className="h-8 w-8 text-slate-300" />
+                        <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                            <Activity className="h-8 w-8 text-muted-foreground/30" />
                         </div>
-                        <p className="text-sm font-black text-slate-800">No Events Found</p>
-                        <p className="text-xs font-semibold text-slate-400 mt-1">
+                        <p className="text-sm font-black text-foreground">No Events Found</p>
+                        <p className="text-xs font-semibold text-muted-foreground mt-1">
                             {activeFilter !== 'All'
                                 ? 'Try adjusting your filters to see more activity.'
                                 : 'No audit events have been recorded yet.'}
@@ -334,8 +345,8 @@ export default function AdminAuditTimelinePage() {
                         {Array.from(paginatedGroups.entries()).map(([date, dateEvents]) => (
                             <div key={date}>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-sm font-black text-slate-800">{date}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                    <span className="text-sm font-black text-foreground">{date}</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                                         {dateEvents.length} events
                                     </span>
                                 </div>
@@ -371,10 +382,10 @@ export default function AdminAuditTimelinePage() {
                 )}
 
                 {/* Footer */}
-                <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10 rounded-2xl">
                     <div className="flex items-center gap-3">
-                        <ShieldCheck className="h-5 w-5 text-blue-500" />
-                        <p className="text-sm font-bold text-blue-900">
+                        <ShieldCheck className="h-5 w-5 text-primary" />
+                        <p className="text-sm font-bold text-primary">
                             All audit activities are securely stored for compliance and investigation purposes.
                         </p>
                     </div>
@@ -407,13 +418,13 @@ function StatCard({
     bgColor: string
 }) {
     return (
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-card p-5 rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${bgColor} mb-4`}>
                 <Icon className={`h-5 w-5 ${color}`} />
             </div>
-            <h3 className="text-2xl font-black text-slate-800 tracking-tight">{value}</h3>
-            <p className="text-sm font-bold text-slate-800">{title}</p>
-            <p className="text-xs font-semibold text-slate-500 mt-1">{subtitle}</p>
+            <h3 className="text-2xl font-black text-foreground tracking-tight">{value}</h3>
+            <p className="text-sm font-bold text-foreground">{title}</p>
+            <p className="text-xs font-semibold text-muted-foreground mt-1">{subtitle}</p>
         </div>
     )
 }
@@ -432,17 +443,17 @@ function TimelineEvent({
     return (
         <div className="flex gap-4 group">
             <div className="w-20 shrink-0 pt-2 text-right">
-                <div className="text-sm font-bold text-slate-800">
+                <div className="text-sm font-bold text-foreground">
                     {new Date(event.timestamp).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })}
                 </div>
-                <div className="text-xs font-semibold text-slate-500">{formatRelativeTime(event.timestamp)}</div>
+                <div className="text-xs font-semibold text-muted-foreground">{formatRelativeTime(event.timestamp)}</div>
             </div>
             <div className="flex flex-col items-center">
                 <div className={`w-3 h-3 rounded-full mt-3 relative z-10 shadow-sm ${severity.dot}`} />
-                <div className="w-0.5 h-full bg-slate-200 -mt-2 -mb-2 group-last:hidden" />
+                <div className="w-0.5 h-full bg-border -mt-2 -mb-2 group-last:hidden" />
             </div>
             <div className="flex-1 pb-4">
-                <Card className="rounded-2xl border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <Card className="rounded-2xl border-border shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                     <CardContent className="p-5">
                         <div className="flex items-start gap-4">
                             <div className={`p-3 rounded-xl ${config.bg}`}>
@@ -450,18 +461,18 @@ function TimelineEvent({
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between gap-2">
-                                    <h4 className="font-black text-slate-800 text-base leading-tight">{event.title}</h4>
+                                    <h4 className="font-black text-foreground text-base leading-tight">{event.title}</h4>
                                     <Badge variant="outline" className={`shrink-0 text-[10px] font-bold ${severity.badge}`}>
                                         {event.severity === 'danger' ? 'Alert' : event.severity === 'warning' ? 'Pending' : event.severity === 'success' ? 'Success' : 'Info'}
                                     </Badge>
                                 </div>
-                                <p className="text-sm font-semibold text-slate-500 mt-1">{event.description}</p>
+                                <p className="text-sm font-semibold text-muted-foreground mt-1">{event.description}</p>
 
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs">
                                     {Object.entries(event.meta).slice(0, 3).map(([key, val]) => (
                                         <div key={key} className="flex items-center gap-1.5">
-                                            <span className="font-semibold text-slate-400">{key}:</span>
-                                            <span className="font-bold text-slate-700">{val}</span>
+                                            <span className="font-semibold text-muted-foreground">{key}:</span>
+                                            <span className="font-bold text-foreground">{val}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -507,44 +518,44 @@ function EventDetailContent({ event, onClose }: { event: AuditEvent; onClose: ()
 
             <div className="space-y-4 py-2">
                 <div>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Description</p>
-                    <p className="text-sm font-semibold text-slate-700">{event.description}</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Description</p>
+                    <p className="text-sm font-semibold text-foreground">{event.description}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-slate-50 rounded-xl p-3">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</p>
-                        <p className="text-sm font-bold text-slate-800 mt-0.5">{config.label}</p>
+                    <div className="bg-muted rounded-xl p-3">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Type</p>
+                        <p className="text-sm font-bold text-foreground mt-0.5">{config.label}</p>
                     </div>
-                    <div className="bg-slate-50 rounded-xl p-3">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Severity</p>
+                    <div className="bg-muted rounded-xl p-3">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Severity</p>
                         <div className="flex items-center gap-2 mt-0.5">
                             <span className={`w-2 h-2 rounded-full ${severity.dot}`} />
-                            <p className="text-sm font-bold text-slate-800 capitalize">{event.severity}</p>
+                            <p className="text-sm font-bold text-foreground capitalize">{event.severity}</p>
                         </div>
                     </div>
                     {event.actor && (
-                        <div className="bg-slate-50 rounded-xl p-3">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Actor</p>
-                            <p className="text-sm font-bold text-slate-800 mt-0.5">{event.actor}</p>
+                        <div className="bg-muted rounded-xl p-3">
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Actor</p>
+                            <p className="text-sm font-bold text-foreground mt-0.5">{event.actor}</p>
                         </div>
                     )}
                     {event.target && (
-                        <div className="bg-slate-50 rounded-xl p-3">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target</p>
-                            <p className="text-sm font-bold text-slate-800 mt-0.5">{event.target}</p>
+                        <div className="bg-muted rounded-xl p-3">
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Target</p>
+                            <p className="text-sm font-bold text-foreground mt-0.5">{event.target}</p>
                         </div>
                     )}
                 </div>
 
                 {Object.keys(event.meta).length > 0 && (
                     <div>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Metadata</p>
-                        <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Metadata</p>
+                        <div className="bg-muted rounded-xl p-4 space-y-2">
                             {Object.entries(event.meta).map(([key, val]) => (
                                 <div key={key} className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold text-slate-500">{key}</span>
-                                    <span className="text-xs font-bold text-slate-800">{val}</span>
+                                    <span className="text-xs font-semibold text-muted-foreground">{key}</span>
+                                    <span className="text-xs font-bold text-foreground">{val}</span>
                                 </div>
                             ))}
                         </div>

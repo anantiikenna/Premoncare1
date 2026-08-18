@@ -718,7 +718,7 @@ export async function rejectPayment(supabase: SupabaseClient, paymentId: string,
 
 export interface AuditEvent {
     id: string
-    type: 'verification' | 'payment' | 'forum' | 'appointment' | 'system'
+    type: 'verification' | 'payment' | 'forum' | 'appointment' | 'system' | 'notification'
     title: string
     description: string
     timestamp: string
@@ -733,7 +733,7 @@ export async function getAuditTimeline(supabase: SupabaseClient, limit = 50) {
     const now = new Date()
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const [verificationsRes, paymentsRes, forumRes, appointmentsRes] = await Promise.all([
+    const [verificationsRes, paymentsRes, forumRes, appointmentsRes, notificationsRes] = await Promise.all([
         supabase
             .from('profiles')
             .select('id, full_name, role, verification_status, verified_by, updated_at, created_at, specialty')
@@ -758,6 +758,12 @@ export async function getAuditTimeline(supabase: SupabaseClient, limit = 50) {
         supabase
             .from('appointments')
             .select('id, status, created_at, reason, patient:profiles!appointments_patient_id_fkey(full_name), doctor:profiles!appointments_doctor_id_fkey(full_name, specialty)')
+            .gte('created_at', thirtyDaysAgo)
+            .order('created_at', { ascending: false })
+            .limit(limit),
+        supabase
+            .from('notifications')
+            .select('id, title, message, type, is_read, created_at, user_id')
             .gte('created_at', thirtyDaysAgo)
             .order('created_at', { ascending: false })
             .limit(limit),
@@ -850,6 +856,25 @@ export async function getAuditTimeline(supabase: SupabaseClient, limit = 50) {
                 ...(apt.reason ? { 'Reason': apt.reason } : {}),
             },
             rawData: apt as unknown as Record<string, unknown>,
+        })
+    }
+
+    for (const notif of notificationsRes.data || []) {
+        const severity = notif.is_read ? 'info' : notif.type === 'system' ? 'warning' : 'success'
+        events.push({
+            id: `notif-${notif.id}`,
+            type: 'notification',
+            title: notif.title,
+            description: notif.message,
+            timestamp: notif.created_at,
+            severity,
+            actor: 'System',
+            target: notif.user_id?.slice(0, 8),
+            meta: {
+                'Type': notif.type || 'other',
+                'Read': notif.is_read ? 'Yes' : 'No',
+            },
+            rawData: notif as unknown as Record<string, unknown>,
         })
     }
 
