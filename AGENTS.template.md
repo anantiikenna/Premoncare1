@@ -188,6 +188,42 @@ Before marking ANY task as complete, agents MUST complete this verification sequ
 
 **Agent rule:** Never claim a task is "done" without running the audit phase. If the analyzer/linter/build tool hangs, flag the issue to the user rather than skipping verification.
 
+### Mandatory Walk-Through (Every User-Facing Change)
+After completing any change that affects the user experience, agents MUST perform an end-to-end walk-through of the affected flow:
+
+**Before walk-through:**
+- [ ] Dev server is running (`npm run dev` for web, `flutter run` for mobile)
+- [ ] You are logged in as the relevant role (patient, doctor, admin)
+- [ ] Database has test data covering the changed feature
+
+**Walk-through checklist:**
+1. **Entry point** — How does the user reach this feature? (URL, button, notification, deep link)
+2. **Happy path** — Complete the primary action from start to finish without errors
+3. **Loading states** — Verify spinners/skeletons appear while data loads
+4. **Empty states** — Verify the UI handles no-data gracefully (not a blank screen or crash)
+5. **Error states** — Trigger a failure (invalid input, network error) and verify friendly error messages
+6. **Role-based access** — Verify the feature works for each authorized role and blocks unauthorized roles
+7. **Mobile responsiveness** — If web, verify the layout works on mobile viewport (375px width)
+8. **Dark mode** — If CSS variables were changed, verify both light and dark themes render correctly
+9. **Real-time** — If applicable, open two browser tabs/devices and verify changes sync live
+10. **Navigation** — Verify back buttons, breadcrumbs, and redirects work correctly
+11. **Session** — Verify the feature handles expired sessions gracefully (redirect to login, not a crash)
+
+**Document the walk-through:**
+```markdown
+### Walk-Through: [Feature Name]
+- **Entry Point:** [How I reached the feature]
+- **Happy Path:** [Pass/Fail — notes]
+- **Empty State:** [Pass/Fail/N/A]
+- **Error State:** [Pass/Fail — notes]
+- **Role Access:** [Which roles tested]
+- **Dark Mode:** [Pass/Fail/N/A]
+- **Real-Time:** [Pass/Fail/N/A]
+- **Issues Found:** [List any bugs discovered during walk-through]
+```
+
+**Agent rule:** If the walk-through reveals a bug, fix it before marking the task complete. Document any known limitations or follow-up items.
+
 ### Error Handling Convention
 ```
 User-facing errors: Friendly message via toast/snackbar
@@ -310,6 +346,7 @@ When starting ANY task in this codebase:
 - [ ] Update `CHANGELOG.md` if the change is user-facing
 - [ ] Never commit secrets or PHI
 - [ ] **Run the mandatory audit phase** (see "Mandatory Audit Phase" above)
+- [ ] **Run the mandatory walk-through** (see "Mandatory Walk-Through" above)
 - [ ] **Verify zero type/lint errors before committing**
 - [ ] **Commit with descriptive message** following `type(scope): description` convention
 
@@ -329,6 +366,7 @@ After completing a task, document what was verified:
 - **Dark Mode:** [CSS variables verified/not applicable]
 - **Stream Cleanup:** [subscriptions cancelled/not applicable]
 - **Error Handling:** [no empty catch blocks verified]
+- **Walk-Through:** [pass/fail — issues found or "no issues"]
 ```
 
 ---
