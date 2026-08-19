@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 import '../../core/services/admin_service.dart';
 import 'admin_scaffold.dart';
 import 'admin_shared_widgets.dart';
@@ -571,8 +573,6 @@ class _DoctorVerificationPanelState
 
   Widget _buildDetailView() {
     final doctor = _selectedDoctor!;
-    final metadata = doctor['metadata'] as Map<String, dynamic>? ?? {};
-    final documents = (metadata['documents'] as List<dynamic>?) ?? [];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -606,11 +606,13 @@ class _DoctorVerificationPanelState
           const SizedBox(height: 32),
           _buildSectionHeader('Submitted Documents'),
           const SizedBox(height: 16),
-          _buildDocumentsGrid(documents),
+          _buildDocumentsGrid(doctor),
+          const SizedBox(height: 32),
+          _buildIdentityComparison(doctor),
           const SizedBox(height: 32),
           _buildSectionHeader('Application Details'),
           const SizedBox(height: 16),
-          _buildDetailsGrid(doctor, metadata),
+          _buildDetailsGrid(doctor),
           const SizedBox(height: 32),
           _buildAdminNotes(),
           const SizedBox(height: 32),
@@ -1214,8 +1216,39 @@ class _DoctorVerificationPanelState
     );
   }
 
-  Widget _buildDocumentsGrid(List<dynamic> documents) {
-    if (documents.isEmpty) {
+  Widget _buildDocumentsGrid(Map<String, dynamic> doctor) {
+    final docs = <_DocItem>[
+      if ((doctor['verification_document_url'] as String?)?.isNotEmpty == true)
+        _DocItem(
+          title: 'Medical License',
+          path: doctor['verification_document_url'],
+          bucket: 'doctor-verifications',
+          icon: Icons.local_hospital_outlined,
+        ),
+      if ((doctor['identity_document_front_url'] as String?)?.isNotEmpty == true)
+        _DocItem(
+          title: 'ID Document (Front)',
+          path: doctor['identity_document_front_url'],
+          bucket: 'doctor-identities',
+          icon: Icons.badge_outlined,
+        ),
+      if ((doctor['identity_document_back_url'] as String?)?.isNotEmpty == true)
+        _DocItem(
+          title: 'ID Document (Back)',
+          path: doctor['identity_document_back_url'],
+          bucket: 'doctor-identities',
+          icon: Icons.badge_outlined,
+        ),
+      if ((doctor['address_document_url'] as String?)?.isNotEmpty == true)
+        _DocItem(
+          title: 'Address Document',
+          path: doctor['address_document_url'],
+          bucket: 'doctor-identities',
+          icon: Icons.home_outlined,
+        ),
+    ];
+
+    if (docs.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(32),
@@ -1231,7 +1264,7 @@ class _DoctorVerificationPanelState
               color: AppColors.textTertiaryOf(context),
               size: 40,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'No documents submitted',
               style: TextStyle(
@@ -1240,7 +1273,7 @@ class _DoctorVerificationPanelState
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'The applicant has not uploaded any documents yet.',
               style: TextStyle(
@@ -1261,26 +1294,20 @@ class _DoctorVerificationPanelState
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
       childAspectRatio: 0.85,
-      children: documents.map<Widget>((doc) {
-        final docMap = doc is Map<String, dynamic> ? doc : {};
-        final title = docMap['title'] ?? docMap['name'] ?? 'Document';
-        final fileName = docMap['file_name'] ?? docMap['url'] ?? 'file';
-        final isVerified = docMap['verified'] == true;
-        return _DocumentCard(
-          title: title,
-          fileName: fileName,
-          isVerified: isVerified,
-          color: AppColors.primary,
-          url: docMap['url'] as String?,
-        );
-      }).toList(),
+      children: docs.map((doc) => _DocumentCard(
+        title: doc.title,
+        fileName: doc.path.split('/').last,
+        icon: doc.icon,
+        onTap: () => context.push('/document-viewer', extra: {
+          'bucket': doc.bucket,
+          'path': doc.path,
+          'title': doc.title,
+        }),
+      )).toList(),
     );
   }
 
-  Widget _buildDetailsGrid(
-    Map<String, dynamic> doctor,
-    Map<String, dynamic> metadata,
-  ) {
+  Widget _buildDetailsGrid(Map<String, dynamic> doctor) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -1303,7 +1330,7 @@ class _DoctorVerificationPanelState
                 child: _DetailItem(
                   icon: Icons.badge_outlined,
                   label: 'License Number',
-                  value: metadata['license_number'] ?? 'N/A',
+                  value: doctor['medical_license_number'] ?? 'N/A',
                 ),
               ),
             ],
@@ -1315,33 +1342,14 @@ class _DoctorVerificationPanelState
                 child: _DetailItem(
                   icon: Icons.cake_outlined,
                   label: 'Date of Birth',
-                  value: metadata['date_of_birth'] ?? 'N/A',
+                  value: doctor['dob'] ?? 'N/A',
                 ),
               ),
-              Expanded(
-                child: _DetailItem(
-                  icon: Icons.location_on_outlined,
-                  label: 'Issuing State',
-                  value: metadata['issuing_state'] ?? 'N/A',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
               Expanded(
                 child: _DetailItem(
                   icon: Icons.transgender_rounded,
                   label: 'Gender',
-                  value: metadata['gender'] ?? 'N/A',
-                ),
-              ),
-              Expanded(
-                child: _DetailItem(
-                  icon: Icons.work_outline_rounded,
-                  label: 'Years of Experience',
-                  value: metadata['years_of_experience'] ?? 'N/A',
+                  value: doctor['gender'] ?? 'N/A',
                 ),
               ),
             ],
@@ -1349,6 +1357,13 @@ class _DoctorVerificationPanelState
           const SizedBox(height: 24),
           Row(
             children: [
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.work_outline_rounded,
+                  label: 'Years of Experience',
+                  value: '${doctor['experience_years'] ?? 'N/A'}',
+                ),
+              ),
               Expanded(
                 child: _DetailItem(
                   icon: Icons.medical_services_outlined,
@@ -1356,17 +1371,65 @@ class _DoctorVerificationPanelState
                   value: doctor['specialty'] ?? 'N/A',
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
               Expanded(
                 child: _DetailItem(
-                  icon: Icons.apartment_rounded,
-                  label: 'Practice Type',
-                  value: metadata['practice_type'] ?? 'N/A',
+                  icon: Icons.badge_outlined,
+                  label: 'ID Type',
+                  value: doctor['identity_type'] ?? 'N/A',
+                ),
+              ),
+              Expanded(
+                child: _DetailItem(
+                  icon: Icons.check_circle_outline,
+                  label: 'Verification Status',
+                  value: _statusLabel(doctor['verification_status'] ?? 'pending'),
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildIdentityComparison(Map<String, dynamic> doctor) {
+    final idFront = doctor['identity_document_front_url'] as String?;
+    final selfie = doctor['live_selfie_url'] as String?;
+
+    if (idFront == null && selfie == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Identity Comparison'),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            if (idFront != null)
+              Expanded(
+                child: _IdentityImageCard(
+                  title: 'Government ID',
+                  path: idFront,
+                  bucket: 'doctor-identities',
+                ),
+              ),
+            if (idFront != null && selfie != null) const SizedBox(width: 16),
+            if (selfie != null)
+              Expanded(
+                child: _IdentityImageCard(
+                  title: 'Live Selfie',
+                  path: selfie,
+                  bucket: 'doctor-identities',
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -1681,132 +1744,199 @@ class _StatCard extends StatelessWidget {
   }
 }
 
+class _DocItem {
+  final String title;
+  final String path;
+  final String bucket;
+  final IconData icon;
+
+  const _DocItem({
+    required this.title,
+    required this.path,
+    required this.bucket,
+    required this.icon,
+  });
+}
+
 class _DocumentCard extends StatelessWidget {
   final String title;
   final String fileName;
-  final bool isVerified;
-  final Color color;
-  final String? url;
+  final IconData icon;
+  final VoidCallback? onTap;
 
   const _DocumentCard({
     required this.title,
     required this.fileName,
-    required this.isVerified,
-    required this.color,
-    this.url,
+    required this.icon,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLightOf(context)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceAltOf(context),
-                borderRadius: BorderRadius.circular(16),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.borderLightOf(context)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Center(
+                  child: Icon(
+                    icon,
+                    color: AppColors.primary,
+                    size: 40,
+                  ),
+                ),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: Stack(
-                alignment: Alignment.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 13,
+                color: AppColors.textPrimaryOf(context),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              fileName,
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (url != null &&
-                      (url!.endsWith('.jpg') ||
-                          url!.endsWith('.jpeg') ||
-                          url!.endsWith('.png') ||
-                          url!.endsWith('.webp')))
-                    Image.network(
-                      url!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (_, __, ___) => Icon(
-                        Icons.broken_image_rounded,
-                        color: AppColors.textTertiaryOf(context),
-                        size: 40,
-                      ),
-                    )
-                  else if (url != null &&
-                      (url!.endsWith('.pdf') || url!.contains('.pdf')))
-                    const Icon(
-                      Icons.picture_as_pdf_rounded,
-                      color: AppColors.error,
-                      size: 40,
-                    )
-                  else
-                    Icon(
-                      Icons.description_rounded,
-                      color: AppColors.textTertiaryOf(context),
-                      size: 40,
+                  Icon(Icons.visibility_outlined, size: 10, color: AppColors.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    'View',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
                     ),
-                  if (isVerified)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppColors.success,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: AppColors.textInverse,
-                          size: 10,
-                        ),
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: 13,
-              color: AppColors.textPrimaryOf(context),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            fileName,
-            style: TextStyle(
-              color: AppColors.textTertiaryOf(context),
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: isVerified
-                  ? AppColors.successLight
-                  : AppColors.warningLight,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              isVerified ? 'Verified' : 'Pending',
-              style: TextStyle(
-                color: isVerified ? AppColors.success : AppColors.warning,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IdentityImageCard extends StatefulWidget {
+  final String title;
+  final String path;
+  final String bucket;
+
+  const _IdentityImageCard({
+    required this.title,
+    required this.path,
+    required this.bucket,
+  });
+
+  @override
+  State<_IdentityImageCard> createState() => _IdentityImageCardState();
+}
+
+class _IdentityImageCardState extends State<_IdentityImageCard> {
+  late Future<String?> _urlFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _urlFuture = _getSignedUrl();
+  }
+
+  Future<String?> _getSignedUrl() async {
+    try {
+      return await supabase.storage.from(widget.bucket).createSignedUrl(widget.path, 1800);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/document-viewer', extra: {
+        'bucket': widget.bucket,
+        'path': widget.path,
+        'title': widget.title,
+      }),
+      child: Container(
+        height: 180,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.borderLightOf(context)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text(
+                widget.title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  color: AppColors.textPrimaryOf(context),
+                ),
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: FutureBuilder<String?>(
+                future: _urlFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                  }
+                  final url = snapshot.data;
+                  if (url == null) {
+                    return Center(
+                      child: Icon(Icons.broken_image_rounded, color: AppColors.textTertiaryOf(context), size: 32),
+                    );
+                  }
+                  return Image.network(
+                    url,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Icon(Icons.broken_image_rounded, color: AppColors.textTertiaryOf(context), size: 32),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
