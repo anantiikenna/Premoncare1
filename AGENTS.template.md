@@ -155,6 +155,39 @@ raw handler → reads userId from request body → trusts client-supplied data
 - No hardcoded URLs — use environment variables
 - No `console.log`/`print()` with sensitive data in production
 
+### Mandatory Audit Phase (Every Task)
+Before marking ANY task as complete, agents MUST complete this verification sequence:
+
+**Web (Next.js):**
+1. Run `npm run typecheck` (or `npx tsc --noEmit`) — zero errors required
+2. Run `npm run lint` (or `npx eslint src/`) — zero warnings required
+3. Run `npm run build` — clean build required
+4. Verify no regressions in related components (check imports, shared types)
+
+**Mobile (Flutter):**
+1. Run `flutter analyze` — zero errors required
+2. Run `flutter test` — all tests pass
+3. Run `flutter build apk --flavor user --debug` (or `flutter build ios`) — clean build
+4. Verify no regressions in related widgets/screens
+
+**Database (Supabase):**
+1. If schema changed: verify `GRANT` statements exist for new tables
+2. If new table: verify RLS policies cover all CRUD operations
+3. If Realtime needed: verify `REPLICA IDENTITY FULL` and publication membership
+4. Run affected queries in Supabase SQL Editor to verify RLS enforcement
+
+**Cross-cutting checks:**
+- [ ] No hardcoded URLs — use environment variables
+- [ ] No secrets in client-side code
+- [ ] No PHI/PII in console/logs
+- [ ] All new API routes wrapped in `withSecurity`
+- [ ] All new database tables have RLS + GRANTs
+- [ ] CSS uses CSS variables (not hardcoded colors) for dark mode support
+- [ ] Stream subscriptions stored and cancelled in `dispose()`/cleanup
+- [ ] Error handling: no empty catch blocks — log or surface errors
+
+**Agent rule:** Never claim a task is "done" without running the audit phase. If the analyzer/linter/build tool hangs, flag the issue to the user rather than skipping verification.
+
 ### Error Handling Convention
 ```
 User-facing errors: Friendly message via toast/snackbar
@@ -276,6 +309,27 @@ When starting ANY task in this codebase:
 - [ ] Run lint/typecheck before committing
 - [ ] Update `CHANGELOG.md` if the change is user-facing
 - [ ] Never commit secrets or PHI
+- [ ] **Run the mandatory audit phase** (see "Mandatory Audit Phase" above)
+- [ ] **Verify zero type/lint errors before committing**
+- [ ] **Commit with descriptive message** following `type(scope): description` convention
+
+---
+
+## Audit Log Template
+
+After completing a task, document what was verified:
+
+```markdown
+### Audit: [Task Name]
+- **Typecheck:** [pass/fail — errors if any]
+- **Lint:** [pass/fail — warnings if any]
+- **Build:** [pass/fail]
+- **Tests:** [pass/fail — count]
+- **RLS/Security:** [checked/not applicable]
+- **Dark Mode:** [CSS variables verified/not applicable]
+- **Stream Cleanup:** [subscriptions cancelled/not applicable]
+- **Error Handling:** [no empty catch blocks verified]
+```
 
 ---
 
