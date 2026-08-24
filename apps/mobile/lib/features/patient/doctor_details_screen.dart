@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../core/doctor_name_utils.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 
 class DoctorDetailsScreen extends ConsumerStatefulWidget {
@@ -43,7 +44,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
     try {
       final data = await supabase
           .from('profiles')
-          .select('full_name, specialty, about_text, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url, is_online')
+          .select('full_name, title, specialty, about_text, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url, is_online')
           .eq('id', widget.doctorId)
           .single();
       if (mounted) setState(() { _profile = data; _loading = false; });
@@ -54,6 +55,8 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   }
 
   String get _displayName => _profile?['full_name'] as String? ?? widget.doctorName;
+  String get _doctorTitle => _profile?['title'] as String?;
+  String get _formattedName => formatDoctorName(_doctorTitle, _displayName);
   String get _displaySpecialty => _profile?['specialty'] as String? ?? widget.specialty;
   double get _hourlyRate => (_profile?['hourly_rate'] as num?)?.toDouble() ?? 5000.0;
   double get _bookingRate => widget.isEmergency ? _hourlyRate * 5 : _hourlyRate;
@@ -97,7 +100,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                         const SizedBox(height: 24),
                         if (_isVerified) _buildVerifiedBanner(),
                         if (_isVerified) const SizedBox(height: 24),
-                        _buildSectionTitle('About Dr. ${_displayName.replaceFirst('Dr. ', '')}'),
+                        _buildSectionTitle('About $_formattedName'),
                         const SizedBox(height: 12),
                         _buildAboutSection(),
                         const SizedBox(height: 24),
@@ -292,7 +295,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                     children: [
                       Row(
                         children: [
-                          Flexible(child: Text('Dr. ${_displayName.replaceFirst('Dr. ', '')}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
+                          Flexible(child: Text(_formattedName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
                           if (_isVerified) ...[
                             const SizedBox(width: 6),
                             const Icon(Icons.verified_rounded, color: AppColors.info, size: 18),

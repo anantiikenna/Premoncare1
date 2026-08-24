@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../core/doctor_name_utils.dart';
 import '../../core/providers.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
@@ -39,10 +40,12 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
   int _secondsRemaining = 180; // 3 minutes
   bool _isProcessing = false;
   RealtimeChannel? _subscription;
+  String _doctorDisplayName = 'Doctor';
 
   @override
   void initState() {
     super.initState();
+    _fetchDoctorProfile();
     _startCountdown();
     _setupRealtimeSubscription();
     _pulseController = AnimationController(
@@ -52,6 +55,24 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
     _pulseAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+  }
+
+  Future<void> _fetchDoctorProfile() async {
+    try {
+      final data = await supabase
+          .from('profiles')
+          .select('full_name, title')
+          .eq('id', supabase.auth.currentUser?.id ?? '')
+          .single();
+      if (mounted) {
+        setState(() {
+          _doctorDisplayName = formatDoctorName(
+            data['title'] as String?,
+            data['full_name'] as String?,
+          );
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -154,8 +175,8 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
               'userId': widget.patientId,
               'title': accept ? 'Emergency Request Accepted' : 'Emergency Request Declined',
               'message': accept
-                  ? 'Dr. has accepted your emergency consultation request. Please proceed with payment.'
-                  : 'Unfortunately, Dr. is unable to take your case right now.',
+                  ? '$_doctorDisplayName has accepted your emergency consultation request. Please proceed with payment.'
+                  : 'Unfortunately, $_doctorDisplayName is unable to take your case right now.',
               'type': 'appointment',
             }),
           );

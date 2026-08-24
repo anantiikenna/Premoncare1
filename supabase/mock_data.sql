@@ -181,7 +181,7 @@ ON CONFLICT (id) DO NOTHING;
 -- 2. PROFILES (all schema columns included)
 -- ============================================================
 INSERT INTO public.profiles (
-    id, email, username, full_name, avatar_url, role, requested_role,
+    id, email, username, full_name, avatar_url, title, role, requested_role,
     verification_status, account_status,
     specialty, experience_years, clinic_address,
     consultation_fee, video_fee, in_person_fee,
@@ -200,7 +200,7 @@ INSERT INTO public.profiles (
     biometric_enabled, two_factor_enabled, medical_records_shared_by_default
 ) VALUES
 -- ── Admin ────────────────────────────────────────────────────
-(adm, 'admin@premoncare.com', 'premoncare_admin', 'Platform Admin', null,
+(adm, 'admin@premoncare.com', 'premoncare_admin', 'Platform Admin', null, null,
  'admin', 'admin', 'approved', 'active',
  null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now(),
  'Platform administrator account', '{}', '[]',
@@ -212,7 +212,7 @@ INSERT INTO public.profiles (
  true, null, false, true, false),
 
 -- ── Doctors ──────────────────────────────────────────────────
-(d1, 'dr.adaeze@premoncare.com', 'dr_adaeze', 'Dr. Adaeze Nwosu', null,
+(d1, 'dr.adaeze@premoncare.com', 'dr_adaeze', 'Adaeze Nwosu', null, 'Dr.',
  'doctor', 'doctor', 'approved', 'active',
  'Cardiology', 10, 'Heartcare Clinic, Lagos Island',
  15000, 12000, 20000, 4.8, 120, 450, 34, 210, 450, true, now()-interval '10 min',
@@ -229,7 +229,7 @@ INSERT INTO public.profiles (
  'active', now()+interval '6 months', now()-interval '5 days',
  'active', true, null, false, false, false),
 
-(d2, 'dr.ibrahim@premoncare.com', 'dr_ibrahim', 'Dr. Ibrahim Musa', null,
+(d2, 'dr.ibrahim@premoncare.com', 'dr_ibrahim', 'Ibrahim Musa', null, 'Dr.',
  'doctor', 'doctor', 'approved', 'active',
  'Pediatrics', 8, 'Children''s Med Centre, Abuja',
  12000, 10000, 16000, 4.9, 95, 300, 28, 165, 300, true, now()-interval '1 hour',
@@ -246,7 +246,7 @@ INSERT INTO public.profiles (
  'active', now()+interval '4 months', now()-interval '20 days',
  'active', true, null, false, false, false),
 
-(d3, 'dr.chinedu@premoncare.com', 'dr_chinedu', 'Dr. Chinedu Okafor', null,
+(d3, 'dr.chinedu@premoncare.com', 'dr_chinedu', 'Chinedu Okafor', null, 'Dr.',
  'doctor', 'doctor', 'approved', 'active',
  'Neurology', 12, 'Brain Health Institute, Lagos',
  20000, 18000, 25000, 4.9, 150, 500, 52, 295, 500, false, now()-interval '3 hours',
@@ -263,7 +263,7 @@ INSERT INTO public.profiles (
  'active', now()+interval '8 months', now()-interval '10 days',
  'active', true, null, false, false, false),
 
-(d4, 'dr.fatima@premoncare.com', 'dr_fatima', 'Dr. Fatima Al-Hassan', null,
+(d4, 'dr.fatima@premoncare.com', 'dr_fatima', 'Fatima Al-Hassan', null, 'Dr.',
  'doctor', 'doctor', 'approved', 'active',
  'Dermatology', 7, 'Glow Skin Clinic, Kano',
  15000, 12000, 18000, 4.6, 75, 180, 19, 98, 180, true, now()-interval '30 min',
@@ -280,7 +280,7 @@ INSERT INTO public.profiles (
  'active', now()+interval '3 months', now()-interval '30 days',
  'active', true, null, false, false, false),
 
-(d5, 'dr.emeka@premoncare.com', 'dr_emeka', 'Dr. Emeka Eze', null,
+(d5, 'dr.emeka@premoncare.com', 'dr_emeka', 'Emeka Eze', null, 'Dr.',
  'doctor', 'doctor', 'approved', 'active',
  'General Practice', 5, 'City Wellness Centre, Enugu',
  8000, 7000, 10000, 4.7, 88, 200, 15, 75, 200, true, now()-interval '45 min',
@@ -298,18 +298,18 @@ INSERT INTO public.profiles (
  'active', true, null, false, false, false),
 
 -- ── Patients ─────────────────────────────────────────────────
-(p1,  'john.doe@mail.com',       'johndoe',     'John Doe',        null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '2 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1990-04-12', 'male',   'O+',  'Mary Doe',          '+2348011111101', 'Mary Doe',          '+2348011111101', '+2348011111101', '14 Broad Street, Lagos Island', 'inactive', null, null, 'none', true, null, false, false, false),
-(p2,  'jane.smith@mail.com',     'janesmith',   'Jane Smith',      null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '1 hour',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1993-08-25', 'female', 'A+',  'James Smith',       '+2348011111102', 'James Smith',       '+2348011111102', '+2348011111102', '7 Adeola Odeku Street, VI, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
-(p3,  'michael.j@mail.com',      'michaelj',    'Michael Johnson', null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now()-interval '5 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1985-11-30', 'male',   'B+',  'Linda Johnson',     '+2348011111103', 'Linda Johnson',     '+2348011111103', '+2348011111103', '33 Allen Avenue, Ikeja, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
-(p4,  'emily.davis@mail.com',    'emilydavis',  'Emily Davis',     null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '30 min',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1998-01-07', 'female', 'AB-', 'Robert Davis',      '+2348011111104', 'Robert Davis',      '+2348011111104', '+2348011111104', '19 Oduduwa Crescent, GRA, Ikeja', 'inactive', null, null, 'none', true, null, false, false, false),
-(p5,  'chris.olatunji@mail.com', 'chrisolat',   'Chris Olatunji',  null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '15 min',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1988-06-14', 'male',   'O-',  'Grace Olatunji',    '+2348011111105', 'Grace Olatunji',    '+2348011111105', '+2348011111105', '5 Fola Osibo Street, Lekki, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
-(p6,  'amanda.white@mail.com',   'amandaw',     'Amanda White',    null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now()-interval '8 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1995-03-19', 'female', 'A-',  'Frank White',       '+2348011111106', 'Frank White',       '+2348011111106', '+2348011111106', '10 Yakubu Gowon Way, Kaduna', 'inactive', null, null, 'none', true, null, false, false, false),
-(p7,  'emeka.nnamdi@mail.com',   'emekannamdi', 'Emeka Nnamdi',    null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '20 min',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1991-09-09', 'male',   'B-',  'Ngozi Nnamdi',      '+2348011111107', 'Ngozi Nnamdi',      '+2348011111107', '+2348011111107', '2 Trans-Ekulu, Enugu', 'inactive', null, null, 'none', true, null, false, false, false),
-(p8,  'sarah.lee@mail.com',      'sarahlee',    'Sarah Lee',       null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '3 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1997-12-03', 'female', 'O+',  'Tom Lee',           '+2348011111108', 'Tom Lee',           '+2348011111108', '+2348011111108', '45 Awolowo Road, Ikoyi, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
-(p9,  'samuel.j@mail.com',       'samuelj',     'Samuel Jackson',  null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now()-interval '6 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1982-07-17', 'male',   'AB+', 'Priscilla Jackson', '+2348011111109', 'Priscilla Jackson', '+2348011111109', '+2348011111109', '9 Ring Road, Ibadan', 'inactive', null, null, 'none', true, null, false, false, false),
-(p10, 'blessing.ok@mail.com',    'blessingo',   'Blessing Okafor', null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '1 hour',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '2000-05-22', 'female', 'A+',  'Charles Okafor',    '+2348011111110', 'Charles Okafor',    '+2348011111110', '+2348011111110', '18 New Market Road, Onitsha', 'inactive', null, null, 'none', true, null, false, false, false)
+(p1,  'john.doe@mail.com',       'johndoe',     'John Doe',        null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '2 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1990-04-12', 'male',   'O+',  'Mary Doe',          '+2348011111101', 'Mary Doe',          '+2348011111101', '+2348011111101', '14 Broad Street, Lagos Island', 'inactive', null, null, 'none', true, null, false, false, false),
+(p2,  'jane.smith@mail.com',     'janesmith',   'Jane Smith',      null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '1 hour',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1993-08-25', 'female', 'A+',  'James Smith',       '+2348011111102', 'James Smith',       '+2348011111102', '+2348011111102', '7 Adeola Odeku Street, VI, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
+(p3,  'michael.j@mail.com',      'michaelj',    'Michael Johnson', null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now()-interval '5 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1985-11-30', 'male',   'B+',  'Linda Johnson',     '+2348011111103', 'Linda Johnson',     '+2348011111103', '+2348011111103', '33 Allen Avenue, Ikeja, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
+(p4,  'emily.davis@mail.com',    'emilydavis',  'Emily Davis',     null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '30 min',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1998-01-07', 'female', 'AB-', 'Robert Davis',      '+2348011111104', 'Robert Davis',      '+2348011111104', '+2348011111104', '19 Oduduwa Crescent, GRA, Ikeja', 'inactive', null, null, 'none', true, null, false, false, false),
+(p5,  'chris.olatunji@mail.com', 'chrisolat',   'Chris Olatunji',  null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '15 min',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1988-06-14', 'male',   'O-',  'Grace Olatunji',    '+2348011111105', 'Grace Olatunji',    '+2348011111105', '+2348011111105', '5 Fola Osibo Street, Lekki, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
+(p6,  'amanda.white@mail.com',   'amandaw',     'Amanda White',    null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now()-interval '8 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1995-03-19', 'female', 'A-',  'Frank White',       '+2348011111106', 'Frank White',       '+2348011111106', '+2348011111106', '10 Yakubu Gowon Way, Kaduna', 'inactive', null, null, 'none', true, null, false, false, false),
+(p7,  'emeka.nnamdi@mail.com',   'emekannamdi', 'Emeka Nnamdi',    null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '20 min',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1991-09-09', 'male',   'B-',  'Ngozi Nnamdi',      '+2348011111107', 'Ngozi Nnamdi',      '+2348011111107', '+2348011111107', '2 Trans-Ekulu, Enugu', 'inactive', null, null, 'none', true, null, false, false, false),
+(p8,  'sarah.lee@mail.com',      'sarahlee',    'Sarah Lee',       null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '3 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1997-12-03', 'female', 'O+',  'Tom Lee',           '+2348011111108', 'Tom Lee',           '+2348011111108', '+2348011111108', '45 Awolowo Road, Ikoyi, Lagos', 'inactive', null, null, 'none', true, null, false, false, false),
+(p9,  'samuel.j@mail.com',       'samuelj',     'Samuel Jackson',  null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now()-interval '6 hours', null, '{}', '[]', null, null, null, null, null, '{}', null, null, '1982-07-17', 'male',   'AB+', 'Priscilla Jackson', '+2348011111109', 'Priscilla Jackson', '+2348011111109', '+2348011111109', '9 Ring Road, Ibadan', 'inactive', null, null, 'none', true, null, false, false, false),
+(p10, 'blessing.ok@mail.com',    'blessingo',   'Blessing Okafor', null, null, 'patient', 'patient', 'unsubmitted', 'active', null, null, null, null, null, null, null, 0, 0, 0, 0, 0, true,  now()-interval '1 hour',  null, '{}', '[]', null, null, null, null, null, '{}', null, null, '2000-05-22', 'female', 'A+',  'Charles Okafor',    '+2348011111110', 'Charles Okafor',    '+2348011111110', '+2348011111110', '18 New Market Road, Onitsha', 'inactive', null, null, 'none', true, null, false, false, false)
 ON CONFLICT (id) DO UPDATE SET
-    full_name = EXCLUDED.full_name, role = EXCLUDED.role,
+    full_name = EXCLUDED.full_name, title = EXCLUDED.title, role = EXCLUDED.role,
     requested_role = EXCLUDED.requested_role,
     specialty = EXCLUDED.specialty, rating = EXCLUDED.rating,
     review_count = EXCLUDED.review_count, consultation_fee = EXCLUDED.consultation_fee,

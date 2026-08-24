@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_typography.dart';
 import '../../core/app_colors.dart';
+import '../../core/doctor_name_utils.dart';
 import 'patient_providers.dart';
 
 class DoctorSearchScreen extends ConsumerStatefulWidget {
@@ -723,6 +724,8 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
   }) {
     final id = doctor['id'] ?? '';
     final fullName = doctor['full_name'] ?? 'Unknown';
+    final doctorTitle = doctor['title'] as String?;
+    final displayName = formatDoctorName(doctorTitle, fullName);
     final specialty = doctor['specialty'] ?? 'General';
     final fee = doctor['consultation_fee'] ?? 0;
     final isOnline = doctor['is_online'] == true;
@@ -733,7 +736,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         '/doctor-details',
         extra: {
           'id': id,
-          'name': fullName,
+          'name': displayName,
           'specialty': specialty,
           'isEmergency': _isEmergencyMode,
         },
@@ -799,7 +802,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          fullName,
+                          displayName,
                           style: AppTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w900,
                           ),
@@ -868,7 +871,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                           '/doctor-details',
                           extra: {
                             'id': id,
-                            'name': fullName,
+                            'name': displayName,
                             'specialty': specialty,
                             'isEmergency': _isEmergencyMode,
                           },

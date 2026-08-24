@@ -105,6 +105,7 @@ export interface Profile {
     full_name: string;
     email?: string;
     avatar_url?: string;
+    title?: string;
     role?: 'patient' | 'doctor' | 'admin';
     requested_role?: 'doctor' | 'admin';
     specialty?: string;

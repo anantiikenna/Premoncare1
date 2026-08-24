@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
+import '../../core/doctor_name_utils.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/services/admin_service.dart';
 import 'admin_scaffold.dart';
@@ -870,6 +871,8 @@ class _DoctorVerificationPanelState
 
   Widget _buildDoctorListCard(Map<String, dynamic> doctor) {
     final name = doctor['full_name'] ?? 'Unknown';
+    final doctorTitle = doctor['title'] as String?;
+    final displayName = formatDoctorName(doctorTitle, name);
     final email = doctor['email'] ?? '';
     final specialty = doctor['specialty'] ?? 'General';
     final status = doctor['verification_status'] ?? 'pending';
@@ -964,7 +967,7 @@ class _DoctorVerificationPanelState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Dr. $name',
+                    displayName,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
@@ -1034,6 +1037,8 @@ class _DoctorVerificationPanelState
 
   Widget _buildDoctorProfileCard(Map<String, dynamic> doctor) {
     final name = doctor['full_name'] ?? 'Unknown';
+    final doctorTitle = doctor['title'] as String?;
+    final displayName = formatDoctorName(doctorTitle, name);
     final email = doctor['email'] ?? '';
     final phone = doctor['phone'] ?? '';
     final specialty = doctor['specialty'] ?? 'General';
@@ -1138,7 +1143,7 @@ class _DoctorVerificationPanelState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Dr. $name',
+                                displayName,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
@@ -1354,7 +1359,7 @@ class _DoctorVerificationPanelState
                 child: _DetailItem(
                   icon: Icons.person_outline_rounded,
                   label: 'Full Name',
-                  value: 'Dr. ${doctor['full_name'] ?? 'N/A'}',
+                  value: formatDoctorName(doctor['title'] as String?, doctor['full_name'] as String?),
                 ),
               ),
               Expanded(

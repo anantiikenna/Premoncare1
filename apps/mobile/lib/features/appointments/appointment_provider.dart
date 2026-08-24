@@ -10,6 +10,7 @@ class Appointment {
   final String patientId;
   final String doctorId;
   final String doctorName;
+  final String? doctorTitle;
   final String? doctorAvatar;
   final String? specialty;
   final DateTime appointmentDate;
@@ -24,6 +25,7 @@ class Appointment {
     required this.patientId,
     required this.doctorId,
     required this.doctorName,
+    this.doctorTitle,
     this.doctorAvatar,
     this.specialty,
     required this.appointmentDate,
@@ -40,6 +42,7 @@ class Appointment {
       patientId: json['patient_id'],
       doctorId: json['doctor_id'],
       doctorName: json['doctor']?['full_name'] ?? 'Unknown Doctor',
+      doctorTitle: json['doctor']?['title'] as String?,
       doctorAvatar: json['doctor']?['avatar_url'],
       specialty: json['doctor']?['specialty'],
       appointmentDate: DateTime.parse(json['appointment_date']),
@@ -102,7 +105,7 @@ final appointmentsProvider = StreamProvider<List<Appointment>>((ref) async* {
     
     final profilesResponse = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, specialty')
+        .select('id, full_name, title, avatar_url, specialty')
         .inFilter('id', partnerIds);
     
     final profileMap = {

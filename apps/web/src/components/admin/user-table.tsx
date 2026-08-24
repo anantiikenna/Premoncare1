@@ -139,7 +139,7 @@ export function UserTable({ profiles: initialProfiles }: { profiles: Profile[] }
                                         </div>
                                         <div>
                                             <p className="text-sm font-black text-slate-900 leading-none mb-1">
-                                                {profile.role === 'doctor' && profile.verification_status === 'approved' ? 'Dr. ' : ''}{profile.full_name || 'Unnamed User'}
+                                                {profile.role === 'doctor' && profile.verification_status === 'approved' ? (profile.title || 'Dr. ') : ''}{profile.full_name || 'Unnamed User'}
                                             </p>
                                             <p className="text-xs text-muted-foreground font-mono">ID: {profile.id.slice(0, 8)}</p>
                                         </div>

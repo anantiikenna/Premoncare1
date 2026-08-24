@@ -177,7 +177,7 @@ export function DoctorManagement() {
                                         </Avatar>
                                         <div>
                                             <CardTitle className="text-lg">
-                                                {doc.verification_status === 'approved' ? 'Dr. ' : ''}{doc.full_name}
+                                                {doc.verification_status === 'approved' ? (doc.title || 'Dr. ') : ''}{doc.full_name}
                                             </CardTitle>
                                             <CardDescription>{doc.specialty || 'General Practitioner'}</CardDescription>
                                             <div className="flex flex-col gap-0.5 mt-1">

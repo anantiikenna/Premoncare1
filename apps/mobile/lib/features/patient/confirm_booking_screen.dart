@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
+import '../../core/doctor_name_utils.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
@@ -434,9 +435,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   }
 
   Widget _buildDoctorMiniCard(BuildContext context) {
-    final displayName = widget.doctorName.startsWith('Dr.')
-        ? widget.doctorName
-        : 'Dr. ${widget.doctorName}';
+    final displayName = widget.doctorName;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(

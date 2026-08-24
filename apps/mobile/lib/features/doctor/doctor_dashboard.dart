@@ -8,6 +8,7 @@ import '../../core/providers.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'package:mobile/features/doctor/propose_followup_dialog.dart';
 import '../../core/app_colors.dart';
+import '../../core/doctor_name_utils.dart';
 
 class DoctorDashboard extends ConsumerStatefulWidget {
   const DoctorDashboard({super.key});
@@ -41,7 +42,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     try {
       final data = await supabase
           .from('profiles')
-          .select('full_name, is_online')
+          .select('full_name, title, is_online')
           .eq('id', userId)
           .single();
 
@@ -194,7 +195,10 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
   }
 
   Widget _buildHeader() {
-    final doctorName = _profileData?['full_name'] ?? 'Professional';
+    final doctorName = formatDoctorName(
+      _profileData?['title'] as String?,
+      _profileData?['full_name'] as String?,
+    );
 
     return Row(
       children: [

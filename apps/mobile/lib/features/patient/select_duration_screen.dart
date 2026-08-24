@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 import '../../core/app_colors.dart';
+import '../../core/doctor_name_utils.dart';
 
 class SelectDurationScreen extends StatefulWidget {
   final String doctorId;
@@ -165,7 +166,7 @@ class _SpecialistPreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = doctorName.startsWith('Dr.') ? doctorName : 'Dr. $doctorName';
+    final displayName = doctorName;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(

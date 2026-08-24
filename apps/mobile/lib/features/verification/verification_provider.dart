@@ -8,6 +8,7 @@ enum VerificationField { license, govtIdFront, govtIdBack, selfie, govtId, addre
 
 class VerificationState {
   final VerificationStep currentStep;
+  final String title;
   final String specialty;
   final String experience;
   final String licenseNumber;
@@ -28,6 +29,7 @@ class VerificationState {
 
   VerificationState({
     this.currentStep = VerificationStep.professional,
+    this.title = '',
     this.specialty = '',
     this.experience = '',
     this.licenseNumber = '',
@@ -49,6 +51,7 @@ class VerificationState {
 
   VerificationState copyWith({
     VerificationStep? currentStep,
+    String? title,
     String? specialty,
     String? experience,
     String? licenseNumber,
@@ -69,6 +72,7 @@ class VerificationState {
   }) {
     return VerificationState(
       currentStep: currentStep ?? this.currentStep,
+      title: title ?? this.title,
       specialty: specialty ?? this.specialty,
       experience: experience ?? this.experience,
       licenseNumber: licenseNumber ?? this.licenseNumber,
@@ -104,12 +108,13 @@ class VerificationNotifier extends Notifier<VerificationState> {
 
       final data = await supabase
           .from('profiles')
-          .select('verification_status, specialty, experience_years, medical_license_number, rejection_reason')
+          .select('verification_status, title, specialty, experience_years, medical_license_number, rejection_reason')
           .eq('id', user.id)
           .single();
 
       state = state.copyWith(
         verificationStatus: data['verification_status'] ?? 'unsubmitted',
+        title: data['title'] ?? '',
         specialty: data['specialty'] ?? '',
         experience: (data['experience_years'] ?? '').toString(),
         licenseNumber: data['medical_license_number'] ?? '',
@@ -142,8 +147,9 @@ class VerificationNotifier extends Notifier<VerificationState> {
     state = state.copyWith(currentStep: step);
   }
 
-  void updateProfessional(String specialty, String experience, String license) {
+  void updateProfessional(String title, String specialty, String experience, String license) {
     state = state.copyWith(
+      title: title,
       specialty: specialty,
       experience: experience,
       licenseNumber: license,
@@ -231,6 +237,7 @@ class VerificationNotifier extends Notifier<VerificationState> {
       if (user == null) throw Exception('Not authenticated');
 
       await supabase.from('profiles').update({
+        'title': state.title,
         'specialty': state.specialty,
         'experience_years': int.tryParse(state.experience) ?? 0,
         'verification_document_url': state.licenseUrl,

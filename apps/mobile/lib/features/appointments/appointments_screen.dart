@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import '../../core/doctor_name_utils.dart';
 import 'appointment_provider.dart';
 
 
@@ -229,7 +230,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Dr. ${appointment.doctorName}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.textPrimaryOf(context))),
+                    Text(formatDoctorName(appointment.doctorTitle, appointment.doctorName), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.textPrimaryOf(context))),
                     const SizedBox(height: 4),
                     Text('Verified Specialist', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
                   ],

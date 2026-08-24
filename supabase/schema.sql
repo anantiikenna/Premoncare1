@@ -33,6 +33,7 @@ create table profiles (
   username text unique,
   full_name text,
   avatar_url text,
+  title text,
   role user_role default 'patient'::user_role,
   verification_status verification_status default 'unsubmitted',
   verification_document_url text,

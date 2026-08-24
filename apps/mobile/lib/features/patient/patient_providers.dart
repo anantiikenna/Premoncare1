@@ -17,7 +17,7 @@ final availableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref
 final searchableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final data = await supabase
       .from('profiles')
-      .select('id, full_name, specialty, consultation_fee, is_online, is_emergency')
+      .select('id, full_name, title, specialty, consultation_fee, is_online, is_emergency')
       .eq('role', 'doctor')
       .order('full_name');
   
@@ -87,7 +87,7 @@ final patientDetailedCreditsProvider = StreamProvider.autoDispose<List<Map<Strin
         final doctorIds = balances.map((b) => b['doctor_id'] as String).toSet().toList();
         final doctorsResult = await supabase
             .from('profiles')
-            .select('id, full_name, specialty, hourly_rate, verification_status, avatar_url')
+            .select('id, full_name, title, specialty, hourly_rate, verification_status, avatar_url')
             .inFilter('id', doctorIds);
 
         final doctorMap = {

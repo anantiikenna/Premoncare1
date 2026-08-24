@@ -14,6 +14,7 @@ class ProfessionalStep extends ConsumerStatefulWidget {
 
 class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
   late TextEditingController _licenseController;
+  String? _selectedTitle;
   String? _selectedSpecialty;
   String? _selectedSubSpecialty;
   String? _selectedExperience;
@@ -23,6 +24,7 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
     super.initState();
     final state = ref.read(verificationProvider);
     _licenseController = TextEditingController(text: state.licenseNumber);
+    _selectedTitle = state.title.isNotEmpty ? state.title : null;
     _selectedSpecialty = state.specialty.isNotEmpty ? state.specialty : null;
     _selectedExperience = state.experience.isNotEmpty ? state.experience : null;
   }
@@ -35,6 +37,7 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
 
   void _onChanged() {
     ref.read(verificationProvider.notifier).updateProfessional(
+      _selectedTitle ?? '',
       _selectedSpecialty ?? '',
       _selectedExperience ?? '',
       _licenseController.text,
@@ -106,6 +109,20 @@ class _ProfessionalStepState extends ConsumerState<ProfessionalStep> {
           ),
         ),
         const SizedBox(height: 32),
+        _buildLabel('Professional Title', isRequired: true),
+        Text('Select your professional title or designation.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
+        const SizedBox(height: 12),
+        _buildDropdown(
+          hint: 'Select your title',
+          icon: Icons.person_outline,
+          value: _selectedTitle,
+          items: ['Dr.', 'Prof.', 'Assoc. Prof.', 'Mr.', 'Mrs.', 'Ms.', 'Veteran', 'Consultant', 'Pharmacist', 'Nurse', 'Therapist'],
+          onChanged: (val) {
+            setState(() => _selectedTitle = val);
+            _onChanged();
+          },
+        ),
+        const SizedBox(height: 24),
         _buildLabel('Medical Specialty', isRequired: true),
         Text('Select your primary area of specialization.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
         const SizedBox(height: 12),

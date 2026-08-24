@@ -253,9 +253,9 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
         const SizedBox(height: 8),
         Text(
           _status == 'waiting'
-              ? 'Sending your emergency request to Dr. ${widget.doctorName.replaceFirst('Dr. ', '')}...'
+              ? 'Sending your emergency request to ${widget.doctorName}...'
               : _status == 'accepted'
-              ? 'Dr. ${widget.doctorName.replaceFirst('Dr. ', '')} is ready for your consultation.'
+              ? '${widget.doctorName} is ready for your consultation.'
               : _status == 'declined'
               ? 'The doctor is currently unavailable. Let us find you another specialist.'
               : 'The request timed out. We\'ll find you another available doctor.',
@@ -421,7 +421,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
             Expanded(
               child: Text(
                 _status == 'declined'
-                    ? 'Dr. ${widget.doctorName.replaceFirst('Dr. ', '')} is unable to take your case right now.'
+                    ? '${widget.doctorName} is unable to take your case right now.'
                     : 'No response received within the time limit.',
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.error,
