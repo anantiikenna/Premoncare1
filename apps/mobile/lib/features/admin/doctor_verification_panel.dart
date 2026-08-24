@@ -13,7 +13,8 @@ final _adminService = AdminService();
 enum _TabStatus { pending, underReview, verified, rejected }
 
 class DoctorVerificationPanel extends ConsumerStatefulWidget {
-  const DoctorVerificationPanel({super.key});
+  final String? selectedDoctorId;
+  const DoctorVerificationPanel({super.key, this.selectedDoctorId});
 
   @override
   ConsumerState<DoctorVerificationPanel> createState() =>
@@ -42,7 +43,37 @@ class _DoctorVerificationPanelState
   @override
   void initState() {
     super.initState();
-    _refreshAll();
+    _refreshAll().then((_) {
+      if (widget.selectedDoctorId != null) {
+        final doc = _doctors.firstWhere(
+          (d) => d['id'] == widget.selectedDoctorId,
+          orElse: () => <String, dynamic>{},
+        );
+        if (doc.isNotEmpty) {
+          _selectDoctor(doc);
+        } else {
+          _fetchSelectedDoctorDirectly(widget.selectedDoctorId!);
+        }
+      }
+    });
+  }
+
+  Future<void> _fetchSelectedDoctorDirectly(String id) async {
+    setState(() => _doctorsLoading = true);
+    try {
+      final client = Supabase.instance.client;
+      final response = await client
+          .from('profiles')
+          .select()
+          .eq('id', id)
+          .maybeSingle();
+      if (response != null && mounted) {
+        setState(() => _selectedDoctor = response);
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _doctorsLoading = false);
+    }
   }
 
   @override

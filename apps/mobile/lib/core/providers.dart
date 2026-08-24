@@ -122,6 +122,7 @@ final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final upcomingAppointmentsResult = await supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count();
   final totalAppointmentsResult = await supabase.from('appointments').select('id').count();
   final completedAppointmentsResult = await supabase.from('appointments').select('id').eq('status', 'completed').count();
+  final cancelledAppointmentsResult = await supabase.from('appointments').select('id').eq('status', 'cancelled').count();
   final payments = await supabase.from('payments').select('amount').eq('status', 'approved');
 
   num totalRevenue = 0;
@@ -135,6 +136,7 @@ final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
     'todayAppointments': upcomingAppointmentsResult.count,
     'totalAppointments': totalAppointmentsResult.count,
     'completedAppointments': completedAppointmentsResult.count,
+    'cancelledAppointments': cancelledAppointmentsResult.count,
     'totalRevenue': totalRevenue,
   };
 });

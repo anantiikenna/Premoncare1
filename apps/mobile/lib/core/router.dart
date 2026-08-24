@@ -577,7 +577,10 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: '/admin/doctor-verification',
-      builder: (context, state) => const DoctorVerificationPanel(),
+      builder: (context, state) {
+        final doctorId = state.uri.queryParameters['doctorId'];
+        return DoctorVerificationPanel(selectedDoctorId: doctorId);
+      },
     ),
     GoRoute(
       path: '/admin/financial',

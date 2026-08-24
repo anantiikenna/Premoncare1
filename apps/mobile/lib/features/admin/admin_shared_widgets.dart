@@ -482,57 +482,51 @@ class AdminStatsSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      mainAxisSpacing: 14,
+      crossAxisSpacing: 14,
+      childAspectRatio: 1.5,
       children: List.generate(
         4,
-        (i) => Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: i < 3 ? 12 : 0),
-            child: Container(
-              height: 100,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceOf(context),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.borderLightOf(context)),
+        (i) => Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceOf(context),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.borderLightOf(context)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.borderLightOf(context),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: AppColors.borderLightOf(context),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          color: AppColors.borderLightOf(context),
-                          borderRadius: BorderRadius.circular(9),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 70,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: AppColors.borderLightOf(context),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              Container(
+                width: 50,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: AppColors.borderLightOf(context),
+                  borderRadius: BorderRadius.circular(9),
+                ),
               ),
-            ),
+              Container(
+                width: 70,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: AppColors.borderLightOf(context),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+            ],
           ),
         ),
       ),

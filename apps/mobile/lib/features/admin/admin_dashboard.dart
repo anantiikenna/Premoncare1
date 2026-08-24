@@ -44,45 +44,56 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               size: 300,
             ),
           ),
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
-                _buildHeroKPI(stats),
-                const SizedBox(height: 28),
-                _buildStatsGrid(),
-                const SizedBox(height: 32),
-                _buildSectionHeader('Priority Alerts'),
-                const SizedBox(height: 16),
-                _buildPriorityAlerts(context),
-                const SizedBox(height: 32),
-                _buildSectionHeader('Analytics Overview'),
-                const SizedBox(height: 16),
-                _buildAnalyticsSection(AppColors.primary),
-                const SizedBox(height: 32),
-                const AdminChartsWidget(),
-                const SizedBox(height: 32),
-                _buildSectionHeader(
-                  'Recent Doctor Applications',
-                  onSeeAll: () => context.push('/admin/doctor-verification'),
-                ),
-                const SizedBox(height: 16),
-                _buildDoctorApplications(context),
-                const SizedBox(height: 32),
-                _buildSectionHeader(
-                  'Recent Transactions',
-                  onSeeAll: () => context.push('/admin/financial'),
-                ),
-                const SizedBox(height: 16),
-                _buildTransactions(),
-                const SizedBox(height: 32),
-                _buildSectionHeader('Quick Actions'),
-                const SizedBox(height: 16),
-                _buildQuickActions(context),
-                const SizedBox(height: 40),
-              ],
+          RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(adminStatsProvider);
+              ref.invalidate(pendingVerificationsProvider);
+              ref.invalidate(pendingDisputesProvider);
+              ref.invalidate(recentDoctorApplicationsProvider);
+              ref.invalidate(recentTransactionsProvider);
+            },
+            color: AppColors.primary,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 24),
+                  _buildHeroKPI(stats),
+                  const SizedBox(height: 28),
+                  _buildStatsGrid(),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader('Priority Alerts'),
+                  const SizedBox(height: 16),
+                  _buildPriorityAlerts(context),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader('Analytics Overview'),
+                  const SizedBox(height: 16),
+                  _buildAnalyticsSection(AppColors.primary),
+                  const SizedBox(height: 32),
+                  const AdminChartsWidget(),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader(
+                    'Recent Doctor Applications',
+                    onSeeAll: () => context.push('/admin/doctor-verification'),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDoctorApplications(context),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader(
+                    'Recent Transactions',
+                    onSeeAll: () => context.push('/admin/financial'),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTransactions(),
+                  const SizedBox(height: 32),
+                  _buildSectionHeader('Quick Actions'),
+                  const SizedBox(height: 16),
+                  _buildQuickActions(context),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
           ),
         ],
@@ -396,6 +407,8 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         final totalAppointments = stats['totalAppointments'] as int? ?? 0;
         final completedAppointments =
             stats['completedAppointments'] as int? ?? 0;
+        final cancelledAppointments =
+            stats['cancelledAppointments'] as int? ?? 0;
         final todayAppointments = stats['todayAppointments'] as int? ?? 0;
         final completionRate = totalAppointments > 0
             ? (completedAppointments / totalAppointments)
@@ -403,13 +416,10 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         final completedPct = totalAppointments > 0
             ? ((completedAppointments / totalAppointments) * 100).round()
             : 0;
-        final upcomingPct = totalAppointments > 0
-            ? (((totalAppointments - completedAppointments) * 0.7) /
-                      totalAppointments *
-                      100)
-                  .round()
+        final cancelledPct = totalAppointments > 0
+            ? ((cancelledAppointments / totalAppointments) * 100).round()
             : 0;
-        final cancelledPct = (100 - completedPct - upcomingPct).clamp(0, 100);
+        final upcomingPct = (100 - completedPct - cancelledPct).clamp(0, 100);
 
         return Row(
           children: [
@@ -605,11 +615,14 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _ApplicationTile(
+                doctorId: app['id'] as String? ?? '',
                 name: name,
                 specialty: specialty,
                 time: timeAgo,
                 avatarUrl: app['avatar_url'] as String?,
-                onReview: () => context.push('/admin/doctor-verification'),
+                onReview: () => context.push(
+                  '/admin/doctor-verification?doctorId=${app['id']}',
+                ),
               ),
             );
           }).toList(),
@@ -704,7 +717,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       crossAxisCount: 3,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.05,
+      childAspectRatio: 1.22,
       children: [
         _QuickActionItem(
           icon: Icons.verified_user_rounded,
@@ -978,6 +991,7 @@ class _AlertCardState extends State<_AlertCard>
 }
 
 class _ApplicationTile extends StatelessWidget {
+  final String doctorId;
   final String name;
   final String specialty;
   final String time;
@@ -985,6 +999,7 @@ class _ApplicationTile extends StatelessWidget {
   final VoidCallback onReview;
 
   const _ApplicationTile({
+    required this.doctorId,
     required this.name,
     required this.specialty,
     required this.time,
@@ -1035,7 +1050,7 @@ class _ApplicationTile extends StatelessWidget {
           Row(
             children: [
               TextButton(
-                onPressed: () => context.push('/admin/doctor-verification'),
+                onPressed: () => context.push('/admin/doctor-verification?doctorId=$doctorId'),
                 style: TextButton.styleFrom(
                   backgroundColor: AppColors.successLightOf(context),
                   foregroundColor: AppColors.success,
