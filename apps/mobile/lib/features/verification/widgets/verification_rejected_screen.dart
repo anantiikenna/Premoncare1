@@ -203,7 +203,7 @@ class _SecurityBox extends StatelessWidget {
       decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(28)),
       child: Row(
         children: [
-          const Icon(Icons.lock_rounded, color: AppColors.textSecondary, size: 20),
+          Icon(Icons.lock_rounded, color: AppColors.textSecondaryOf(context), size: 20),
           const SizedBox(width: 16),
           Expanded(child: Text('Your information remains encrypted and protected in our private clinical vault.', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700, height: 1.4))),
         ],

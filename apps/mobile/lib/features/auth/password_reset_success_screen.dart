@@ -318,8 +318,8 @@ class _SuccessIllustration extends StatelessWidget {
           Container(
             width: 110,
             height: 110,
-            decoration: const BoxDecoration(
-              color: AppColors.successLight,
+            decoration: BoxDecoration(
+              color: AppColors.successLightOf(context),
               shape: BoxShape.circle,
             ),
           ),

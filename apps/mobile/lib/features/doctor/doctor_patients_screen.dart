@@ -104,9 +104,9 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                   controller: _searchController,
                   style: AppTypography.bodyMedium,
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textTertiary, size: 20),
+                    prefixIcon: Icon(Icons.search_rounded, color: AppColors.textTertiaryOf(context), size: 20),
                     hintText: 'Search patients...',
-                    hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+                    hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiaryOf(context)),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     suffixIcon: _searchQuery.isNotEmpty

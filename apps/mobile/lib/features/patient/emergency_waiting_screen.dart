@@ -247,7 +247,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                 ? AppColors.success
                 : _status == 'declined' || _status == 'timeout'
                 ? AppColors.error
-                : AppColors.textPrimary,
+                : AppColors.textPrimaryOf(context),
           ),
         ),
         const SizedBox(height: 8),
@@ -260,7 +260,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
               ? 'The doctor is currently unavailable. Let us find you another specialist.'
               : 'The request timed out. We\'ll find you another available doctor.',
           style: AppTypography.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryOf(context),
           ),
           textAlign: TextAlign.center,
         ),
@@ -274,7 +274,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderOf(context)),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -342,7 +342,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                 child: CircularProgressIndicator(
                   value: _secondsRemaining / 180,
                   strokeWidth: 6,
-                  backgroundColor: AppColors.border,
+                  backgroundColor: AppColors.borderOf(context),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     _secondsRemaining > 60
                         ? AppColors.primary
@@ -370,7 +370,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
         Text(
           'Waiting for doctor response',
           style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryOf(context),
           ),
         ),
       ],
@@ -407,7 +407,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.errorLight,
+          color: AppColors.errorLightOf(context),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -453,8 +453,8 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
             if (mounted) context.go('/doctor-search');
           },
           style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.textSecondary,
-            side: const BorderSide(color: AppColors.border),
+            foregroundColor: AppColors.textSecondaryOf(context),
+              side: BorderSide(color: AppColors.borderOf(context)),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -501,8 +501,8 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
           child: OutlinedButton(
             onPressed: () => context.go('/doctor-search'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textSecondary,
-              side: const BorderSide(color: AppColors.border),
+              foregroundColor: AppColors.textSecondaryOf(context),
+              side: BorderSide(color: AppColors.borderOf(context)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),

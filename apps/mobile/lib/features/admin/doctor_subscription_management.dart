@@ -485,8 +485,8 @@ class _DoctorSubscriptionManagementState
   Widget _buildTableHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceAlt,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceAltOf(context),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),

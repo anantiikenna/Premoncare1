@@ -556,7 +556,7 @@ class _SecurityNotice extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.errorLightOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.errorLight),
+        border: Border.all(color: AppColors.errorLightOf(context)),
       ),
       child: Row(
         children: [
@@ -746,7 +746,7 @@ class _EmergencyBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.errorLightOf(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.errorLight),
+        border: Border.all(color: AppColors.errorLightOf(context)),
       ),
       child: Row(
         children: [

@@ -268,7 +268,7 @@ class _RescheduleAction extends StatelessWidget {
         label: const Text('RESCHEDULE SESSION', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.info,
-          side: BorderSide(color: AppColors.infoLight),
+          side: BorderSide(color: AppColors.infoLightOf(context)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
       ),
@@ -350,7 +350,7 @@ class _CancelAction extends StatelessWidget {
         onPressed: () => _confirmCancel(context),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.error,
-          side: BorderSide(color: AppColors.errorLight),
+          side: BorderSide(color: AppColors.errorLightOf(context)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
         child: const Text('CANCEL SESSION', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),

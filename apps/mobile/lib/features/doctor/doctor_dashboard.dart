@@ -252,7 +252,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                     gradient: LinearGradient(
                       colors: [
                         AppColors.error.withValues(alpha: 0.08),
-                        AppColors.errorLight.withValues(alpha: 0.3),
+                        AppColors.errorLightOf(context).withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),

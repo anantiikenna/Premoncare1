@@ -107,7 +107,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close_rounded, color: AppColors.textTertiary),
+                icon: Icon(Icons.close_rounded, color: AppColors.textTertiaryOf(context)),
               ),
             ],
           ),
@@ -128,7 +128,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
                 const SizedBox(width: 12),
                 Text('Sarah Johnson (Today)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
                 const Spacer(),
-                const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textTertiary, size: 20),
+                Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textTertiaryOf(context), size: 20),
               ],
             ),
           ),

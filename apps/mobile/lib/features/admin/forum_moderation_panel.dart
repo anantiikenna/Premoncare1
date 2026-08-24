@@ -519,7 +519,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: AppColors.successLight,
+                color: AppColors.successLightOf(context),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Row(
@@ -573,7 +573,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.errorLight,
+              color: AppColors.errorLightOf(context),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
@@ -588,8 +588,8 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           const SizedBox(width: 16),
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: AppColors.errorLight,
+            decoration: BoxDecoration(
+              color: AppColors.errorLightOf(context),
               shape: BoxShape.circle,
             ),
             child: const Icon(

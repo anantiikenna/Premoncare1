@@ -46,9 +46,9 @@ class VerifyPractitionerScreen extends ConsumerWidget {
           if (!isPending && !isApproved && !isRejected)
             TextButton(
               onPressed: () => context.pop(),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w700),
+                style: TextStyle(color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700),
               ),
             ),
           if (isApproved || isRejected)
@@ -240,7 +240,7 @@ class VerifyPractitionerScreen extends ConsumerWidget {
       width: 20,
       height: 2,
       margin: const EdgeInsets.only(bottom: 30),
-      color: isCompleted ? AppColors.primary : AppColors.border,
+      color: isCompleted ? AppColors.primary : AppColors.borderOf(context),
     );
   }
 

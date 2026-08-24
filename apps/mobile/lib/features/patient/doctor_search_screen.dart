@@ -182,12 +182,12 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Search Doctors',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
           const Spacer(),
@@ -236,14 +236,14 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         onChanged: _onSearchChanged,
         style: AppTypography.bodyMedium,
         decoration: InputDecoration(
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryOf(context),
             size: 20,
           ),
           hintText: 'Search doctors, specialties...',
           hintStyle: AppTypography.bodyMedium.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryOf(context),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
@@ -274,16 +274,16 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.tune_rounded,
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryOf(context),
               size: 16,
             ),
             const SizedBox(width: 8),
             Text(
               'Filter',
               style: AppTypography.labelLarge.copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
           ],
@@ -470,7 +470,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 _isEmergencyMode
                     ? Icons.keyboard_arrow_up_rounded
                     : Icons.keyboard_arrow_down_rounded,
-                color: AppColors.textTertiary,
+              color: AppColors.textTertiaryOf(context),
                 size: 20,
               ),
             ],
@@ -497,7 +497,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
             child: _buildCategoryItem(
               category,
               _getCategoryIcon(category),
-              _getCategoryColor(category),
+              _getCategoryColor(category, context),
               isSelected: isSelected,
             ),
           );
@@ -525,7 +525,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
     }
   }
 
-  Color _getCategoryColor(String category) {
+  Color _getCategoryColor(String category, BuildContext context) {
     switch (category) {
       case 'All':
         return AppColors.primary;
@@ -540,7 +540,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       case 'Cardiologist':
         return AppColors.error;
       default:
-        return AppColors.textSecondary;
+        return AppColors.textSecondaryOf(context);
     }
   }
 
@@ -596,7 +596,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
             style: TextStyle(
               fontSize: 10,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-              color: isSelected ? color : AppColors.textSecondary,
+              color: isSelected ? color : AppColors.textSecondaryOf(context),
               height: 1.2,
             ),
           ),
@@ -645,7 +645,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
           children: [
             Icon(
               Icons.warning_amber_rounded,
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryOf(context),
               size: 48,
             ),
             const SizedBox(height: 12),
@@ -687,7 +687,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         children: [
           Icon(
             Icons.search_off_rounded,
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryOf(context),
             size: 56,
           ),
           const SizedBox(height: 16),
@@ -782,7 +782,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     decoration: BoxDecoration(
                       color: isOnline
                           ? AppColors.success
-                          : AppColors.textTertiary,
+                          : AppColors.textTertiaryOf(context),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
@@ -831,15 +831,15 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                         size: 6,
                         color: isOnline
                             ? AppColors.success
-                            : AppColors.textTertiary,
+                            : AppColors.textTertiaryOf(context),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         isOnline ? 'Online' : 'Offline',
                         style: AppTypography.labelSmall.copyWith(
                           color: isOnline
-                              ? AppColors.success
-                              : AppColors.textTertiary,
+                            ? AppColors.success
+                            : AppColors.textTertiaryOf(context),
                         ),
                       ),
                     ],
@@ -946,9 +946,9 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryOf(context),
               size: 20,
             ),
           ],

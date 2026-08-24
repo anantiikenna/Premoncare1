@@ -469,29 +469,29 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Session ID',
-                      style: TextStyle(color: AppColors.textTertiary, fontSize: 9, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       'EMG-2025-0518-7821',
-                      style: TextStyle(color: AppColors.textPrimary, fontSize: 10, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 10, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'Access Time',
-                      style: TextStyle(color: AppColors.textTertiary, fontSize: 9, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       '18 May 2025, 10:24 AM',
-                      style: TextStyle(color: AppColors.textPrimary, fontSize: 10, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 10, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'Reason',
-                      style: TextStyle(color: AppColors.textTertiary, fontSize: 9, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Container(
@@ -654,9 +654,9 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 errorBuilder: (context, error, stackTrace) => const Icon(Icons.flag, size: 24),
               ),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 '+234',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)),
               ),
               Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondaryOf(context), size: 16),
               const SizedBox(width: 12),
@@ -1621,7 +1621,7 @@ class _VerifyIllustration extends StatelessWidget {
                   width: 26,
                   height: 26,
                   decoration: BoxDecoration(
-                    color: AppColors.infoLight,
+                    color: AppColors.infoLightOf(context),
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 1.5),
                   ),
@@ -1670,7 +1670,7 @@ class _ProfileIllustration extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 12),
-                  Container(width: 48, height: 48, decoration: const BoxDecoration(color: AppColors.infoLight, shape: BoxShape.circle)),
+                  Container(width: 48, height: 48, decoration: BoxDecoration(color: AppColors.infoLightOf(context), shape: BoxShape.circle)),
                   const SizedBox(height: 8),
                   Container(width: 32, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                   const SizedBox(height: 4),
@@ -1900,20 +1900,20 @@ class _FeatureColumn extends StatelessWidget {
         Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         const SizedBox(height: 4),
         Text(
           description,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 8,
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryOf(context),
             height: 1.3,
           ),
         ),
@@ -1957,12 +1957,12 @@ class _VerifyBenefitColumn extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)),
           ),
           const SizedBox(height: 4),
           Text(
             description,
-            style: const TextStyle(fontSize: 9, color: AppColors.textSecondary, height: 1.3),
+            style: TextStyle(fontSize: 9, color: AppColors.textSecondaryOf(context), height: 1.3),
           ),
         ],
       ),
@@ -2009,12 +2009,12 @@ class _NextActionCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textPrimary, height: 1.3),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), height: 1.3),
           ),
           const SizedBox(height: 8),
           Text(
             description,
-            style: const TextStyle(fontSize: 8, color: AppColors.textSecondary, height: 1.4, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 8, color: AppColors.textSecondaryOf(context), height: 1.4, fontWeight: FontWeight.w600),
           ),
         ],
       ),

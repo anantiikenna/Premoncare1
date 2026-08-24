@@ -377,11 +377,11 @@ class _LoginAction extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(horizontal: 18),
         ),
-        child: const Row(
+        child: Row(
           children: [
             CircleAvatar(
               radius: 19,
-              backgroundColor: AppColors.infoLight,
+              backgroundColor: AppColors.infoLightOf(context),
               child: Icon(Icons.person_rounded, color: AppColors.primary, size: 21),
             ),
             SizedBox(width: 18),

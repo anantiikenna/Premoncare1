@@ -354,8 +354,8 @@ class PaymentFailedScreen extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: AppColors.surfaceAlt,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceAltOf(context),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

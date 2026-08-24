@@ -834,7 +834,7 @@ class _FinancialModerationScreenState
                             ),
                           ),
                           if (d != _disputes.last)
-                            const Divider(height: 24, color: AppColors.divider),
+                            Divider(height: 24, color: AppColors.dividerOf(context)),
                         ],
                       ),
               ],
@@ -878,7 +878,7 @@ class _FinancialModerationScreenState
                         avatarUrl: p['recipient_avatar'] as String?,
                       ),
                       if (p != pendingPayments.last)
-                        const Divider(height: 24, color: AppColors.divider),
+                        Divider(height: 24, color: AppColors.dividerOf(context)),
                     ];
                   }),
               ],
@@ -1174,7 +1174,7 @@ class _FinanceStatCard extends StatelessWidget {
                 trend,
                 style: TextStyle(
                   color: isTransactionCount
-                      ? AppColors.textSecondary
+                      ? AppColors.textSecondaryOf(context)
                       : (trendPositive ? AppColors.success : AppColors.error),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -1208,7 +1208,7 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.infoLight : AppColors.surfaceOf(context),
+        color: isSelected ? AppColors.infoLightOf(context) : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected
@@ -1640,7 +1640,7 @@ class _DisputeItem extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppColors.errorLight,
+            color: AppColors.errorLightOf(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(

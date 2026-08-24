@@ -27,27 +27,27 @@ class PrivacyPolicyScreen extends StatelessWidget {
         children: [
           Text('Last updated: June 2026', style: AppTypography.captionOf(context)),
           const SizedBox(height: 24),
-          _buildSection('1. Information We Collect', 'We collect personal information you provide during registration (name, email, date of birth), medical records you upload, consultation notes, payment receipts, and device information for security purposes.', secondary),
-          _buildSection('2. How We Use Your Information', 'Your information is used to provide telemedicine services, facilitate consultations, manage your medical records, process payments, and send important notifications about your care.', secondary),
-          _buildSection('3. Data Security', 'We implement industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Your medical records are stored in HIPAA-compliant infrastructure with strict access controls.', secondary),
-          _buildSection('4. Data Sharing', 'We do not sell your personal data. Medical records are shared only with healthcare providers you have explicitly granted access to. Anonymous, aggregated data may be used for platform improvement.', secondary),
-          _buildSection('5. Your Rights', 'You have the right to access, correct, export, and delete your personal data. You can manage privacy settings in the app or contact our data protection officer.', secondary),
-          _buildSection('6. Cookies & Tracking', 'We use essential cookies for app functionality. Analytics data is collected anonymously to improve the platform. You can opt out of non-essential tracking in settings.', secondary),
-          _buildSection('7. Children\'s Privacy', 'Premon Care is not intended for users under 18. For minors, a parent or guardian must create and manage the account.', secondary),
-          _buildSection('8. Contact', 'For privacy-related inquiries, contact our Data Protection Officer at privacy@premoncare.com.', secondary),
+          _buildSection(context, '1. Information We Collect', 'We collect personal information you provide during registration (name, email, date of birth), medical records you upload, consultation notes, payment receipts, and device information for security purposes.', secondary),
+          _buildSection(context, '2. How We Use Your Information', 'Your information is used to provide telemedicine services, facilitate consultations, manage your medical records, process payments, and send important notifications about your care.', secondary),
+          _buildSection(context, '3. Data Security', 'We implement industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Your medical records are stored in HIPAA-compliant infrastructure with strict access controls.', secondary),
+          _buildSection(context, '4. Data Sharing', 'We do not sell your personal data. Medical records are shared only with healthcare providers you have explicitly granted access to. Anonymous, aggregated data may be used for platform improvement.', secondary),
+          _buildSection(context, '5. Your Rights', 'You have the right to access, correct, export, and delete your personal data. You can manage privacy settings in the app or contact our data protection officer.', secondary),
+          _buildSection(context, '6. Cookies & Tracking', 'We use essential cookies for app functionality. Analytics data is collected anonymously to improve the platform. You can opt out of non-essential tracking in settings.', secondary),
+          _buildSection(context, '7. Children\'s Privacy', 'Premon Care is not intended for users under 18. For minors, a parent or guardian must create and manage the account.', secondary),
+          _buildSection(context, '8. Contact', 'For privacy-related inquiries, contact our Data Protection Officer at privacy@premoncare.com.', secondary),
           const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildSection(String title, String body, Color secondary) {
+  Widget _buildSection(BuildContext context, String title, String body, Color secondary) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context))),
           const SizedBox(height: 8),
           Text(body, style: TextStyle(fontSize: 14, color: secondary, height: 1.6)),
         ],

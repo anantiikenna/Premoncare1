@@ -1123,7 +1123,7 @@ class _DisputeResolutionScreenState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.successLight,
+                    color: AppColors.successLightOf(context),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(

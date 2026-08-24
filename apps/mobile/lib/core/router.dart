@@ -7,6 +7,9 @@ import '../features/auth/login_screen.dart';
 import '../features/auth/onboarding_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/auth/otp_verification_screen.dart';
+import '../features/auth/forgot_password_screen.dart';
+import '../features/auth/reset_password_screen.dart';
+import '../features/auth/password_reset_success_screen.dart';
 import '../features/auth/splash_screen.dart';
 import '../features/auth/account_conversion_screen.dart';
 import '../features/auth/permission_screen.dart';
@@ -98,6 +101,9 @@ final goRouter = GoRouter(
       '/register',
       '/otp-verification',
       '/session-expired',
+      '/forgot-password',
+      '/reset-password',
+      '/password-reset-success',
     }.contains(state.matchedLocation);
     final extra = state.extra;
     final isEmergencyAccess =
@@ -202,6 +208,18 @@ final goRouter = GoRouter(
       builder: (context, state) => const AdminLoginScreen(),
     ),
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/reset-password',
+      builder: (context, state) => const ResetPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/password-reset-success',
+      builder: (context, state) => const PasswordResetSuccessScreen(),
+    ),
     GoRoute(
       path: '/patient_dashboard',
       builder: (context, state) => const PatientMainLayout(),

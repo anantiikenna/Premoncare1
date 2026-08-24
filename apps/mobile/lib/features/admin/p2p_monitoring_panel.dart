@@ -772,7 +772,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                         avatarUrl: u['avatar_url'] as String?,
                       ),
                       if (i < _topUsers.length - 1)
-                        const Divider(height: 32, color: AppColors.divider),
+                        Divider(height: 32, color: AppColors.dividerOf(context)),
                     ];
                   }),
               ],
@@ -799,28 +799,28 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                   count: _flaggedCount.toString(),
                   color: AppColors.error,
                 ),
-                const Divider(height: 32, color: AppColors.divider),
+                Divider(height: 32, color: AppColors.dividerOf(context)),
                 _MonitorItem(
                   icon: Icons.compare_arrows_rounded,
                   label: 'Rapid in & out transfers',
                   count: _mediumRiskCount.toString(),
                   color: AppColors.warning,
                 ),
-                const Divider(height: 32, color: AppColors.divider),
+                Divider(height: 32, color: AppColors.dividerOf(context)),
                 _MonitorItem(
                   icon: Icons.money_off_rounded,
                   label: 'Unusual transaction amount',
                   count: _highRiskCount.toString(),
                   color: AppColors.info,
                 ),
-                const Divider(height: 32, color: AppColors.divider),
+                Divider(height: 32, color: AppColors.dividerOf(context)),
                 _MonitorItem(
                   icon: Icons.balance_rounded,
                   label: 'Open disputes',
                   count: _disputedCount.toString(),
                   color: AppColors.primary,
                 ),
-                const Divider(height: 32, color: AppColors.divider),
+                Divider(height: 32, color: AppColors.dividerOf(context)),
                 _MonitorItem(
                   icon: Icons.pending_actions_rounded,
                   label: 'Awaiting verification',
@@ -994,7 +994,7 @@ class _P2PStatCard extends StatelessWidget {
           Text(
             trend,
             style: TextStyle(
-              color: isNegative ? AppColors.error : AppColors.textSecondary,
+              color: isNegative ? AppColors.error : AppColors.textSecondaryOf(context),
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),
@@ -1016,7 +1016,7 @@ class _TabItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.infoLight : AppColors.surfaceOf(context),
+        color: isSelected ? AppColors.infoLightOf(context) : AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isSelected
@@ -1029,7 +1029,7 @@ class _TabItem extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected ? AppColors.primary : AppColors.textSecondaryOf(context),
               fontSize: 13,
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
             ),

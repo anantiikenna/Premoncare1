@@ -158,7 +158,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
   Widget _buildDoctorCard(Color primaryColor, String name) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLight)),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
           const GenericUserAvatar(radius: 32, avatarUrl: null),
@@ -198,17 +198,17 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     final durationLabel = durationMinutes != null ? '$durationMinutes mins' : '30 mins';
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLight)),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
           _buildInfoRow(Icons.calendar_today_rounded, 'Date', dateStr),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
+          Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
           _buildInfoRow(Icons.access_time_rounded, 'Time', timeStr),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
+          Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
           _buildInfoRow(Icons.timer_outlined, 'Duration', durationLabel),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
+          Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
           _buildInfoRow(Icons.videocam_rounded, 'Consultation Type', consultLabel),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLight)),
+          Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)),
@@ -247,7 +247,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: AppColors.errorLight, width: 2),
+        border: Border.all(color: AppColors.errorLightOf(context), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,13 +300,13 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
     final feeStr = fee.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLight)),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
           _buildPriceRow('Consultation Fee', '₦$feeStr'),
           const SizedBox(height: 12),
           _buildPriceRow('Platform Service', '₦0.00', isSpecial: true),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: AppColors.borderLight)),
+          Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

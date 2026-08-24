@@ -47,9 +47,9 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
-          _buildInfoTile(icon: Icons.info_outline_rounded, color: AppColors.primary, title: 'About', subtitle: 'Premon Care is a telemedicine platform connecting patients with licensed healthcare providers across Nigeria and Africa.'),
-          _buildInfoTile(icon: Icons.code_rounded, color: AppColors.success, title: 'Built With', subtitle: 'Flutter, Supabase, Firebase'),
-          _buildInfoTile(icon: Icons.favorite_rounded, color: AppColors.error, title: 'Our Mission', subtitle: 'To make quality healthcare accessible to everyone, everywhere through technology.'),
+          _buildInfoTile(context, icon: Icons.info_outline_rounded, color: AppColors.primary, title: 'About', subtitle: 'Premon Care is a telemedicine platform connecting patients with licensed healthcare providers across Nigeria and Africa.'),
+          _buildInfoTile(context, icon: Icons.code_rounded, color: AppColors.success, title: 'Built With', subtitle: 'Flutter, Supabase, Firebase'),
+          _buildInfoTile(context, icon: Icons.favorite_rounded, color: AppColors.error, title: 'Our Mission', subtitle: 'To make quality healthcare accessible to everyone, everywhere through technology.'),
           _buildTappableTile(
             context,
             icon: Icons.public_rounded,
@@ -79,7 +79,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTile({required IconData icon, required Color color, required String title, required String subtitle}) {
+  Widget _buildInfoTile(BuildContext context, {required IconData icon, required Color color, required String title, required String subtitle}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -95,9 +95,9 @@ class AboutScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context))),
                 const SizedBox(height: 4),
-                Text(subtitle, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                Text(subtitle, style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context))),
               ],
             ),
           ),
@@ -129,7 +129,7 @@ class AboutScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                  Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context))),
                   const SizedBox(height: 4),
                   Text(subtitle, style: TextStyle(fontSize: 13, color: AppColors.primary, decoration: TextDecoration.underline, decorationColor: AppColors.primary)),
                 ],

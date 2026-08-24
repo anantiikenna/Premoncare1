@@ -554,7 +554,7 @@ class _SubscriptionPlanControlState
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.infoLight,
+        color: AppColors.infoLightOf(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.info.withValues(alpha: 0.2)),
       ),

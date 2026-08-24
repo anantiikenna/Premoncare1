@@ -276,9 +276,9 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                         ),
                         child: Row(
                           children: [
-                            CircleAvatar(radius: 3, backgroundColor: _isOnline ? AppColors.success : AppColors.textTertiary),
+                            CircleAvatar(radius: 3, backgroundColor: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context)),
                             const SizedBox(width: 4),
-                            Text(_isOnline ? 'Online' : 'Offline', style: TextStyle(color: _isOnline ? AppColors.success : AppColors.textTertiary, fontSize: 10, fontWeight: FontWeight.bold)),
+                            Text(_isOnline ? 'Online' : 'Offline', style: TextStyle(color: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context), fontSize: 10, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -368,7 +368,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           const SizedBox(height: 12),
           Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context), height: 1.2)),
           const SizedBox(height: 4),
-          Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _isOnline ? AppColors.success : AppColors.textTertiary)),
+          Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context))),
         ],
       ),
     );
@@ -512,7 +512,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.textTertiary,
+                  disabledBackgroundColor: AppColors.textTertiaryOf(context),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
@@ -547,7 +547,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: widget.isEmergency ? AppColors.error : AppColors.success,
-                  disabledBackgroundColor: AppColors.textTertiary,
+                  disabledBackgroundColor: AppColors.textTertiaryOf(context),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,

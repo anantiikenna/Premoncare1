@@ -259,7 +259,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                           child: CircularProgressIndicator(
                             value: _secondsRemaining / 180,
                             strokeWidth: 8,
-                            backgroundColor: AppColors.border,
+                            backgroundColor: AppColors.borderOf(context),
                             valueColor: AlwaysStoppedAnimation<Color>(_timerColor),
                           ),
                         ),
@@ -277,7 +277,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                   const SizedBox(height: 12),
                   Text(
                     'Time remaining to respond',
-                    style: AppTypography.bodySmall.copyWith(color: AppColors.textTertiary),
+                    style: AppTypography.bodySmall.copyWith(color: AppColors.textTertiaryOf(context)),
                   ),
                   const SizedBox(height: 40),
 
@@ -305,7 +305,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                               const SizedBox(height: 4),
                               Text(
                                 '${widget.durationMinutes}-minute emergency consultation',
-                                style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                                style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryOf(context)),
                               ),
                             ],
                           ),
@@ -313,7 +313,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.errorLight,
+                            color: AppColors.errorLightOf(context),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -358,8 +358,8 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                           child: OutlinedButton(
                             onPressed: _isProcessing ? null : () => _respondToRequest(false),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.textSecondary,
-                              side: const BorderSide(color: AppColors.border),
+                              foregroundColor: AppColors.textSecondaryOf(context),
+                              side: BorderSide(color: AppColors.borderOf(context)),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
                             child: const Row(
