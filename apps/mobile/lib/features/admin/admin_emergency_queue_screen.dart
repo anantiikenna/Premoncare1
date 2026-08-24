@@ -37,8 +37,12 @@ class _AdminEmergencyQueueScreenState
     extends ConsumerState<AdminEmergencyQueueScreen> {
   List<Map<String, dynamic>> _enrichedRequests = [];
   bool _loadingProfiles = false;
+  String _lastRequestIds = '';
 
   Future<void> _enrichRequests(List<Map<String, dynamic>> requests) async {
+    final requestIds = requests.map((r) => r['id'] as String).join(',');
+    if (requestIds == _lastRequestIds) return;
+    _lastRequestIds = requestIds;
     if (requests.isEmpty) {
       setState(() {
         _enrichedRequests = [];

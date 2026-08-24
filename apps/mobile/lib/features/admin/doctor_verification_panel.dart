@@ -896,7 +896,7 @@ class _DoctorVerificationPanelState
                     decoration: BoxDecoration(
                       color: color,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.surface, width: 2),
+                      border: Border.all(color: AppColors.surfaceOf(context), width: 2),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -1063,7 +1063,7 @@ class _DoctorVerificationPanelState
                       decoration: BoxDecoration(
                         color: color,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.surface, width: 2),
+                        border: Border.all(color: AppColors.surfaceOf(context), width: 2),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1546,7 +1546,7 @@ class _DoctorVerificationPanelState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.successLight,
+              color: AppColors.successLightOf(context),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Row(
@@ -1573,7 +1573,7 @@ class _DoctorVerificationPanelState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.errorLight,
+              color: AppColors.errorLightOf(context),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Row(
@@ -1960,7 +1960,7 @@ class _DetailItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.infoLight,
+            color: AppColors.infoLightOf(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: AppColors.primary, size: 20),

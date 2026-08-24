@@ -119,7 +119,9 @@ final patientMedicalRecordsProvider = StreamProvider.autoDispose<List<Map<String
 final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final usersResult = await supabase.from('profiles').select('id').count();
   final doctorsResult = await supabase.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'approved').count();
-  final appointmentsResult = await supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count();
+  final upcomingAppointmentsResult = await supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count();
+  final totalAppointmentsResult = await supabase.from('appointments').select('id').count();
+  final completedAppointmentsResult = await supabase.from('appointments').select('id').eq('status', 'completed').count();
   final payments = await supabase.from('payments').select('amount').eq('status', 'approved');
 
   num totalRevenue = 0;
@@ -130,7 +132,9 @@ final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   return {
     'totalUsers': usersResult.count,
     'verifiedDoctors': doctorsResult.count,
-    'todayAppointments': appointmentsResult.count,
+    'todayAppointments': upcomingAppointmentsResult.count,
+    'totalAppointments': totalAppointmentsResult.count,
+    'completedAppointments': completedAppointmentsResult.count,
     'totalRevenue': totalRevenue,
   };
 });
