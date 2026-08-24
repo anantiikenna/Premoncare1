@@ -185,11 +185,11 @@ class VerifyPractitionerScreen extends ConsumerWidget {
       child: Row(
         children: [
           _buildStepNode(context, 1, 'Professional\nProfile', currentStep.index >= 0, currentStep.index == 0),
-          _buildStepLine(currentStep.index >= 1),
+          _buildStepLine(context, currentStep.index >= 1),
           _buildStepNode(context, 2, 'Identity\nDocuments', currentStep.index >= 1, currentStep.index == 1),
-          _buildStepLine(currentStep.index >= 2),
+          _buildStepLine(context, currentStep.index >= 2),
           _buildStepNode(context, 3, 'Facial\nBiometrics', currentStep.index >= 2, currentStep.index == 2),
-          _buildStepLine(currentStep.index >= 3),
+          _buildStepLine(context, currentStep.index >= 3),
           _buildStepNode(context, 4, 'Review &\nSubmit', currentStep.index >= 3, currentStep.index == 3),
         ],
       ),
@@ -235,7 +235,7 @@ class VerifyPractitionerScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStepLine(bool isCompleted) {
+  Widget _buildStepLine(BuildContext context, bool isCompleted) {
     return Container(
       width: 20,
       height: 2,

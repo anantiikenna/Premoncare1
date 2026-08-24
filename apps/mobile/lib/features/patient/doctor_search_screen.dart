@@ -724,8 +724,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
   }) {
     final id = doctor['id'] ?? '';
     final fullName = doctor['full_name'] ?? 'Unknown';
-    final doctorTitle = doctor['title'] as String?;
-    final displayName = formatDoctorName(doctorTitle, fullName);
+    final displayName = fullName;
     final specialty = doctor['specialty'] ?? 'General';
     final fee = doctor['consultation_fee'] ?? 0;
     final isOnline = doctor['is_online'] == true;

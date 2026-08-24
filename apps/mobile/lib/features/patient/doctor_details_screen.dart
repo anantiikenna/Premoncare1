@@ -55,8 +55,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   }
 
   String get _displayName => _profile?['full_name'] as String? ?? widget.doctorName;
-  String get _doctorTitle => _profile?['title'] as String?;
-  String get _formattedName => formatDoctorName(_doctorTitle, _displayName);
+  String get _formattedName => _displayName;
   String get _displaySpecialty => _profile?['specialty'] as String? ?? widget.specialty;
   double get _hourlyRate => (_profile?['hourly_rate'] as num?)?.toDouble() ?? 5000.0;
   double get _bookingRate => widget.isEmergency ? _hourlyRate * 5 : _hourlyRate;

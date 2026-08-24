@@ -230,7 +230,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(formatDoctorName(appointment.doctorTitle, appointment.doctorName), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.textPrimaryOf(context))),
+                    Text(appointment.doctorName, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.textPrimaryOf(context))),
                     const SizedBox(height: 4),
                     Text('Verified Specialist', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
                   ],

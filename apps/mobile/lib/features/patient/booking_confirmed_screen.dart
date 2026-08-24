@@ -422,7 +422,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               final doctorName = widget.doctorName ?? '';
               final feeStr = feeVal.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
               final receipt = 'Premoncare Emergency Receipt\n'
-                  'Doctor: Dr. ${doctorName.replaceAll('Dr. ', '')}\n'
+                  'Doctor: $doctorName\n'
                   'Amount: ₦$feeStr\n'
                   'Date: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}\n'
                   'Appointment ID: ${widget.appointmentId ?? 'N/A'}';
