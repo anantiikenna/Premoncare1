@@ -8,44 +8,6 @@
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ── Ensure live DB has all required columns ─────────────────
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='metadata') THEN
-    ALTER TABLE public.appointments ADD COLUMN metadata jsonb DEFAULT '{}'::jsonb;
-  END IF;
-END $$;
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='is_emergency') THEN
-    ALTER TABLE public.appointments ADD COLUMN is_emergency boolean DEFAULT false;
-  END IF;
-END $$;
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='total_amount') THEN
-    ALTER TABLE public.appointments ADD COLUMN total_amount numeric DEFAULT 0;
-  END IF;
-END $$;
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='payments' AND column_name='rejection_reason') THEN
-    ALTER TABLE public.payments ADD COLUMN rejection_reason text;
-  END IF;
-END $$;
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='payment_instructions') THEN
-    ALTER TABLE public.profiles ADD COLUMN payment_instructions text;
-  END IF;
-END $$;
-
--- ── Update appointments status constraint ─────────────────────
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname='appointments_status_check' AND conrelid='public.appointments'::regclass) THEN
-    ALTER TABLE public.appointments DROP CONSTRAINT appointments_status_check;
-  END IF;
-END $$;
-
-ALTER TABLE public.appointments
-  ADD CONSTRAINT appointments_status_check
-  CHECK (status IN ('pending','emergency_pending','emergency_request','emergency_accepted','emergency_declined','confirmed','cancelled','completed','ongoing','rescheduled'));
-
 DO $$
 DECLARE
     -- ── Doctor UUIDs ──────────────────────────────────────────
@@ -836,6 +798,49 @@ VALUES
     (now()-interval '15 days', p4, fp4, null,
      'This post contains potentially misleading mental health advice that could discourage seeking professional help.',
      'pending')
+ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- 29. HEALTH RECORDS (clinical notes between doctors & patients)
+-- ============================================================
+INSERT INTO public.health_records (patient_id, doctor_id, content, created_at)
+VALUES
+    (p1, d1, 'Patient presents with elevated BP (142/90). Started on Amlodipine 5mg. Follow-up in 4 weeks to assess response. Lifestyle modifications discussed: DASH diet, 30min daily exercise, sodium restriction.', now()-interval '44 days'),
+    (p2, d2, 'Child (2y 4m) presenting with recurrent febrile episodes. Temperature 38.9°C. Prescribed paracetamol 120mg q6h. Advised mother on hydration and warning signs requiring ER visit. Follow-up in 1 week.', now()-interval '39 days'),
+    (p3, d3, 'Patient reports severe migraine (8/10 pain) lasting 72 hours, unresponsive to OTC analgesics. Started Sumatriptan 50mg PRN. Discussed migraine diary and trigger identification. Referred for MRI to exclude secondary causes.', now()-interval '34 days'),
+    (p4, d4, 'Moderate acne vulgaris on cheeks and forehead (Grade 3). Started topical adapalene 0.1% + benzoyl peroxide 2.5%. Advised on sun protection and gentle skincare routine. Review in 8 weeks.', now()-interval '29 days'),
+    (p5, d5, 'Annual checkup: BP 120/78, BMI 23.4, HbA1c 5.2% (normal). All vitals within normal range. Bloods sent for full panel including lipids, FBC, renal. Counseled on maintaining current lifestyle.', now()-interval '24 days'),
+    (p6, d1, 'Follow-up: BP improved to 130/84 on current regimen. Patient reports mild ankle swelling — likely Amlodipine side effect. Advised leg elevation. Continue current dose, recheck in 4 weeks. If swelling persists, consider switching to ARB.', now()-interval '19 days')
+ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- 30. MEDICAL DOCUMENTS (patient-uploaded files in medical vault)
+-- ============================================================
+INSERT INTO public.medical_documents (patient_id, title, file_url, file_type, status, created_at)
+VALUES
+    (p1, 'Annual Blood Panel Results',    'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'application/pdf', 'active',   now()-interval '60 days'),
+    (p1, 'Echocardiogram Report',         'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'application/pdf', 'active',   now()-interval '45 days'),
+    (p2, 'Chest X-Ray Report',            'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'application/pdf', 'active',   now()-interval '55 days'),
+    (p3, 'HbA1c Lab Results',             'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'application/pdf', 'active',   now()-interval '35 days'),
+    (p4, 'Haematology Report',            'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'application/pdf', 'active',   now()-interval '30 days'),
+    (p5, 'Immunisation Card',             'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'image/jpeg',      'active',   now()-interval '20 days'),
+    (p8, 'Previous Migraine MRI',         'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'application/pdf', 'archived', now()-interval '90 days'),
+    (p9, 'BP Monitoring Log (2 weeks)',    'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'text/csv',        'active',   now()-interval '7 days')
+ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- 31. FEE NEGOTIATION MESSAGES (doctor ↔ admin pricing discussions)
+-- ============================================================
+INSERT INTO public.fee_negotiation_messages (doctor_id, sender_id, sender_role, message, created_at)
+VALUES
+    (d1, d1, 'doctor',  'Good morning. I''d like to discuss adjusting my consultation fee from ₦15,000 to ₦18,000 based on increased demand and 10 years of practice. Happy to provide supporting data.', now()-interval '15 days'),
+    (d1, adm, 'admin',  'Thank you Dr. Adaeze. We''ve reviewed your request. Given your patient volume and rating, we can approve ₦16,500 as a starting point. We''ll revisit in 3 months.',       now()-interval '14 days'),
+    (d1, d1, 'doctor',  'That sounds reasonable. I accept ₦16,500. Thank you for the consideration.',                                                                                             now()-interval '13 days'),
+    (d5, d5, 'doctor',  'Hi admin. I''m new but getting good patient feedback. Can we discuss increasing my video fee from ₦7,000 to ₦9,000?',                                                      now()-interval '7 days'),
+    (d5, adm, 'admin',  'Hi Dr. Emeka. Great to hear you''re getting positive feedback! Let''s schedule a review after your first 50 consultations. We''ll reassess then.',                       now()-interval '6 days')
 ON CONFLICT DO NOTHING;
 
 END $$;
