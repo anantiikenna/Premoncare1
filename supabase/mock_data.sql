@@ -200,7 +200,7 @@ INSERT INTO public.profiles (
     biometric_enabled, two_factor_enabled, medical_records_shared_by_default
 ) VALUES
 -- ── Admin ────────────────────────────────────────────────────
-(adm, 'admin@premoncare.com', 'premoncare_admin', 'Platform Admin', null, null,
+(adm, 'admin@premoncare.com', 'premoncare_admin', 'Admin', null, null,
  'admin', 'admin', 'approved', 'active',
  null, null, null, null, null, null, null, 0, 0, 0, 0, 0, false, now(),
  'Platform administrator account', '{}', '[]',

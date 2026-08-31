@@ -180,7 +180,7 @@ export default function AdminAuditTimelinePage() {
                     <div className="space-y-2">
                         <div className="flex items-center gap-2 text-violet-600 font-black uppercase tracking-widest text-xs">
                             <FileText className="h-4 w-4" />
-                            Platform Administration
+                            Admin
                         </div>
                         <h1 className="text-3xl font-black text-foreground tracking-tight">Audit Timeline</h1>
                         <p className="text-sm font-semibold text-muted-foreground">

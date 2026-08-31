@@ -21,7 +21,7 @@ export default async function AdminUsersPage() {
                 <div className="space-y-2 relative z-10">
                     <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
                         <Users className="h-4 w-4" />
-                        Platform Administration
+                        Admin
                     </div>
                     <h1 className="text-4xl font-black tracking-tighter text-slate-900">User Management</h1>
                     <p className="text-muted-foreground text-lg font-medium max-w-xl">
