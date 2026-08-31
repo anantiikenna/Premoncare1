@@ -91,15 +91,22 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
 
   Future<void> _togglePresence(bool newStatus) async {
     final userId = supabase.auth.currentUser?.id;
-    if (userId == null) return;
+    if (userId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Not authenticated. Please log in again.')),
+        );
+      }
+      return;
+    }
 
     setState(() => _loading = true);
 
     try {
-      await supabase.from('profiles').update({
+      final response = await supabase.from('profiles').update({
         'is_online': newStatus,
         'last_seen': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', userId);
+      }).eq('id', userId).select();
 
       if (mounted) {
         setState(() {
@@ -126,8 +133,11 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       }
     } catch (e) {
       if (mounted) {
+        final msg = e.toString().contains('permission')
+            ? 'Permission denied. Please ensure your profile is fully set up.'
+            : 'Failed to update presence: ${e.toString()}';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update presence status: $e')),
+          SnackBar(content: Text(msg)),
         );
       }
     } finally {

@@ -44,8 +44,8 @@ export default async function Home() {
         <section className="relative min-h-[85vh] flex items-center px-6 lg:px-20 py-12 md:py-20 overflow-hidden">
           {/* Decorative mesh background */}
           <div className="absolute inset-0 bg-mesh opacity-60 -z-10" />
-          <div className="absolute top-[-10%] right-[-5%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-primary/10 rounded-full blur-[80px] md:blur-[120px] -z-10" />
-          <div className="absolute bottom-[0%] left-[-5%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-accent/10 rounded-full blur-[70px] md:blur-[100px] -z-10" />
+          <div className="absolute top-[-10%] right-[-5%] w-75 h-75 md:w-125 md:h-125 bg-primary/10 rounded-full blur-[80px] md:blur-[120px] -z-10" />
+          <div className="absolute bottom-[0%] left-[-5%] w-62.5 h-62.5 md:w-100 md:h-100 bg-accent/10 rounded-full blur-[70px] md:blur-[100px] -z-10" />
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-7xl mx-auto w-full">
             <div className="space-y-8 md:space-y-10 text-center lg:text-left">
@@ -98,7 +98,7 @@ export default async function Home() {
             
             <div className="relative group mt-8 lg:mt-0">
               <div className="absolute inset-0 bg-primary/20 blur-3xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10" />
-              <div className="relative aspect-square rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(30,41,59,0.3)] border-4 md:border-8 border-white/50 transform rotate-1 lg:rotate-2 group-hover:rotate-0 transition-all duration-700 max-w-[500px] mx-auto">
+              <div className="relative aspect-square rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(30,41,59,0.3)] border-4 md:border-8 border-white/50 transform rotate-1 lg:rotate-2 group-hover:rotate-0 transition-all duration-700 max-w-125 mx-auto">
                 <Image 
                   src="/hero_doctors_1775233503106.png" 
                   alt="Premon Care Medical Team" 
@@ -153,7 +153,7 @@ export default async function Home() {
                   desc: "Your entire medical history, secured by blockchain-grade encryption.",
                 }
               ].map((service, i) => (
-                <div key={i} className="group relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-card border border-border/50 hover:shadow-2xl transition-all duration-500 h-[400px] md:h-[500px]">
+                <div key={i} className="group relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-card border border-border/50 hover:shadow-2xl transition-all duration-500 h-100 md:h-125">
                   <Image src={service.image} alt={service.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10 space-y-4">
@@ -175,7 +175,7 @@ export default async function Home() {
         <section id="about" className="section-padding px-6 lg:px-20 overflow-hidden">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div className="relative">
-              <div className="relative aspect-[4/5] rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl max-w-[500px] mx-auto lg:mx-0">
+              <div className="relative aspect-4/5 rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl max-w-125 mx-auto lg:mx-0">
                 <Image 
                   src="/medical_center_interior_1775233843959.png" 
                   alt="Premon Care Center" 

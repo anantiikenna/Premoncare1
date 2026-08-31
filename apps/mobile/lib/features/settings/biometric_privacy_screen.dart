@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../core/services/biometric_service.dart';
 
 class BiometricPrivacyScreen extends StatefulWidget {
   const BiometricPrivacyScreen({super.key});
@@ -12,6 +13,7 @@ class BiometricPrivacyScreen extends StatefulWidget {
 }
 
 class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
+  final _biometricService = BiometricService();
   bool _biometricLock = false;
   bool _profileVisible = true;
   bool _showOnlineStatus = true;
@@ -60,7 +62,38 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
         children: [
           Text('SECURITY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.fingerprint_rounded, color: AppColors.primary, title: 'Biometric Lock', subtitle: 'Require fingerprint or face to open app', value: _biometricLock, onChanged: (v) { setState(() => _biometricLock = v); _savePreference('privacy_biometric', v); }),
+          _buildToggle(
+            icon: Icons.fingerprint_rounded,
+            color: AppColors.primary,
+            title: 'Biometric Lock',
+            subtitle: 'Require fingerprint or face to open app',
+            value: _biometricLock,
+            onChanged: (v) async {
+              if (v) {
+                // Turning ON — verify device capability first
+                final available = await _biometricService.isAvailable();
+                if (!available) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Biometrics not available on this device')),
+                    );
+                  }
+                  return;
+                }
+
+                // Prompt for confirmation before enabling
+                final authenticated = await _biometricService.authenticate();
+                if (!authenticated) return;
+
+                await _biometricService.setEnabled(true);
+                setState(() => _biometricLock = true);
+              } else {
+                // Turning OFF — just save
+                await _biometricService.setEnabled(false);
+                setState(() => _biometricLock = false);
+              }
+            },
+          ),
           const SizedBox(height: 24),
           Text('VISIBILITY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),

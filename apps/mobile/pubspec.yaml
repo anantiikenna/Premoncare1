@@ -27,6 +27,7 @@ dependencies:
   url_launcher: ^6.3.2
   http: ^1.6.0
   shared_preferences: ^2.5.5
+  local_auth: ^2.3.0
   permission_handler: ^13.0.0
   posthog_flutter: ^5.34.2
   timeago: ^3.7.1

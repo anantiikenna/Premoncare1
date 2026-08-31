@@ -7,11 +7,19 @@ import 'core/router.dart';
 import 'core/flavor_config.dart';
 import 'core/app_colors.dart';
 import 'core/theme_provider.dart';
+import 'core/providers/accessibility_provider.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'core/services/notification_service.dart';
 import 'core/widgets/inactivity_detector.dart';
+import 'core/widgets/biometric_gate.dart';
+
+final accessibilityProvider = ChangeNotifierProvider<AccessibilityProvider>((ref) {
+  final provider = AccessibilityProvider();
+  provider.load();
+  return provider;
+});
 
 Future<void> mainCommon() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +43,9 @@ Future<void> mainCommon() async {
 
   runApp(
     const ProviderScope(
-      child: PremonCareApp(),
+      child: BiometricGate(
+        child: PremonCareApp(),
+      ),
     ),
   );
 }
@@ -47,6 +57,7 @@ class PremonCareApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final config = FlavorConfig.instance;
     final themeMode = ref.watch(themeModeProvider);
+    final accessibility = ref.watch(accessibilityProvider);
 
     return MaterialApp.router(
       title: config.appTitle,
@@ -57,7 +68,12 @@ class PremonCareApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
         return InactivityDetector(
-          child: child ?? const SizedBox.shrink(),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(accessibility.textScale),
+            ),
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );

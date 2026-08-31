@@ -11,11 +11,24 @@ import 'widgets/verification_pending_screen.dart';
 import 'widgets/verification_approved_screen.dart';
 import 'widgets/verification_rejected_screen.dart';
 
-class VerifyPractitionerScreen extends ConsumerWidget {
+class VerifyPractitionerScreen extends ConsumerStatefulWidget {
   const VerifyPractitionerScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<VerifyPractitionerScreen> createState() => _VerifyPractitionerScreenState();
+}
+
+class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(verificationProvider.notifier).refreshStatus();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(verificationProvider);
     final notifier = ref.read(verificationProvider.notifier);
 

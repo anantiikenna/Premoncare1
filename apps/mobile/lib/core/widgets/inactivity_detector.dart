@@ -22,7 +22,6 @@ class _InactivityDetectorState extends State<InactivityDetector> {
   int _remainingSeconds = 60;
   bool _showWarning = false;
 
-  static const _timeoutDuration = Duration(minutes: 15);
   static const _warningDuration = Duration(minutes: 14);
   static const _logoutDuration = Duration(minutes: 15);
 

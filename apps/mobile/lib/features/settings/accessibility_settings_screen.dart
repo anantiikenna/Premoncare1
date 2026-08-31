@@ -1,50 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../main_common.dart';
 
-class AccessibilitySettingsScreen extends StatefulWidget {
+class AccessibilitySettingsScreen extends ConsumerWidget {
   const AccessibilitySettingsScreen({super.key});
 
   @override
-  State<AccessibilitySettingsScreen> createState() => _AccessibilitySettingsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accessibility = ref.watch(accessibilityProvider);
+    final notifier = ref.read(accessibilityProvider.notifier);
 
-class _AccessibilitySettingsScreenState extends State<AccessibilitySettingsScreen> {
-  double _textScale = 1.0;
-  bool _highContrast = false;
-  bool _reduceAnimations = false;
-  bool _screenReaderHints = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPreferences();
-  }
-
-  Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _textScale = prefs.getDouble('access_text_scale') ?? 1.0;
-      _highContrast = prefs.getBool('access_high_contrast') ?? false;
-      _reduceAnimations = prefs.getBool('access_reduce_animations') ?? false;
-      _screenReaderHints = prefs.getBool('access_screen_reader') ?? true;
-    });
-  }
-
-  Future<void> _saveDouble(String key, double value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble(key, value);
-  }
-
-  Future<void> _saveBool(String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final color = AppColors.textPrimaryOf(context);
     final secondary = AppColors.textSecondaryOf(context);
 
@@ -73,20 +41,17 @@ class _AccessibilitySettingsScreenState extends State<AccessibilitySettingsScree
             ),
             child: Column(
               children: [
-                Text('Preview', style: TextStyle(fontSize: 16 * _textScale, fontWeight: FontWeight.w800, color: color)),
+                Text('Preview', style: TextStyle(fontSize: 16 * accessibility.textScale, fontWeight: FontWeight.w800, color: color)),
                 const SizedBox(height: 4),
-                Text('This is how text will appear.', style: TextStyle(fontSize: 14 * _textScale, color: secondary)),
+                Text('This is how text will appear.', style: TextStyle(fontSize: 14 * accessibility.textScale, color: secondary)),
                 const SizedBox(height: 16),
                 Slider(
-                  value: _textScale,
+                  value: accessibility.textScale,
                   min: 0.8,
                   max: 1.5,
                   divisions: 7,
                   activeColor: AppColors.primary,
-                  onChanged: (v) {
-                    setState(() => _textScale = v);
-                    _saveDouble('access_text_scale', v);
-                  },
+                  onChanged: (v) => notifier.setTextScale(v),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,9 +66,9 @@ class _AccessibilitySettingsScreenState extends State<AccessibilitySettingsScree
           const SizedBox(height: 24),
           Text('DISPLAY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.contrast_rounded, color: AppColors.primary, title: 'High Contrast', subtitle: 'Increase contrast for better visibility', value: _highContrast, onChanged: (v) { setState(() => _highContrast = v); _saveBool('access_high_contrast', v); }),
-          _buildToggle(icon: Icons.animation_rounded, color: AppColors.warning, title: 'Reduce Animations', subtitle: 'Minimize motion effects', value: _reduceAnimations, onChanged: (v) { setState(() => _reduceAnimations = v); _saveBool('access_reduce_animations', v); }),
-          _buildToggle(icon: Icons.accessibility_new_rounded, color: AppColors.success, title: 'Screen Reader Hints', subtitle: 'Add extra labels for screen readers', value: _screenReaderHints, onChanged: (v) { setState(() => _screenReaderHints = v); _saveBool('access_screen_reader', v); }),
+          _buildToggle(icon: Icons.contrast_rounded, color: AppColors.primary, title: 'High Contrast', subtitle: 'Increase contrast for better visibility', value: accessibility.highContrast, onChanged: (v) => notifier.setHighContrast(v)),
+          _buildToggle(icon: Icons.animation_rounded, color: AppColors.warning, title: 'Reduce Animations', subtitle: 'Minimize motion effects', value: accessibility.reduceAnimations, onChanged: (v) => notifier.setReduceAnimations(v)),
+          _buildToggle(icon: Icons.accessibility_new_rounded, color: AppColors.success, title: 'Screen Reader Hints', subtitle: 'Add extra labels for screen readers', value: accessibility.screenReaderHints, onChanged: (v) => notifier.setScreenReaderHints(v)),
         ],
       ),
     );

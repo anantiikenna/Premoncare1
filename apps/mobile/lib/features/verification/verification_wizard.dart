@@ -266,9 +266,15 @@ class _ProfessionalStep extends ConsumerWidget {
         Text('Help us verify your medical expertise and practice history.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
         const SizedBox(height: 32),
         CustomTextField(
+          label: 'Professional Title',
+          hintText: 'e.g. Dr., Prof.',
+          onChanged: (v) => notifier.updateProfessional(v, state.specialty, state.experience, state.licenseNumber),
+        ),
+        const SizedBox(height: 20),
+        CustomTextField(
           label: 'Medical Specialty',
           hintText: 'e.g. General Practitioner',
-          onChanged: (v) => notifier.updateProfessional(v, state.experience, state.licenseNumber),
+          onChanged: (v) => notifier.updateProfessional(state.title, v, state.experience, state.licenseNumber),
         ),
         const SizedBox(height: 20),
         Row(
@@ -278,7 +284,7 @@ class _ProfessionalStep extends ConsumerWidget {
                 label: 'Experience (Years)',
                 hintText: 'e.g. 5',
                 keyboardType: TextInputType.number,
-                onChanged: (v) => notifier.updateProfessional(state.specialty, v, state.licenseNumber),
+                onChanged: (v) => notifier.updateProfessional(state.title, state.specialty, v, state.licenseNumber),
               ),
             ),
             const SizedBox(width: 16),
@@ -286,7 +292,7 @@ class _ProfessionalStep extends ConsumerWidget {
               child: CustomTextField(
                 label: 'License Number',
                 hintText: 'MD-XXXXX',
-                onChanged: (v) => notifier.updateProfessional(state.specialty, state.experience, v),
+                onChanged: (v) => notifier.updateProfessional(state.title, state.specialty, state.experience, v),
               ),
             ),
           ],

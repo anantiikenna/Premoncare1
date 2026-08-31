@@ -125,6 +125,10 @@ class VerificationNotifier extends Notifier<VerificationState> {
     }
   }
 
+  Future<void> refreshStatus() async {
+    await _fetchInitialStatus();
+  }
+
   void resetVerification() {
     state = VerificationState();
   }
