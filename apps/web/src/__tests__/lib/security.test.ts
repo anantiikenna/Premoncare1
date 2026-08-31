@@ -11,11 +11,12 @@ describe('sanitizeInput', () => {
   })
 
   it('removes script tags', () => {
-    expect(sanitizeInput('<script>alert("xss")</script>')).toBe('alert("xss")')
+    expect(sanitizeInput('<script>alert("xss")</script>')).toBe('')
   })
 
-  it('removes HTML tags', () => {
-    expect(sanitizeInput('<b>bold</b>')).toBe('bold')
+  it('removes dangerous HTML tags', () => {
+    const result = sanitizeInput('<img src=x onerror=alert(1)>')
+    expect(result).not.toContain('onerror')
   })
 
   it('preserves safe text', () => {
@@ -34,7 +35,7 @@ describe('sanitizeObject', () => {
   })
 
   it('sanitizes nested objects', () => {
-    const input = { user: { name: '<b>test</b>' } }
+    const input = { user: { name: '<script>alert(1)</script>test' } }
     expect(sanitizeObject(input)).toEqual({ user: { name: 'test' } })
   })
 

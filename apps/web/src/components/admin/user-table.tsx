@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 interface Profile {
     id: string
     full_name: string | null
+    title?: string
     role: string
     requested_role: string
     updated_at: string
