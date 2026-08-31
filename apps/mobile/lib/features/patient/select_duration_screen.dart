@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 import '../../core/app_colors.dart';
-import '../../core/doctor_name_utils.dart';
+
 
 class SelectDurationScreen extends StatefulWidget {
   final String doctorId;

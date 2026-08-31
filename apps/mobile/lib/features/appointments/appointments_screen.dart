@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
-import '../../core/doctor_name_utils.dart';
+
 import 'appointment_provider.dart';
 
 

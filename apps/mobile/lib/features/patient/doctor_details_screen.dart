@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
-import '../../core/doctor_name_utils.dart';
+
 import '../../shared/widgets/generic_user_avatar.dart';
 
 class DoctorDetailsScreen extends ConsumerStatefulWidget {

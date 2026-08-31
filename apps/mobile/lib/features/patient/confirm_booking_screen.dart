@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
-import '../../core/doctor_name_utils.dart';
+
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
