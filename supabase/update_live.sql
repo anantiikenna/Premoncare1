@@ -1255,12 +1255,30 @@ ALTER TABLE public.login_attempts ENABLE ROW LEVEL SECURITY;
 -- Only service_role can manage login_attempts (RPC functions use SECURITY DEFINER)
 DO $$ BEGIN
   DROP POLICY IF EXISTS "Service role manages login_attempts" ON public.login_attempts;
-  CREATE POLICY "Service role manages login_attempts"
-    ON public.login_attempts FOR ALL
-    USING (true);
-EXCEPTION WHEN OTHERS THEN
-  RAISE NOTICE 'Skipping login_attempts policy: %', SQLERRM;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "Service role can select login_attempts" ON public.login_attempts;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "Service role can insert login_attempts" ON public.login_attempts;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+DO $$ BEGIN
+  DROP POLICY IF EXISTS "Service role can delete login_attempts" ON public.login_attempts;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+CREATE POLICY "Service role can select login_attempts"
+  ON public.login_attempts FOR SELECT
+  USING (auth.role() = 'service_role');
+CREATE POLICY "Service role can insert login_attempts"
+  ON public.login_attempts FOR INSERT
+  WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Service role can delete login_attempts"
+  ON public.login_attempts FOR DELETE
+  USING (auth.role() = 'service_role');
 
 -- Index for fast lookups by email
 CREATE INDEX IF NOT EXISTS idx_login_attempts_email
@@ -1362,7 +1380,8 @@ GRANT SELECT, INSERT, DELETE ON public.login_attempts TO service_role;
 --    Dashboard → Auth → Settings → "Max number of attempts" → 3
 --
 -- 3. Enable "Protect against leaked passwords"
---    Dashboard → Auth → Settings → Password Protection → Toggle ON
+--    Dashboard → Authentication → Password Settings
+--    → Toggle "Check against HaveIBeenPwned"
 --
 -- These settings work in conjunction with the login_attempts
 -- table and RPC functions above for defense-in-depth.
@@ -1537,6 +1556,8 @@ GRANT EXECUTE ON FUNCTION public.cleanup_old_device_sessions() TO service_role;
 GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO service_role;
 GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_forum_reply_count() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_doctor_review_count() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_doctor_consultation_count() TO authenticated;
 
 -- ============================================================
 -- SECURITY: REVOKE EXECUTE from anon for all SECURITY DEFINER
@@ -1566,6 +1587,9 @@ REVOKE EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) FROM anon;
 REVOKE EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) FROM anon;
 REVOKE EXECUTE ON FUNCTION public.get_admin_financial_stats() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_forum_reply_count() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_profiles_updated_at() FROM anon;
 -- update_profiles_updated_at is a BEFORE UPDATE trigger function
 -- it must be callable by authenticated users (trigger fires in caller context)
 -- update_forum_reply_count is a BEFORE INSERT/DELETE trigger function
@@ -1581,34 +1605,45 @@ REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FR
 REVOKE EXECUTE ON FUNCTION public._safe_policy(text, text, text) FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM authenticated;
-REVOKE EXECUTE ON FUNCTION public.update_doctor_review_count() FROM authenticated;
-REVOKE EXECUTE ON FUNCTION public.update_doctor_consultation_count() FROM authenticated;
+-- update_doctor_review_count and update_doctor_consultation_count are
+-- trigger functions — must stay callable by authenticated so triggers fire.
 REVOKE EXECUTE ON FUNCTION public.sweep_offline_doctors() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.purge_deleted_accounts() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_old_notifications() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_old_device_sessions() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_old_login_attempts() FROM authenticated;
--- update_profiles_updated_at is a BEFORE UPDATE trigger function
--- authenticated users need it to fire when they UPDATE their own profiles
--- update_forum_reply_count is a BEFORE INSERT/DELETE trigger function
--- authenticated users need it to fire when they create/delete forum replies
--- NOTE: approve_payment, reject_payment, get_admin_financial_stats,
--- increment_time_balance — keep GRANT to authenticated (they have
--- role checks inside: admin/doctor gate).
+REVOKE EXECUTE ON FUNCTION public.increment_forum_upvote(UUID) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM authenticated;
 
 -- ============================================================
 -- SECURITY: public_bucket_allows_listing (avatars bucket)
 -- ============================================================
--- The avatars bucket is public for viewing, but listing should
--- be restricted. Add a restrictive policy to block bucket listing.
+-- Add a restrictive policy to prevent listing all objects in the
+-- public avatars bucket. Individual file access via URL still works.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE policyname = 'Block avatar bucket listing' 
+    AND tablename = 'objects'
+    AND schemaname = 'storage'
+  ) THEN
+    CREATE POLICY "Block avatar bucket listing"
+      ON storage.objects AS RESTRICTIVE
+      FOR SELECT TO anon
+      USING (bucket_id != 'avatars');
+  END IF;
+END $$;
 
 -- ============================================================
--- SECURITY: rls_policy_always_true (login_attempts)
+-- SECURITY: rls_policy_always_true (login_attempts) — FIXED
 -- ============================================================
--- The login_attempts table policy USING (true) for service_role
--- is INTENTIONAL: only SECURITY DEFINER RPCs (check_otp_rate_limit,
--- record_otp_attempt, reset_otp_attempts) write to this table.
--- No anon/authenticated INSERT is granted on login_attempts.
+-- login_attempts now uses explicit auth.role() = 'service_role'
+-- checks on SELECT, INSERT, and DELETE policies instead of USING (true).
+-- Only SECURITY DEFINER RPCs (check_otp_rate_limit, record_otp_attempt,
+-- reset_otp_attempts) write to this table via service_role.
 
 -- 10. Schedule cleanup cron jobs (requires pg_cron extension)
 -- Run these in Supabase Dashboard → SQL Editor AFTER enabling pg_cron:

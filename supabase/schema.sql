@@ -1354,9 +1354,17 @@ create table login_attempts (
 
 alter table login_attempts enable row level security;
 
-create policy "Service role manages login_attempts"
-    on login_attempts for all
-    using (true);
+create policy "Service role can select login_attempts"
+    on login_attempts for select
+    using (auth.role() = 'service_role');
+
+create policy "Service role can insert login_attempts"
+    on login_attempts for insert
+    with check (auth.role() = 'service_role');
+
+create policy "Service role can delete login_attempts"
+    on login_attempts for delete
+    using (auth.role() = 'service_role');
 
 create index if not exists idx_login_attempts_email
     on login_attempts (email, attempted_at desc);
@@ -1924,6 +1932,11 @@ ON CONFLICT (id) DO NOTHING;
 CREATE POLICY "Anyone can view avatars" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'avatars');
 CREATE POLICY "Users can upload their own avatars" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Block avatar bucket listing"
+  ON storage.objects AS RESTRICTIVE
+  FOR SELECT TO anon
+  USING (bucket_id != 'avatars');
 
 -- doctor-identities
 CREATE POLICY "Users can select their own identities" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'doctor-identities' AND (storage.foldername(name))[1] = auth.uid()::text);
