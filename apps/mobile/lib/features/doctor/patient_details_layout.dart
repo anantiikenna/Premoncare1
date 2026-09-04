@@ -7,7 +7,7 @@ import '../../core/supabase_locator.dart';
 final patientDetailsProvider = FutureProvider.autoDispose.family<Map<String, dynamic>?, String>((ref, patientId) async {
   final data = await supabase
       .from('profiles')
-      .select('full_name, avatar_url, phone')
+      .select('full_name, avatar_url, phone, is_profile_visible')
       .eq('id', patientId)
       .single();
   return data;
@@ -196,8 +196,9 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
   }
 
   Widget _buildPatientHeader(BuildContext context, Map<String, dynamic>? patient) {
-    final name = patient?['full_name'] as String? ?? 'Patient';
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    final isProfileVisible = patient?['is_profile_visible'] ?? true;
+    final name = isProfileVisible ? (patient?['full_name'] as String? ?? 'Patient') : 'Patient (Hidden)';
+    final initial = isProfileVisible && name.isNotEmpty ? name[0].toUpperCase() : '?';
 
     return Container(
       color: AppColors.surfaceOf(context),
@@ -216,7 +217,10 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
               children: [
                 Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
                 const SizedBox(height: 4),
-                Text('Patient ID: ${widget.patientId.substring(0, 8)}...', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(
+                  isProfileVisible ? 'Patient ID: ${widget.patientId.substring(0, 8)}...' : 'Privacy Protected',
+                  style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600),
+                ),
               ],
             ),
           ),

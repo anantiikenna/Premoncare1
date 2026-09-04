@@ -30,7 +30,7 @@ final doctorPatientsProvider = FutureProvider.autoDispose<List<Map<String, dynam
   // 3. Fetch patient profiles
   final profilesData = await supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, phone')
+      .select('id, full_name, avatar_url, phone, is_profile_visible')
       .inFilter('id', patientIds);
 
   return List<Map<String, dynamic>>.from(profilesData);
@@ -67,6 +67,8 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
     if (_searchQuery.isEmpty) return patients;
     
     return patients.where((patient) {
+      final isProfileVisible = patient['is_profile_visible'] ?? true;
+      if (!isProfileVisible) return false;
       final name = (patient['full_name'] ?? '').toString().toLowerCase();
       return name.contains(_searchQuery);
     }).toList();
@@ -178,8 +180,9 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final patient = filtered[index];
-                      final name = patient['full_name'] as String? ?? 'Patient';
-                      final phone = patient['phone'] as String?;
+                      final isProfileVisible = patient['is_profile_visible'] ?? true;
+                      final name = isProfileVisible ? (patient['full_name'] as String? ?? 'Patient') : 'Patient (Hidden)';
+                      final phone = isProfileVisible ? (patient['phone'] as String?) : null;
                       
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -196,7 +199,7 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                           onTap: () => context.push('/doctor/patient/${patient['id']}'),
                           leading: GenericUserAvatar(
                             radius: 24,
-                            avatarUrl: patient['avatar_url'] as String?,
+                            avatarUrl: isProfileVisible ? (patient['avatar_url'] as String?) : null,
                           ),
                           title: Text(
                             name,

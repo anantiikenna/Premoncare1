@@ -21,17 +21,21 @@ final doctorAppointmentsProvider = StreamProvider.autoDispose<List<Map<String, d
 
         final patientsResult = await supabase
             .from('profiles')
-            .select('id, full_name, avatar_url')
+            .select('id, full_name, avatar_url, is_profile_visible')
             .inFilter('id', patientIds);
 
         final patientMap = {for (final p in patientsResult) p['id'] as String: p};
 
         return data.map((item) {
           final patientData = patientMap[item['patient_id'] as String?];
+          final isProfileVisible = patientData?['is_profile_visible'] ?? true;
+          final patientName = isProfileVisible
+              ? (patientData?['full_name'] ?? 'Guest')
+              : 'Patient (Hidden)';
           return {
             ...item,
-            'patient_name': patientData?['full_name'] ?? 'Guest',
-            'patient_avatar': patientData?['avatar_url'],
+            'patient_name': patientName,
+            'patient_avatar': isProfileVisible ? patientData?['avatar_url'] : null,
           };
         }).toList();
       });
