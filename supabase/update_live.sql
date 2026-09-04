@@ -1535,6 +1535,8 @@ GRANT EXECUTE ON FUNCTION public.purge_deleted_accounts() TO service_role;
 GRANT EXECUTE ON FUNCTION public.cleanup_old_notifications() TO service_role;
 GRANT EXECUTE ON FUNCTION public.cleanup_old_device_sessions() TO service_role;
 GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO service_role;
+GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_forum_reply_count() TO authenticated;
 
 -- ============================================================
 -- SECURITY: REVOKE EXECUTE from anon for all SECURITY DEFINER
@@ -1564,8 +1566,10 @@ REVOKE EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) FROM anon;
 REVOKE EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) FROM anon;
 REVOKE EXECUTE ON FUNCTION public.get_admin_financial_stats() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FROM anon;
-REVOKE EXECUTE ON FUNCTION public.update_profiles_updated_at() FROM anon;
-REVOKE EXECUTE ON FUNCTION public.update_forum_reply_count() FROM anon;
+-- update_profiles_updated_at is a BEFORE UPDATE trigger function
+-- it must be callable by authenticated users (trigger fires in caller context)
+-- update_forum_reply_count is a BEFORE INSERT/DELETE trigger function
+-- it must be callable by authenticated users (trigger fires in caller context)
 
 -- ============================================================
 -- SECURITY: REVOKE from authenticated for admin/service-only
@@ -1584,8 +1588,10 @@ REVOKE EXECUTE ON FUNCTION public.purge_deleted_accounts() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_old_notifications() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_old_device_sessions() FROM authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_old_login_attempts() FROM authenticated;
-REVOKE EXECUTE ON FUNCTION public.update_profiles_updated_at() FROM authenticated;
-REVOKE EXECUTE ON FUNCTION public.update_forum_reply_count() FROM authenticated;
+-- update_profiles_updated_at is a BEFORE UPDATE trigger function
+-- authenticated users need it to fire when they UPDATE their own profiles
+-- update_forum_reply_count is a BEFORE INSERT/DELETE trigger function
+-- authenticated users need it to fire when they create/delete forum replies
 -- NOTE: approve_payment, reject_payment, get_admin_financial_stats,
 -- increment_time_balance — keep GRANT to authenticated (they have
 -- role checks inside: admin/doctor gate).
