@@ -1974,3 +1974,16 @@ FROM pg_tables
 WHERE schemaname = 'public'
   AND rowsecurity = true;
 
+-- ============================================================
+-- Migration: Add privacy columns to profiles
+-- ============================================================
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'is_profile_visible') THEN
+    ALTER TABLE public.profiles ADD COLUMN is_profile_visible boolean default true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'is_showing_online_status') THEN
+    ALTER TABLE public.profiles ADD COLUMN is_showing_online_status boolean default true;
+  END IF;
+END $$;
+

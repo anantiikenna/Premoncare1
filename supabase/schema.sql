@@ -58,6 +58,8 @@ create table profiles (
   education jsonb default '[]'::jsonb,
   is_online boolean default false,
   last_seen timestamp with time zone default now(),
+  is_profile_visible boolean default true,
+  is_showing_online_status boolean default true,
   
   -- Subscription & Fee Negotiation
   negotiated_fee numeric default 0,

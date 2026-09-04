@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../core/services/biometric_service.dart';
+import '../../core/services/privacy_service.dart';
 
 class BiometricPrivacyScreen extends StatefulWidget {
   const BiometricPrivacyScreen({super.key});
@@ -97,8 +98,8 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
           const SizedBox(height: 24),
           Text('VISIBILITY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.visibility_rounded, color: AppColors.success, title: 'Profile Visibility', subtitle: 'Allow doctors to see your profile', value: _profileVisible, onChanged: (v) { setState(() => _profileVisible = v); _savePreference('privacy_profile_visible', v); }),
-          _buildToggle(icon: Icons.circle_rounded, color: AppColors.info, title: 'Online Status', subtitle: 'Show when you are online', value: _showOnlineStatus, onChanged: (v) { setState(() => _showOnlineStatus = v); _savePreference('privacy_online_status', v); }),
+          _buildToggle(icon: Icons.visibility_rounded, color: AppColors.success, title: 'Profile Visibility', subtitle: 'Allow doctors to see your profile', value: _profileVisible, onChanged: (v) { setState(() => _profileVisible = v); _savePreference('privacy_profile_visible', v); PrivacyService().syncToServer(); }),
+          _buildToggle(icon: Icons.circle_rounded, color: AppColors.info, title: 'Online Status', subtitle: 'Show when you are online', value: _showOnlineStatus, onChanged: (v) { setState(() => _showOnlineStatus = v); _savePreference('privacy_online_status', v); PrivacyService().syncToServer(); }),
           const SizedBox(height: 24),
           Text('DATA', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),

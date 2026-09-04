@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/supabase_locator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/providers.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'package:mobile/features/doctor/propose_followup_dialog.dart';
@@ -74,6 +75,13 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) return;
 
+    final prefs = await SharedPreferences.getInstance();
+    final shouldShowOnline = prefs.getBool('privacy_online_status') ?? true;
+    if (!shouldShowOnline) {
+      // Don't update online status if user disabled it
+      return;
+    }
+
     try {
       await supabase
           .from('profiles')
@@ -101,6 +109,18 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     }
 
     setState(() => _loading = true);
+
+    final prefs = await SharedPreferences.getInstance();
+    final shouldShowOnline = prefs.getBool('privacy_online_status') ?? true;
+    if (newStatus && !shouldShowOnline) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Online status is disabled in privacy settings')),
+        );
+      }
+      setState(() => _loading = false);
+      return;
+    }
 
     try {
       final response = await supabase.from('profiles').update({
