@@ -2028,3 +2028,51 @@ BEGIN
   END IF;
 END $$;
 
+-- ============================================================
+-- FIX: Nuclear reset of profiles RLS policies
+-- Resolves 42501 "violates row-level security policy" on UPDATE
+-- Run this if profile save / presence toggle fails with 42501
+-- ============================================================
+
+-- 1. Drop ALL existing policies on profiles
+DO $$
+DECLARE
+  pol record;
+BEGIN
+  FOR pol IN
+    SELECT policyname FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'profiles'
+  LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.profiles', pol.policyname);
+  END LOOP;
+END $$;
+
+-- 2. Recreate correct policies
+CREATE POLICY "profiles_select_anyone"
+  ON public.profiles FOR SELECT
+  USING (true);
+
+CREATE POLICY "profiles_update_own"
+  ON public.profiles FOR UPDATE
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "profiles_insert_own"
+  ON public.profiles FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "profiles_update_admin"
+  ON public.profiles FOR UPDATE
+  USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- 3. Ensure GRANTs are correct
+GRANT SELECT ON public.profiles TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO service_role;
+
+-- 4. Ensure trigger function is callable by authenticated (it fires in caller context)
+GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO service_role;
+
