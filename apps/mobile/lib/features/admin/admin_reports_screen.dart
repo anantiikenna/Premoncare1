@@ -244,6 +244,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       );
       _revenueGrowthPct = _calcGrowth(currentRevenue, prevRevenue);
 
+      if (!mounted) return;
       setState(() {
         _totalUsers = currentUsers;
         _totalDoctors = currentDoctors;
@@ -257,6 +258,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;

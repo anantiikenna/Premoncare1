@@ -210,35 +210,30 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
               _StatCard(
                 label: 'Total Users',
                 value: stats['total'].toString(),
-                trend: '+18.6%',
                 icon: Icons.people,
                 color: AppColors.primary,
               ),
               _StatCard(
                 label: 'Doctors',
                 value: stats['doctors'].toString(),
-                trend: '+14.2%',
                 icon: Icons.medical_services,
                 color: AppColors.success,
               ),
               _StatCard(
                 label: 'Patients',
                 value: stats['patients'].toString(),
-                trend: '+19.3%',
                 icon: Icons.person,
                 color: AppColors.primary,
               ),
               _StatCard(
                 label: 'Pending',
                 value: stats['pending'].toString(),
-                trend: '-6.1%',
                 icon: Icons.access_time,
                 color: AppColors.warning,
               ),
               _StatCard(
                 label: 'Suspended',
                 value: stats['suspended'].toString(),
-                trend: '-3.4%',
                 icon: Icons.warning,
                 color: AppColors.error,
               ),
@@ -405,14 +400,12 @@ class _QuickActionBtn extends StatelessWidget {
 class _StatCard extends StatelessWidget {
   final String label;
   final String value;
-  final String trend;
   final IconData icon;
   final Color color;
 
   const _StatCard({
     required this.label,
     required this.value,
-    required this.trend,
     required this.icon,
     required this.color,
   });
@@ -465,28 +458,6 @@ class _StatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(
-                trend.startsWith('+') ? Icons.trending_up : Icons.trending_down,
-                color: trend.startsWith('+')
-                    ? AppColors.success
-                    : AppColors.error,
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                trend,
-                style: TextStyle(
-                  color: trend.startsWith('+')
-                      ? AppColors.success
-                      : AppColors.error,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );

@@ -292,34 +292,24 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               value: '${stats['totalUsers']}',
               icon: Icons.people_outline_rounded,
               color: AppColors.info,
-              trend: '+12%',
-              isTrendUp: true,
             ),
             AdminStatCard(
               title: 'Verified Doctors',
               value: '${stats['verifiedDoctors']}',
               icon: Icons.medical_services_outlined,
               color: AppColors.success,
-              trend: '+5%',
-              isTrendUp: true,
             ),
             AdminStatCard(
               title: 'Appointments Today',
               value: '${stats['todayAppointments']}',
               icon: Icons.calendar_today_outlined,
               color: AppColors.primary,
-              trend: stats['todayAppointments'] > 0
-                  ? '+${stats['todayAppointments']}'
-                  : '0',
-              isTrendUp: true,
             ),
             AdminStatCard(
               title: 'Total Revenue',
               value: formattedRevenue,
               icon: Icons.currency_exchange_rounded,
               color: AppColors.warning,
-              trend: '+18%',
-              isTrendUp: true,
             ),
           ],
         );

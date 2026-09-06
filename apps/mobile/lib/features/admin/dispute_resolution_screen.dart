@@ -1234,7 +1234,7 @@ class _DisputeResolutionScreenState
                         icon: const Icon(Icons.close, size: 18),
                         label: const Text('Close'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.slate600,
+                          backgroundColor: AppColors.borderOf(context),
                           foregroundColor: AppColors.textInverse,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -1308,7 +1308,7 @@ class _DisputeResolutionScreenState
               backgroundColor: targetStatus == 'resolved'
                   ? AppColors.success
                   : targetStatus == 'dismissed'
-                  ? AppColors.slate600
+                  ? AppColors.borderOf(context)
                   : AppColors.warning,
               foregroundColor: AppColors.textInverse,
             ),

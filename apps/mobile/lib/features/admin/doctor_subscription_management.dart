@@ -872,7 +872,7 @@ class _DoctorSubscriptionManagementState
                   icon: Icons.verified_user_rounded,
                   label: 'Payment Verification',
                   color: AppColors.success,
-                  onTap: () => context.push('/admin/financial-moderation'),
+                  onTap: () => context.push('/admin/financial'),
                 ),
                 _QuickActionTile(
                   icon: Icons.notifications_active_rounded,

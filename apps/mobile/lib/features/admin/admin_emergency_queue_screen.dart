@@ -65,6 +65,8 @@ class _AdminEmergencyQueueScreenState
         .select('id, full_name, avatar_url')
         .inFilter('id', ids.toList());
 
+    if (!mounted) return;
+
     final profileMap = {
       for (final p in profiles)
         p['id'] as String: {
