@@ -28,6 +28,7 @@ class _SettingsPrivacyCenterScreenState
 
   Future<void> _loadLanguage() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _currentLanguage = prefs.getString('locale_language') ?? 'English';
     });

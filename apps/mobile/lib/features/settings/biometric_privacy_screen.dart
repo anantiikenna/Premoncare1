@@ -85,13 +85,15 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
 
                 // Prompt for confirmation before enabling
                 final authenticated = await _biometricService.authenticate();
-                if (!authenticated) return;
+                if (!authenticated || !mounted) return;
 
                 await _biometricService.setEnabled(true);
+                if (!mounted) return;
                 setState(() => _biometricLock = true);
               } else {
                 // Turning OFF — just save
                 await _biometricService.setEnabled(false);
+                if (!mounted) return;
                 setState(() => _biometricLock = false);
               }
             },

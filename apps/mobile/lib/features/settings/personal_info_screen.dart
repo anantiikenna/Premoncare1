@@ -155,6 +155,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         maxHeight: 800,
         imageQuality: 85,
       );
+      if (!mounted) return;
       if (picked != null) {
         setState(() => _selectedPhoto = File(picked.path));
       }
