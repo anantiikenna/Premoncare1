@@ -187,7 +187,7 @@ class IdentityStep extends ConsumerWidget {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceAltOf(context),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.lightbulb_outline_rounded, color: AppColors.primary, size: 18),
                   ),

@@ -400,7 +400,7 @@ class _DisputeResolutionScreenState
         decoration: BoxDecoration(
           color: AppColors.surfaceOf(context),
           border: Border.all(color: AppColors.borderLightOf(context)),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, size: 18, color: AppColors.textPrimaryOf(context)),
       ),
@@ -472,7 +472,7 @@ class _DisputeResolutionScreenState
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 20),
           ),
@@ -935,7 +935,7 @@ class _DisputeResolutionScreenState
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceOf(context),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.verified,
@@ -1039,7 +1039,7 @@ class _DisputeResolutionScreenState
                       color: _categoryIconColor(
                         category,
                       ).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       _categoryIcon(category),
@@ -1124,7 +1124,7 @@ class _DisputeResolutionScreenState
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: AppColors.successLightOf(context),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1281,7 +1281,7 @@ class _DisputeResolutionScreenState
               decoration: InputDecoration(
                 hintText: 'Add resolution notes (optional)',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 contentPadding: const EdgeInsets.all(12),
               ),

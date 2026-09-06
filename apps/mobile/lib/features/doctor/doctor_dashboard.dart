@@ -302,7 +302,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                           color: AppColors.error,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
+                        child: const Icon(Icons.warning_amber_rounded, color: AppColors.textInverse, size: 20),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -334,7 +334,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                         ),
                         child: const Text(
                           'VIEW',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textInverse, letterSpacing: 0.5),
                         ),
                       ),
                     ],
@@ -426,14 +426,14 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('TOTAL CLINICAL REVENUE', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+              const Text('TOTAL CLINICAL REVENUE', style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
                 child: const Row(
                   children: [
-                    Text('MONTHLY', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900)),
-                    Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 14),
+                    Text('MONTHLY', style: TextStyle(color: AppColors.textInverse, fontSize: 9, fontWeight: FontWeight.w900)),
+                    Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textInverse, size: 14),
                   ],
                 ),
               ),
@@ -441,9 +441,9 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           ),
           const SizedBox(height: 12),
           revenueAsync.when(
-            data: (revenue) => Text('₦${revenue.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1)),
-            loading: () => const SizedBox(height: 42, child: CircularProgressIndicator(color: Colors.white)),
-            error: (_, _) => const Text('₦0.00', style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1)),
+            data: (revenue) => Text('₦${revenue.toStringAsFixed(2)}', style: const TextStyle(color: AppColors.textInverse, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1)),
+            loading: () => const SizedBox(height: 42, child: CircularProgressIndicator(color: AppColors.textInverse)),
+            error: (_, _) => const Text('₦0.00', style: TextStyle(color: AppColors.textInverse, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1)),
           ),
           const SizedBox(height: 24),
           Row(
@@ -460,12 +460,12 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
   Widget _buildMainCardChip(IconData icon, String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: [
           Icon(icon, color: color, size: 14),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900)),
+          Text(label, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900)),
         ],
       ),
     );
@@ -476,12 +476,12 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white24)),
+        decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.textInverse.withValues(alpha: 0.24))),
         child: Row(
           children: [
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900)),
+            Text(label, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900)),
             const SizedBox(width: 6),
-            Icon(icon, color: Colors.white, size: 14),
+            Icon(icon, color: AppColors.textInverse, size: 14),
           ],
         ),
       ),

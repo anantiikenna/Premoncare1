@@ -162,15 +162,15 @@ class ProfileScreen extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.slate800, borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: AppColors.slate800.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: AppColors.surfaceOf(context).withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
             children: [
-              Icon(Icons.sync_rounded, color: Colors.white, size: 18),
+              Icon(Icons.sync_rounded, color: AppColors.textInverse, size: 18),
               SizedBox(width: 12),
-              Text('UNIFIED ACCOUNT', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+              Text('UNIFIED ACCOUNT', style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             ],
           ),
           const SizedBox(height: 24),
@@ -187,13 +187,13 @@ class ProfileScreen extends ConsumerWidget {
               onTap: () => context.push('/verify-practitioner'),
               child: Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.1))),
+                decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.textInverse.withValues(alpha: 0.1))),
                 child: const Row(
                   children: [
-                    Icon(Icons.info_outline_rounded, size: 14, color: Colors.white70),
+                    Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textInverse),
                     SizedBox(width: 12),
-                    Expanded(child: Text('Complete verification to unlock Practitioner features', style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600))),
-                    Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white70),
+                    Expanded(child: Text('Complete verification to unlock Practitioner features', style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w600))),
+                    Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.textInverse),
                   ],
                 ),
               ),
@@ -210,16 +210,16 @@ class ProfileScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : Colors.white.withValues(alpha: 0.05),
+          color: isActive ? AppColors.primary : AppColors.textInverse.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isActive ? AppColors.primary : Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: isActive ? AppColors.primary : AppColors.textInverse.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 18),
+            Icon(icon, color: AppColors.textInverse, size: 18),
             const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)),
+            Text(label, style: const TextStyle(color: AppColors.textInverse, fontSize: 13, fontWeight: FontWeight.w800)),
           ],
         ),
       ),
@@ -299,14 +299,14 @@ class ProfileScreen extends ConsumerWidget {
         ListTile(
           onTap: onTap,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-          leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: AppColors.primary, size: 20)),
+          leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: AppColors.primary, size: 20)),
           title: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimaryOf(context))),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (badge != null) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: badgeColor!.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)), child: Text(badge, style: TextStyle(color: badgeColor, fontSize: 10, fontWeight: FontWeight.w900))),
               const SizedBox(width: 8),
-              Icon(Icons.chevron_right_rounded, color: AppColors.slate300),
+              Icon(Icons.chevron_right_rounded, color: AppColors.borderOf(context)),
             ],
           ),
         ),

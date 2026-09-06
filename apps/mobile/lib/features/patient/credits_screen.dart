@@ -134,7 +134,7 @@ class CreditsScreen extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
             child: Text('Buy Credits', style: AppTypography.labelLarge.copyWith(color: AppColors.textInverse)),
           ),
@@ -327,7 +327,7 @@ class _DoctorCreditCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           ClipRRect(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             child: LinearProgressIndicator(value: progress, backgroundColor: AppColors.borderLightOf(context), color: progressColor, minHeight: 8),
           ),
           const SizedBox(height: 16),
@@ -344,7 +344,7 @@ class _DoctorCreditCard extends StatelessWidget {
               Expanded(
                 child: OutlinedButton(
             onPressed: () => context.push('/doctor-search', extra: {'isBuyingTime': true}),
-                  style: OutlinedButton.styleFrom(side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: const EdgeInsets.symmetric(vertical: 14)),
+                  style: OutlinedButton.styleFrom(side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 14)),
                   child: Text('Buy More', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13)),
                 ),
               ),
@@ -352,7 +352,7 @@ class _DoctorCreditCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () => context.push('/doctor-search'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: const EdgeInsets.symmetric(vertical: 14)),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 14)),
                   child: const Text('Consult', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                 ),
               ),

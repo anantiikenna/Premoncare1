@@ -96,7 +96,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/forum/create'),
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textInverse,
         elevation: 4,
         icon: const Icon(Icons.add_rounded, size: 22),
         label: const Text('Ask a Question', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
@@ -321,7 +321,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.local_fire_department_rounded, color: Colors.deepOrange, size: 20),
+                      const Icon(Icons.local_fire_department_rounded, color: AppColors.error, size: 20),
                       const SizedBox(width: 8),
                       Text(
                         'Trending Discussions',

@@ -120,7 +120,7 @@ class MedicalVaultScreen extends ConsumerWidget {
         label: Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
         style: ElevatedButton.styleFrom(
           backgroundColor: isPrimary ? primaryColor : AppColors.surfaceOf(context),
-          foregroundColor: isPrimary ? Colors.white : primaryColor,
+          foregroundColor: isPrimary ? AppColors.textInverse : primaryColor,
           elevation: isPrimary ? 10 : 0,
           shadowColor: isPrimary ? primaryColor.withValues(alpha: 0.3) : Colors.transparent,
           side: isPrimary ? BorderSide.none : BorderSide(color: primaryColor.withValues(alpha: 0.2)),
@@ -133,18 +133,18 @@ class MedicalVaultScreen extends ConsumerWidget {
   Widget _buildSecurityCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.slate800, borderRadius: BorderRadius.circular(28), boxShadow: [BoxShadow(color: AppColors.slate800.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: AppColors.surfaceOf(context).withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))]),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)), child: const Icon(Icons.lock_person_rounded, color: Colors.white, size: 28)),
+          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)), child: Icon(Icons.lock_person_rounded, color: AppColors.textInverse, size: 28)),
           const SizedBox(width: 20),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('End-to-End Encryption', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.white)),
-                SizedBox(height: 4),
-                Text('Your clinical data is strictly confidential and accessible only by you and your authorized specialists.', style: TextStyle(fontSize: 12, color: Colors.white60, height: 1.4, fontWeight: FontWeight.w500)),
+                Text('End-to-End Encryption', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textInverse)),
+                const SizedBox(height: 4),
+                Text('Your clinical data is strictly confidential and accessible only by you and your authorized specialists.', style: TextStyle(fontSize: 12, color: AppColors.textInverse.withValues(alpha: 0.6), height: 1.4, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -186,7 +186,7 @@ class MedicalVaultScreen extends ConsumerWidget {
           decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderLightOf(context))),
           child: Row(
             children: [
-              Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: Icon(typeIcon, color: AppColors.primary, size: 24)),
+              Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)), child: Icon(typeIcon, color: AppColors.primary, size: 24)),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -219,7 +219,7 @@ class MedicalVaultScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(8))),
             const SizedBox(height: 24),
             Text(record.title, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 4),
@@ -250,7 +250,7 @@ class MedicalVaultScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('Delete Record'),
         content: Text('Are you sure you want to delete "${record.title}"? This cannot be undone.'),
         actions: [

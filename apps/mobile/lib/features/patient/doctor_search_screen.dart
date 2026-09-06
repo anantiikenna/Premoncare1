@@ -216,7 +216,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: _searchFocusNode.hasFocus
               ? AppColors.primary
@@ -263,7 +263,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: AppColors.surfaceOf(context),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.borderOf(context)),
           boxShadow: [
             BoxShadow(

@@ -413,7 +413,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               height: 44,
               decoration: BoxDecoration(
                 color: AppColors.surfaceOf(context),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.borderOf(context)),
               ),
               child: Icon(
@@ -546,7 +546,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: _primaryColor.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: _primaryColor, size: 18),
         ),
@@ -710,7 +710,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                     color: _hasEnoughBalance
                         ? AppColors.success.withValues(alpha: 0.08)
                         : AppColors.error.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     _hasEnoughBalance

@@ -174,7 +174,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
           ),
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)),
             child: Icon(Icons.videocam_rounded, color: primaryColor, size: 20),
           ),
         ],

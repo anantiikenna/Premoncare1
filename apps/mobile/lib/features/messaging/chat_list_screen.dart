@@ -42,7 +42,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(12)),
               child: conversationsAsync.when(
                 data: (conversations) => Text(
                   '${conversations.where((c) => c.unreadCount > 0).length}',
@@ -299,7 +299,7 @@ class _ChatTile extends StatelessWidget {
                       if (contact.unreadCount > 0)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(12)),
                           child: Text(
                             contact.unreadCount.toString(),
                             style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w900),

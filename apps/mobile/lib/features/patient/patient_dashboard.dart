@@ -116,15 +116,15 @@ class PatientDashboard extends ConsumerWidget {
         ),
         child: Stack(
           children: [
-            Positioned(right: -20, bottom: -20, child: Icon(Icons.access_time_filled_rounded, color: Colors.white.withValues(alpha: 0.1), size: 120)),
+            Positioned(right: -20, bottom: -20, child: Icon(Icons.access_time_filled_rounded, color: AppColors.textInverse.withValues(alpha: 0.1), size: 120)),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.verified_rounded, color: Colors.white, size: 16),
+                    Icon(Icons.verified_rounded, color: AppColors.textInverse, size: 16),
                     SizedBox(width: 8),
-                    Text('CONSULTATION CREDITS', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                    Text('CONSULTATION CREDITS', style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -133,24 +133,24 @@ class PatientDashboard extends ConsumerWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       creditsAsync.when(
-                        data: (credits) => Text('$credits', style: const TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -1.0)),
-                        loading: () => const SizedBox(width: 48, height: 48, child: CircularProgressIndicator(color: Colors.white)),
-                        error: (_, _) => const Text('0', style: TextStyle(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -1.0)),
+                        data: (credits) => Text('$credits', style: const TextStyle(color: AppColors.textInverse, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -1.0)),
+                        loading: () => const SizedBox(width: 48, height: 48, child: CircularProgressIndicator(color: AppColors.textInverse)),
+                        error: (_, _) => const Text('0', style: TextStyle(color: AppColors.textInverse, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -1.0)),
                       ),
                       const SizedBox(width: 8),
-                      const Text('minutes', style: TextStyle(color: Colors.white70, fontSize: 18, fontWeight: FontWeight.w700)),
+                      const Text('minutes', style: TextStyle(color: AppColors.textInverse, fontSize: 18, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(14)),
+                  decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(16)),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Add Credit', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)),
+                      Text('Add Credit', style: TextStyle(color: AppColors.textInverse, fontSize: 13, fontWeight: FontWeight.w800)),
                       SizedBox(width: 8),
-                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
+                      Icon(Icons.arrow_forward_rounded, color: AppColors.textInverse, size: 16),
                     ],
                   ),
                 ),
@@ -284,7 +284,7 @@ class _DoctorListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
           CircleAvatar(

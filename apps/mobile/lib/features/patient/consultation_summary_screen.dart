@@ -104,7 +104,7 @@ class _SuccessHub extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [successColor, successColor.withValues(alpha: 0.8)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-        borderRadius: BorderRadius.circular(36),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [BoxShadow(color: successColor.withValues(alpha: 0.25), blurRadius: 40, offset: const Offset(0, 20))],
       ),
       padding: const EdgeInsets.all(32),
@@ -162,7 +162,7 @@ class _SpecialistSummaryCard extends StatelessWidget {
               ],
             ),
           ),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(10)), child: Text('VERIFIED', style: TextStyle(color: primaryColor, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5))),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)), child: Text('VERIFIED', style: TextStyle(color: primaryColor, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5))),
         ],
       ),
     );
@@ -195,10 +195,10 @@ class _MedicationModule extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context))),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)), child: Icon(Icons.medication_rounded, color: color, size: 22)),
+          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)), child: Icon(Icons.medication_rounded, color: color, size: 22)),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
@@ -240,7 +240,7 @@ class _FollowUpHub extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(36), border: Border.all(color: primaryColor.withValues(alpha: 0.1))),
+      decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(32), border: Border.all(color: primaryColor.withValues(alpha: 0.1))),
       child: Row(
         children: [
           Expanded(

@@ -238,7 +238,7 @@ class _AdminEmergencyQueueScreenState
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceOf(context),
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: AppColors.borderLightOf(context),
                       ),
@@ -255,7 +255,7 @@ class _AdminEmergencyQueueScreenState
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceOf(context),
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: AppColors.borderLightOf(context),
                       ),

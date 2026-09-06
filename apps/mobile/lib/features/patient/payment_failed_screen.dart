@@ -80,7 +80,7 @@ class PaymentFailedScreen extends StatelessWidget {
                               height: 20,
                               decoration: BoxDecoration(
                                 color: AppColors.textInverse.withValues(alpha: 0.3),
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
                           ),
@@ -454,7 +454,7 @@ class PaymentFailedScreen extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
           child: Icon(icon, color: iconColor, size: 18),
         ),
         const SizedBox(width: 16),

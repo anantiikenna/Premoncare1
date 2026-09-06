@@ -167,7 +167,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceOf(context),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         Icons.shield_outlined,
@@ -322,7 +322,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               margin: EdgeInsets.only(right: i < 3 ? 8 : 0),
               decoration: BoxDecoration(
                 color: i < strength ? color : AppColors.borderOf(context),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),

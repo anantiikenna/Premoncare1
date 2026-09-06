@@ -243,7 +243,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
+                color: AppColors.textInverse.withValues(alpha: 0.05),
               ),
             ),
           ),
@@ -261,7 +261,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                       height: 100,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
+                        border: Border.all(color: AppColors.textInverse, width: 3),
                       ),
                       child: GenericUserAvatar(
                         radius: 50,
@@ -294,7 +294,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                     children: [
                       Row(
                         children: [
-                          Flexible(child: Text(_formattedName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
+                          Flexible(child: Text(_formattedName, style: const TextStyle(color: AppColors.textInverse, fontSize: 20, fontWeight: FontWeight.bold))),
                           if (_isVerified) ...[
                             const SizedBox(width: 6),
                             const Icon(Icons.verified_rounded, color: AppColors.info, size: 18),
@@ -328,13 +328,13 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       children: [
         Row(
           children: [
-            Icon(icon, color: Colors.white, size: 14),
+            Icon(icon, color: AppColors.textInverse, size: 14),
             const SizedBox(width: 4),
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(value, style: const TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold)),
           ],
         ),
         const SizedBox(height: 2),
-        Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 9)),
+        Text(label, style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.7), fontSize: 9)),
       ],
     );
   }

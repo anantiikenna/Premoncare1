@@ -101,7 +101,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                         backgroundColor: AppColors.slate800,
                         foregroundColor: AppColors.textInverse,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -281,7 +281,7 @@ class _PricingModule extends StatelessWidget {
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(36),
+        borderRadius: BorderRadius.circular(32),
         border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(

@@ -477,7 +477,7 @@ class _ReviewStep extends ConsumerWidget {
               Checkbox(
                 value: state.agreed,
                 activeColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 onChanged: (v) => notifier.setAgreed(v ?? false),
               ),
               Expanded(

@@ -89,7 +89,7 @@ class BookingFailedScreen extends StatelessWidget {
                               children: List.generate(6, (index) => Container(
                                 decoration: BoxDecoration(
                                   color: AppColors.backgroundOf(context),
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Center(
                                   child: Icon(

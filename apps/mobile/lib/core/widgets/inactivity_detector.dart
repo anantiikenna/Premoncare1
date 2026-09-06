@@ -135,7 +135,7 @@ class _InactivityDetectorState extends State<InactivityDetector> {
                         padding: const EdgeInsets.all(28),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceOf(context),
-                          borderRadius: BorderRadius.circular(28),
+                          borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.15),

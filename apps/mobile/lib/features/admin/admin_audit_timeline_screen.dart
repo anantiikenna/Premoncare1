@@ -754,7 +754,7 @@ class _AdminAuditTimelineScreenState
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(icon, color: iconColor, size: 24),
               ),
