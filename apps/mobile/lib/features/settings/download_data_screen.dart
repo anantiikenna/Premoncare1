@@ -36,11 +36,13 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
       final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
       await Clipboard.setData(ClipboardData(text: jsonStr));
 
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _requested = true;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loading = false);
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
@@ -130,11 +132,11 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: _loading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Export My Data', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
+                    : const Text('Export My Data', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w800)),
               ),
             ),
           ],

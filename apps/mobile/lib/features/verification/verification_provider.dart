@@ -87,7 +87,7 @@ class VerificationState {
       agreed: agreed ?? this.agreed,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isUploading: isUploading ?? this.isUploading,
-      error: error,
+      error: error ?? this.error,
       verificationStatus: verificationStatus ?? this.verificationStatus,
       rejectionReason: rejectionReason ?? this.rejectionReason,
     );

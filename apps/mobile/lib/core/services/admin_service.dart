@@ -104,7 +104,8 @@ class AdminService {
     }
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.or('full_name.ilike.%$searchQuery%,email.ilike.%$searchQuery%');
+      final sanitized = searchQuery.replaceAll('%', '\\%').replaceAll('_', '\\_');
+      query = query.or('full_name.ilike.%$sanitized%,email.ilike.%$sanitized%');
     }
 
     final response = await query

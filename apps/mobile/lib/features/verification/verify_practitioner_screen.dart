@@ -42,7 +42,7 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.slate800),
+          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -286,7 +286,7 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.textInverse,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
             child: Row(
@@ -310,7 +310,7 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         contentPadding: const EdgeInsets.all(32),
         backgroundColor: AppColors.surfaceOf(context),
         content: Column(

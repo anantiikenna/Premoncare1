@@ -69,7 +69,7 @@ class UploadFailedScreen extends StatelessWidget {
                     ),
                   ),
                   Icon(Icons.cloud_rounded, size: 140, color: AppColors.error.withValues(alpha: 0.1)),
-                  const Icon(Icons.upload_rounded, color: Colors.white, size: 40),
+                  const Icon(Icons.upload_rounded, color: AppColors.textInverse, size: 40),
                   Positioned(
                     bottom: 40,
                     right: 40,
@@ -78,7 +78,7 @@ class UploadFailedScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
+                        border: Border.all(color: AppColors.textInverse, width: 3),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.error.withValues(alpha: 0.3),
@@ -87,7 +87,7 @@ class UploadFailedScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+                      child: const Icon(Icons.close_rounded, color: AppColors.textInverse, size: 24),
                     ),
                   ),
                   Positioned(
@@ -268,7 +268,7 @@ class UploadFailedScreen extends StatelessWidget {
                 onPressed: () => context.pop(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textInverse,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

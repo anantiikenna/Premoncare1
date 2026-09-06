@@ -28,6 +28,7 @@ class _LanguageRegionScreenState extends State<LanguageRegionScreen> {
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _selectedLanguage = prefs.getString('locale_language') ?? 'English';
       _selectedRegion = prefs.getString('locale_region') ?? 'Nigeria';
@@ -115,7 +116,7 @@ class _LanguageRegionScreenState extends State<LanguageRegionScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                 child: Icon(icon, color: color, size: 20),
               ),
               const SizedBox(width: 12),

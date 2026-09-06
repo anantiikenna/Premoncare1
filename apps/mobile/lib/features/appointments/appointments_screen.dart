@@ -123,11 +123,11 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
       child: Container(
         height: 56,
         padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(18)),
+        decoration: BoxDecoration(color: AppColors.borderLightOf(context), borderRadius: BorderRadius.circular(16)),
         child: TabBar(
           controller: _tabController,
           indicatorSize: TabBarIndicatorSize.tab,
-          indicator: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 2))]),
+          indicator: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 2))]),
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondaryOf(context),
           labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
@@ -185,7 +185,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                   foregroundColor: AppColors.textInverse,
                   elevation: 10,
                   shadowColor: AppColors.primary.withValues(alpha: 0.3),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: const Text('Book Appointment', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
               ),
@@ -209,7 +209,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))],
       ),
@@ -242,7 +242,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(18), border: Border.all(color: AppColors.borderLightOf(context))),
+            decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderLightOf(context))),
             child: Column(
               children: [
                 Row(
@@ -395,7 +395,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
       child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
     );
   }

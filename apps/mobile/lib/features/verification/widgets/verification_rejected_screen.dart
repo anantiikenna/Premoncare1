@@ -64,7 +64,7 @@ class _ErrorHub extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(36), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: AppColors.error.withValues(alpha: 0.05), blurRadius: 40, offset: const Offset(0, 20))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: AppColors.error.withValues(alpha: 0.05), blurRadius: 40, offset: const Offset(0, 20))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -174,7 +174,7 @@ class _ActionTile extends StatelessWidget {
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)), child: Icon(icon, color: AppColors.primary, size: 20)),
+          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: AppColors.primary, size: 20)),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
@@ -186,7 +186,7 @@ class _ActionTile extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.slate300, size: 20),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
         ],
       ),
     );
@@ -200,7 +200,7 @@ class _SecurityBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(28)),
+      decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(24)),
       child: Row(
         children: [
           Icon(Icons.lock_rounded, color: AppColors.textSecondaryOf(context), size: 20),
@@ -225,7 +225,7 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: onResubmit,
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, elevation: 15, shadowColor: AppColors.primary.withValues(alpha: 0.3), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, elevation: 15, shadowColor: AppColors.primary.withValues(alpha: 0.3), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
             child: const Text('CORRECT & RESUBMIT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
           ),
         ),
@@ -235,7 +235,7 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.slate800, foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.surfaceOf(context), foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
             child: const Text('BACK TO DASHBOARD', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)),
           ),
         ),

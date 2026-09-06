@@ -28,7 +28,7 @@ class EmergencyFailedScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: AppColors.error,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
                 'SOS',
@@ -64,7 +64,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                         height: 90,
                         decoration: BoxDecoration(
                           color: AppColors.error,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(30), bottom: Radius.circular(10)),
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(32), bottom: Radius.circular(8)),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.error,
@@ -86,7 +86,7 @@ class EmergencyFailedScreen extends StatelessWidget {
                         height: 12,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ],

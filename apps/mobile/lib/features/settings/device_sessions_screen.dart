@@ -86,7 +86,7 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.error),
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
           ),

@@ -230,7 +230,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.healing_rounded, color: Colors.white, size: 14),
+              child: const Icon(Icons.healing_rounded, color: AppColors.textInverse, size: 14),
             ),
             const SizedBox(width: 8),
             const Text(
@@ -260,7 +260,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
                   child: const Text(
                     '8',
-                    style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: AppColors.textInverse, fontSize: 8, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -275,7 +275,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   const CircleAvatar(
                     radius: 18,
                     backgroundColor: AppColors.primary,
-                    child: Text('S', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14)),
+                    child: Text('S', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 14)),
                   ),
                   Container(
                     width: 10,
@@ -283,7 +283,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.success,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
+                      border: Border.all(color: AppColors.textInverse, width: 1.5),
                     ),
                   ),
                 ],
@@ -400,7 +400,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.backgroundOf(context),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Column(
@@ -416,7 +416,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     height: 60,
                     decoration: BoxDecoration(
                       color: AppColors.info.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(Icons.person_rounded, color: AppColors.info, size: 30),
                   ),
@@ -430,7 +430,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     child: const Center(
                       child: Text(
                         '!',
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900),
+                        style: TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.w900),
                       ),
                     ),
                   ),
@@ -1313,7 +1313,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 20),
+                child: const Icon(Icons.favorite_rounded, color: AppColors.textInverse, size: 20),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1415,7 +1415,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: AppColors.successLightOf(context),
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             tagText,
@@ -1449,8 +1449,8 @@ class _HeroIllustration extends StatelessWidget {
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
               ),
               child: const Icon(Icons.add_moderator_rounded, color: AppColors.primary, size: 28),
@@ -1500,7 +1500,7 @@ class _HeroIllustration extends StatelessWidget {
                       Container(
                         width: 12,
                         height: 12,
-                        decoration: BoxDecoration(color: AppColors.primaryLight.withValues(alpha: 0.1), shape: BoxShape.circle),
+                        decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
                         child: const Icon(Icons.person_rounded, size: 8, color: AppColors.primary),
                       ),
                       const SizedBox(width: 4),
@@ -1523,7 +1523,7 @@ class _HeroIllustration extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.success.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: AppColors.textInverse, width: 2),
                   ),
                   child: const Icon(Icons.person_rounded, color: AppColors.success, size: 16),
                 ),
@@ -1531,7 +1531,7 @@ class _HeroIllustration extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
-                  child: const Icon(Icons.check_rounded, color: Colors.white, size: 7),
+                  child: const Icon(Icons.check_rounded, color: AppColors.textInverse, size: 7),
                 ),
               ],
             ),
@@ -1561,15 +1561,15 @@ class _VerifyIllustration extends StatelessWidget {
               height: 70,
               decoration: BoxDecoration(
                 color: AppColors.surfaceOf(context),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.borderOf(context), width: 1.5),
               ),
               child: Column(
                 children: [
                   const SizedBox(height: 4),
-                  Container(width: 12, height: 3, decoration: BoxDecoration(color: AppColors.slate300, borderRadius: BorderRadius.circular(1.5))),
+                  Container(width: 12, height: 3, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1.5))),
                   const Spacer(),
-                  Container(width: 18, height: 2, decoration: BoxDecoration(color: AppColors.slate300, borderRadius: BorderRadius.circular(1))),
+                  Container(width: 18, height: 2, decoration: BoxDecoration(color: AppColors.borderOf(context), borderRadius: BorderRadius.circular(1))),
                   const SizedBox(height: 3),
                 ],
               ),
@@ -1586,14 +1586,14 @@ class _VerifyIllustration extends StatelessWidget {
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
-                  topLeft: Radius.circular(6),
-                  topRight: Radius.circular(6),
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
                 ),
                 boxShadow: [
                   BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3)),
                 ],
               ),
-              child: const Icon(Icons.shield_rounded, color: Colors.white, size: 20),
+              child: const Icon(Icons.shield_rounded, color: AppColors.textInverse, size: 20),
             ),
           ),
           Positioned(
@@ -1603,11 +1603,11 @@ class _VerifyIllustration extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: const BoxDecoration(
                 color: AppColors.success,
-                borderRadius: BorderRadius.all(Radius.circular(6)),
+                borderRadius: BorderRadius.all(Radius.circular(8)),
               ),
               child: const Text(
                 '****',
-                style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -1623,7 +1623,7 @@ class _VerifyIllustration extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.infoLightOf(context),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 1.5),
+                    border: Border.all(color: AppColors.textInverse, width: 1.5),
                   ),
                   child: const Icon(Icons.person_rounded, color: AppColors.info, size: 14),
                 ),
@@ -1631,7 +1631,7 @@ class _VerifyIllustration extends StatelessWidget {
                   width: 9,
                   height: 9,
                   decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
-                  child: const Icon(Icons.check_rounded, color: Colors.white, size: 6),
+                  child: const Icon(Icons.check_rounded, color: AppColors.textInverse, size: 6),
                 ),
               ],
             ),
@@ -1827,7 +1827,7 @@ class _ConversionStepper extends StatelessWidget {
                       ),
                       child: Center(
                         child: isCompleted
-                            ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                            ? const Icon(Icons.check_rounded, color: AppColors.textInverse, size: 20)
                             : Text(
                                 '$stepNum',
                                 style: TextStyle(

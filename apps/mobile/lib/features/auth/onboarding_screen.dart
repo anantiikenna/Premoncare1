@@ -339,7 +339,7 @@ class _PrimaryAction extends StatelessWidget {
                 Container(
                   width: 42,
                   height: 42,
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.96), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.96), shape: BoxShape.circle),
                   child: Icon(icon, color: AppColors.primary, size: 22),
                 ),
                 const SizedBox(width: 16),

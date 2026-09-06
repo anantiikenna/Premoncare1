@@ -342,7 +342,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: Text('Retry', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w700)),
           ),

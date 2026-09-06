@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 import 'glass_card.dart';
 
 class EmptyState extends StatelessWidget {
@@ -45,7 +46,7 @@ class EmptyState extends StatelessWidget {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600], height: 1.5),
+                style: TextStyle(color: AppColors.textSecondaryOf(context), height: 1.5),
               ),
               if (actionLabel != null && onAction != null) ...[
                 const SizedBox(height: 32),

@@ -68,7 +68,7 @@ class PermissionScreen extends StatelessWidget {
                     left: 40,
                     child: _buildFloatingIcon(
                       Icons.videocam_rounded,
-                      AppColors.primaryLight,
+                      AppColors.primary.withValues(alpha: 0.1),
                       AppColors.primary,
                       48,
                     ),
@@ -148,7 +148,7 @@ class PermissionScreen extends StatelessWidget {
             const SizedBox(height: 40),
             _PermissionItem(
               icon: Icons.videocam_rounded,
-              iconBgColor: AppColors.primaryLight,
+              iconBgColor: AppColors.primary.withValues(alpha: 0.1),
               iconColor: AppColors.primary,
               title: 'Allow camera for consultations',
               description: 'Use your camera to connect face-to-face with doctors during video consultations for a better experience.',
@@ -227,7 +227,7 @@ class PermissionScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

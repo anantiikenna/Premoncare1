@@ -184,7 +184,7 @@ class VerificationWizard extends ConsumerWidget {
         color: AppColors.surfaceOf(context),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, -5)),
+          BoxShadow(color: AppColors.textPrimaryOf(context).withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, -5)),
         ],
       ),
       child: SafeArea(
@@ -210,7 +210,7 @@ class VerificationWizard extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.textInverse,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
             child: state.isSubmitting || state.isUploading
@@ -428,7 +428,7 @@ class _FacialStep extends ConsumerWidget {
             foregroundColor: AppColors.primary,
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ],

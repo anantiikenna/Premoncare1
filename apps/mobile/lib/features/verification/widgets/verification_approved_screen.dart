@@ -186,7 +186,7 @@ class _StatusStep extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          child: const Icon(Icons.check_rounded, color: Colors.white, size: 10),
+          child: const Icon(Icons.check_rounded, color: AppColors.textInverse, size: 10),
         ),
         const SizedBox(height: 8),
         Text(
@@ -410,11 +410,11 @@ class _ActionHub extends StatelessWidget {
             onPressed: () => context.go('/doctor_dashboard'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textInverse,
               elevation: 15,
               shadowColor: AppColors.primary.withValues(alpha: 0.3),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
             child: const Row(
@@ -444,7 +444,7 @@ class _ActionHub extends StatelessWidget {
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary, width: 2),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
             child: const Text(

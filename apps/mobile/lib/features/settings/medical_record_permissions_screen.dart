@@ -30,11 +30,13 @@ class _MedicalRecordPermissionsScreenState extends ConsumerState<MedicalRecordPe
           .from('record_permissions')
           .select('*, profiles!record_permissions_doctor_id_fkey(full_name, specialty)')
           .eq('patient_id', user.id);
+      if (!mounted) return;
       setState(() {
         _permissions = List<Map<String, dynamic>>.from(result as List);
         _loading = false;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() => _loading = false);
     }
   }

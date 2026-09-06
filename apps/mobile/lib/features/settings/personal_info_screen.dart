@@ -120,7 +120,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.slate300,
+                  color: AppColors.borderOf(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -638,7 +638,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: enabled ? AppColors.borderOf(context) : AppColors.slate300,
+          color: enabled ? AppColors.borderOf(context) : AppColors.borderOf(context),
         ),
       ),
       child: Column(
@@ -699,7 +699,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: AppColors.primary),
+            colorScheme: Theme.of(context).colorScheme.copyWith(primary: AppColors.primary),
           ),
           child: child!,
         );
@@ -726,8 +726,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.slate300,
-                  borderRadius: BorderRadius.circular(2),
+                   color: AppColors.borderOf(context),
+                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 20),

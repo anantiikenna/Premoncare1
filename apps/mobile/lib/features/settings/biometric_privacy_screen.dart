@@ -29,6 +29,7 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _biometricLock = prefs.getBool('privacy_biometric') ?? false;
       _profileVisible = prefs.getBool('privacy_profile_visible') ?? true;

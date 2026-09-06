@@ -25,6 +25,7 @@ class _HealthPreferencesScreenState extends State<HealthPreferencesScreen> {
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _weightUnit = prefs.getString('health_weight_unit') ?? 'kg';
       _heightUnit = prefs.getString('health_height_unit') ?? 'cm';

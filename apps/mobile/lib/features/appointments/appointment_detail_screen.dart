@@ -312,7 +312,7 @@ class _RescheduleAction extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('Confirm Reschedule', style: TextStyle(fontWeight: FontWeight.w900)),
         content: Text(
           'Reschedule this session to ${pickedDate.day}/${pickedDate.month}/${pickedDate.year} at ${pickedTime.format(context)}? The other party will be notified.',
@@ -362,7 +362,7 @@ class _CancelAction extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('Confirm Cancellation', style: TextStyle(fontWeight: FontWeight.w900)),
         content: Text('Are you sure you want to cancel this session? This action is permanent and the specialist will be notified.', style: TextStyle(fontSize: 14, height: 1.5, fontWeight: FontWeight.w500, color: AppColors.textSecondaryOf(context))),
         actions: [

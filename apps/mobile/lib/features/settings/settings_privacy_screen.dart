@@ -842,7 +842,7 @@ class _SettingsPrivacyCenterScreenState
                           child: const Text(
                             'Delete My Account',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textInverse,
                               fontWeight: FontWeight.w800,
                               fontSize: 14,
                             ),

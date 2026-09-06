@@ -625,7 +625,7 @@ class _OTPBox extends StatelessWidget {
                 ? AppColors.primary
                 : hasValue
                 ? AppColors.primary.withValues(alpha: 0.4)
-                : AppColors.slate300,
+                : AppColors.borderOf(context),
             width: hasFocus ? 2.5 : 2,
           ),
           boxShadow: hasFocus

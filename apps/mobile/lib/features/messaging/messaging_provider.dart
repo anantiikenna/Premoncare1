@@ -180,7 +180,7 @@ class MessagingService {
           body: jsonEncode({
             'userId': receiverId,
             'title': 'New Message',
-            'message': 'You have a new message from $senderName: "${content.length > 30 ? content.substring(0, 30) + '...' : content}"',
+            'message': 'You have a new message from $senderName',
             'type': 'message',
           }),
         );

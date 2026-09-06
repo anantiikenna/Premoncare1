@@ -174,7 +174,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                   color: AppColors.errorLightOf(context),
-                                  borderRadius: BorderRadius.circular(14),
+borderRadius: BorderRadius.circular(16),
                                   border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                                 ),
                                 child: Row(
@@ -224,7 +224,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
                                   disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                                   elevation: 6,
                                   shadowColor: AppColors.primary.withValues(alpha: 0.3),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                 ),
                                 child: _isLoading
                                     ? const SizedBox(
@@ -296,7 +296,7 @@ class _AdminInput extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderOf(context)),
         boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 8, offset: const Offset(0, 2))],
       ),

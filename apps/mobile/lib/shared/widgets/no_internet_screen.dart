@@ -32,7 +32,7 @@ class NoInternetScreen extends StatelessWidget {
                     height: 200,
                     decoration: BoxDecoration(
                       color: AppColors.surfaceAltOf(context),
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(32),
                     ),
                   ),
                   Column(
