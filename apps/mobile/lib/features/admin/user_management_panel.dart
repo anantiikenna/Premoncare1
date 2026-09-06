@@ -670,7 +670,7 @@ class _UserActionSheet extends ConsumerWidget {
             height: 4,
             decoration: BoxDecoration(
               color: AppColors.borderOf(context),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
           const SizedBox(height: 24),

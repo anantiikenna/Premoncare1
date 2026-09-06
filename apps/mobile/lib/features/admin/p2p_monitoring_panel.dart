@@ -748,7 +748,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
                 const SizedBox(height: 24),
                 if (_topUsers.isEmpty)
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       'No data yet',
                       style: TextStyle(
@@ -1325,7 +1325,7 @@ class _P2PTransactionItem extends StatelessWidget {
             avatarUrl: senderAvatar,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Icon(
               Icons.arrow_forward_rounded,
               color: AppColors.textTertiaryOf(context),

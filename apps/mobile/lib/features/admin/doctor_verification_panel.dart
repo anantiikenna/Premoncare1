@@ -811,7 +811,7 @@ class _DoctorVerificationPanelState
     if (_doctorsLoading && _doctors.isEmpty) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(40),
+          padding: const EdgeInsets.all(40),
           child: CircularProgressIndicator(color: AppColors.primary),
         ),
       );
@@ -822,7 +822,7 @@ class _DoctorVerificationPanelState
         padding: const EdgeInsets.all(40),
         decoration: BoxDecoration(
           color: AppColors.surfaceOf(context),
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.borderLightOf(context)),
         ),
         child: Center(
@@ -1053,7 +1053,7 @@ class _DoctorVerificationPanelState
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.borderLightOf(context)),
         boxShadow: [
           BoxShadow(
@@ -1348,7 +1348,7 @@ class _DoctorVerificationPanelState
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Column(

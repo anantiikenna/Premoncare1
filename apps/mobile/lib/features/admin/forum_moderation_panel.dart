@@ -511,7 +511,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           if (_loading && _pendingReports.isEmpty)
             const Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
             )
@@ -832,7 +832,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           if (_loading && _recentActions.isEmpty)
             const Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
             )

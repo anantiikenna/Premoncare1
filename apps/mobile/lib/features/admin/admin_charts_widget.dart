@@ -152,7 +152,7 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
     if (_isLoading) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(40),
+          padding: const EdgeInsets.all(40),
           child: CircularProgressIndicator(color: AppColors.primary),
         ),
       );

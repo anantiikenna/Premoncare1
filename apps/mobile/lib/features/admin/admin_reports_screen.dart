@@ -441,7 +441,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   'Retry',

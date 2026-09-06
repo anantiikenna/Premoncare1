@@ -445,7 +445,7 @@ class AdminListSkeleton extends StatelessWidget {
                         height: 14,
                         decoration: BoxDecoration(
                           color: AppColors.borderLightOf(context),
-                          borderRadius: BorderRadius.circular(7),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -454,7 +454,7 @@ class AdminListSkeleton extends StatelessWidget {
                         height: 10,
                         decoration: BoxDecoration(
                           color: AppColors.borderLightOf(context),
-                          borderRadius: BorderRadius.circular(5),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ],
@@ -515,7 +515,7 @@ class AdminStatsSkeleton extends StatelessWidget {
                 height: 18,
                 decoration: BoxDecoration(
                   color: AppColors.borderLightOf(context),
-                  borderRadius: BorderRadius.circular(9),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
               Container(
@@ -523,7 +523,7 @@ class AdminStatsSkeleton extends StatelessWidget {
                 height: 10,
                 decoration: BoxDecoration(
                   color: AppColors.borderLightOf(context),
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ],

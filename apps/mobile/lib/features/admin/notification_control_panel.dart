@@ -324,7 +324,7 @@ class _NotificationControlPanelState
       ),
       loading: () => const Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: CircularProgressIndicator(),
         ),
       ),
@@ -405,7 +405,7 @@ class _NotificationControlPanelState
       },
       loading: () => const Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: CircularProgressIndicator(),
         ),
       ),
@@ -480,7 +480,7 @@ class _NotificationControlPanelState
       },
       loading: () => const Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: CircularProgressIndicator(),
         ),
       ),
