@@ -72,7 +72,7 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: AppColors.surfaceOf(context),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.borderOf(context)),
               ),
               child: Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textPrimaryOf(context)),

@@ -169,7 +169,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('Search Appointments'),
         content: TextField(
           controller: _searchController,
@@ -210,7 +210,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10))]),
+        decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10))]),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -233,7 +233,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         controller: _tabController,
         dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
-        indicator: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))]),
+        indicator: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: AppColors.textPrimaryOf(context).withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))]),
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textSecondaryOf(context),
         labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),

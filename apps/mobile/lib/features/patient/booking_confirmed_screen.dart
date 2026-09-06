@@ -370,7 +370,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.textInverse,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -393,7 +393,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                 backgroundColor: AppColors.error,
                 foregroundColor: AppColors.textInverse,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
               child: const Text('Create Permanent Account', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
             ),
@@ -407,7 +407,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             style: OutlinedButton.styleFrom(
               foregroundColor: primaryColor,
               side: BorderSide(color: primaryColor),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
             child: Text(isEmergency ? 'Sign In to Continue' : 'Back to Dashboard', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
           ),
@@ -433,7 +433,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             },
             style: TextButton.styleFrom(
               foregroundColor: AppColors.textSecondaryOf(context),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
             child: const Text('Download Digital Receipt', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
           ),

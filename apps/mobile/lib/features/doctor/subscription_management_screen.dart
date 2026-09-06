@@ -175,7 +175,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8)),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -286,7 +286,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 Text(value, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w800)),
                 if (isDefault) ...[
                   const SizedBox(width: 8),
-                  Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(6)), child: Text('Default', style: TextStyle(color: AppColors.success, fontSize: 9, fontWeight: FontWeight.bold))),
+                  Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppColors.successLightOf(context), borderRadius: BorderRadius.circular(8)), child: Text('Default', style: TextStyle(color: AppColors.success, fontSize: 9, fontWeight: FontWeight.bold))),
                 ]
               ],
             ),
@@ -546,7 +546,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: AppColors.info, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: AppColors.info, borderRadius: BorderRadius.circular(8)),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

@@ -147,7 +147,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
           // Background pulse effect
@@ -357,7 +357,7 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
                 style: AppTypography.h2.copyWith(
                   fontSize: 28,
                   color: _secondsRemaining > 60
-                      ? AppColors.textPrimary
+                      ? AppColors.textPrimaryOf(context)
                       : _secondsRemaining > 30
                       ? AppColors.warning
                       : AppColors.error,

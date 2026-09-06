@@ -120,6 +120,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
       ),
     );
     if (picked != null) {
+      if (!mounted) return;
       setState(() {
         _selectedDate = DateTime(picked.year, picked.month, picked.day);
         _selectedTime = TimeOfDay(
@@ -144,7 +145,10 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
         child: child!,
       ),
     );
-    if (picked != null) setState(() => _selectedTime = picked);
+    if (picked != null) {
+      if (!mounted) return;
+      setState(() => _selectedTime = picked);
+    }
   }
 
   Future<void> _confirmBooking() async {
@@ -440,7 +444,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
@@ -670,7 +674,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: _hasEnoughBalance
               ? AppColors.borderLightOf(context)

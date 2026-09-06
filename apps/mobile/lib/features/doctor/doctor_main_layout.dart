@@ -201,7 +201,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: AppColors.slate800),
+            icon: Icon(Icons.notifications_none_rounded, color: AppColors.textPrimaryOf(context)),
             onPressed: () => context.push('/notifications'),
           ),
           const SizedBox(width: 4),

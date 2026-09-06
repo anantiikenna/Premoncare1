@@ -163,7 +163,7 @@ class _HeaderStatsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.slate800,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(32),
         boxShadow: [BoxShadow(color: AppColors.shadowMedium, blurRadius: 30, offset: const Offset(0, 15))],
       ),
@@ -198,7 +198,7 @@ class _HeaderStatsCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(width: 1, height: 80, color: AppColors.borderLightOf(context), margin: const EdgeInsets.symmetric(horizontal: 20)),
+              Container(width: 1, height: 80, color: Colors.white24, margin: const EdgeInsets.symmetric(horizontal: 20)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +283,7 @@ class _DoctorCreditCard extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: isLow ? AppColors.errorLightOf(context) : AppColors.borderLightOf(context)),
         boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
       ),

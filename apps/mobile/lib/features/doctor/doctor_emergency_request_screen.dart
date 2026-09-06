@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../core/doctor_name_utils.dart';
 import '../../core/providers.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 
@@ -101,7 +102,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
   }
 
   void _setupRealtimeSubscription() {
-    _subscription = Supabase.instance.client
+    _subscription = supabase
         .channel('doctor:emergency:${widget.appointmentId}')
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
@@ -147,7 +148,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
 
     try {
       final newStatus = accept ? 'emergency_accepted' : 'emergency_declined';
-      await Supabase.instance.client
+      await supabase
           .from('appointments')
           .update({
             'status': newStatus,
@@ -219,7 +220,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
           // Urgent red pulse background
@@ -352,7 +353,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.primaryLight.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [

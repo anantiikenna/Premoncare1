@@ -118,7 +118,9 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           const SnackBar(content: Text('Online status is disabled in privacy settings')),
         );
       }
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
       return;
     }
 
@@ -427,7 +429,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
               const Text('TOTAL CLINICAL REVENUE', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
                 child: const Row(
                   children: [
                     Text('MONTHLY', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900)),
@@ -446,7 +448,6 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           const SizedBox(height: 24),
           Row(
             children: [
-              _buildMainCardChip(Icons.trending_up_rounded, '18.6% Growth', AppColors.success),
               const Spacer(),
               _buildGlassButton('Analytics', Icons.bar_chart_rounded, () => context.push('/doctor/earnings')),
             ],
@@ -459,7 +460,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
   Widget _buildMainCardChip(IconData icon, String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: [
           Icon(icon, color: color, size: 14),
@@ -475,7 +476,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.white24)),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white24)),
         child: Row(
           children: [
             Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900)),
@@ -496,7 +497,6 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
         final patientsHelped = metrics['patients_helped']?.toString() ?? '0';
         final rating = (metrics['rating'] as num?)?.toStringAsFixed(1) ?? '0.0';
         final todaySessions = metrics['consultation_counts']?.toString() ?? '0';
-        final pendingInvites = '0';
 
         return GridView.count(
           crossAxisCount: 2,
@@ -508,8 +508,8 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           children: [
             _buildMetricCard(context, patientsHelped, 'Total Patients', primaryColor, Icons.people_rounded),
             _buildMetricCard(context, todaySessions, 'Today Sessions', AppColors.success, Icons.calendar_today_rounded),
-            _buildMetricCard(context, pendingInvites, 'Pending Invites', AppColors.warning, Icons.hourglass_empty_rounded),
             _buildMetricCard(context, rating, 'Clinical Rating', AppColors.primary, Icons.star_rounded),
+            _buildMetricCard(context, '0', 'Avg. Session', AppColors.info, Icons.timer_outlined),
           ],
         );
       },
@@ -521,7 +521,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
   Widget _buildMetricCard(BuildContext context, String value, String label, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(28), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))]),
+      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context)), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 10))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -621,7 +621,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           children: [
             Text(time, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 4),
-            Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: (isConfirmed ? AppColors.success : AppColors.textTertiaryOf(context)).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)), child: Text(isConfirmed ? 'CONFIRMED' : 'PENDING', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: isConfirmed ? AppColors.success : AppColors.textTertiaryOf(context), letterSpacing: 0.5))),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: (isConfirmed ? AppColors.success : AppColors.textTertiaryOf(context)).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)), child: Text(isConfirmed ? 'CONFIRMED' : 'PENDING', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: isConfirmed ? AppColors.success : AppColors.textTertiaryOf(context), letterSpacing: 0.5))),
           ],
         ),
         const SizedBox(width: 20),

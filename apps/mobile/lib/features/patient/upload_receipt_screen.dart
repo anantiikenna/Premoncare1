@@ -46,11 +46,13 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
           .select('id, full_name, specialty, consultation_fee, avatar_url, payment_instructions')
           .eq('role', 'doctor')
           .order('full_name');
+      if (!mounted) return;
       setState(() {
         _doctors = List<Map<String, dynamic>>.from(data);
         _loadingDoctors = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loadingDoctors = false);
     }
   }

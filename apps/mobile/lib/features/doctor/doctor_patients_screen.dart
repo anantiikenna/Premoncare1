@@ -96,7 +96,7 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.surfaceOf(context),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.borderOf(context)),
                   boxShadow: [
                     BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4)),

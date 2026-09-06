@@ -301,7 +301,7 @@ class _ActionHub extends StatelessWidget {
           height: 64,
           child: ElevatedButton(
             onPressed: () => context.go('/account-conversion'),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimaryOf(context), foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimaryOf(context), foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
             child: const Text('DISMISS REPORT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 0.5)),
           ),
         ),
