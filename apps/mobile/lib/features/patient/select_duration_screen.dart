@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
+import '../../shared/widgets/mesh_circle.dart';
 import '../../core/app_colors.dart';
 
 
@@ -38,8 +39,8 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
       backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          Positioned(top: -150, right: -100, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: primaryColor.withValues(alpha: 0.05), size: 400)),
+          Positioned(top: -150, right: -100, child: MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
+          Positioned(bottom: -100, left: -50, child: MeshCircle(color: primaryColor.withValues(alpha: 0.05), size: 400)),
 
           SafeArea(
             child: SingleChildScrollView(
@@ -98,7 +99,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                         'isEmergency': isEmergency,
                       }),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.slate800,
+                        backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.textInverse,
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -243,7 +244,7 @@ class _DurationSelector extends StatelessWidget {
                   Text('$mins',
                       style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: isSelected ? AppColors.textInverse : AppColors.textPrimaryOf(context), letterSpacing: -1)),
                   Text('MINS',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: isSelected ? Colors.white70 : AppColors.textTertiaryOf(context), letterSpacing: 1)),
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: isSelected ? AppColors.textInverse.withValues(alpha: 0.7) : AppColors.textTertiaryOf(context), letterSpacing: 1)),
                   const SizedBox(height: 16),
                   Text('₦${_price(mins)}',
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isSelected ? AppColors.textInverse : primaryColor)),
@@ -342,20 +343,4 @@ class _EmergencyBadge extends StatelessWidget {
   }
 }
 
-class _MeshCircle extends StatelessWidget {
-  final Color color;
-  final double size;
-  const _MeshCircle({required this.color, required this.size});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: color, blurRadius: 80, spreadRadius: 40)],
-      ),
-    );
-  }
-}

@@ -5,6 +5,7 @@ import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import 'patient_providers.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
+import '../../shared/widgets/mesh_circle.dart';
 
 class CreditsScreen extends ConsumerWidget {
   const CreditsScreen({super.key});
@@ -17,8 +18,8 @@ class CreditsScreen extends ConsumerWidget {
       backgroundColor: AppColors.backgroundOf(context),
       body: Stack(
         children: [
-          Positioned(top: -150, right: -100, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, left: -50, child: _MeshCircle(color: AppColors.primary.withValues(alpha: 0.05), size: 400)),
+          Positioned(top: -150, right: -100, child: MeshCircle(color: AppColors.primary.withValues(alpha: 0.1), size: 500)),
+          Positioned(bottom: -100, left: -50, child: MeshCircle(color: AppColors.primary.withValues(alpha: 0.05), size: 400)),
           SafeArea(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -198,7 +199,7 @@ class _HeaderStatsCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(width: 1, height: 80, color: Colors.white24, margin: const EdgeInsets.symmetric(horizontal: 20)),
+              Container(width: 1, height: 80, color: AppColors.borderOf(context).withValues(alpha: 0.24), margin: const EdgeInsets.symmetric(horizontal: 20)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,13 +390,4 @@ class _DisclaimerBanner extends StatelessWidget {
   }
 }
 
-class _MeshCircle extends StatelessWidget {
-  final Color color;
-  final double size;
-  const _MeshCircle({required this.color, required this.size});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(width: size, height: size, decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: color, blurRadius: 80, spreadRadius: 40)]));
-  }
-}

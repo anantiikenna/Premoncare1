@@ -46,6 +46,16 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
       return;
     }
 
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+    if (_selectedFile!.lengthSync() > maxSizeBytes) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File size must be under 5MB')),
+        );
+      }
+      return;
+    }
+
     setState(() => _isUploading = true);
     try {
       await RecordsService.uploadRecord(

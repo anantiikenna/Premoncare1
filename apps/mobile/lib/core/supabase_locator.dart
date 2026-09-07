@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -41,7 +42,8 @@ Future<String> getUserRole() async {
     _cachedRole = role;
     return role;
   } catch (e) {
-    return 'denied';
+    debugPrint('getUserRole error (non-fatal): $e');
+    return _cachedRole ?? 'denied';
   }
 }
 
@@ -49,6 +51,15 @@ Future<String> getUserRole() async {
 void clearRoleCache() {
   _cachedRole = null;
   _cachedUserId = null;
+}
+
+/// Clear cached role for a specific user (call after profile updates,
+/// verification status changes, etc.)
+void clearRoleCacheForUser(String userId) {
+  if (_cachedUserId == userId) {
+    _cachedRole = null;
+    _cachedUserId = null;
+  }
 }
 
 /// Centralized logout: unsubscribe all Realtime channels, clear cache, sign out.

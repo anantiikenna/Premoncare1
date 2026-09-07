@@ -786,7 +786,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                           ? AppColors.success
                           : AppColors.textTertiaryOf(context),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: AppColors.surfaceOf(context), width: 2),
                     ),
                   ),
                 ),

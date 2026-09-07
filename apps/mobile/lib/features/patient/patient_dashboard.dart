@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/providers.dart';
+import '../../shared/widgets/mesh_circle.dart';
 import 'patient_providers.dart';
 
 class PatientDashboard extends ConsumerWidget {
@@ -20,7 +21,7 @@ class PatientDashboard extends ConsumerWidget {
           Positioned(
             top: -150,
             right: -100,
-            child: _MeshCircle(color: primaryColor.withValues(alpha: 0.08), size: 500),
+            child: MeshCircle(color: primaryColor.withValues(alpha: 0.08), size: 500),
           ),
 
           SafeArea(
@@ -326,20 +327,4 @@ class _DoctorListItem extends StatelessWidget {
   }
 }
 
-class _MeshCircle extends StatelessWidget {
-  final Color color;
-  final double size;
-  const _MeshCircle({required this.color, required this.size});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: color, blurRadius: 80, spreadRadius: 40)],
-      ),
-    );
-  }
-}
