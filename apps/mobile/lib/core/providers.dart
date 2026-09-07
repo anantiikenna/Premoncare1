@@ -14,8 +14,7 @@ final pendingPaymentsProvider = StreamProvider.autoDispose<List<Map<String, dyna
   return supabase
       .from('pending_payments_view')
       .stream(primaryKey: ['id'])
-      .eq('recipient_id', user.id)
-      .map((data) => data);
+      .eq('recipient_id', user.id);
 });
 
 /// Provider for the current user's profile data
@@ -117,26 +116,29 @@ final patientMedicalRecordsProvider = StreamProvider.autoDispose<List<Map<String
 
 /// Provider for admin dashboard stats (total users, doctors, appointments, revenue)
 final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final usersResult = await supabase.from('profiles').select('id').count();
-  final doctorsResult = await supabase.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'approved').count();
-  final upcomingAppointmentsResult = await supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count();
-  final totalAppointmentsResult = await supabase.from('appointments').select('id').count();
-  final completedAppointmentsResult = await supabase.from('appointments').select('id').eq('status', 'completed').count();
-  final cancelledAppointmentsResult = await supabase.from('appointments').select('id').eq('status', 'cancelled').count();
-  final payments = await supabase.from('payments').select('amount').eq('status', 'approved');
+  final results = await Future.wait([
+    supabase.from('profiles').select('id').count(),
+    supabase.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'approved').count(),
+    supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count(),
+    supabase.from('appointments').select('id').count(),
+    supabase.from('appointments').select('id').eq('status', 'completed').count(),
+    supabase.from('appointments').select('id').eq('status', 'cancelled').count(),
+    supabase.from('payments').select('amount').eq('status', 'approved'),
+  ]);
 
   num totalRevenue = 0;
+  final payments = results[6] as List<Map<String, dynamic>>;
   for (var p in payments) {
     totalRevenue += (p['amount'] as num?) ?? 0;
   }
 
   return {
-    'totalUsers': usersResult.count,
-    'verifiedDoctors': doctorsResult.count,
-    'todayAppointments': upcomingAppointmentsResult.count,
-    'totalAppointments': totalAppointmentsResult.count,
-    'completedAppointments': completedAppointmentsResult.count,
-    'cancelledAppointments': cancelledAppointmentsResult.count,
+    'totalUsers': results[0].count,
+    'verifiedDoctors': results[1].count,
+    'todayAppointments': results[2].count,
+    'totalAppointments': results[3].count,
+    'completedAppointments': results[4].count,
+    'cancelledAppointments': results[5].count,
     'totalRevenue': totalRevenue,
   };
 });

@@ -66,7 +66,7 @@ final authorizedRecordsProvider = StreamProvider.autoDispose<List<MedicalRecord>
   return supabase
       .from('medical_records')
       .stream(primaryKey: ['id'])
-      .eq('doctor_id', user.id)
+      .contains('authorized_doctors', [user.id])
       .order('created_at', ascending: false)
       .limit(100)
       .map((data) => data.map((json) => MedicalRecord.fromJson(json)).toList());

@@ -6,7 +6,7 @@ import '../../core/supabase_locator.dart';
 final availableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final data = await supabase
       .from('profiles')
-      .select('id, full_name, consultation_fee, payment_instructions')
+      .select('id, full_name, consultation_fee, payment_instructions, specializations_list, hourly_rate')
       .eq('role', 'doctor')
       .order('full_name');
   

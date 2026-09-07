@@ -81,7 +81,9 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
         }
       },
       conferenceTerminated: (url, error) {
-        if (mounted) _endCall();
+        if (mounted && (error == null || error.toString().isEmpty)) {
+          _endCall();
+        }
       },
       audioMutedChanged: (muted) {
         if (mounted) setState(() => _isMuted = muted);

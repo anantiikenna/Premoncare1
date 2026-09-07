@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_colors.dart';
 
 class ShimmerPlaceholder extends StatefulWidget {
   final double width;
@@ -53,9 +54,9 @@ class _ShimmerPlaceholderState extends State<ShimmerPlaceholder> with SingleTick
                 _controller.value + 0.3,
               ],
               colors: [
-                Colors.grey[300]!,
-                Colors.grey[100]!,
-                Colors.grey[300]!,
+                AppColors.borderLightOf(context),
+                AppColors.surfaceOf(context),
+                AppColors.borderLightOf(context),
               ],
             ),
           ),
@@ -76,7 +77,7 @@ class DashboardShimmer extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.5),
+            color: AppColors.surfaceOf(context).withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(24),
           ),
           child: Row(

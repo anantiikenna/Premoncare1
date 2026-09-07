@@ -14,6 +14,7 @@ class NotificationService {
   FirebaseMessaging get _fcm => FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   final List<StreamSubscription> _subscriptions = [];
+  bool _initialized = false;
 
   void dispose() {
     for (final sub in _subscriptions) {
@@ -23,6 +24,9 @@ class NotificationService {
   }
 
   Future<void> initialize() async {
+    if (_initialized) return;
+    _initialized = true;
+
     // 1. Request permissions (especially for iOS and Android 13+)
     NotificationSettings settings = await _fcm.requestPermission(
       alert: true,

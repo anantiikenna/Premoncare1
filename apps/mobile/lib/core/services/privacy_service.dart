@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../supabase_locator.dart';
 
@@ -17,7 +18,7 @@ class PrivacyService {
         'is_showing_online_status': showOnlineStatus,
       }).eq('id', userId);
     } catch (e) {
-      // Silently fail — non-critical
+      debugPrint('PrivacyService sync error (non-critical): $e');
     }
   }
 

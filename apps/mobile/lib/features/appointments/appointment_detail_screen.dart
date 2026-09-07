@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:collection/collection.dart';
 import '../../core/app_colors.dart';
 import 'appointment_provider.dart';
 import 'dart:math' as math;
@@ -33,10 +34,10 @@ class AppointmentDetailScreen extends ConsumerWidget {
           SafeArea(
             child: appointmentsAsync.when(
               data: (appointments) {
-                final appointment = appointments.firstWhere(
-                  (a) => a.id == appointmentId,
-                  orElse: () => throw Exception('Appointment not found'),
-                );
+                final appointment = appointments.firstWhereOrNull((a) => a.id == appointmentId);
+                if (appointment == null) {
+                  return const Scaffold(body: Center(child: Text('Appointment not found')));
+                }
 
                 return Column(
                   children: [
