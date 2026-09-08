@@ -44,11 +44,6 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
   };
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();

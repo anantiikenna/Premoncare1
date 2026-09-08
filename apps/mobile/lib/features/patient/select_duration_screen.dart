@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 import '../../shared/widgets/mesh_circle.dart';
 import '../../core/app_colors.dart';
+import '../../core/utils.dart';
 
 
 class SelectDurationScreen extends StatefulWidget {
@@ -276,7 +277,7 @@ class _PricingModule extends StatelessWidget {
     final perMin = hourlyRate / 60;
     final multiplier = isEmergency ? 5 : 1;
     final total = (perMin * multiplier * selectedDuration).toInt();
-    final totalStr = total.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+    final totalStr = formatNairaAmount(total.toDouble());
 
     return Container(
       padding: const EdgeInsets.all(32),

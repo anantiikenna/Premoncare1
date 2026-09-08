@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
+import '../../core/utils.dart';
 
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
@@ -94,11 +95,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   bool get _hasEnoughBalance =>
       (_currentBalanceMinutes ?? 0) >= widget.durationMinutes;
 
-  String get _amountStr =>
-      widget.totalAmount.toInt().toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (m) => '${m[1]},',
-      );
+  String get _amountStr => formatNairaAmount(widget.totalAmount);
 
   Color get _primaryColor =>
       widget.isEmergency ? AppColors.error : AppColors.primary;

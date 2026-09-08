@@ -58,7 +58,6 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   String get _formattedName => _displayName;
   String get _displaySpecialty => _profile?['specialty'] as String? ?? widget.specialty;
   double get _hourlyRate => (_profile?['hourly_rate'] as num?)?.toDouble() ?? 5000.0;
-  double get _bookingRate => widget.isEmergency ? _hourlyRate * 5 : _hourlyRate;
   int get _experienceYears => _profile?['experience_years'] as int? ?? 0;
   String get _about => _profile?['about_text'] as String? ?? 'Dedicated and compassionate healthcare professional committed to delivering quality patient care.';
   bool get _isOnline => _profile?['is_online'] == true;
@@ -515,53 +514,12 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   disabledBackgroundColor: AppColors.textTertiaryOf(context),
+                  foregroundColor: AppColors.textInverse,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.videocam_rounded, color: AppColors.textInverse, size: 18),
-                    const SizedBox(width: 8),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Book Video', style: TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold)),
-                        Text('₦${_bookingRate.toStringAsFixed(0)}/hr', style: const TextStyle(color: AppColors.textInverse, fontSize: 10)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _isOnline
-                    ? () => context.push('/select-duration', extra: {
-                        'doctorId': widget.doctorId,
-                        'doctorName': _displayName,
-                        'hourlyRate': _hourlyRate,
-                        'isEmergency': widget.isEmergency,
-                      })
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.isEmergency ? AppColors.error : AppColors.success,
-                  disabledBackgroundColor: AppColors.textTertiaryOf(context),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(widget.isEmergency ? Icons.flash_on_rounded : Icons.calendar_today_rounded, color: AppColors.textInverse, size: 16),
-                    const SizedBox(width: 8),
-                    Text(widget.isEmergency ? 'Emergency' : 'Book Appt.', style: const TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold)),
-                  ],
-                ),
+                child: const Text('Book Appointment'),
               ),
             ),
           ],

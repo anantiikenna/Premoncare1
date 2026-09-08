@@ -30,6 +30,12 @@ class FlavorConfig {
   }
 
   static FlavorConfig get instance {
+    if (_instance == null) {
+      throw FlutterError(
+        'FlavorConfig.instance accessed before initialization. '
+        'Call FlavorConfig() factory constructor first.',
+      );
+    }
     return _instance!;
   }
 
