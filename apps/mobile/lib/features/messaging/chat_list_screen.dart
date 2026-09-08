@@ -104,17 +104,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                _buildFilterChip(context, 'All', true),
-                _buildFilterChip(context, 'Doctors', false, count: 7),
-                _buildFilterChip(context, 'Support', false),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
           Expanded(
             child: conversationsAsync.when(
@@ -148,39 +137,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               error: (err, _) => Center(child: Text('Error: $err')),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(BuildContext context, String label, bool isSelected, {int? count}) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary : AppColors.borderLightOf(context),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? AppColors.textInverse : AppColors.textSecondaryOf(context),
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-          if (count != null) ...[
-            const SizedBox(width: 8),
-            Text(
-              count.toString(),
-              style: TextStyle(
-                color: isSelected ? AppColors.textInverse.withValues(alpha: 0.7) : AppColors.textTertiaryOf(context),
-                fontSize: 11,
-              ),
-            ),
-          ],
         ],
       ),
     );

@@ -6,14 +6,11 @@ class PaymentFailedScreen extends StatelessWidget {
   final String? appointmentId;
   final String? doctorName;
   final String? amount;
-  final String? errorType;
-
   const PaymentFailedScreen({
     super.key,
     this.appointmentId,
     this.doctorName,
     this.amount,
-    this.errorType = 'network',
   });
 
   @override

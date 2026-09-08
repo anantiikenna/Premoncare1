@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:collection/collection.dart';
 import '../../core/app_colors.dart';
 import 'appointment_provider.dart';
-import 'dart:math' as math;
 
 
 class AppointmentDetailScreen extends ConsumerWidget {
@@ -160,7 +159,7 @@ class _HeaderSection extends StatelessWidget {
           const SizedBox(height: 6),
           Text(appointment.specialty ?? 'Medical Specialist', style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
           const SizedBox(height: 20),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)), child: Text('ID: #CON-${math.Random().nextInt(10000)}', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5))),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)), child: Text('ID: #CON-${appointment.id.substring(0, appointment.id.length > 8 ? 8 : appointment.id.length)}', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5))),
         ],
       ),
     );

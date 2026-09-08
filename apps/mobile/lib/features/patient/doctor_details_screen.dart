@@ -55,7 +55,6 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
   }
 
   String get _displayName => _profile?['full_name'] as String? ?? widget.doctorName;
-  String get _formattedName => _displayName;
   String get _displaySpecialty => _profile?['specialty'] as String? ?? widget.specialty;
   double get _hourlyRate => (_profile?['hourly_rate'] as num?)?.toDouble() ?? 5000.0;
   int get _experienceYears => _profile?['experience_years'] as int? ?? 0;
@@ -98,7 +97,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                         const SizedBox(height: 24),
                         if (_isVerified) _buildVerifiedBanner(),
                         if (_isVerified) const SizedBox(height: 24),
-                        _buildSectionTitle('About $_formattedName'),
+                        _buildSectionTitle('About $_displayName'),
                         const SizedBox(height: 12),
                         _buildAboutSection(),
                         const SizedBox(height: 24),
@@ -293,7 +292,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                     children: [
                       Row(
                         children: [
-                          Flexible(child: Text(_formattedName, style: const TextStyle(color: AppColors.textInverse, fontSize: 20, fontWeight: FontWeight.bold))),
+                          Flexible(child: Text(_displayName, style: const TextStyle(color: AppColors.textInverse, fontSize: 20, fontWeight: FontWeight.bold))),
                           if (_isVerified) ...[
                             const SizedBox(width: 6),
                             const Icon(Icons.verified_rounded, color: AppColors.info, size: 18),
