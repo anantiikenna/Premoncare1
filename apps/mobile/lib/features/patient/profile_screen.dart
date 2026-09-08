@@ -132,7 +132,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(profile?['full_name'] ?? 'Rohan Mehta', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+                Text(profile?['full_name'] ?? 'Patient', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
                 const SizedBox(height: 4),
                 Text(email, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 12),

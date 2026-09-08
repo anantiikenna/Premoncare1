@@ -65,7 +65,12 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                 Expanded(
                   child: appointmentsAsync.when(
                     data: (appointments) {
-                      final upcoming = appointments.where((a) => a.status == AppointmentStatus.pending || a.status == AppointmentStatus.confirmed).toList();
+                      final upcoming = appointments.where((a) =>
+                          a.status == AppointmentStatus.pending ||
+                          a.status == AppointmentStatus.confirmed ||
+                          a.status == AppointmentStatus.rescheduled ||
+                          a.status == AppointmentStatus.emergencyAccepted
+                      ).toList();
                       final past = appointments.where((a) => a.status == AppointmentStatus.completed || a.status == AppointmentStatus.cancelled).toList();
 
                       return TabBarView(

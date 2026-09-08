@@ -28,6 +28,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
   final _jitsiMeet = JitsiMeet();
   bool _isLoading = true;
   bool _isInMeeting = false;
+  bool _meetingJoined = false;
   bool _isMuted = false;
   bool _isVideoOff = false;
   int _elapsedSeconds = 0;
@@ -42,7 +43,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
   @override
   void dispose() {
     _timer?.cancel();
-    _jitsiMeet.hangUp();
+    if (_meetingJoined) _jitsiMeet.hangUp();
     super.dispose();
   }
 
@@ -73,6 +74,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
       conferenceJoined: (url) {
         if (mounted) {
           setState(() {
+            _meetingJoined = true;
             _isLoading = false;
             _isInMeeting = true;
           });
@@ -126,7 +128,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
 
   void _endCall() {
     _timer?.cancel();
-    _jitsiMeet.hangUp();
+    if (_meetingJoined) _jitsiMeet.hangUp();
     _updateAppointmentStatus('completed');
     if (mounted) {
       context.go('/consultation-summary/${widget.appointmentId}', extra: {

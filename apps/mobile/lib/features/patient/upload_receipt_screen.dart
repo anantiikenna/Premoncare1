@@ -96,6 +96,17 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
 
     setState(() => _isLoading = true);
 
+    final amount = _parsedAmount();
+    if (amount == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid amount')),
+        );
+      }
+      setState(() => _isLoading = false);
+      return;
+    }
+
     try {
       final user = supabase.auth.currentUser;
       if (user == null) throw Exception('Not authenticated');
@@ -110,7 +121,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
       await supabase.from('payments').insert({
         'user_id': user.id,
         'recipient_id': _selectedDoctorId,
-        'amount': double.parse(_amountController.text.replaceAll(RegExp(r'[^\d.]'), '')),
+        'amount': amount,
         'method': 'manual',
         'receipt_url': publicUrl,
         'status': 'pending',
@@ -132,6 +143,13 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  double? _parsedAmount() {
+    final amountText = _amountController.text.replaceAll(RegExp(r'[^\d.]'), '');
+    final amount = double.tryParse(amountText);
+    if (amount == null || amount <= 0) return null;
+    return amount;
   }
 
   @override

@@ -109,6 +109,8 @@ final patientMedicalRecordsProvider = StreamProvider.autoDispose<List<Map<String
       .from('medical_records')
       .stream(primaryKey: ['id'])
       .eq('patient_id', user.id)
+      .order('created_at', ascending: false)
+      .limit(100)
       .map((data) => data);
 });
 
