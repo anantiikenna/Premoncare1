@@ -150,7 +150,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 Icon(Icons.verified, color: AppColors.success, size: 14),
                 const SizedBox(width: 8),
                 Text(
-                  'Messages and data are end-to-end encrypted.',
+                  'Messages are encrypted in transit via TLS.',
                   style: TextStyle(fontSize: 10, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600),
                 ),
               ],

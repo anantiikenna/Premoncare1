@@ -92,7 +92,7 @@ class IdentityStep extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '256-bit end-to-end encrypted storage',
+                      '256-bit AES encrypted storage',
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textPrimaryOf(context)),
                     ),
                     Text(

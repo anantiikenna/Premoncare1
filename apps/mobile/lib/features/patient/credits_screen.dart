@@ -48,7 +48,7 @@ class CreditsScreen extends ConsumerWidget {
                           specialty: credit['specialty'],
                           rate: '₦${credit['hourly_rate']}/hr',
                           remainingMinutes: credit['minutes_remaining'] as int,
-                          totalMinutes: (credit['minutes_remaining'] as int) + 30,
+                          totalMinutes: credit['minutes_remaining'] as int,
                           lastUsed: 'Recently',
                           avatarUrl: credit['avatar_url'],
                         )).toList(),

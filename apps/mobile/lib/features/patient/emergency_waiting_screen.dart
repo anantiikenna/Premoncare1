@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -132,7 +133,9 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
         .update({'status': 'emergency_declined'})
         .eq('id', widget.appointmentId)
         .then((_) {})
-        .catchError((_) {});
+        .catchError((e) {
+          debugPrint('Emergency timeout status update failed: $e');
+        });
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) context.go('/emergency-failed');
     });
