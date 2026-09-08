@@ -113,7 +113,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
                 label: const Text('Unlock'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textInverse,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 16,

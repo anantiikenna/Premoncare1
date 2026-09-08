@@ -47,6 +47,9 @@ Future<String> getUserRole() async {
   }
 }
 
+/// Synchronous getter for cached role — safe to call in builders after redirect.
+String? getCachedRole() => _cachedRole;
+
 /// Clear cached role (call on logout)
 void clearRoleCache() {
   _cachedRole = null;

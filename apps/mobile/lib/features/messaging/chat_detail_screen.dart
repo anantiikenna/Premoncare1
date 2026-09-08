@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,12 +27,16 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   }
 
   Future<void> _loadPartnerProfile() async {
-    final data = await supabase
-        .from('profiles')
-        .select('full_name, avatar_url, specialty, is_online')
-        .eq('id', widget.partnerId)
-        .single();
-    if (mounted) setState(() => _partnerProfile = data);
+    try {
+      final data = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url, specialty, is_online')
+          .eq('id', widget.partnerId)
+          .single();
+      if (mounted) setState(() => _partnerProfile = data);
+    } catch (e) {
+      debugPrint('Error loading partner profile: $e');
+    }
   }
 
   @override
@@ -47,7 +52,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
     _messageController.clear();
     await MessagingService.sendMessage(widget.partnerId, content);
-    
+    if (!mounted) return;
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         0,

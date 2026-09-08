@@ -78,7 +78,11 @@ class _DocumentViewerState extends State<DocumentViewer> {
                   ),
                   const SizedBox(height: 8),
                   TextButton(
-                    onPressed: () => setState(() { _urlFuture = _getSignedUrl(); }),
+                    onPressed: () {
+                      if (mounted) {
+                        setState(() { _urlFuture = _getSignedUrl(); });
+                      }
+                    },
                     child: Text('Retry', style: TextStyle(color: AppColors.primary)),
                   ),
                 ],
@@ -106,6 +110,16 @@ class _DocumentViewerState extends State<DocumentViewer> {
                       ),
                     );
                   },
+                  errorBuilder: (context, error, stackTrace) => Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.broken_image, color: AppColors.textSecondaryOf(context), size: 48),
+                        const SizedBox(height: 8),
+                        Text('Failed to load image', style: TextStyle(color: AppColors.textSecondaryOf(context))),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             );
@@ -159,7 +173,15 @@ class _DocumentViewerState extends State<DocumentViewer> {
   }
 
   Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse(url);
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid URL')),
+        );
+      }
+      return;
+    }
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

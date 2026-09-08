@@ -364,20 +364,11 @@ final goRouter = GoRouter(
     GoRoute(
       path: '/appointments',
       builder: (context, state) {
-        return FutureBuilder<String>(
-          future: getUserRole(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-            if (snapshot.data == 'doctor') {
-              return const DoctorAppointmentsScreen();
-            }
-            return const AppointmentsScreen();
-          },
-        );
+        final role = getCachedRole();
+        if (role == 'doctor') {
+          return const DoctorAppointmentsScreen();
+        }
+        return const AppointmentsScreen();
       },
     ),
     GoRoute(

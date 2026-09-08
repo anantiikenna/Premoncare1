@@ -51,7 +51,15 @@ class RecordSharingSheet extends ConsumerWidget {
                           value: isAuthorized,
                           activeThumbColor: AppColors.success,
                           onChanged: (val) async {
-                            await RecordsService.toggleAuthorization(record.id, doc['id'], val);
+                            try {
+                              await RecordsService.toggleAuthorization(record.id, doc['id'], val);
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Failed to update access: $e')),
+                                );
+                              }
+                            }
                           },
                         ),
                       );
