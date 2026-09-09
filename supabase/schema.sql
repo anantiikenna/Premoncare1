@@ -293,6 +293,16 @@ create table prescriptions (
   created_at timestamp with time zone default now()
 );
 
+create table consultation_notes (
+  id uuid default uuid_generate_v4() primary key,
+  appointment_id uuid references appointments(id) on delete cascade not null,
+  doctor_id uuid references profiles(id) on delete cascade not null,
+  patient_id uuid references profiles(id) on delete cascade not null,
+  observations text not null,
+  follow_up_days integer,
+  created_at timestamp with time zone default now()
+);
+
 create table admin_notification_settings (
   admin_id uuid references profiles(id) on delete cascade not null primary key,
   alert_types text[] default '{}'::text[],
@@ -301,6 +311,7 @@ create table admin_notification_settings (
 
 alter table medical_profiles enable row level security;
 alter table prescriptions enable row level security;
+alter table consultation_notes enable row level security;
 alter table admin_notification_settings enable row level security;
 alter table health_records enable row level security;
 alter table medical_documents enable row level security;
@@ -310,6 +321,10 @@ create policy "Patients can manage their medical profiles" on medical_profiles f
 create policy "Patients can view their prescriptions" on prescriptions for select using (auth.uid() = patient_id);
 create policy "Doctors can insert prescriptions" on prescriptions for insert with check (auth.uid() = doctor_id);
 create policy "Doctors can view prescriptions" on prescriptions for select using (auth.uid() = doctor_id);
+create policy "Doctors can insert consultation notes" on consultation_notes for insert with check (auth.uid() = doctor_id);
+create policy "Doctors can view their consultation notes" on consultation_notes for select using (auth.uid() = doctor_id);
+create policy "Patients can view their consultation notes" on consultation_notes for select using (auth.uid() = patient_id);
+create policy "Admins can view all consultation notes" on consultation_notes for select using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
 create policy "Admins can manage notification settings" on admin_notification_settings for all using (auth.uid() = admin_id);
 create policy "Patients and doctors can view health records" on health_records for select using (auth.uid() = patient_id or auth.uid() = doctor_id);
 create policy "Doctors can create health records" on health_records for insert with check (auth.uid() = doctor_id);
@@ -1605,6 +1620,11 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_profiles TO service_role;
 GRANT SELECT ON public.prescriptions TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.prescriptions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.prescriptions TO service_role;
+
+-- consultation_notes
+GRANT SELECT ON public.consultation_notes TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO service_role;
 
 -- admin_notification_settings
 GRANT SELECT ON public.admin_notification_settings TO anon;
