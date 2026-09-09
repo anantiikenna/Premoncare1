@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class PermissionScreen extends StatelessWidget {
   const PermissionScreen({super.key});
@@ -27,6 +28,8 @@ class PermissionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.surfaceOf(context),
       appBar: AppBar(
@@ -37,7 +40,7 @@ class PermissionScreen extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Permissions',
+          loc.permissions,
           style: TextStyle(
             color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.bold,
@@ -124,7 +127,7 @@ class PermissionScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             Text(
-              'We need a couple of\npermissions to make your\nexperience seamless',
+              loc.permissionsDescription,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 26,
@@ -136,7 +139,7 @@ class PermissionScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'These permissions help us provide secure video\nconsultations and keep you updated on important\ninformation.',
+              loc.permissionsExplanation,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -150,9 +153,9 @@ class PermissionScreen extends StatelessWidget {
               icon: Icons.videocam_rounded,
               iconBgColor: AppColors.primary.withValues(alpha: 0.1),
               iconColor: AppColors.primary,
-              title: 'Allow camera for consultations',
-              description: 'Use your camera to connect face-to-face with doctors during video consultations for a better experience.',
-              note: 'Your video is private and encrypted end-to-end.',
+              title: loc.allowCamera,
+              description: loc.allowCameraDescription,
+              note: loc.videoPrivateEncrypted,
               noteIcon: Icons.verified_user_rounded,
               noteColor: AppColors.primary,
               onTap: () => Permission.camera.request(),
@@ -162,9 +165,9 @@ class PermissionScreen extends StatelessWidget {
               icon: Icons.notifications_rounded,
               iconBgColor: AppColors.successLightOf(context),
               iconColor: AppColors.success,
-              title: 'Enable notifications for updates',
-              description: 'Get timely updates about appointments, reminders, test results, prescriptions and important alerts.',
-              note: 'You can change this anytime in settings.',
+              title: loc.enableNotifications,
+              description: loc.enableNotificationsDescription,
+              note: loc.changeSettingsLater,
               noteIcon: Icons.check_circle_rounded,
               noteColor: AppColors.success,
               onTap: () => FirebaseMessaging.instance.requestPermission(),
@@ -183,14 +186,14 @@ class PermissionScreen extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.verified_user_outlined, size: 20),
-                    SizedBox(width: 10),
+                    const Icon(Icons.verified_user_outlined, size: 20),
+                    const SizedBox(width: 10),
                     Text(
-                      'Enable All & Continue',
-                      style: TextStyle(
+                      loc.enableAllAndContinue,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -207,7 +210,7 @@ class PermissionScreen extends StatelessWidget {
                 if (context.mounted) context.go('/patient_dashboard');
               },
               child: Text(
-                'Maybe Later',
+                loc.maybeLater,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
@@ -242,7 +245,7 @@ class PermissionScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Your privacy matters',
+                          loc.privacyMatters,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
@@ -251,7 +254,7 @@ class PermissionScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'We only use permissions to improve your healthcare experience.',
+                          loc.privacyMattersDescription,
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondaryOf(context),

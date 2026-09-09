@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -18,33 +19,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
   int _currentPage = 0;
 
   late final AnimationController _floatController;
-
-  final List<_OnboardingItem> _pages = const [
-    _OnboardingItem(
-      title: 'Book verified\ndoctors instantly',
-      highlight: 'instantly',
-      text: 'Find and book trusted doctors in just a few taps.',
-      image: 'assets/onboarding_1.png',
-      icon: Icons.verified_rounded,
-      color: AppColors.primary,
-    ),
-    _OnboardingItem(
-      title: 'Secure video\nconsultations',
-      highlight: 'consultations',
-      text: 'Talk to your doctor securely from the comfort of your home.',
-      image: 'assets/onboarding_2.png',
-      icon: Icons.videocam_rounded,
-      color: AppColors.primary,
-    ),
-    _OnboardingItem(
-      title: 'Pay with\ntime credits',
-      highlight: 'time credits',
-      text: 'Use time credits for consultations - simple, transparent, and fair.',
-      image: 'assets/onboarding_3.png',
-      icon: Icons.access_time_filled_rounded,
-      color: AppColors.primary,
-    ),
-  ];
 
   @override
   void initState() {
@@ -72,10 +46,42 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     if (mounted) context.go(route);
   }
 
+  List<_OnboardingItem> _buildPages(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return [
+      _OnboardingItem(
+        title: loc.onboardingTitle1,
+        highlight: 'instantly',
+        text: loc.onboardingText1,
+        image: 'assets/onboarding_1.png',
+        icon: Icons.verified_rounded,
+        color: AppColors.primary,
+      ),
+      _OnboardingItem(
+        title: loc.onboardingTitle2,
+        highlight: 'consultations',
+        text: loc.onboardingText2,
+        image: 'assets/onboarding_2.png',
+        icon: Icons.videocam_rounded,
+        color: AppColors.primary,
+      ),
+      _OnboardingItem(
+        title: loc.onboardingTitle3,
+        highlight: 'time credits',
+        text: loc.onboardingText3,
+        image: 'assets/onboarding_3.png',
+        icon: Icons.access_time_filled_rounded,
+        color: AppColors.primary,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final page = _pages[_currentPage];
+    final pages = _buildPages(context);
+    final page = pages[_currentPage];
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.surfaceOf(context),
@@ -110,9 +116,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                       Image.asset('assets/logo-symbol.png', height: 42, fit: BoxFit.contain, errorBuilder: (context, error, stackTrace) => Icon(Icons.health_and_safety_rounded, size: 32, color: AppColors.primary)),
                       TextButton.icon(
                         onPressed: () => _goTo('/login'),
-                        label: const Text(
-                          'Skip',
-                          style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w800),
+                        label: Text(
+                          loc.skipLabel,
+                          style: const TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w800),
                         ),
                         icon: const Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 18),
                         iconAlignment: IconAlignment.end,
@@ -124,10 +130,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (index) => setState(() => _currentPage = index),
-                    itemCount: _pages.length,
+                    itemCount: pages.length,
                     itemBuilder: (context, index) {
                       return _OnboardingSlide(
-                        item: _pages[index],
+                        item: pages[index],
                         animation: _floatController,
                         viewportHeight: size.height,
                       );
@@ -138,16 +144,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                   padding: const EdgeInsets.fromLTRB(30, 0, 30, 28),
                   child: Column(
                     children: [
-                      _PageDots(count: _pages.length, current: _currentPage, activeColor: page.color),
+                      _PageDots(count: pages.length, current: _currentPage, activeColor: page.color),
                       const SizedBox(height: 28),
                       _PrimaryAction(
-                        label: 'Get Started',
+                        label: loc.getStarted,
                         icon: page.icon,
                         color: page.color,
                         onPressed: () => _goTo('/register'),
                       ),
                       const SizedBox(height: 14),
-                      _LoginAction(onPressed: () => _goTo('/login')),
+                      _LoginAction(label: loc.loginLabel, onPressed: () => _goTo('/login')),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -360,9 +366,10 @@ class _PrimaryAction extends StatelessWidget {
 }
 
 class _LoginAction extends StatelessWidget {
+  final String label;
   final VoidCallback onPressed;
 
-  const _LoginAction({required this.onPressed});
+  const _LoginAction({required this.label, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -386,7 +393,7 @@ class _LoginAction extends StatelessWidget {
             ),
             SizedBox(width: 18),
             Text(
-              'Login',
+              label,
               style: TextStyle(color: AppColors.primary, fontSize: 17, fontWeight: FontWeight.w900),
             ),
           ],
