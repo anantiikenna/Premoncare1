@@ -422,7 +422,7 @@ class _FacialStep extends ConsumerWidget {
             }
           },
           icon: const Icon(Icons.camera_alt_rounded),
-          label: const Text('Capture Selfie'),
+          label: const Text\('Capture\ Selfie'\),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.surfaceAltOf(context),
             foregroundColor: AppColors.primary,

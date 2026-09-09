@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'admin_scaffold.dart';
 import 'admin_shared_widgets.dart';
 
@@ -28,14 +29,15 @@ class _AdminAuditTimelineScreenState
   int _financialCount = 0;
   int _infoCount = 0;
 
-  String _selectedFilter = 'All Logs';
+  int _selectedFilterIndex = 0;
 
-  static const Map<String, String> _filterToActionType = {
-    'Verification': 'verification',
-    'Financial': 'financial',
-    'Security': 'security',
-    'System': 'system',
-  };
+  static const List<String> _filterActionTypes = [
+    '',
+    'verification',
+    'financial',
+    'security',
+    'system',
+  ];
 
   @override
   void initState() {
@@ -114,11 +116,11 @@ class _AdminAuditTimelineScreenState
   }
 
   void _applyFilter() {
-    if (_selectedFilter == 'All Logs') {
+    if (_selectedFilterIndex == 0) {
       _filteredLogs = List.from(_logs);
     } else {
-      final actionType = _filterToActionType[_selectedFilter];
-      if (actionType != null) {
+      final actionType = _filterActionTypes[_selectedFilterIndex];
+      if (actionType.isNotEmpty) {
         _filteredLogs = _logs
             .where((l) => l['action_type'] == actionType)
             .toList();
@@ -135,33 +137,25 @@ class _AdminAuditTimelineScreenState
     return '$h:$min $ampm';
   }
 
-  String _timeAgo(DateTime dt) {
+  String _timeAgo(DateTime dt, BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 60) return loc.minutesAgoShort(diff.inMinutes);
+    if (diff.inHours < 24) return loc.hoursAgoShort(diff.inHours);
+    if (diff.inDays < 7) return loc.daysAgoShort(diff.inDays);
     return '${dt.month}/${dt.day}/${dt.year}';
   }
 
-  String _formatDateHeader(DateTime dt) {
+  String _formatDateHeader(DateTime dt, BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(dt.year, dt.month, dt.day);
-    if (target == today) return 'Today';
-    if (target == today.subtract(const Duration(days: 1))) return 'Yesterday';
+    if (target == today) return loc.todayLabel;
+    if (target == today.subtract(const Duration(days: 1))) return loc.yesterday;
     const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
     return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }

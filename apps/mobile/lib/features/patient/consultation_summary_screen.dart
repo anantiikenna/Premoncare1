@@ -1,71 +1,311 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 import '../../core/app_colors.dart';
-import '../../shared/widgets/mesh_circle.dart';
+import '../../l10n/app_localizations.dart';
+import '../../core/user_facing_errors.dart';
+import 'patient_providers.dart';
 
+class ConsultationSummaryScreen extends ConsumerStatefulWidget {
+  final Map<String, dynamic> appointmentData;
 
-class ConsultationSummaryScreen extends ConsumerWidget {
-  final String appointmentId;
-  final String? doctorName;
-  final String? doctorSpecialty;
-  const ConsultationSummaryScreen({super.key, required this.appointmentId, this.doctorName, this.doctorSpecialty});
+  const ConsultationSummaryScreen({super.key, required this.appointmentData});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final primaryColor = AppColors.primary;
-    final successColor = AppColors.success;
+  ConsumerState<ConsultationSummaryScreen> createState() =>
+      _ConsultationSummaryScreenState();
+}
+
+class _ConsultationSummaryScreenState
+    extends ConsumerState<ConsultationSummaryScreen> {
+  String? _selectedRating;
+  final _commentController = TextEditingController();
+  bool _isAnonymous = false;
+  bool _isSubmittingReview = false;
+  String? _reviewSubmittedError;
+
+  String get _doctorName => widget.appointmentData['doctor_name'] ?? 'Doctor';
+  String get _doctorId => widget.appointmentData['doctor_id'] ?? '';
+  String get _appointmentId =>
+      widget.appointmentData['appointment_id'] ?? const Uuid().v4();
+  double get _fee =>
+      (widget.appointmentData['fee'] as num?)?.toDouble() ?? 15000.0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitReview() async {
+    if (_selectedRating == null) return;
+
+    setState(() {
+      _isSubmittingReview = true;
+      _reviewSubmittedError = null;
+    });
+
+    try {
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) throw Exception('User not authenticated');
+
+      final ratingValue = int.parse(_selectedRating!);
+
+      await supabase.from('reviews').insert({
+        'patient_id': userId,
+        'doctor_id': _doctorId,
+        'appointment_id': _appointmentId,
+        'rating': ratingValue,
+        'comment': _commentController.text.trim(),
+        'is_anonymous': _isAnonymous,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      final response = await supabase
+          .from('profiles')
+          .select('average_rating, total_reviews')
+          .eq('id', _doctorId)
+          .single();
+
+      final currentAvg = (response['average_rating'] as num?)?.toDouble() ?? 0.0;
+      final currentTotal = (response['total_reviews'] as num?)?.toInt() ?? 0;
+
+      final newTotal = currentTotal + 1;
+      final newAvg = ((currentAvg * currentTotal) + ratingValue) / newTotal;
+
+      await supabase.from('profiles').update({
+        'average_rating': double.parse(newAvg.toStringAsFixed(1)),
+        'total_reviews': newTotal,
+      }).eq('id', _doctorId);
+
+      ref.invalidate(patientAppointmentsProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.reviewSubmitted,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                color: AppColors.textInverse,
+              ),
+            ),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+
+        setState(() {
+          _selectedRating = null;
+          _commentController.clear();
+          _isAnonymous = false;
+        });
+      }
+    } catch (e, stackTrace) {
+      logHandledError('Failed to submit review', e, stackTrace);
+      if (mounted) {
+        setState(() {
+          _reviewSubmittedError = userFacingError(
+            e,
+            fallback: 'Failed to submit review. Please try again.',
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmittingReview = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dateFormat = DateFormat('EEEE, MMMM d, yyyy');
+    final timeFormat = DateFormat('h:mm a');
+    final dateStr = dateFormat.format(DateTime.now());
+    final timeStr = timeFormat.format(DateTime.now());
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
-      body: Stack(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 24),
+                      _buildCompletionHeader(context),
+                      const SizedBox(height: 24),
+                      _buildDoctorCard(context),
+                      const SizedBox(height: 24),
+                      _buildDetailsCard(context, dateStr, timeStr),
+                      const SizedBox(height: 24),
+                      _buildPaymentReceiptSection(context),
+                      const SizedBox(height: 24),
+                      _buildReviewSection(context),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Positioned(top: -150, left: -100, child: MeshCircle(color: primaryColor.withValues(alpha: 0.1), size: 500)),
-          Positioned(bottom: -100, right: -50, child: MeshCircle(color: successColor.withValues(alpha: 0.05), size: 400)),
+          GestureDetector(
+            onTap: () => context.go('/patient/dashboard'),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceOf(context),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderOf(context)),
+              ),
+              child: Icon(
+                Icons.close_rounded,
+                color: AppColors.textPrimaryOf(context),
+                size: 20,
+              ),
+            ),
+          ),
+          Text(
+            AppLocalizations.of(context)!.consultationComplete,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
+          const SizedBox(width: 44),
+        ],
+      ),
+    );
+  }
 
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildAppBar(context),
-                  const SizedBox(height: 24),
-                  Text('SESSION FINALIZED', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-                  const SizedBox(height: 12),
-                  Text('Summary Report', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
-                  const SizedBox(height: 32),
+  Widget _buildCompletionHeader(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            color: AppColors.success.withValues(alpha: 0.08),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.check_circle_rounded,
+            color: AppColors.success,
+            size: 80,
+          ),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          AppLocalizations.of(context)!.consultationSuccessful,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          AppLocalizations.of(context)!.sessionCompletedMessage,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textTertiaryOf(context),
+            height: 1.5,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
 
-                  _SuccessHub(successColor: successColor),
-                  const SizedBox(height: 40),
-
-                  _buildSectionTitle(context, 'CONSULTING SPECIALIST'),
-                  const SizedBox(height: 16),
-                  _SpecialistSummaryCard(primaryColor: primaryColor, doctorName: doctorName, doctorSpecialty: doctorSpecialty),
-                  const SizedBox(height: 40),
-
-                  _buildSectionTitle(context, 'CLINICAL PRESCRIPTION'),
-                  const SizedBox(height: 16),
-                  _PrescriptionFeed(),
-                  const SizedBox(height: 40),
-
-                  _buildSectionTitle(context, 'DOCTOR\'S OBSERVATIONS'),
-                  const SizedBox(height: 16),
-                  _ObservationModule(),
-                  const SizedBox(height: 40),
-
-                  _FollowUpHub(primaryColor: primaryColor),
-                  const SizedBox(height: 40),
-
-                  _buildSectionTitle(context, 'EXPERIENCE RATING'),
-                  const SizedBox(height: 16),
-                  _FeedbackModule(),
-                  const SizedBox(height: 48),
-
-                  _ActionHub(context: context, primaryColor: primaryColor),
-                  const SizedBox(height: 40),
-                ],
+  Widget _buildDoctorCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              Icons.person_rounded,
+              color: AppColors.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _doctorName,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
+                Text(
+                  AppLocalizations.of(context)!.videoCall,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.success.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.completed,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: AppColors.success,
               ),
             ),
           ),
@@ -74,263 +314,368 @@ class ConsultationSummaryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Text(title, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5));
-  }
-
-  Widget _buildAppBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          GestureDetector(
-            onTap: () => context.pop(),
-            child: Container(width: 48, height: 48, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))), child: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context), size: 20)),
-          ),
-          Container(width: 48, height: 48, decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))), child: Icon(Icons.share_rounded, color: AppColors.textPrimaryOf(context), size: 20)),
-        ],
-      ),
-    );
-  }
-}
-
-class _SuccessHub extends StatelessWidget {
-  final Color successColor;
-  const _SuccessHub({required this.successColor});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildDetailsCard(BuildContext context, String dateStr, String timeStr) {
     return Container(
-      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [successColor, successColor.withValues(alpha: 0.8)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [BoxShadow(color: successColor.withValues(alpha: 0.25), blurRadius: 40, offset: const Offset(0, 20))],
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
-      padding: const EdgeInsets.all(32),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle), child: const Icon(Icons.verified_rounded, color: Colors.white, size: 32)),
-          const SizedBox(width: 24),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Session Complete', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-                SizedBox(height: 4),
-                Text('Your clinical encounter has been verified and securely archived.', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700, height: 1.4)),
-              ],
+          Text(
+            AppLocalizations.of(context)!.appointmentDetails,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            context,
+            Icons.calendar_today_rounded,
+            AppLocalizations.of(context)!.date,
+            dateStr,
+          ),
+          const SizedBox(height: 12),
+          _buildDetailRow(
+            context,
+            Icons.access_time_rounded,
+            AppLocalizations.of(context)!.timeLabel,
+            timeStr,
+          ),
+          const SizedBox(height: 12),
+          _buildDetailRow(
+            context,
+            Icons.timer_rounded,
+            AppLocalizations.of(context)!.sessionDurationLabel,
+            '30 mins',
+          ),
         ],
       ),
     );
   }
-}
 
-class _SpecialistSummaryCard extends StatelessWidget {
-  final Color primaryColor;
-  final String? doctorName;
-  final String? doctorSpecialty;
-  const _SpecialistSummaryCard({required this.primaryColor, this.doctorName, this.doctorSpecialty});
+  Widget _buildDetailRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 18),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textTertiaryOf(context),
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+          ),
+        ),
+      ],
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPaymentReceiptSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
-      child: Row(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.receipt_long_rounded,
+                  color: AppColors.success,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                AppLocalizations.of(context)!.digitalReceipt,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildReceiptRow(
+            context,
+            AppLocalizations.of(context)!.doctorConsultation,
+            _doctorName,
+          ),
+          const SizedBox(height: 12),
+          _buildReceiptRow(
+            context,
+            AppLocalizations.of(context)!.consultationType,
+            AppLocalizations.of(context)!.videoCall,
+          ),
+          const SizedBox(height: 12),
+          _buildReceiptRow(context, AppLocalizations.of(context)!.statusLabel, AppLocalizations.of(context)!.completed),
+          const SizedBox(height: 12),
+          _buildReceiptRow(context, AppLocalizations.of(context)!.amountPaid, '₦${_fee.toInt()}'),
+          const SizedBox(height: 20),
           Container(
-            width: 72, height: 72,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(24),
+              color: AppColors.success.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.success.withValues(alpha: 0.1),
+              ),
             ),
-            child: Center(
-              child: Text('A', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.primary)),
-            ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(doctorName ?? '', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
-                const SizedBox(height: 4),
-                Text(doctorSpecialty ?? 'General Medical Physician', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.success,
+                  size: 18,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.paymentConfirmed,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.success,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)), child: Text('VERIFIED', style: TextStyle(color: primaryColor, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5))),
         ],
       ),
     );
   }
-}
 
-class _PrescriptionFeed extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget _buildReceiptRow(
+    BuildContext context,
+    String label,
+    String value,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _MedicationModule(name: 'Amoxicillin 500mg', instructions: '1 CAPSULE • 3X DAILY • POST-PRANDIAL', duration: '7 DAYS', color: AppColors.primary),
-        _MedicationModule(name: 'Paracetamol 500mg', instructions: '1 TABLET • AS REQUIRED • PAIN MANAGEMENT', duration: '5 DAYS', color: AppColors.info),
-        _MedicationModule(name: 'Cetirizine 10mg', instructions: '1 TABLET • 1X DAILY • NOCTURNAL', duration: '7 DAYS', color: AppColors.primary),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textTertiaryOf(context),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
+          ),
+        ),
       ],
     );
   }
-}
 
-class _MedicationModule extends StatelessWidget {
-  final String name;
-  final String instructions;
-  final String duration;
-  final Color color;
-
-  const _MedicationModule({required this.name, required this.instructions, required this.duration, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildReviewSection(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
-      child: Row(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)), child: Icon(Icons.medication_rounded, color: color, size: 22)),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.3)),
-                const SizedBox(height: 4),
-                Text(instructions, style: TextStyle(fontSize: 10, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w800, letterSpacing: 0.5)),
-              ],
+          Text(
+            AppLocalizations.of(context)!.rateExperience,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
-          Text(duration, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textTertiaryOf(context), letterSpacing: 0.5)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ObservationModule extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
-      child: Text(
-        'Presenting symptoms indicate a mild upper respiratory tract infection. Essential to maintain high hydration levels and strict adherence to the antimicrobial regimen. Re-evaluate if clinical status remains unchanged after 5 days.',
-        style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), height: 1.6, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-}
-
-class _FollowUpHub extends StatelessWidget {
-  final Color primaryColor;
-  const _FollowUpHub({required this.primaryColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: primaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(32), border: Border.all(color: primaryColor.withValues(alpha: 0.1))),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('NEXT EVALUATION', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: primaryColor, letterSpacing: 1)),
-                const SizedBox(height: 6),
-                Text('Scheduled in 7 days to monitor clinical trajectory.', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700, height: 1.4)),
-              ],
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(5, (index) {
+              final value = (index + 1).toString();
+              final isSelected = _selectedRating == value;
+              return GestureDetector(
+                onTap: () => setState(() => _selectedRating = value),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(
+                    isSelected
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    color: isSelected
+                        ? AppColors.warning
+                        : AppColors.textTertiaryOf(context),
+                    size: 40,
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _commentController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.addComment,
+              hintStyle: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textTertiaryOf(context),
+              ),
+              filled: true,
+              fillColor: AppColors.surfaceAltOf(context),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.borderOf(context)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.borderOf(context)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.primary, width: 2),
+              ),
+            ),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
-          const SizedBox(width: 16),
-          ElevatedButton(
-            onPressed: () => context.go('/doctor-search'),
-            style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: AppColors.textInverse, elevation: 10, shadowColor: primaryColor.withValues(alpha: 0.3), padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-            child: const Text('SCHEDULE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: Checkbox(
+                  value: _isAnonymous,
+                  onChanged: (value) => setState(() => _isAnonymous = value ?? false),
+                  activeColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                AppLocalizations.of(context)!.postAnonymously,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondaryOf(context),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeedbackModule extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(5, (index) => Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.star_rounded, color: AppColors.warning, size: 32))),
-      ),
-    );
-  }
-}
-
-class _ActionHub extends StatelessWidget {
-  final BuildContext context;
-  final Color primaryColor;
-  const _ActionHub({required this.context, required this.primaryColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: _SecondaryAction(icon: Icons.picture_as_pdf_rounded, label: 'PDF REPORT')),
-            const SizedBox(width: 16),
-            Expanded(child: _SecondaryAction(icon: Icons.share_rounded, label: 'SHARE LINK')),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed:
+                  _selectedRating == null || _isSubmittingReview
+                      ? null
+                      : _submitReview,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.textInverse,
+                elevation: 0,
+                disabledBackgroundColor:
+                    AppColors.primary.withValues(alpha: 0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child:
+                  _isSubmittingReview
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: AppColors.textInverse,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Text(
+                          AppLocalizations.of(context)!.submitReview,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+            ),
+          ),
+          if (_reviewSubmittedError != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _reviewSubmittedError!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          height: 64,
-          child: ElevatedButton(
-            onPressed: () => context.go('/account-conversion'),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimaryOf(context), foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
-            child: const Text('DISMISS REPORT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 0.5)),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SecondaryAction extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _SecondaryAction({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.borderOf(context))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 20, color: AppColors.textSecondaryOf(context)),
-          const SizedBox(width: 12),
-          Text(label, style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), fontSize: 12, letterSpacing: 0.5)),
         ],
       ),
     );
   }
 }
-
-

@@ -141,7 +141,7 @@ class _AdminEmergencyQueueScreenState
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => ref.invalidate(adminEmergencyRequestsProvider),
-                child: const Text('Retry'),
+                child: const Text\(AppLocalizations.of(context)!.retryLabel\),
               ),
             ],
           ),

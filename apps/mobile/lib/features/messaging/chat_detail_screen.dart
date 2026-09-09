@@ -261,7 +261,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       controller: _messageController,
                       maxLines: null,
                       decoration: InputDecoration(
-                        hintText: 'Type a message...',
+                        hintText: 'Type\ a\ message\.\.\.',
                         hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

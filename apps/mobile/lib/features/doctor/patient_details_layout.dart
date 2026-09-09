@@ -166,7 +166,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
         title: const Text('Block Patient'),
         content: const Text('Are you sure you want to block this patient? They won\'t be able to book consultations with you.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);

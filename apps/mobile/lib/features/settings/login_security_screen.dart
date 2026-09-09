@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 
 class LoginSecurityScreen extends StatefulWidget {
@@ -24,7 +25,7 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Login & Security', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.loginAndSecurityTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -32,14 +33,14 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('ACCOUNT', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+            Text(AppLocalizations.of(context)!.accountSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
             const SizedBox(height: 12),
             _buildTile(
               icon: Icons.email_outlined,
               color: AppColors.primary,
-              title: 'Email',
+              title: AppLocalizations.of(context)!.emailLabel,
               subtitle: supabase.auth.currentUser?.email ?? '',
-              trailing: Text('Verified', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
+              trailing: Text(AppLocalizations.of(context)!.verifiedStatus, style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
             ),
             const SizedBox(height: 16),
             Container(
@@ -56,7 +57,7 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Premoncare uses email verification codes (OTP) for secure sign-in. No password is required.',
+                    AppLocalizations.of(context)!.otpInfoDescription,
                       style: AppTypography.bodySmallOf(context).copyWith(height: 1.4),
                     ),
                   ),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart' show supabase;
 import '../../core/user_facing_errors.dart';
+import '../../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -52,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen>
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email address')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterEmail)),
       );
       return;
     }
@@ -68,9 +69,9 @@ class _LoginScreenState extends State<LoginScreen>
 
       if (profile == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'No account found with this email. Please sign up first.',
+              AppLocalizations.of(context)!.noAccountFound,
             ),
             backgroundColor: AppColors.error,
           ),
@@ -80,9 +81,9 @@ class _LoginScreenState extends State<LoginScreen>
 
       if (profile['role'] == 'admin') {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'No account found with this email. Please sign up first.',
+              AppLocalizations.of(context)!.noAccountFound,
             ),
             backgroundColor: AppColors.error,
           ),
@@ -189,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'SECURE CLINICAL ECOSYSTEM',
+                          AppLocalizations.of(context)!.secureClinicalEcosystem,
                           style: TextStyle(
                             color: AppColors.textSecondaryOf(context),
                             fontSize: 12,
@@ -201,12 +202,12 @@ class _LoginScreenState extends State<LoginScreen>
 
                         _ClinicalInput(
                           controller: _emailController,
-                          hint: 'Clinical Email Address',
+                          hint: AppLocalizations.of(context)!.clinicalEmailAddress,
                           icon: Icons.person_rounded,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'We\'ll send a seven digit one-time code to your email to log you in securely.',
+                          AppLocalizations.of(context)!.otpLoginDescription,
                           style: TextStyle(
                             color: AppColors.textSecondaryOf(context),
                             fontSize: 12,
@@ -238,11 +239,11 @@ class _LoginScreenState extends State<LoginScreen>
                                     color: AppColors.textInverse,
                                     strokeWidth: 3,
                                   )
-                                : const Row(
+                                : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'SEND OTP CODE',
+                                        AppLocalizations.of(context)!.sendOtpCode,
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w900,
@@ -260,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
 
                         const SizedBox(height: 32),
-                        _SectionDivider(label: 'SECURE SOCIAL SYNC'),
+                        _SectionDivider(label: AppLocalizations.of(context)!.secureSocialSync),
                         const SizedBox(height: 24),
 
                         Row(
@@ -268,12 +269,12 @@ class _LoginScreenState extends State<LoginScreen>
                             Expanded(
                               child: _SocialSyncCard(
                                 icon: Icons.g_mobiledata_rounded,
-                                label: 'GOOGLE',
+                                label: AppLocalizations.of(context)!.google,
                                 onTap: () =>
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
                                         content: Text(
-                                          'Google Sign-In will be available in the next update. Use email sign-in to continue.',
+                                          AppLocalizations.of(context)!.googleSignInUnavailable,
                                         ),
                                       ),
                                     ),
@@ -283,12 +284,12 @@ class _LoginScreenState extends State<LoginScreen>
                             Expanded(
                               child: _SocialSyncCard(
                                 icon: Icons.apple_rounded,
-                                label: 'APPLE',
+                                label: AppLocalizations.of(context)!.apple,
                                 onTap: () =>
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
                                         content: Text(
-                                          'Apple Sign-In will be available in the next update. Use email sign-in to continue.',
+                                          AppLocalizations.of(context)!.appleSignInUnavailable,
                                         ),
                                       ),
                                     ),
@@ -302,7 +303,7 @@ class _LoginScreenState extends State<LoginScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "NO CLINICAL ACCOUNT? ",
+                              AppLocalizations.of(context)!.noClinicalAccount,
                               style: TextStyle(
                                 color: AppColors.textSecondaryOf(context),
                                 fontWeight: FontWeight.w800,
@@ -312,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen>
                             GestureDetector(
                               onTap: () => context.push('/register'),
                               child: Text(
-                                'CREATE ACCESS',
+                                AppLocalizations.of(context)!.createAccess,
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w900,
@@ -338,7 +339,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              'HIPAA COMPLIANT & AES-256 ENCRYPTED',
+                              AppLocalizations.of(context)!.hipaaCompliantAesEncrypted,
                               style: TextStyle(
                                 color: AppColors.textTertiaryOf(context),
                                 fontSize: 12,
@@ -394,7 +395,7 @@ class _EmergencyBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'EMERGENCY ACCESS',
+                    AppLocalizations.of(context)!.emergencyAccess,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
@@ -404,7 +405,7 @@ class _EmergencyBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Need urgent care? Skip login.',
+                    AppLocalizations.of(context)!.needUrgentCareSkipLogin,
                     style: TextStyle(
                       color: AppColors.textSecondaryOf(context),
                       fontSize: 12,

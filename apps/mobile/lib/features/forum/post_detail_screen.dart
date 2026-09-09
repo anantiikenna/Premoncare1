@@ -36,7 +36,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       _replyController.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Reply posted'), backgroundColor: AppColors.success),
+          SnackBar(content: Text\('Reply\ posted'\), backgroundColor: AppColors.success),
         );
       }
     } catch (e) {
@@ -72,7 +72,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               try {
                 await ForumService.toggleSavePost(widget.postId);
                 if (!mounted) return;
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post saved'), backgroundColor: AppColors.success));
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text\('Post\ saved'\), backgroundColor: AppColors.success));
               } catch (e) {
                 if (!mounted) return;
                 if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
@@ -212,7 +212,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 onPressed: () async {
                   try {
                     await ForumService.toggleFollowPost(post.id);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Follow toggled'), backgroundColor: AppColors.success));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text\('Follow\ toggled'\), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }
@@ -392,7 +392,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 onTap: () async {
                   try {
                     await ForumService.voteReplyHelpful(reply.id);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Marked as helpful'), backgroundColor: AppColors.success));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text\('Marked\ as\ helpful'\), backgroundColor: AppColors.success));
                   } catch (_) {}
                 },
                 child: Row(
@@ -517,7 +517,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 controller: _replyController,
                 maxLines: null,
                 decoration: InputDecoration(
-                  hintText: 'Write a reply...',
+                  hintText: 'Write\ a\ reply\.\.\.',
                   hintStyle: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14),
                   border: InputBorder.none,
                 ),
@@ -561,15 +561,15 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             ),
             ListTile(
               leading: Icon(Icons.share_outlined, color: AppColors.primary),
-              title: const Text('Share Post'),
+              title: const Text\('Share\ Post'\),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post link copied to clipboard'), backgroundColor: AppColors.success));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text\('Post\ link\ copied\ to\ clipboard'\), backgroundColor: AppColors.success));
               },
             ),
             ListTile(
               leading: Icon(Icons.flag_outlined, color: AppColors.error),
-              title: const Text('Report Post'),
+              title: const Text\('Report\ Post'\),
               onTap: () async {
                 Navigator.pop(context);
                 if (post != null) {
@@ -577,7 +577,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   final reason = await showDialog<String>(
                     context: context,
                     builder: (dctx) => AlertDialog(
-                      title: const Text('Report Post'),
+                      title: const Text\('Report\ Post'\),
                       content: TextField(
                         controller: reasonController,
                         maxLines: 3,
@@ -587,7 +587,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         ),
                       ),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(dctx), child: const Text('Cancel')),
+                        TextButton(onPressed: () => Navigator.pop(dctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
                         TextButton(
                           onPressed: () => Navigator.pop(dctx, reasonController.text.trim()),
                           child: const Text('Submit', style: TextStyle(color: AppColors.error)),
@@ -599,7 +599,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   if (reason == null || reason.isEmpty) return;
                   try {
                     await ForumService.report(postId: post.id, reason: reason);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post reported'), backgroundColor: AppColors.success));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text\('Post\ reported'\), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }

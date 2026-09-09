@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../main_common.dart';
 
 class AccessibilitySettingsScreen extends ConsumerWidget {
@@ -24,13 +25,13 @@ class AccessibilitySettingsScreen extends ConsumerWidget {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Accessibility', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.accessibilityTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('TEXT SIZE', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.textSizeSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(20),
@@ -41,9 +42,9 @@ class AccessibilitySettingsScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                Text('Preview', style: TextStyle(fontSize: 16 * accessibility.textScale, fontWeight: FontWeight.w800, color: color)),
+                Text(AppLocalizations.of(context)!.previewLabel, style: TextStyle(fontSize: 16 * accessibility.textScale, fontWeight: FontWeight.w800, color: color)),
                 const SizedBox(height: 4),
-                Text('This is how text will appear.', style: TextStyle(fontSize: 14 * accessibility.textScale, color: secondary)),
+                Text(AppLocalizations.of(context)!.previewDescription, style: TextStyle(fontSize: 14 * accessibility.textScale, color: secondary)),
                 const SizedBox(height: 16),
                 Slider(
                   value: accessibility.textScale,
@@ -64,11 +65,11 @@ class AccessibilitySettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Text('DISPLAY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.displaySection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.contrast_rounded, color: AppColors.primary, title: 'High Contrast', subtitle: 'Increase contrast for better visibility', value: accessibility.highContrast, onChanged: (v) => notifier.setHighContrast(v)),
-          _buildToggle(icon: Icons.animation_rounded, color: AppColors.warning, title: 'Reduce Animations', subtitle: 'Minimize motion effects', value: accessibility.reduceAnimations, onChanged: (v) => notifier.setReduceAnimations(v)),
-          _buildToggle(icon: Icons.accessibility_new_rounded, color: AppColors.success, title: 'Screen Reader Hints', subtitle: 'Add extra labels for screen readers', value: accessibility.screenReaderHints, onChanged: (v) => notifier.setScreenReaderHints(v)),
+          _buildToggle(icon: Icons.contrast_rounded, color: AppColors.primary, title: AppLocalizations.of(context)!.highContrast, subtitle: AppLocalizations.of(context)!.highContrastDescription, value: accessibility.highContrast, onChanged: (v) => notifier.setHighContrast(v)),
+          _buildToggle(icon: Icons.animation_rounded, color: AppColors.warning, title: AppLocalizations.of(context)!.reduceAnimations, subtitle: AppLocalizations.of(context)!.reduceAnimationsDescription, value: accessibility.reduceAnimations, onChanged: (v) => notifier.setReduceAnimations(v)),
+          _buildToggle(icon: Icons.accessibility_new_rounded, color: AppColors.success, title: AppLocalizations.of(context)!.screenReaderHints, subtitle: AppLocalizations.of(context)!.screenReaderHintsDescription, value: accessibility.screenReaderHints, onChanged: (v) => notifier.setScreenReaderHints(v)),
         ],
       ),
     );

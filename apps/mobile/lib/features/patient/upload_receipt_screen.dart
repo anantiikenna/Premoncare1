@@ -6,6 +6,7 @@ import 'dart:io';
 
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import '../../l10n/app_localizations.dart';
 
 class UploadReceiptScreen extends ConsumerStatefulWidget {
   final String? appointmentId;
@@ -24,7 +25,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
   final _amountController = TextEditingController();
   final _refController = TextEditingController();
   final _descController = TextEditingController();
-  String _paymentMethod = 'Bank Transfer';
+  String? _paymentMethod;
   bool _isLoading = false;
   String? _selectedDoctorId;
 
@@ -37,6 +38,12 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     if (widget.amount != null) _amountController.text = widget.amount!.toStringAsFixed(0);
     _selectedDoctorId = widget.doctorId;
     _loadDoctors();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _paymentMethod ??= AppLocalizations.of(context)!.bankTransfer;
   }
 
   Future<void> _loadDoctors() async {
@@ -72,15 +79,15 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
 
   Future<void> _submitReceipt() async {
     if (_selectedFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a receipt image first')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectReceipt)));
       return;
     }
     if (_amountController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter the amount paid')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterAmount)));
       return;
     }
     if (_selectedDoctorId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the doctor you are paying')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectDoctor)));
       return;
     }
 
@@ -88,7 +95,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     if (File(_selectedFile!.path).lengthSync() > maxSizeBytes) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File size must be under 5MB')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.fileSizeUnder5MB)),
         );
       }
       return;
@@ -100,7 +107,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     if (amount == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter a valid amount')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterValidAmount)),
         );
       }
       setState(() => _isLoading = false);
@@ -130,14 +137,14 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('Receipt submitted for verification'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(AppLocalizations.of(context)!.receiptSubmitted), backgroundColor: AppColors.success),
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text(AppLocalizations.of(context)!.uploadFailed(e.toString())), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -164,8 +171,8 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
         centerTitle: true,
         title: Column(
           children: [
-            Text('Upload Payment Receipt', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900)),
-            Text('Upload your payment proof for verification', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
+            Text(AppLocalizations.of(context)!.uploadPaymentReceipt, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900)),
+            Text(AppLocalizations.of(context)!.uploadReceiptDescription, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
           ],
         ),
       ),
@@ -192,8 +199,8 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            TextButton(onPressed: _pickFile, child: Text('Change File', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
-                            TextButton(onPressed: () => setState(() => _selectedFile = null), child: Text('Remove', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold))),
+                            TextButton(onPressed: _pickFile, child: Text(AppLocalizations.of(context)!.changeFile, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
+                            TextButton(onPressed: () => setState(() => _selectedFile = null), child: Text(AppLocalizations.of(context)!.remove, style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold))),
                           ],
                         ),
                       ],
@@ -206,13 +213,13 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                           child: Icon(Icons.cloud_upload_outlined, color: AppColors.primary, size: 32),
                         ),
                         const SizedBox(height: 16),
-                        const Text('Upload Receipt', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('JPG, PNG or PDF (Max 5MB)', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 12)),
+                        Text(AppLocalizations.of(context)!.uploadReceipt, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(AppLocalizations.of(context)!.jpgPngPdf, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 12)),
                         const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: _pickFile,
                           style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                          child: const Text('Choose File', style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: Text(AppLocalizations.of(context)!.chooseFile, style: const TextStyle(fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -220,7 +227,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                           children: [
                             Icon(Icons.lock_outline_rounded, size: 14, color: AppColors.textTertiaryOf(context)),
                             const SizedBox(width: 4),
-                            Text('Your data is secure and encrypted', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
+                            Text(AppLocalizations.of(context)!.yourDataSecure, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
                           ],
                         ),
                       ],
@@ -229,13 +236,13 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
             const SizedBox(height: 32),
             _buildDoctorSelector(),
             const SizedBox(height: 20),
-            _buildTextField(label: 'Amount Paid (₦)', hint: '18000', controller: _amountController, keyboardType: TextInputType.number),
+            _buildTextField(label: AppLocalizations.of(context)!.amountPaid, hint: '18000', controller: _amountController, keyboardType: TextInputType.number),
             const SizedBox(height: 20),
             _buildDropdownField(),
             const SizedBox(height: 20),
-            _buildTextField(label: 'Transaction Reference (Optional)', hint: 'e.g. 1234567890', controller: _refController),
+            _buildTextField(label: AppLocalizations.of(context)!.transactionReferenceOptional, hint: 'e.g. 1234567890', controller: _refController),
             const SizedBox(height: 20),
-            _buildTextField(label: 'Description (Optional)', hint: 'Add any additional information about this payment', controller: _descController, maxLines: 3),
+            _buildTextField(label: AppLocalizations.of(context)!.descriptionOptional, hint: 'Add any additional information about this payment', controller: _descController, maxLines: 3),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
@@ -244,7 +251,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                 child: _isLoading
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textInverse))
-                    : const Text('Submit for Verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    : Text(AppLocalizations.of(context)!.submitForVerification, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             ),
             const SizedBox(height: 24),
@@ -259,9 +266,9 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Tips for faster verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary)),
-                        Text('• Make sure the amount is clearly visible', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
-                        Text('• Use a clear, well-lit image of the receipt', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
+                        Text(AppLocalizations.of(context)!.tipsFasterVerification, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primary)),
+                        Text(AppLocalizations.of(context)!.amountVisibleTip, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
+                        Text(AppLocalizations.of(context)!.clearImageTip, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11)),
                       ],
                     ),
                   ),
@@ -302,7 +309,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Payment Method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
+        Text(AppLocalizations.of(context)!.paymentMethod, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -311,7 +318,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
             child: DropdownButton<String>(
               value: _paymentMethod,
               isExpanded: true,
-              items: ['Bank Transfer', 'P2P Transfer'].map((String val) {
+              items: [AppLocalizations.of(context)!.bankTransfer, AppLocalizations.of(context)!.p2pTransfer].map((String val) {
                 return DropdownMenuItem<String>(value: val, child: Row(
                   children: [
                     Icon(Icons.account_balance_rounded, size: 18, color: AppColors.textTertiaryOf(context)),
@@ -332,7 +339,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Paying To', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
+        Text(AppLocalizations.of(context)!.payingTo, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
         const SizedBox(height: 8),
         if (_loadingDoctors)
           Container(
@@ -341,7 +348,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
             child: Row(children: [
               SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
               const SizedBox(width: 12),
-              Text('Loading doctors...', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
+              Text(AppLocalizations.of(context)!.loadingDoctors, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
             ]),
           )
         else
@@ -356,7 +363,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                   children: [
                     Icon(Icons.person_outline_rounded, size: 18, color: AppColors.textTertiaryOf(context)),
                     const SizedBox(width: 12),
-                    Text('Select a doctor', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
+                    Text(AppLocalizations.of(context)!.selectDoctor, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14)),
                   ],
                 ),
                 items: _doctors.map((doc) {
@@ -440,7 +447,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                     child: Column(
                       children: [
                         Text('₦${fee.toInt()}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.primary)),
-                        Text('per hour', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.primary.withValues(alpha: 0.7))),
+                        Text(AppLocalizations.of(context)!.perHour, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.primary.withValues(alpha: 0.7))),
                       ],
                     ),
                   ),
@@ -455,7 +462,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
               final instructions = selectedDoc['payment_instructions'] as String?;
               final displayInstructions = (instructions != null && instructions.trim().isNotEmpty)
                   ? instructions
-                  : 'No bank details provided. Please request payment details from the doctor via chat before transferring.';
+                  : AppLocalizations.of(context)!.noBankDetailsProvided;
 
               return Container(
                 padding: const EdgeInsets.all(16),
@@ -471,7 +478,7 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
                       children: [
                         const Icon(Icons.account_balance_rounded, color: AppColors.info, size: 20),
                         const SizedBox(width: 8),
-                        const Text('Payment Instructions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.info)),
+                        Text(AppLocalizations.of(context)!.paymentInstructionsLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.info)),
                       ],
                     ),
                     const SizedBox(height: 8),

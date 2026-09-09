@@ -6,6 +6,7 @@ import 'dart:math' as math;
 
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -163,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Secure healthcare, simplified',
+                          AppLocalizations.of(context)!.secureHealthcareSimplified,
                           style: TextStyle(
                             color: AppColors.textSecondaryOf(context),
                             fontSize: 15,

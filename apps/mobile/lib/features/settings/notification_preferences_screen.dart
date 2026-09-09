@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 
 class NotificationPreferencesScreen extends StatefulWidget {
@@ -72,25 +73,25 @@ class _NotificationPreferencesScreenState extends State<NotificationPreferencesS
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Notification Preferences', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.notificationPreferencesTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('CHANNELS', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.channelsSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggleTile(icon: Icons.notifications_active_rounded, color: AppColors.primary, title: 'Push Notifications', subtitle: 'Receive alerts on your device', value: _pushEnabled, onChanged: (v) { setState(() => _pushEnabled = v); _savePreference('notif_push', v); }),
-          _buildToggleTile(icon: Icons.email_outlined, color: AppColors.warning, title: 'Email Notifications', subtitle: 'Receive alerts via email', value: _emailEnabled, onChanged: (v) { setState(() => _emailEnabled = v); _savePreference('notif_email', v); }),
+          _buildToggleTile(icon: Icons.notifications_active_rounded, color: AppColors.primary, title: AppLocalizations.of(context)!.pushNotificationsLabel, subtitle: AppLocalizations.of(context)!.receiveAlertsOnDevice, value: _pushEnabled, onChanged: (v) { setState(() => _pushEnabled = v); _savePreference('notif_push', v); }),
+          _buildToggleTile(icon: Icons.email_outlined, color: AppColors.warning, title: AppLocalizations.of(context)!.emailNotificationsLabel, subtitle: AppLocalizations.of(context)!.receiveAlertsViaEmail, value: _emailEnabled, onChanged: (v) { setState(() => _emailEnabled = v); _savePreference('notif_email', v); }),
           const SizedBox(height: 24),
-          Text('CATEGORIES', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.categoriesSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggleTile(icon: Icons.calendar_today_rounded, color: AppColors.success, title: 'Appointment Alerts', subtitle: 'Reminders for upcoming consultations', value: _appointmentAlerts, onChanged: (v) { setState(() => _appointmentAlerts = v); _savePreference('notif_appointments', v); }),
-          _buildToggleTile(icon: Icons.payment_rounded, color: AppColors.info, title: 'Payment Alerts', subtitle: 'Transaction confirmations and receipts', value: _paymentAlerts, onChanged: (v) { setState(() => _paymentAlerts = v); _savePreference('notif_payments', v); }),
-_buildToggleTile(icon: Icons.medical_services_rounded, color: AppColors.primary, title: 'Clinical Updates', subtitle: 'Prescription updates and health records', value: _clinicalAlerts, onChanged: (v) { setState(() => _clinicalAlerts = v); _savePreference('notif_clinical', v); }),
-_buildToggleTile(icon: Icons.forum_rounded, color: AppColors.pink, title: 'Forum Updates', subtitle: 'Replies and mentions in the community', value: _forumUpdates, onChanged: (v) { setState(() => _forumUpdates = v); _savePreference('notif_forum', v); }),
-          _buildToggleTile(icon: Icons.emergency_rounded, color: AppColors.error, title: 'Emergency Alerts', subtitle: 'Critical emergency notifications', value: _emergencyAlerts, onChanged: (v) { setState(() => _emergencyAlerts = v); _savePreference('notif_emergency', v); }),
-          _buildToggleTile(icon: Icons.campaign_rounded, color: AppColors.textTertiaryOf(context), title: 'Marketing Emails', subtitle: 'Product updates and health tips', value: _marketingEmails, onChanged: (v) { setState(() => _marketingEmails = v); _savePreference('notif_marketing', v); }),
+          _buildToggleTile(icon: Icons.calendar_today_rounded, color: AppColors.success, title: AppLocalizations.of(context)!.appointmentAlertsLabel, subtitle: AppLocalizations.of(context)!.remindersForConsultations, value: _appointmentAlerts, onChanged: (v) { setState(() => _appointmentAlerts = v); _savePreference('notif_appointments', v); }),
+          _buildToggleTile(icon: Icons.payment_rounded, color: AppColors.info, title: AppLocalizations.of(context)!.paymentAlertsLabel, subtitle: AppLocalizations.of(context)!.transactionConfirmations, value: _paymentAlerts, onChanged: (v) { setState(() => _paymentAlerts = v); _savePreference('notif_payments', v); }),
+          _buildToggleTile(icon: Icons.medical_services_rounded, color: AppColors.primary, title: AppLocalizations.of(context)!.clinicalUpdatesLabel, subtitle: AppLocalizations.of(context)!.prescriptionUpdatesAndRecords, value: _clinicalAlerts, onChanged: (v) { setState(() => _clinicalAlerts = v); _savePreference('notif_clinical', v); }),
+          _buildToggleTile(icon: Icons.forum_rounded, color: AppColors.pink, title: AppLocalizations.of(context)!.forumUpdatesLabel, subtitle: AppLocalizations.of(context)!.repliesAndMentions, value: _forumUpdates, onChanged: (v) { setState(() => _forumUpdates = v); _savePreference('notif_forum', v); }),
+          _buildToggleTile(icon: Icons.emergency_rounded, color: AppColors.error, title: AppLocalizations.of(context)!.emergencyAlertsLabel, subtitle: AppLocalizations.of(context)!.criticalEmergencyNotifications, value: _emergencyAlerts, onChanged: (v) { setState(() => _emergencyAlerts = v); _savePreference('notif_emergency', v); }),
+          _buildToggleTile(icon: Icons.campaign_rounded, color: AppColors.textTertiaryOf(context), title: AppLocalizations.of(context)!.marketingEmailsLabel, subtitle: AppLocalizations.of(context)!.productUpdatesAndHealthTips, value: _marketingEmails, onChanged: (v) { setState(() => _marketingEmails = v); _savePreference('notif_marketing', v); }),
         ],
       ),
     );

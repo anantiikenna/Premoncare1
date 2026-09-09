@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 
 class DownloadDataScreen extends StatefulWidget {
@@ -60,7 +61,7 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Download My Data', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.downloadMyDataTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
@@ -78,17 +79,17 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                 children: [
                   const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 48),
                   const SizedBox(height: 12),
-                  Text('Data Exported', style: AppTypography.h4Of(context)),
+                  Text(AppLocalizations.of(context)!.dataExportedTitle, style: AppTypography.h4Of(context)),
                   const SizedBox(height: 8),
                   Text(
-                    'Your data has been copied to the clipboard as JSON. You can paste it into a secure document.',
+                    AppLocalizations.of(context)!.dataExportedDescription,
                     style: AppTypography.bodySmallOf(context),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => _requestExport(),
-                    child: const Text('Export Again'),
+                    child: Text(AppLocalizations.of(context)!.exportAgain),
                   ),
                 ],
               ),
@@ -105,10 +106,10 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                 children: [
                   const Icon(Icons.download_rounded, color: AppColors.info, size: 48),
                   const SizedBox(height: 12),
-                  Text('Export Your Data', style: AppTypography.h4Of(context)),
+                  Text(AppLocalizations.of(context)!.exportYourDataTitle, style: AppTypography.h4Of(context)),
                   const SizedBox(height: 8),
                   Text(
-                    'Get a copy of all your health data, consultation history, and account information.',
+                    AppLocalizations.of(context)!.exportDescription,
                     style: AppTypography.bodySmallOf(context),
                     textAlign: TextAlign.center,
                   ),
@@ -116,14 +117,14 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text('WHAT\'S INCLUDED', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+            Text(AppLocalizations.of(context)!.whatsIncludedSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
             const SizedBox(height: 12),
-            _buildIncludedItem(Icons.person_rounded, 'Personal Information'),
-            _buildIncludedItem(Icons.medical_services_rounded, 'Medical Records'),
-            _buildIncludedItem(Icons.calendar_today_rounded, 'Appointment History'),
-            _buildIncludedItem(Icons.chat_rounded, 'Messages & Consultations'),
-            _buildIncludedItem(Icons.receipt_rounded, 'Payment History'),
-            _buildIncludedItem(Icons.forum_rounded, 'Forum Posts & Replies'),
+            _buildIncludedItem(Icons.person_rounded, AppLocalizations.of(context)!.personalInformationMenu),
+            _buildIncludedItem(Icons.medical_services_rounded, AppLocalizations.of(context)!.medicalRecordsMenu),
+            _buildIncludedItem(Icons.calendar_today_rounded, AppLocalizations.of(context)!.appointmentHistory),
+            _buildIncludedItem(Icons.chat_rounded, AppLocalizations.of(context)!.messagesAndConsultations),
+            _buildIncludedItem(Icons.receipt_rounded, AppLocalizations.of(context)!.historyLabel),
+            _buildIncludedItem(Icons.forum_rounded, AppLocalizations.of(context)!.forumPostsAndReplies),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -136,7 +137,7 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                 ),
                 child: _loading
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
-                    : const Text('Export My Data', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w800)),
+                    : Text(AppLocalizations.of(context)!.exportMyDataButton, style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w800)),
               ),
             ),
           ],

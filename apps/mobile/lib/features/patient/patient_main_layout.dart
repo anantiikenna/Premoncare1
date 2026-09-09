@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import 'patient_dashboard.dart';
 import 'doctor_search_screen.dart';
@@ -43,11 +44,11 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Account Menu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+            Text(AppLocalizations.of(context)!.accountMenu, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.person_outline_rounded, color: AppColors.primary),
-              title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.myProfile, style: const TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _currentIndex = 4);
@@ -55,7 +56,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.folder_shared_outlined, color: AppColors.primary),
-              title: const Text('Medical Records', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.medicalRecordsMenu, style: const TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/vault');
@@ -63,7 +64,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.verified_user_outlined, color: AppColors.primary),
-              title: const Text('Permissions', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.permissions, style: const TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/permissions');
@@ -71,7 +72,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.account_balance_wallet_outlined, color: AppColors.primary),
-              title: const Text('Credits', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.credits, style: const TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/credits');
@@ -79,7 +80,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined, color: AppColors.primary),
-              title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.settingsLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/settings-privacy');
@@ -88,20 +89,20 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout_rounded, color: AppColors.error),
-              title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.logoutLabel, style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Log Out'),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: Text(AppLocalizations.of(context)!.logOutLabel),
+                    content: Text(AppLocalizations.of(context)!.areYouSureLogOut),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context)!.cancelLabel)),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(foregroundColor: AppColors.error),
-                        child: const Text('Log Out'),
+                        child: Text(AppLocalizations.of(context)!.logOutLabel),
                       ),
                     ],
                   ),
@@ -194,35 +195,35 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
                 _NavBarItem(
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home_rounded,
-                  label: 'Home',
+                  label: AppLocalizations.of(context)!.homeLabel,
                   isSelected: _currentIndex == 0,
                   onTap: () => setState(() => _currentIndex = 0),
                 ),
                 _NavBarItem(
                   icon: Icons.search_outlined,
                   activeIcon: Icons.search_rounded,
-                  label: 'Explore',
+                  label: AppLocalizations.of(context)!.exploreLabel,
                   isSelected: _currentIndex == 1,
                   onTap: () => setState(() => _currentIndex = 1),
                 ),
                 _NavBarItem(
                   icon: Icons.calendar_today_outlined,
                   activeIcon: Icons.calendar_today_rounded,
-                  label: 'Appointments',
+                  label: AppLocalizations.of(context)!.appointmentsLabel,
                   isSelected: _currentIndex == 2,
                   onTap: () => setState(() => _currentIndex = 2),
                 ),
                 _NavBarItem(
                   icon: Icons.chat_bubble_outline_rounded,
                   activeIcon: Icons.chat_bubble_rounded,
-                  label: 'Community',
+                  label: AppLocalizations.of(context)!.communityLabel,
                   isSelected: _currentIndex == 3,
                   onTap: () => setState(() => _currentIndex = 3),
                 ),
                 _NavBarItem(
                   icon: Icons.person_outline_rounded,
                   activeIcon: Icons.person_rounded,
-                  label: 'Profile',
+                  label: AppLocalizations.of(context)!.profileLabel,
                   isSelected: _currentIndex == 4,
                   onTap: () => setState(() => _currentIndex = 4),
                 ),

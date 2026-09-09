@@ -156,19 +156,19 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Log Out'),
+                    title: const Text\('Log\ Out'\),
                     content: const Text('Are you sure you want to log out?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
+                        child: const Text\(AppLocalizations.of(context)!.cancel\),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.error,
                         ),
-                        child: const Text('Log Out'),
+                        child: const Text\('Log\ Out'\),
                       ),
                     ],
                   ),

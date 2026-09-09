@@ -62,7 +62,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const Text\(AppLocalizations.of(context)!.cancel\),
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _handleReviewSubmit,

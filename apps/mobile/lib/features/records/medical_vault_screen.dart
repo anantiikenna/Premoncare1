@@ -251,10 +251,10 @@ class MedicalVaultScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Delete Record'),
+        title: const Text\('Delete\ Record'\),
         content: Text('Are you sure you want to delete "${record.title}"? This cannot be undone.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -274,7 +274,7 @@ class MedicalVaultScreen extends ConsumerWidget {
               }
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Delete'),
+            child: const Text\(AppLocalizations.of(context)!.deleteLabel\),
           ),
         ],
       ),

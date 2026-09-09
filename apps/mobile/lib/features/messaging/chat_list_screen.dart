@@ -86,7 +86,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 controller: _searchController,
                 onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
                 decoration: InputDecoration(
-                  hintText: 'Search chats...',
+                  hintText: 'Search\ chats\.\.\.',
                   hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                   prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 18),
                   suffixIcon: _searchQuery.isNotEmpty

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/theme_provider.dart';
 
 class AppearanceSettingsScreen extends ConsumerWidget {
@@ -20,34 +21,34 @@ class AppearanceSettingsScreen extends ConsumerWidget {
           icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
-        title: Text('Appearance', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.appearanceTile, style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('THEME', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.themeSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
           _ThemeOption(
             icon: Icons.light_mode_rounded,
-            title: 'Light Mode',
-            subtitle: 'Always use light theme',
+            title: AppLocalizations.of(context)!.lightMode,
+            subtitle: AppLocalizations.of(context)!.lightModeDescription,
             isSelected: currentMode == ThemeMode.light,
             onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
           ),
           const SizedBox(height: 8),
           _ThemeOption(
             icon: Icons.dark_mode_rounded,
-            title: 'Dark Mode',
-            subtitle: 'Always use dark theme',
+            title: AppLocalizations.of(context)!.darkMode,
+            subtitle: AppLocalizations.of(context)!.darkModeDescription,
             isSelected: currentMode == ThemeMode.dark,
             onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
           ),
           const SizedBox(height: 8),
           _ThemeOption(
             icon: Icons.brightness_auto_rounded,
-            title: 'System Default',
-            subtitle: 'Match your device settings',
+            title: AppLocalizations.of(context)!.systemDefault,
+            subtitle: AppLocalizations.of(context)!.systemDefaultDescription,
             isSelected: currentMode == ThemeMode.system,
             onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system),
           ),
@@ -65,7 +66,7 @@ class AppearanceSettingsScreen extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Dark mode is being refined. Some screens may still appear in light mode until fully migrated.',
+                    AppLocalizations.of(context)!.darkModeRefinementNotice,
                     style: AppTypography.bodySmallOf(context).copyWith(height: 1.4),
                   ),
                 ),

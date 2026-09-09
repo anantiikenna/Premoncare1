@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
-import '../../core/supabase_locator.dart';
-import '../../shared/widgets/generic_user_avatar.dart';
-
+import '../../l10n/app_localizations.dart';
 
 class BookingConfirmedScreen extends StatefulWidget {
   final double? consultationFee;
@@ -143,12 +140,12 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
         ),
         const SizedBox(height: 32),
         Text(
-          isEmergency ? 'Emergency Consult\nConfirmed' : 'Booking\nConfirmed!',
+          isEmergency ? AppLocalizations.of(context)!.emergencyBookingConfirmed : AppLocalizations.of(context)!.bookingConfirmed,
           style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), height: 1.1, letterSpacing: -1.5),
         ),
         const SizedBox(height: 12),
         Text(
-          isEmergency ? 'Your priority medical session is scheduled for immediate connection. Complete payment to start.' : 'Your appointment has been successfully scheduled and verified.',
+          isEmergency ? AppLocalizations.of(context)!.emergencyConsultScheduled : AppLocalizations.of(context)!.bookingScheduled,
           style: TextStyle(fontSize: 16, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w500, height: 1.5),
         ),
       ],
@@ -168,7 +165,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name.isNotEmpty ? name : '', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: AppColors.textPrimaryOf(context))),
-                Text('Specialist', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w700)),
+                Text(AppLocalizations.of(context)!.specialistLabel, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -194,20 +191,20 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
       dateStr = '${now.day} ${_monthName(now.month)} ${now.year}';
       timeStr = '${_fmt(now.hour)}:${_fmt(now.minute)}';
     }
-    final consultLabel = consultationType ?? 'Video Call';
+    final consultLabel = consultationType ?? AppLocalizations.of(context)!.videoCall;
     final durationLabel = durationMinutes != null ? '$durationMinutes mins' : '30 mins';
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
-          _buildInfoRow(Icons.calendar_today_rounded, 'Date', dateStr),
+          _buildInfoRow(Icons.calendar_today_rounded, AppLocalizations.of(context)!.date, dateStr),
           Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
-          _buildInfoRow(Icons.access_time_rounded, 'Time', timeStr),
+          _buildInfoRow(Icons.access_time_rounded, AppLocalizations.of(context)!.timeLabel, timeStr),
           Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
-          _buildInfoRow(Icons.timer_outlined, 'Duration', durationLabel),
+          _buildInfoRow(Icons.timer_outlined, AppLocalizations.of(context)!.sessionDurationLabel, durationLabel),
           Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
-          _buildInfoRow(Icons.videocam_rounded, 'Consultation Type', consultLabel),
+          _buildInfoRow(Icons.videocam_rounded, AppLocalizations.of(context)!.consultationType, consultLabel),
           Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
           Container(
             padding: const EdgeInsets.all(16),
@@ -217,7 +214,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                 Icon(Icons.flash_on_rounded, color: primaryColor, size: 16),
                 const SizedBox(width: 12),
                 Text(
-                  isEmergency ? 'Emergency session — pay now to connect' : 'Connecting automatically...',
+                  isEmergency ? AppLocalizations.of(context)!.emergencySessionPayNow : AppLocalizations.of(context)!.connectingAutomatically,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: primaryColor),
                 ),
               ],
@@ -256,12 +253,12 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             children: [
               const Icon(Icons.account_balance_rounded, color: AppColors.error, size: 20),
               const SizedBox(width: 12),
-              Text('P2P Payment Instructions', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.error)),
+              Text(AppLocalizations.of(context)!.p2pPaymentInstructions, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.error)),
             ],
           ),
           const SizedBox(height: 16),
           Text(
-            'Pay the emergency fee below to start your consultation immediately:',
+            AppLocalizations.of(context)!.payEmergencyFeeBelow,
             style: TextStyle(fontSize: 13, color: AppColors.textSecondaryOf(context), height: 1.4),
           ),
           const SizedBox(height: 16),
@@ -280,14 +277,14 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              _paymentInstructions ?? 'Contact doctor for payment details',
+              _paymentInstructions ?? AppLocalizations.of(context)!.contactDoctorPayment,
               style: const TextStyle(color: AppColors.textInverse, fontFamily: 'monospace', fontSize: 13, height: 1.5),
             ),
           ),
           const SizedBox(height: 12),
           Center(
             child: Text(
-              'Once paid, the doctor will be alerted for immediate session startup.',
+              AppLocalizations.of(context)!.doctorAlertedAfterPayment,
               style: TextStyle(fontSize: 10, color: AppColors.error, fontWeight: FontWeight.bold),
             ),
           ),
@@ -303,14 +300,14 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
-          _buildPriceRow('Consultation Fee', '₦$feeStr'),
+          _buildPriceRow(AppLocalizations.of(context)!.consultationFee, '₦$feeStr'),
           const SizedBox(height: 12),
-          _buildPriceRow('Platform Service', '₦0.00', isSpecial: true),
+          _buildPriceRow(AppLocalizations.of(context)!.platformService, '₦0.00', isSpecial: true),
           Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider(height: 1, color: AppColors.borderLightOf(context))),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context))),
+              Text(AppLocalizations.of(context)!.totalPayable, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context))),
               Text('₦$feeStr', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: primaryColor)),
             ],
           ),
@@ -341,8 +338,8 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Need assistance?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.textPrimaryOf(context))),
-                Text('Our care team is available 24/7', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
+                Text(AppLocalizations.of(context)!.needAssistance, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.textPrimaryOf(context))),
+                Text(AppLocalizations.of(context)!.careTeamAvailable247, style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -372,12 +369,12 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.upload_rounded, size: 20),
-                  SizedBox(width: 12),
-                  Text('Proceed to Payment', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                  const Icon(Icons.upload_rounded, size: 20),
+                  const SizedBox(width: 12),
+                  Text(AppLocalizations.of(context)!.proceedToPayment, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
                 ],
               ),
             ),
@@ -395,7 +392,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('Create Permanent Account', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+              child: Text(AppLocalizations.of(context)!.createPermanentAccount, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
             ),
           ),
         if (isEmergency) const SizedBox(height: 16),
@@ -409,7 +406,7 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
               side: BorderSide(color: primaryColor),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: Text(isEmergency ? 'Sign In to Continue' : 'Back to Dashboard', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+            child: Text(isEmergency ? AppLocalizations.of(context)!.signInToContinue : AppLocalizations.of(context)!.backToDashboard, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
           ),
         ),
         const SizedBox(height: 16),
@@ -428,14 +425,14 @@ class _BookingConfirmedScreenState extends State<BookingConfirmedScreen> {
                   'Appointment ID: ${widget.appointmentId ?? 'N/A'}';
               Clipboard.setData(ClipboardData(text: receipt));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Receipt copied to clipboard')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.receiptCopiedClipboard)),
               );
             },
             style: TextButton.styleFrom(
               foregroundColor: AppColors.textSecondaryOf(context),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('Download Digital Receipt', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+            child: Text(AppLocalizations.of(context)!.downloadDigitalReceipt, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
           ),
         ),
       ],

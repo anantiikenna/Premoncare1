@@ -30,7 +30,7 @@ class RecordSharingSheet extends ConsumerWidget {
                 if (doctors.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: Text('No verified doctors found.')),
+                    child: Center(child: Text\('No\ verified\ doctors\ found\.'\)),
                   );
                 }
                 return Flexible(

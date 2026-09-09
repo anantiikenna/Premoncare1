@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class SessionExpiredScreen extends StatelessWidget {
   const SessionExpiredScreen({super.key});
@@ -68,7 +69,7 @@ class SessionExpiredScreen extends StatelessWidget {
               ),
               const SizedBox(height: 48),
               Text(
-                'Session expired',
+                AppLocalizations.of(context)!.sessionExpired,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 32,
@@ -79,7 +80,7 @@ class SessionExpiredScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'For your security, please sign in again\nto continue.',
+                AppLocalizations.of(context)!.sessionExpiredDescription,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -113,7 +114,7 @@ class SessionExpiredScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Your session has timed out',
+                            AppLocalizations.of(context)!.sessionTimedOut,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
@@ -122,7 +123,7 @@ class SessionExpiredScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'For your safety, we automatically log you out after a period of inactivity.',
+                            AppLocalizations.of(context)!.sessionTimeoutDescription,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondaryOf(context),
@@ -149,13 +150,13 @@ class SessionExpiredScreen extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.person_outline_rounded, size: 20),
-                      SizedBox(width: 12),
+                      const Icon(Icons.person_outline_rounded, size: 20),
+                      const SizedBox(width: 12),
                       Text(
-                        'Sign In Again',
+                        AppLocalizations.of(context)!.signInAgain,
                         style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -175,13 +176,13 @@ class SessionExpiredScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.home_outlined, size: 20),
-                      SizedBox(width: 12),
+                      const Icon(Icons.home_outlined, size: 20),
+                      const SizedBox(width: 12),
                       Text(
-                        'Go to Home',
+                        AppLocalizations.of(context)!.goToHome,
                         style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -215,7 +216,7 @@ class SessionExpiredScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Need help?',
+                            AppLocalizations.of(context)!.needHelp,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -223,18 +224,18 @@ class SessionExpiredScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'Our support team is here for you 24/7.',
+                            AppLocalizations.of(context)!.supportTeam247,
                             style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context)),
                           ),
                         ],
                       ),
                     ),
                     TextButton(
-                      onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contact support@premoncare.com'))),
+                      onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.contactSupportEmail))),
                       child: Row(
                         children: [
                           Text(
-                            'Contact Support',
+                            AppLocalizations.of(context)!.contactSupport,
                             style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
@@ -257,7 +258,7 @@ class SessionExpiredScreen extends StatelessWidget {
                       Icon(Icons.lock_outline_rounded, color: AppColors.textTertiaryOf(context), size: 14),
                       const SizedBox(width: 8),
                       Text(
-                        'Your data is safe with us',
+                        AppLocalizations.of(context)!.dataSafeWithUs,
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondaryOf(context)),
                       ),
                     ],
@@ -266,7 +267,7 @@ class SessionExpiredScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Text(
-                      'We use industry-standard security to protect your information.',
+                      AppLocalizations.of(context)!.industryStandardSecurity,
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context)),
                     ),

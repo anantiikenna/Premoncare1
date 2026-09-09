@@ -242,7 +242,7 @@ class _DoctorSubscriptionManagementState
                   TextButton.icon(
                     onPressed: _fetchSubscriptions,
                     icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text('Retry'),
+                    label: const Text\(AppLocalizations.of(context)!.retryLabel\),
                   ),
                 ],
               ),
@@ -291,7 +291,7 @@ class _DoctorSubscriptionManagementState
               iconColor: AppColors.primary,
             ),
             _MetricCard(
-              label: 'Active',
+              label: AppLocalizations.of(context)!.active,
               value: '$_activeCount',
               trend: _totalDoctors > 0
                   ? '${(_activeCount / _totalDoctors * 100).toStringAsFixed(1)}%'
@@ -410,7 +410,7 @@ class _DoctorSubscriptionManagementState
             ),
           ),
           const SizedBox(width: 12),
-          _IconButton(icon: Icons.filter_list_rounded, label: 'Filter'),
+          _IconButton(icon: Icons.filter_list_rounded, label: AppLocalizations.of(context)!.filter),
           const SizedBox(width: 12),
           _IconButton(icon: Icons.swap_vert_rounded, label: 'Sort'),
         ],
@@ -678,7 +678,7 @@ class _DoctorSubscriptionManagementState
                         child: Column(
                           children: [
                             _LegendItem(
-                              label: 'Active',
+                              label: AppLocalizations.of(context)!.active,
                               value: '($_activeCount)',
                               percentage:
                                   '${(activeRatio * 100).toStringAsFixed(1)}%',
@@ -784,7 +784,7 @@ class _DoctorSubscriptionManagementState
                 _SectionHeader('Status Breakdown'),
                 const SizedBox(height: 16),
                 _ProgressRow(
-                  label: 'Active',
+                  label: AppLocalizations.of(context)!.active,
                   value: '$_activeCount',
                   percentage: total > 0
                       ? '${(_activeCount / total * 100).toStringAsFixed(1)}%'
@@ -876,13 +876,13 @@ class _DoctorSubscriptionManagementState
                 ),
                 _QuickActionTile(
                   icon: Icons.notifications_active_rounded,
-                  label: 'Notification Settings',
+                  label: 'Notification\ Settings',
                   color: AppColors.pink,
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Notification Settings'),
+                        title: const Text\('Notification\ Settings'\),
                         content: const Text(
                           'Configure subscription notifications.',
                         ),

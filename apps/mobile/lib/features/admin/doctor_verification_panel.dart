@@ -391,7 +391,7 @@ class _DoctorVerificationPanelState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Application rejected.'),
+              content: Text\('Application\ rejected\.'\),
               backgroundColor: AppColors.error,
             ),
           );
@@ -723,7 +723,7 @@ class _DoctorVerificationPanelState
                   size: 20,
                 ),
                 border: InputBorder.none,
-                hintText: 'Search by name or email...',
+                hintText: 'Search\ by\ name\ or\ email\.\.\.',
                 hintStyle: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 13,
@@ -1358,7 +1358,7 @@ class _DoctorVerificationPanelState
               Expanded(
                 child: _DetailItem(
                   icon: Icons.person_outline_rounded,
-                  label: 'Full Name',
+                  label: 'Full\ Name',
                   value: formatDoctorName(doctor['title'] as String?, doctor['full_name'] as String?),
                 ),
               ),
@@ -1377,14 +1377,14 @@ class _DoctorVerificationPanelState
               Expanded(
                 child: _DetailItem(
                   icon: Icons.cake_outlined,
-                  label: 'Date of Birth',
+                  label: 'Date\ of\ Birth',
                   value: doctor['dob'] ?? 'N/A',
                 ),
               ),
               Expanded(
                 child: _DetailItem(
                   icon: Icons.transgender_rounded,
-                  label: 'Gender',
+                  label: AppLocalizations.of(context)!.gender,
                   value: doctor['gender'] ?? 'N/A',
                 ),
               ),

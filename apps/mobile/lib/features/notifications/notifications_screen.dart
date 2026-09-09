@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 final notificationsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
@@ -175,7 +176,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => ref.invalidate(notificationsProvider),
-                child: const Text('Retry'),
+                child: const Text\(AppLocalizations.of(context)!.retryLabel\),
               ),
             ],
           ),

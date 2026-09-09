@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
+import '../../l10n/app_localizations.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -43,7 +44,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
-      setState(() => _errorMessage = 'Please enter your admin email address.');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterAdminEmail);
       return;
     }
 
@@ -63,7 +64,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
 
       if (profile == null) {
         setState(() {
-          _errorMessage = 'No account found with this email. Please contact the platform administrator.';
+          _errorMessage = AppLocalizations.of(context)!.noAdminAccountFound;
           _isLoading = false;
         });
         return;

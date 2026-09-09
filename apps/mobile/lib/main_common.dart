@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/supabase_locator.dart';
@@ -8,6 +9,7 @@ import 'core/flavor_config.dart';
 import 'core/app_colors.dart';
 import 'core/theme_provider.dart';
 import 'core/providers/accessibility_provider.dart';
+import 'l10n/app_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -26,6 +28,9 @@ Future<void> mainCommon() async {
 
   await dotenv.load(fileName: ".env");
 
+  // Pre-load theme BEFORE first frame to prevent light→dark flash
+  final persistedTheme = await loadPersistedTheme();
+
   try {
     if (kIsWeb || defaultTargetPlatform == TargetPlatform.windows) {
       if (!kDebugMode) debugPrint('Skipping Firebase initialization on Web/Desktop.');
@@ -42,8 +47,11 @@ Future<void> mainCommon() async {
   await initSupabase();
 
   runApp(
-    const ProviderScope(
-      child: BiometricGate(
+    ProviderScope(
+      overrides: [
+        initialThemeModeProvider.overrideWithValue(persistedTheme),
+      ],
+      child: const BiometricGate(
         child: PremonCareApp(),
       ),
     ),
@@ -66,6 +74,20 @@ class PremonCareApp extends ConsumerWidget {
       themeMode: themeMode,
       routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('fr'),
+        Locale('yo'),
+        Locale('ig'),
+        Locale('ha'),
+        Locale('sw'),
+      ],
       builder: (context, child) {
         return InactivityDetector(
           child: MediaQuery(

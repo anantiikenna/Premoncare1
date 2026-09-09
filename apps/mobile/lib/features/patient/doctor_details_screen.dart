@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../shared/widgets/generic_user_avatar.dart';
 
@@ -97,11 +98,11 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                         const SizedBox(height: 24),
                         if (_isVerified) _buildVerifiedBanner(),
                         if (_isVerified) const SizedBox(height: 24),
-                        _buildSectionTitle('About $_displayName'),
+                        _buildSectionTitle('${AppLocalizations.of(context)!.aboutDoctor(_displayName)}'),
                         const SizedBox(height: 12),
                         _buildAboutSection(),
                         const SizedBox(height: 24),
-                        _buildSectionTitle('Specializations'),
+                        _buildSectionTitle(AppLocalizations.of(context)!.specializations),
                         const SizedBox(height: 12),
                         _buildSpecializations(),
                         const SizedBox(height: 24),
@@ -170,7 +171,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           children: [
             Row(
               children: [
-                Text('Doctor Public Profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+                Text(AppLocalizations.of(context)!.doctorPublicProfile, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
                 const SizedBox(width: 8),
                 Icon(Icons.verified_user_outlined, color: AppColors.textSecondaryOf(context), size: 18),
               ],
@@ -181,7 +182,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                 children: [
                   const Icon(Icons.verified_rounded, color: AppColors.success, size: 14),
                   const SizedBox(width: 4),
-                  const Text('Verified Healthcare Professional', style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
+                  Text(AppLocalizations.of(context)!.verifiedHealthcareProfessional, style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
                 ],
               )
             else
@@ -189,7 +190,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                 children: [
                   const Icon(Icons.pending_outlined, color: AppColors.warning, size: 14),
                   const SizedBox(width: 4),
-                  const Text('Verification Pending', style: TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
+                  Text(AppLocalizations.of(context)!.verificationPending, style: TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
                 ],
               ),
           ],
@@ -197,7 +198,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
         GestureDetector(
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile link copied to clipboard')),
+              SnackBar(content: Text(AppLocalizations.of(context)!.profileLinkCopied)),
             );
           },
           child: Container(
@@ -211,7 +212,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               children: [
                 Icon(Icons.share_outlined, color: AppColors.textPrimaryOf(context), size: 14),
                 const SizedBox(width: 6),
-                Text('Share Profile', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimaryOf(context))),
+                Text(AppLocalizations.of(context)!.shareProfile, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimaryOf(context))),
               ],
             ),
           ),
@@ -278,7 +279,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                           children: [
                             CircleAvatar(radius: 3, backgroundColor: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context)),
                             const SizedBox(width: 4),
-                            Text(_isOnline ? 'Online' : 'Offline', style: TextStyle(color: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context), fontSize: 10, fontWeight: FontWeight.bold)),
+                            Text(_isOnline ? AppLocalizations.of(context)!.onlineStatus : AppLocalizations.of(context)!.offlineStatus, style: TextStyle(color: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context), fontSize: 10, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -305,8 +306,8 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildHeroStat(Icons.person_outline, expLabel, 'Experience'),
-                          _buildHeroStat(Icons.monetization_on_outlined, '₦${_hourlyRate.toStringAsFixed(0)}/hr', 'Rate'),
+                          _buildHeroStat(Icons.person_outline, expLabel, AppLocalizations.of(context)!.experience),
+                          _buildHeroStat(Icons.monetization_on_outlined, '₦${_hourlyRate.toStringAsFixed(0)}/hr', AppLocalizations.of(context)!.rate),
                         ],
                       ),
                     ],
@@ -343,9 +344,9 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       clipBehavior: Clip.none,
       child: Row(
         children: [
-          _buildInfoCard(Icons.videocam_rounded, 'Video Consultation', _isOnline ? 'Available' : 'Unavailable', AppColors.primary),
-          _buildInfoCard(Icons.chat_bubble_rounded, 'Chat Support', _isOnline ? 'Available' : 'Unavailable', AppColors.primary),
-          _buildInfoCard(Icons.access_time_rounded, 'Response Time', _isOnline ? '~5 min' : 'N/A', AppColors.warning),
+          _buildInfoCard(Icons.videocam_rounded, AppLocalizations.of(context)!.videoConsultation, _isOnline ? AppLocalizations.of(context)!.availableStatus : AppLocalizations.of(context)!.unavailableStatus, AppColors.primary),
+          _buildInfoCard(Icons.chat_bubble_rounded, AppLocalizations.of(context)!.chatSupport, _isOnline ? AppLocalizations.of(context)!.availableStatus : AppLocalizations.of(context)!.unavailableStatus, AppColors.primary),
+          _buildInfoCard(Icons.access_time_rounded, AppLocalizations.of(context)!.responseTime, _isOnline ? '~5 min' : 'N/A', AppColors.warning),
         ],
       ),
     );
@@ -394,9 +395,9 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Verified & Trusted', style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(AppLocalizations.of(context)!.verifiedTrusted, style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.bold, fontSize: 14)),
                 const SizedBox(height: 4),
-                Text("This doctor's license and qualifications have been verified by Premon Care.", style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, height: 1.4)),
+                Text(AppLocalizations.of(context)!.doctorLicenseVerified, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, height: 1.4)),
               ],
             ),
           ),
@@ -457,7 +458,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Text('Patient Rating', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
+            Text(AppLocalizations.of(context)!.patientRating, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
           ],
         ),
       ],
@@ -494,7 +495,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                   children: [
                     const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primary, size: 20),
                     const SizedBox(height: 4),
-                    Text('Chat', style: AppTypography.labelSmall.copyWith(color: AppColors.primary)),
+                    Text(AppLocalizations.of(context)!.chat, style: AppTypography.labelSmall.copyWith(color: AppColors.primary)),
                   ],
                 ),
               ),
@@ -518,7 +519,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
-                child: const Text('Book Appointment'),
+                child: Text(AppLocalizations.of(context)!.bookAppointment),
               ),
             ),
           ],

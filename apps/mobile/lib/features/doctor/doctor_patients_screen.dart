@@ -5,6 +5,7 @@ import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
+import '../../l10n/app_localizations.dart';
 
 final doctorPatientsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
   final doctor = supabase.auth.currentUser;
@@ -87,7 +88,7 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Text(
-                'My Patients',
+                AppLocalizations.of(context)!.myPatients,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context)),
               ),
             ),
@@ -107,7 +108,7 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                   style: AppTypography.bodyMedium,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.search_rounded, color: AppColors.textTertiaryOf(context), size: 20),
-                    hintText: 'Search patients...',
+                    hintText: AppLocalizations.of(context)!.searchPatients,
                     hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiaryOf(context)),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -130,11 +131,11 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                     children: [
                       const Icon(Icons.error_outline, color: AppColors.error, size: 48),
                       const SizedBox(height: 12),
-                      Text('Failed to load patients', style: AppTypography.bodyLarge),
+                      Text(AppLocalizations.of(context)!.failedToLoadPatients, style: AppTypography.bodyLarge),
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () => ref.invalidate(doctorPatientsProvider),
-                        child: const Text('Retry'),
+                        child: const Text\(AppLocalizations.of(context)!.retryLabel\),
                       ),
                     ],
                   ),
@@ -149,10 +150,10 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                         children: [
                           Icon(Icons.group_off_rounded, color: AppColors.textTertiaryOf(context), size: 56),
                           const SizedBox(height: 16),
-                          Text('No patients yet', style: AppTypography.h4),
+                          Text(AppLocalizations.of(context)!.noPatientsYet, style: AppTypography.h4),
                           const SizedBox(height: 8),
                           Text(
-                            'Patients who book consultations with you\nwill appear here.',
+                            AppLocalizations.of(context)!.patientsWhoBookWillAppear,
                             style: AppTypography.bodySmall,
                             textAlign: TextAlign.center,
                           ),

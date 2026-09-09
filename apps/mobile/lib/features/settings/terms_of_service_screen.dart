@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 class TermsOfServiceScreen extends StatelessWidget {
   const TermsOfServiceScreen({super.key});
@@ -19,13 +20,13 @@ class TermsOfServiceScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Terms of Service', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.termsOfServiceScreenTitle, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('Last updated: June 2026', style: AppTypography.captionOf(context)),
+          Text(AppLocalizations.of(context)!.lastUpdatedJune2026, style: AppTypography.captionOf(context)),
           const SizedBox(height: 24),
           _buildSection(context, '1. Acceptance of Terms', 'By accessing and using Premon Care ("the App"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the App.', secondary),
           _buildSection(context, '2. Description of Service', 'Premon Care is a telemedicine platform that connects patients with licensed healthcare providers for virtual consultations. We facilitate appointments, secure messaging, and medical record management.', secondary),

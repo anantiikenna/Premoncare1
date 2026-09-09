@@ -467,7 +467,7 @@ class _FinancialModerationScreenState
               ),
             ),
             const SizedBox(width: 12),
-            _IconButton(icon: Icons.filter_list_rounded, label: 'Filter'),
+            _IconButton(icon: Icons.filter_list_rounded, label: AppLocalizations.of(context)!.filter),
             const SizedBox(width: 12),
             _IconButton(icon: Icons.file_download_outlined, label: 'Export'),
           ],
@@ -930,13 +930,13 @@ class _FinancialModerationScreenState
         ),
         _QuickAction(
           icon: Icons.replay_rounded,
-          label: 'Review Refunds',
+          label: 'Review\ Refunds',
           color: AppColors.error,
           onTap: () {
             showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text('Review Refunds'),
+                title: const Text\('Review\ Refunds'\),
                 content: const Text('Refund review is under development.'),
                 actions: [
                   TextButton(

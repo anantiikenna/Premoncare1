@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import '../../l10n/app_localizations.dart';
 
 final doctorAppointmentsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = supabase.auth.currentUser;
@@ -104,7 +105,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
                           children: [
                             _buildStatsHeader(todayCount: todayAppts.length, pendingCount: pending.length),
                             const SizedBox(height: 32),
-                            _buildSectionTitle('SCHEDULE NAVIGATION'),
+                            _buildSectionTitle(AppLocalizations.of(context)!.scheduleNavigation),
                             const SizedBox(height: 16),
                             _buildTabNavigation(),
                             const SizedBox(height: 32),
@@ -142,9 +143,9 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('CLINICAL OPERATIONS', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+              Text(AppLocalizations.of(context)!.clinicalOperations, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
               const SizedBox(height: 8),
-              Text('Appointments', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
+              Text(AppLocalizations.of(context)!.appointmentsLabel, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
             ],
           ),
           const Spacer(),
@@ -170,18 +171,18 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Search Appointments'),
+        title: Text(AppLocalizations.of(context)!.searchAppointments),
         content: TextField(
           controller: _searchController,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: 'Search by patient name...',
+            hintText: AppLocalizations.of(context)!.searchByPatientNameHint,
             prefixIcon: const Icon(Icons.search_rounded),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -237,7 +238,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textSecondaryOf(context),
         labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
-        tabs: const [Tab(text: 'TODAY'), Tab(text: 'UPCOMING'), Tab(text: 'PENDING'), Tab(text: 'PAST')],
+        tabs: [Tab(text: AppLocalizations.of(context)!.todayTab), Tab(text: AppLocalizations.of(context)!.upcomingTab), Tab(text: AppLocalizations.of(context)!.pendingTab), Tab(text: AppLocalizations.of(context)!.pastTab)],
       ),
     );
   }
@@ -249,7 +250,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildSectionTitle('CLINICAL TIMELINE'),
+        _buildSectionTitle(AppLocalizations.of(context)!.clinicalTimeline),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderOf(context))),
@@ -333,7 +334,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
             children: [
               Icon(Icons.event_available_rounded, size: 48, color: AppColors.textTertiaryOf(context)),
               const SizedBox(height: 16),
-              Text('No appointments for this day', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+              Text(AppLocalizations.of(context)!.noAppointmentsForThisDay, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
@@ -435,10 +436,10 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
               children: [
                 const Text('DAILY PROGRESS', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                 const SizedBox(height: 8),
-                Text('$pct% Completed', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                Text('${pct}% Completed', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
                 const SizedBox(height: 4),
                 Text(
-                  remaining > 0 ? 'Keep going! You have $remaining more clinical sessions today.' : 'All sessions completed for today!',
+                  remaining > 0 ? AppLocalizations.of(context)!.keepGoingMoreSessions(remaining) : AppLocalizations.of(context)!.allSessionsCompletedToday,
                   style: const TextStyle(color: Colors.white60, fontSize: 12, height: 1.4, fontWeight: FontWeight.w500),
                 ),
               ],

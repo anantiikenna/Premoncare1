@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/mesh_circle.dart';
 import 'patient_providers.dart';
 
@@ -39,7 +40,7 @@ class PatientDashboard extends ConsumerWidget {
                   const SizedBox(height: 32),
                   _buildActionGrid(context, primaryColor),
                   const SizedBox(height: 40),
-                  _buildSectionHeader(context, 'TOP SPECIALISTS', onSeeAll: () => context.push('/doctor-search')),
+                  _buildSectionHeader(context, AppLocalizations.of(context)!.topSpecialists, onSeeAll: () => context.push('/doctor-search')),
                   const SizedBox(height: 16),
                   _buildDoctorList(ref),
                   const SizedBox(height: 40),
@@ -57,7 +58,7 @@ class PatientDashboard extends ConsumerWidget {
       data: (profile) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Good Morning,', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(AppLocalizations.of(context)!.goodMorning, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
           Text(
             '${profile?['full_name']?.split(' ')[0] ?? 'Patient'} 👋',
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0),
@@ -67,15 +68,15 @@ class PatientDashboard extends ConsumerWidget {
       loading: () => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Good Morning,', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(AppLocalizations.of(context)!.goodMorning, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
           const Text('...', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
         ],
       ),
       error: (_, _) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Good Morning,', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
-          const Text('Welcome 👋', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
+          Text(AppLocalizations.of(context)!.goodMorning, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(AppLocalizations.of(context)!.welcome, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
         ],
       ),
     );
@@ -92,7 +93,7 @@ class PatientDashboard extends ConsumerWidget {
           children: [
             Icon(Icons.search_rounded, color: AppColors.textTertiaryOf(context), size: 20),
             const SizedBox(width: 16),
-            Text('Search specialists, clinic...', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(AppLocalizations.of(context)!.searchSpecialistsClinic, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
             const Spacer(),
             Icon(Icons.tune_rounded, color: AppColors.textSecondaryOf(context), size: 20),
           ],
@@ -121,11 +122,11 @@ class PatientDashboard extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.verified_rounded, color: AppColors.textInverse, size: 16),
-                    SizedBox(width: 8),
-                    Text('CONSULTATION CREDITS', style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                    const Icon(Icons.verified_rounded, color: AppColors.textInverse, size: 16),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context)!.consultationCredits, style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -139,19 +140,19 @@ class PatientDashboard extends ConsumerWidget {
                         error: (_, _) => const Text('0', style: TextStyle(color: AppColors.textInverse, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -1.0)),
                       ),
                       const SizedBox(width: 8),
-                      const Text('minutes', style: TextStyle(color: AppColors.textInverse, fontSize: 18, fontWeight: FontWeight.w700)),
+                      Text(AppLocalizations.of(context)!.minutesLabel, style: TextStyle(color: AppColors.textInverse, fontSize: 18, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(16)),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Add Credit', style: TextStyle(color: AppColors.textInverse, fontSize: 13, fontWeight: FontWeight.w800)),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward_rounded, color: AppColors.textInverse, size: 16),
+                      Text(AppLocalizations.of(context)!.addCredit, style: TextStyle(color: AppColors.textInverse, fontSize: 13, fontWeight: FontWeight.w800)),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward_rounded, color: AppColors.textInverse, size: 16),
                     ],
                   ),
                 ),
@@ -167,11 +168,11 @@ class PatientDashboard extends ConsumerWidget {
   Widget _buildActionGrid(BuildContext context, Color primaryColor) {
     return Row(
       children: [
-        _ActionCard(icon: Icons.calendar_today_rounded, label: 'Book Now', sublabel: 'Specialists', color: primaryColor, onPress: () => context.push('/doctor-search')),
+        _ActionCard(icon: Icons.calendar_today_rounded, label: AppLocalizations.of(context)!.bookNow, sublabel: AppLocalizations.of(context)!.specialists, color: primaryColor, onPress: () => context.push('/doctor-search')),
         const SizedBox(width: 16),
-        _ActionCard(icon: Icons.description_rounded, label: 'Records', sublabel: 'Medical Vault', color: AppColors.success, onPress: () => context.push('/vault')),
+        _ActionCard(icon: Icons.description_rounded, label: AppLocalizations.of(context)!.recordsLabel, sublabel: AppLocalizations.of(context)!.medicalVault, color: AppColors.success, onPress: () => context.push('/vault')),
         const SizedBox(width: 16),
-        _ActionCard(icon: Icons.account_balance_wallet_rounded, label: 'Credits', sublabel: 'P2P Top-up', color: AppColors.primary, onPress: () => context.push('/credits')),
+        _ActionCard(icon: Icons.account_balance_wallet_rounded, label: AppLocalizations.of(context)!.credits, sublabel: AppLocalizations.of(context)!.p2pTopUp, color: AppColors.primary, onPress: () => context.push('/credits')),
       ],
     );
   }
@@ -181,7 +182,7 @@ class PatientDashboard extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 1.5)),
-        TextButton(onPressed: onSeeAll, child: const Text('See All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13))),
+        TextButton(onPressed: onSeeAll, child: Text(AppLocalizations.of(context)!.seeAll, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13))),
       ],
     );
   }
@@ -193,9 +194,9 @@ class PatientDashboard extends ConsumerWidget {
       return doctorsAsync.when(
         data: (doctors) {
           if (doctors.isEmpty) {
-            return const Padding(
-              padding: EdgeInsets.all(24.0),
-              child: Center(child: Text('No specialists available at the moment.')),
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(child: Text(AppLocalizations.of(context)!.noSpecialistsAvailable)),
             );
           }
           return Column(
@@ -326,5 +327,3 @@ class _DoctorListItem extends StatelessWidget {
     );
   }
 }
-
-

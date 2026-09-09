@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 class HealthPreferencesScreen extends StatefulWidget {
   const HealthPreferencesScreen({super.key});
@@ -51,21 +52,21 @@ class _HealthPreferencesScreenState extends State<HealthPreferencesScreen> {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Health Preferences', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.healthPreferencesTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('MEASUREMENT UNITS', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.measurementUnitsSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildUnitSelector('Weight', ['kg', 'lbs'], _weightUnit, (v) { setState(() => _weightUnit = v); _savePreference('health_weight_unit', v); }),
-          _buildUnitSelector('Height', ['cm', 'ft/in'], _heightUnit, (v) { setState(() => _heightUnit = v); _savePreference('health_height_unit', v); }),
-          _buildUnitSelector('Temperature', ['°C', '°F'], _temperatureUnit, (v) { setState(() => _temperatureUnit = v); _savePreference('health_temperature_unit', v); }),
+          _buildUnitSelector(AppLocalizations.of(context)!.weightLabel, ['kg', 'lbs'], _weightUnit, (v) { setState(() => _weightUnit = v); _savePreference('health_weight_unit', v); }),
+          _buildUnitSelector(AppLocalizations.of(context)!.heightLabel, ['cm', 'ft/in'], _heightUnit, (v) { setState(() => _heightUnit = v); _savePreference('health_height_unit', v); }),
+          _buildUnitSelector(AppLocalizations.of(context)!.temperatureLabel, ['°C', '°F'], _temperatureUnit, (v) { setState(() => _temperatureUnit = v); _savePreference('health_temperature_unit', v); }),
           const SizedBox(height: 24),
-          Text('FORMAT', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.formatSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildUnitSelector('Date Format', ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'], _dateFormat, (v) { setState(() => _dateFormat = v); _savePreference('health_date_format', v); }),
+          _buildUnitSelector(AppLocalizations.of(context)!.dateFormatLabel, ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'], _dateFormat, (v) { setState(() => _dateFormat = v); _savePreference('health_date_format', v); }),
         ],
       ),
     );

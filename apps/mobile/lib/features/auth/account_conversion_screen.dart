@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
+import '../../l10n/app_localizations.dart';
 
 class AccountConversionScreen extends StatefulWidget {
   const AccountConversionScreen({super.key});
@@ -81,7 +82,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: const Text('Please enter a valid email address'), backgroundColor: AppColors.error),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterValidEmail), backgroundColor: AppColors.error),
       );
       return;
     }
@@ -93,14 +94,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         setState(() => _currentStep = 3);
         _startResendTimer();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('OTP sent to $email'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(AppLocalizations.of(context)!.otpSentTo(email)), backgroundColor: AppColors.success),
         );
       }
     } catch (e, st) {
       logHandledError('Send OTP failed', e, st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'Failed to send OTP. Please try again.')), backgroundColor: AppColors.error),
+          SnackBar(content: Text(userFacingError(e, fallback: AppLocalizations.of(context)!.failedToSendOtp)), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -112,7 +113,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
     final otp = _controllers.map((c) => c.text).join();
     if (otp.length < 7) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the complete 7-digit code')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnter7DigitCode)),
       );
       return;
     }
@@ -125,7 +126,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('Email verified successfully'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(AppLocalizations.of(context)!.emailVerifiedSuccessfully), backgroundColor: AppColors.success),
         );
         _nextStep();
       }
@@ -133,14 +134,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
       logHandledError('OTP verify failed', e, st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingError(e, fallback: 'Invalid code. Please try again.')), backgroundColor: AppColors.error),
+          SnackBar(content: Text(userFacingError(e, fallback: AppLocalizations.of(context)!.invalidCode)), backgroundColor: AppColors.error),
         );
       }
     } catch (e, st) {
       logHandledError('OTP verify failed', e, st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('Verification failed. Please try again.'), backgroundColor: AppColors.error),
+          SnackBar(content: Text(AppLocalizations.of(context)!.verificationFailed), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -308,10 +309,10 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                       children: [
                         Text(
                           _currentStep == 2 
-                              ? 'Verify Your Number' 
+                              ? AppLocalizations.of(context)!.verifyYourNumber 
                               : (_currentStep == 3 
-                                  ? 'Create Your Profile' 
-                                  : (_currentStep == 4 ? 'Account Created\nSuccessfully!' : 'Emergency Guest\nConversion Flow')),
+                                  ? AppLocalizations.of(context)!.createYourProfile 
+                                  : (_currentStep == 4 ? AppLocalizations.of(context)!.accountCreatedSuccessfully : AppLocalizations.of(context)!.emergencyGuestConversionFlow)),
                           style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
@@ -323,12 +324,12 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                         const SizedBox(height: 8),
                         Text(
                           _currentStep == 2 
-                              ? 'Verify your phone number to continue and secure your emergency care.'
+                              ? AppLocalizations.of(context)!.verifyPhoneNumberDescription
                               : (_currentStep == 3 
-                                  ? 'Tell us a bit about yourself to personalize your healthcare experience.'
+                                  ? AppLocalizations.of(context)!.tellUsAboutYourself
                                   : (_currentStep == 4 
-                                      ? 'Welcome to Premon Care. You can now access all features, track your health and manage your care.'
-                                      : 'Convert emergency guest users to verified accounts for continuity of care and better support.')),
+                                      ? AppLocalizations.of(context)!.welcomeToPremonCare
+                                      : AppLocalizations.of(context)!.convertGuestUsersDescription)),
                           style: TextStyle(
                             color: AppColors.textSecondaryOf(context),
                             fontSize: 12,
@@ -443,7 +444,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Guest Emergency Session\nDetected',
+                      AppLocalizations.of(context)!.guestEmergencySessionDetected,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
@@ -453,7 +454,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'This user accessed emergency care as a guest.\nComplete a few quick steps to create an account.',
+                      AppLocalizations.of(context)!.guestEmergencyDescription,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -470,7 +471,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Session ID',
+                      AppLocalizations.of(context)!.sessionId,
                       style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
@@ -480,7 +481,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Access Time',
+                      AppLocalizations.of(context)!.accessTime,
                       style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
@@ -490,7 +491,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Reason',
+                      AppLocalizations.of(context)!.reasonLabel,
                       style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
@@ -500,8 +501,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                         color: AppColors.errorLightOf(context),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        'Critical Condition',
+                      child: Text(
+                        AppLocalizations.of(context)!.criticalCondition,
                         style: TextStyle(color: AppColors.error, fontSize: 8, fontWeight: FontWeight.w900),
                       ),
                     ),
@@ -516,39 +517,39 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
+              Expanded(
                 child: _FeatureColumn(
                   icon: Icons.favorite_rounded,
                   color: AppColors.info,
-                  title: 'Continue Care',
-                  description: 'Access your medical history anytime',
+                  title: AppLocalizations.of(context)!.continueCare,
+                  description: AppLocalizations.of(context)!.accessMedicalHistory,
                 ),
               ),
               Container(width: 1, height: 60, color: AppColors.borderOf(context)),
-              const Expanded(
+              Expanded(
                 child: _FeatureColumn(
                   icon: Icons.lock_rounded,
                   color: AppColors.success,
-                  title: 'Secure & Private',
-                  description: 'Your data is encrypted and protected',
+                  title: AppLocalizations.of(context)!.secureAndPrivate,
+                  description: AppLocalizations.of(context)!.dataEncryptedProtected,
                 ),
               ),
               Container(width: 1, height: 60, color: AppColors.borderOf(context)),
-              const Expanded(
+              Expanded(
                 child: _FeatureColumn(
                   icon: Icons.history_rounded,
                   color: AppColors.primary,
-                  title: 'Faster Next Time',
-                  description: 'Skip long forms and get help quicker',
+                  title: AppLocalizations.of(context)!.fasterNextTime,
+                  description: AppLocalizations.of(context)!.skipLongForms,
                 ),
               ),
               Container(width: 1, height: 60, color: AppColors.borderOf(context)),
-              const Expanded(
+              Expanded(
                 child: _FeatureColumn(
                   icon: Icons.headset_mic_rounded,
                   color: AppColors.warning,
-                  title: 'Better Support',
-                  description: 'We can support you more efficiently',
+                  title: AppLocalizations.of(context)!.betterSupport,
+                  description: AppLocalizations.of(context)!.supportEfficiently,
                 ),
               ),
             ],
@@ -565,12 +566,12 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 0,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(width: 20),
                   Text(
-                    'Continue to Create Account',
+                    AppLocalizations.of(context)!.continueToCreateAccount,
                     style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: -0.2),
                   ),
                   Icon(Icons.arrow_forward_rounded, size: 18),
@@ -610,7 +611,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Emergency Session Completed Successfully',
+                      AppLocalizations.of(context)!.emergencySessionCompleted,
                       style: TextStyle(
                         color: AppColors.success,
                         fontWeight: FontWeight.w900,
@@ -619,7 +620,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Continue creating your secure healthcare account to get the best care experience.',
+                      AppLocalizations.of(context)!.continueCreatingAccount,
                       style: TextStyle(
                         color: AppColors.success,
                         fontSize: 10,
@@ -664,7 +665,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Check your email for the verification code',
+                  AppLocalizations.of(context)!.checkEmailVerificationCode,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context)),
                 ),
               ),
@@ -678,7 +679,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         ),
         const SizedBox(height: 24),
         Text(
-          'Enter Verification Code',
+          AppLocalizations.of(context)!.enterVerificationCode,
           style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 12, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
@@ -735,14 +736,14 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               Text(
                 _resendSeconds > 0
                     ? 'Resend code in ${(_resendSeconds ~/ 60).toString().padLeft(2, '0')}:${(_resendSeconds % 60).toString().padLeft(2, '0')}'
-                    : 'Code expired',
+                    : AppLocalizations.of(context)!.codeExpired,
                 style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Didn\'t receive code? ', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('${AppLocalizations.of(context)!.didntReceiveCode} ', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w600)),
                   GestureDetector(
                     onTap: _resendSeconds > 0 ? null : _sendOtp,
                     child: Text(
@@ -761,19 +762,19 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         ),
         const SizedBox(height: 32),
         Text(
-          'Why verify your number?',
+          AppLocalizations.of(context)!.whyVerifyNumber,
           style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Expanded(
               child: _VerifyBenefitColumn(
                 icon: Icons.local_hospital_rounded,
                 color: AppColors.success,
-                title: 'Continue Care',
-                description: 'Access your emergency consultation history.',
+                title: AppLocalizations.of(context)!.continueCare,
+                description: AppLocalizations.of(context)!.continueCareDescription,
               ),
             ),
             SizedBox(width: 8),
@@ -781,8 +782,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               child: _VerifyBenefitColumn(
                 icon: Icons.notifications_rounded,
                 color: AppColors.primary,
-                title: 'Follow-up Updates',
-                description: 'Receive doctor updates and appointment alerts.',
+                title: AppLocalizations.of(context)!.followUpUpdates,
+                description: AppLocalizations.of(context)!.receiveDoctorUpdates,
               ),
             ),
             SizedBox(width: 8),
@@ -790,8 +791,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               child: _VerifyBenefitColumn(
                 icon: Icons.security_rounded,
                 color: AppColors.info,
-                title: 'Secure Records',
-                description: 'Protect your medical information.',
+                title: AppLocalizations.of(context)!.secureRecords,
+                description: AppLocalizations.of(context)!.protectMedicalInfo,
               ),
             ),
           ],
@@ -814,7 +815,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        _currentStep == 2 ? 'Send Verification Code' : 'Verify & Continue',
+                        _currentStep == 2 ? AppLocalizations.of(context)!.sendVerificationCode : AppLocalizations.of(context)!.verifyAndContinue,
                         style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                       ),
                       const SizedBox(width: 8),
@@ -834,7 +835,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('Skip For Now', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(AppLocalizations.of(context)!.skipForNow, style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ),
         const SizedBox(height: 20),
@@ -856,7 +857,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Skipping verification may limit access to your consultation records and future healthcare services.',
+                  AppLocalizations.of(context)!.skippingVerificationWarning,
                   style: TextStyle(color: AppColors.warning, fontSize: 11, fontWeight: FontWeight.bold, height: 1.4),
                 ),
               ),
@@ -871,7 +872,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Your information is encrypted and protected under healthcare privacy standards.',
+                AppLocalizations.of(context)!.informationEncryptedProtected,
                 style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.bold),
               ),
             ),
@@ -908,7 +909,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'You\'re almost there!',
+                      AppLocalizations.of(context)!.almostThere,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w900,
@@ -917,7 +918,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Just a few more details to create your secure account.',
+                      AppLocalizations.of(context)!.fewMoreDetails,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 10,
@@ -942,11 +943,11 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Personal Information',
+                AppLocalizations.of(context)!.personalInformation,
                 style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              Text('Full Name', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text(AppLocalizations.of(context)!.fullName, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               TextField(
                 controller: _nameController,
@@ -963,7 +964,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Date of Birth', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
+                        Text(AppLocalizations.of(context)!.dateOfBirth, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _dobController,
@@ -983,7 +984,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Gender', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
+                        Text(AppLocalizations.of(context)!.gender, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
                           initialValue: _selectedGender.isEmpty ? null : _selectedGender,
@@ -1007,7 +1008,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              Text('Email Address (Optional)', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text(AppLocalizations.of(context)!.emailAddressOptional, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               TextField(
                 controller: _emailController,
@@ -1019,16 +1020,16 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'We\'ll use this for important updates and notifications.',
+                AppLocalizations.of(context)!.importantUpdatesDescription,
                 style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 24),
               Text(
-                'Location',
+                AppLocalizations.of(context)!.locationLabel,
                 style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              Text('City', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text(AppLocalizations.of(context)!.city, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               TextField(
                 controller: _cityController,
@@ -1040,7 +1041,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Emergency Contact (Optional)', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
+              Text(AppLocalizations.of(context)!.emergencyContactOptional, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -1090,12 +1091,12 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Your health data is protected',
+                            AppLocalizations.of(context)!.yourHealthDataProtected,
                             style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w900, fontSize: 11),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'We use advanced encryption to keep your information safe and private.',
+                            AppLocalizations.of(context)!.advancedEncryptionDescription,
                             style: TextStyle(color: AppColors.success, fontSize: 9, fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -1119,10 +1120,10 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Continue', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                Text(AppLocalizations.of(context)!.continueLabel, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
                 SizedBox(width: 8),
                 Icon(Icons.arrow_forward_rounded, size: 18),
               ],
@@ -1140,7 +1141,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('I\'ll Do This Later', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(AppLocalizations.of(context)!.iIllDoThisLater, style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ),
         const SizedBox(height: 20),
@@ -1150,7 +1151,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             Icon(Icons.lock_outline_rounded, color: AppColors.textSecondaryOf(context), size: 14),
             const SizedBox(width: 6),
             Text(
-              'You can update this information anytime in your profile settings.',
+              AppLocalizations.of(context)!.youCanUpdateLater,
               style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ],
@@ -1190,7 +1191,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Your Account is Ready',
+                          AppLocalizations.of(context)!.yourAccountIsReady,
                           style: TextStyle(color: AppColors.success, fontSize: 14, fontWeight: FontWeight.w900),
                         ),
                       ],
@@ -1198,23 +1199,23 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     const SizedBox(height: 20),
                     _buildAccountSummaryItem(
                       icon: Icons.phone_outlined,
-                      label: 'Phone Number',
-                      value: _phoneController.text.isNotEmpty ? _phoneController.text : 'Not provided',
-                      tagText: 'Verified',
+                      label: AppLocalizations.of(context)!.phoneLabel,
+                      value: _phoneController.text.isNotEmpty ? _phoneController.text : AppLocalizations.of(context)!.notProvided,
+                      tagText: AppLocalizations.of(context)!.verifiedLabelCustom,
                     ),
                     const SizedBox(height: 16),
                     _buildAccountSummaryItem(
                       icon: Icons.mail_outline_rounded,
-                      label: 'Email Address',
-                      value: _emailController.text.isNotEmpty ? _emailController.text : 'Not provided',
-                      tagText: 'Added',
+                      label: AppLocalizations.of(context)!.emailLabel,
+                      value: _emailController.text.isNotEmpty ? _emailController.text : AppLocalizations.of(context)!.notProvided,
+                      tagText: AppLocalizations.of(context)!.addedLabel,
                     ),
                     const SizedBox(height: 16),
                     _buildAccountSummaryItem(
                       icon: Icons.location_on_outlined,
-                      label: 'Full Name',
-                      value: _nameController.text.isNotEmpty ? _nameController.text : 'Not provided',
-                      tagText: 'Saved',
+                      label: AppLocalizations.of(context)!.fullNameLabel,
+                      value: _nameController.text.isNotEmpty ? _nameController.text : AppLocalizations.of(context)!.notProvided,
+                      tagText: AppLocalizations.of(context)!.savedLabel,
                     ),
                   ],
                 ),
@@ -1244,7 +1245,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Your information is\nsecure and encrypted.',
+                      AppLocalizations.of(context)!.informationSecureEncryptedSmall,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 9, fontWeight: FontWeight.bold, height: 1.4),
                     ),
@@ -1256,19 +1257,19 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
         ),
         const SizedBox(height: 32),
         Text(
-          'What you can do next',
+          AppLocalizations.of(context)!.whatYouCanDoNext,
           style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 14, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 16),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Expanded(
               child: _NextActionCard(
                 icon: Icons.folder_shared_outlined,
                 color: AppColors.success,
-                title: 'View Health\nRecords',
-                description: 'Access your emergency consultation and health history.',
+                title: AppLocalizations.of(context)!.viewHealthRecords,
+                description: AppLocalizations.of(context)!.viewHealthRecordsDescription,
               ),
             ),
             SizedBox(width: 8),
@@ -1276,8 +1277,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               child: _NextActionCard(
                 icon: Icons.calendar_today_outlined,
                 color: AppColors.primary,
-                title: 'Book\nAppointments',
-                description: 'Schedule consultations with trusted doctors.',
+                title: AppLocalizations.of(context)!.bookAppointments,
+                description: AppLocalizations.of(context)!.bookAppointmentsDescription,
               ),
             ),
             SizedBox(width: 8),
@@ -1285,8 +1286,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               child: _NextActionCard(
                 icon: Icons.notifications_none_rounded,
                 color: AppColors.warning,
-                title: 'Get Health\nReminders',
-                description: 'Receive medication reminders and follow-ups.',
+                title: AppLocalizations.of(context)!.getHealthReminders,
+                description: AppLocalizations.of(context)!.getHealthRemindersDescription,
               ),
             ),
             SizedBox(width: 8),
@@ -1294,8 +1295,8 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               child: _NextActionCard(
                 icon: Icons.chat_bubble_outline_rounded,
                 color: AppColors.info,
-                title: 'Chat with\nDoctors',
-                description: 'Connect with doctors anytime for follow-up care.',
+                title: AppLocalizations.of(context)!.chatWithDoctors,
+                description: AppLocalizations.of(context)!.chatWithDoctorsDescription,
               ),
             ),
           ],
@@ -1321,12 +1322,12 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Your Health Matters',
+                      AppLocalizations.of(context)!.yourHealthMatters,
                       style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'We\'re here to support you on your health journey. Thank you for choosing Premon Care.',
+                      AppLocalizations.of(context)!.healthJourneySupportMessage,
                       style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.bold, height: 1.4),
                     ),
                   ],
@@ -1349,10 +1350,10 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Go to Dashboard', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                Text(AppLocalizations.of(context)!.backToDashboard, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
                 SizedBox(width: 8),
                 Icon(Icons.arrow_forward_rounded, size: 18),
               ],
@@ -1370,7 +1371,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('View My Health Record', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(AppLocalizations.of(context)!.viewMyHealthRecord, style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ),
         const SizedBox(height: 24),
@@ -1380,7 +1381,7 @@ class _AccountConversionScreenState extends State<AccountConversionScreen> {
             Icon(Icons.shield_outlined, color: AppColors.textSecondaryOf(context), size: 16),
             const SizedBox(width: 8),
             Text(
-              'Your health. Your data. Always protected.',
+              AppLocalizations.of(context)!.healthDataAlwaysProtected,
               style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ],

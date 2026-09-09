@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
@@ -19,13 +20,13 @@ class PrivacyPolicyScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Privacy Policy', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.privacyPolicyScreenTitle, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('Last updated: June 2026', style: AppTypography.captionOf(context)),
+          Text(AppLocalizations.of(context)!.lastUpdatedJune2026, style: AppTypography.captionOf(context)),
           const SizedBox(height: 24),
           _buildSection(context, '1. Information We Collect', 'We collect personal information you provide during registration (name, email, date of birth), medical records you upload, consultation notes, payment receipts, and device information for security purposes.', secondary),
           _buildSection(context, '2. How We Use Your Information', 'Your information is used to provide telemedicine services, facilitate consultations, manage your medical records, process payments, and send important notifications about your care.', secondary),

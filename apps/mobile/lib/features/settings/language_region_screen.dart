@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 class LanguageRegionScreen extends StatefulWidget {
   const LanguageRegionScreen({super.key});
@@ -54,18 +55,18 @@ class _LanguageRegionScreenState extends State<LanguageRegionScreen> {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Language & Region', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.languageAndRegionTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('LANGUAGE', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.languageSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
           _buildSelectionCard(
             icon: Icons.language_rounded,
             color: AppColors.primary,
-            title: 'App Language',
+            title: AppLocalizations.of(context)!.appLanguageLabel,
             options: _languages,
             selected: _selectedLanguage,
             onChanged: (v) { setState(() => _selectedLanguage = v); _savePreference('locale_language', v); },
@@ -73,12 +74,12 @@ class _LanguageRegionScreenState extends State<LanguageRegionScreen> {
             secondaryColor: secondary,
           ),
           const SizedBox(height: 24),
-          Text('REGION', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.regionSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
           _buildSelectionCard(
             icon: Icons.public_rounded,
             color: AppColors.success,
-            title: 'Region',
+            title: AppLocalizations.of(context)!.regionLabel,
             options: _regions,
             selected: _selectedRegion,
             onChanged: (v) { setState(() => _selectedRegion = v); _savePreference('locale_region', v); },
@@ -89,7 +90,7 @@ class _LanguageRegionScreenState extends State<LanguageRegionScreen> {
           _buildSelectionCard(
             icon: Icons.monetization_on_rounded,
             color: AppColors.warning,
-            title: 'Currency',
+            title: AppLocalizations.of(context)!.currencyLabel,
             options: _currencies,
             selected: _selectedCurrency,
             onChanged: (v) { setState(() => _selectedCurrency = v); _savePreference('locale_currency', v); },

@@ -144,7 +144,7 @@ class _NotificationControlPanelState
                   controller: titleController,
                   decoration: InputDecoration(
                     labelText: 'Title',
-                    hintText: 'Notification title',
+                    hintText: 'Notification\ title',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -158,7 +158,7 @@ class _NotificationControlPanelState
                   maxLines: 3,
                   decoration: InputDecoration(
                     labelText: 'Message',
-                    hintText: 'Notification message',
+                    hintText: 'Notification\ message',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -178,14 +178,14 @@ class _NotificationControlPanelState
                     fillColor: AppColors.surfaceAltOf(context),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'all', child: Text('All Users')),
+                    DropdownMenuItem(value: 'all', child: Text\('All\ Users'\)),
                     DropdownMenuItem(
                       value: 'patient',
-                      child: Text('Patients Only'),
+                      child: Text\('Patients\ Only'\),
                     ),
                     DropdownMenuItem(
                       value: 'doctor',
-                      child: Text('Doctors Only'),
+                      child: Text\('Doctors\ Only'\),
                     ),
                   ],
                   onChanged: (v) {
@@ -346,7 +346,7 @@ class _NotificationControlPanelState
           const SizedBox(width: 12),
           _TabItem(label: 'Scheduled', isSelected: false),
           const SizedBox(width: 12),
-          _TabItem(label: 'History', isSelected: false),
+          _TabItem(label: AppLocalizations.of(context)!.historyLabel, isSelected: false),
         ],
       ),
     );

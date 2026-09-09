@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_typography.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 import 'patient_providers.dart';
 
@@ -122,7 +123,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () => ref.invalidate(searchableDoctorsProvider),
-                  child: const Text('Retry'),
+                  child: Text(AppLocalizations.of(context)!.retryLabel),
                 ),
               ],
             ),
@@ -146,8 +147,8 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 else ...[
                   SliverToBoxAdapter(
                     child: _buildSectionHeader(
-                      'Top Rated Doctors',
-                      '${filtered.length} found',
+                      AppLocalizations.of(context)!.topRatedDoctors,
+                      '${filtered.length} ${AppLocalizations.of(context)!.found}',
                       () {},
                     ),
                   ),
@@ -179,7 +180,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
       child: Row(
         children: [
           Text(
-            'Search Doctors',
+            AppLocalizations.of(context)!.searchDoctors,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
@@ -237,7 +238,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
             color: AppColors.textTertiaryOf(context),
             size: 20,
           ),
-          hintText: 'Search doctors, specialties...',
+          hintText: AppLocalizations.of(context)!.searchDoctorsSpecialties,
           hintStyle: AppTypography.bodyMedium.copyWith(
             color: AppColors.textTertiaryOf(context),
           ),
@@ -277,7 +278,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              'Filter',
+              AppLocalizations.of(context)!.filter,
               style: AppTypography.labelLarge.copyWith(
                 color: AppColors.textPrimaryOf(context),
               ),
@@ -315,7 +316,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Filters', style: AppTypography.h4),
+                      Text(AppLocalizations.of(context)!.filter, style: AppTypography.h4),
                       IconButton(
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () => Navigator.pop(context),
@@ -327,7 +328,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     child: ListView(
                       controller: controller,
                       children: [
-                        Text('Price Range', style: AppTypography.h4),
+                        Text(AppLocalizations.of(context)!.priceRange, style: AppTypography.h4),
                         const SizedBox(height: 12),
                         RangeSlider(
                           values: RangeValues(tempMin, tempMax),
@@ -356,11 +357,11 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text(
-                            'Emergency Only',
+                            AppLocalizations.of(context)!.emergencyOnly,
                             style: AppTypography.h4,
                           ),
                           subtitle: Text(
-                            'Show only emergency-ready doctors',
+                            AppLocalizations.of(context)!.showEmergencyReady,
                             style: AppTypography.bodySmall,
                           ),
                           value: tempEmergency,
@@ -390,7 +391,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                         ),
                       ),
                       child: Text(
-                        'Apply Filters',
+                        AppLocalizations.of(context)!.applyFilters,
                         style: AppTypography.labelLarge.copyWith(
                           color: AppColors.textInverse,
                         ),
@@ -447,7 +448,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Emergency Care',
+                      AppLocalizations.of(context)!.emergencyCare,
                       style: AppTypography.h4.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -455,8 +456,8 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                     const SizedBox(height: 2),
                     Text(
                       _isEmergencyMode
-                          ? 'Showing emergency-ready doctors nearby'
-                          : 'Need immediate care? Find emergency doctors',
+                          ? AppLocalizations.of(context)!.showingEmergencyDoctors
+                          : AppLocalizations.of(context)!.needImmediateCare,
                       style: AppTypography.bodySmall,
                     ),
                   ],
@@ -646,7 +647,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'No emergency doctors available right now',
+              AppLocalizations.of(context)!.noDoctorsAvailableEmergency,
               style: AppTypography.bodyMedium,
             ),
             const SizedBox(height: 8),
@@ -654,7 +655,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
               onPressed: () {
                 setState(() => _isEmergencyMode = false);
               },
-              child: const Text('View All Doctors'),
+              child: Text(AppLocalizations.of(context)!.viewAllDoctors),
             ),
           ],
         ),
@@ -664,8 +665,8 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
     return Column(
       children: [
         _buildSectionHeader(
-          'Emergency Doctors',
-          '${displayDoctors.length} available',
+          AppLocalizations.of(context)!.emergencyDoctors,
+          '${displayDoctors.length} ${AppLocalizations.of(context)!.availableLabel}',
           () {},
         ),
         const SizedBox(height: 8),
@@ -687,10 +688,10 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
             size: 56,
           ),
           const SizedBox(height: 16),
-          Text('No doctors found', style: AppTypography.h4),
+          Text(AppLocalizations.of(context)!.noDoctorsFound, style: AppTypography.h4),
           const SizedBox(height: 8),
           Text(
-            'Try adjusting your search or filters',
+            AppLocalizations.of(context)!.tryAdjustingSearch,
             style: AppTypography.bodySmall,
             textAlign: TextAlign.center,
           ),
@@ -706,7 +707,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 _emergencyOnly = false;
               });
             },
-            child: const Text('Clear Filters'),
+            child: Text(AppLocalizations.of(context)!.clearFilters),
           ),
         ],
       ),
@@ -832,7 +833,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        isOnline ? 'Online' : 'Offline',
+                        isOnline ? AppLocalizations.of(context)!.onlineStatus : AppLocalizations.of(context)!.offlineStatus,
                         style: AppTypography.labelSmall.copyWith(
                           color: isOnline
                             ? AppColors.success
@@ -885,8 +886,8 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                   ),
                   child: Text(
                     widget.isBuyingTime
-                        ? 'Buy Credit'
-                        : ((_isEmergencyMode && isEmergency) ? 'SOS' : 'Book'),
+                        ? AppLocalizations.of(context)!.buyCredit
+                        : ((_isEmergencyMode && isEmergency) ? AppLocalizations.of(context)!.sos : AppLocalizations.of(context)!.bookLabel),
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.textInverse,
                     ),
@@ -930,14 +931,14 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'All doctors are verified professionals',
+                    AppLocalizations.of(context)!.allDoctorsVerified,
                     style: AppTypography.bodySmall.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'We verify licenses, qualifications and experience to ensure you receive safe and quality care.',
+                    AppLocalizations.of(context)!.verifyLicensesDescription,
                     style: AppTypography.labelSmall.copyWith(height: 1.4),
                   ),
                 ],

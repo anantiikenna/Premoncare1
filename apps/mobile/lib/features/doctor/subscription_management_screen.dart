@@ -90,16 +90,16 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('Pause Subscription'),
+              title: const Text\('Pause\ Subscription'\),
               content: const Text("Are you sure you want to pause your subscription? You won't be charged during the pause period."),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Subscription paused. Resume anytime from settings.')));
                   },
-                  child: const Text('Pause'),
+                  child: const Text\(AppLocalizations.of(context)!.pauseLabel\),
                 ),
               ],
             ),
@@ -109,16 +109,16 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('Cancel Subscription'),
+              title: const Text\('Cancel\ Subscription'\),
               content: const Text("Are you sure you want to cancel? You'll lose access to premium features at the end of your billing period."),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Subscription cancelled. Access continues until end of billing period.')));
                   },
-                  child: const Text('Confirm'),
+                  child: const Text\(AppLocalizations.of(context)!.confirmLabel\),
                 ),
               ],
             ),

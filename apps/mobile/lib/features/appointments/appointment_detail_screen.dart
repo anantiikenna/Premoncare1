@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:collection/collection.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'appointment_provider.dart';
 
 
@@ -35,7 +36,7 @@ class AppointmentDetailScreen extends ConsumerWidget {
               data: (appointments) {
                 final appointment = appointments.firstWhereOrNull((a) => a.id == appointmentId);
                 if (appointment == null) {
-                  return const Scaffold(body: Center(child: Text('Appointment not found')));
+                  return const Scaffold(body: Center(child: Text\('Appointment\ not\ found'\)));
                 }
 
                 return Column(
@@ -105,12 +106,12 @@ class AppointmentDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 20),
                       ListTile(
                         leading: const Icon(Icons.download_rounded),
-                        title: const Text('Download Summary'),
+                        title: const Text\('Download\ Summary'\),
                         onTap: () => Navigator.pop(ctx),
                       ),
                       ListTile(
                         leading: const Icon(Icons.share_rounded),
-                        title: const Text('Share Details'),
+                        title: const Text\('Share\ Details'\),
                         onTap: () => Navigator.pop(ctx),
                       ),
                       ListTile(

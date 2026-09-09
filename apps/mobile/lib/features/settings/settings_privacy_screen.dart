@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/providers.dart';
 import '../../shared/widgets/global_user_avatar.dart';
@@ -53,19 +54,19 @@ class _SettingsPrivacyCenterScreenState
             const SizedBox(height: 24),
             _buildProfileSummary(context, email, userProfile.asData?.value),
             const SizedBox(height: 32),
-            _buildSectionHeader(context, 'Account Settings'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.accountSettingsHeader),
             const SizedBox(height: 12),
             _buildAccountSettings(context),
             const SizedBox(height: 32),
-            _buildSectionHeader(context, 'Privacy & Data'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.privacyAndDataHeader),
             const SizedBox(height: 12),
             _buildPrivacyDataSettings(context),
             const SizedBox(height: 32),
-            _buildSectionHeader(context, 'Preferences'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.preferencesHeader),
             const SizedBox(height: 12),
             _buildPreferencesSettings(context),
             const SizedBox(height: 32),
-            _buildSectionHeader(context, 'Support & Legal'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.supportAndLegalHeader),
             const SizedBox(height: 12),
             _buildSupportLegalSettings(context),
             const SizedBox(height: 32),
@@ -180,7 +181,7 @@ class _SettingsPrivacyCenterScreenState
               ),
               const SizedBox(height: 4),
               Text(
-                'Manage your account and preferences',
+                AppLocalizations.of(context)!.manageYourAccountSubtitle,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -311,29 +312,29 @@ class _SettingsPrivacyCenterScreenState
       _SettingsTileData(
         icon: Icons.person_outline_rounded,
         color: AppColors.info,
-        title: 'Personal Information',
-        subtitle: 'Update your details',
+        title: AppLocalizations.of(context)!.personalInformationTile,
+        subtitle: AppLocalizations.of(context)!.updateYourDetails,
         onTap: () => context.push('/personal-info'),
       ),
       _SettingsTileData(
         icon: Icons.lock_outline_rounded,
         color: AppColors.success,
-        title: 'Login & Security',
-        subtitle: 'Password and security settings',
+        title: AppLocalizations.of(context)!.loginAndSecurityTile,
+        subtitle: AppLocalizations.of(context)!.passwordAndSecuritySettings,
         onTap: () => context.push('/login-security'),
       ),
       _SettingsTileData(
         icon: Icons.notifications_none_rounded,
         color: AppColors.primary,
-        title: 'Notification Preferences',
-        subtitle: 'Choose what notifications to receive',
+        title: AppLocalizations.of(context)!.notificationPreferencesTile,
+        subtitle: AppLocalizations.of(context)!.chooseNotificationsSubtitle,
         onTap: () => context.push('/notification-preferences'),
       ),
       _SettingsTileData(
         icon: Icons.language_rounded,
         color: AppColors.warning,
-        title: 'Language & Region',
-        subtitle: 'Language and region',
+        title: AppLocalizations.of(context)!.languageAndRegionTile,
+        subtitle: AppLocalizations.of(context)!.languageAndRegionSubtitle,
         trailingText: _currentLanguage,
         onTap: () => context.push('/language-region'),
       ),
@@ -345,36 +346,36 @@ class _SettingsPrivacyCenterScreenState
       _SettingsTileData(
         icon: Icons.shield_outlined,
         color: AppColors.success,
-        title: 'Biometric & Privacy',
-        subtitle: 'Privacy and biometric controls',
+        title: AppLocalizations.of(context)!.biometricAndPrivacyTile,
+        subtitle: AppLocalizations.of(context)!.privacyAndBiometricControls,
         onTap: () => context.push('/biometric-privacy'),
       ),
       _SettingsTileData(
         icon: Icons.medical_information_outlined,
         color: AppColors.info,
-        title: 'Record Permissions',
-        subtitle: 'Manage doctor record access',
+        title: AppLocalizations.of(context)!.recordPermissionsTile,
+        subtitle: AppLocalizations.of(context)!.manageDoctorAccess,
         onTap: () => context.push('/medical-record-permissions'),
       ),
       _SettingsTileData(
         icon: Icons.devices_rounded,
         color: AppColors.primary,
-        title: 'Device Sessions',
-        subtitle: 'Active sessions and activity',
+        title: AppLocalizations.of(context)!.deviceSessionsTile,
+        subtitle: AppLocalizations.of(context)!.activeSessionsAndActivity,
         onTap: () => context.push('/device-sessions'),
       ),
       _SettingsTileData(
         icon: Icons.file_download_outlined,
         color: AppColors.warning,
-        title: 'Download My Data',
-        subtitle: 'Export your health data',
+        title: AppLocalizations.of(context)!.downloadMyDataTile,
+        subtitle: AppLocalizations.of(context)!.exportYourHealthData,
         onTap: () => context.push('/download-data'),
       ),
       _SettingsTileData(
         icon: Icons.delete_outline_rounded,
         color: AppColors.error,
-        title: 'Delete Account',
-        subtitle: 'Permanently delete your account',
+        title: AppLocalizations.of(context)!.deleteAccountTile,
+        subtitle: AppLocalizations.of(context)!.permanentlyDeleteAccount,
         onTap: () => _showDeleteAccountDialog(context),
       ),
     ]);
@@ -385,22 +386,22 @@ class _SettingsPrivacyCenterScreenState
       _SettingsTileData(
         icon: Icons.dark_mode_outlined,
         color: AppColors.success,
-        title: 'Appearance',
-        subtitle: 'Choose light or dark mode',
+        title: AppLocalizations.of(context)!.appearanceTile,
+        subtitle: AppLocalizations.of(context)!.chooseLightOrDarkMode,
         onTap: () => context.push('/appearance'),
       ),
       _SettingsTileData(
         icon: Icons.accessibility_new_rounded,
         color: AppColors.info,
-        title: 'Accessibility',
-        subtitle: 'Text size and display options',
+        title: AppLocalizations.of(context)!.accessibilityTile,
+        subtitle: AppLocalizations.of(context)!.textSizeAndDisplayOptions,
         onTap: () => context.push('/accessibility'),
       ),
       _SettingsTileData(
         icon: Icons.favorite_border_rounded,
         color: AppColors.primary,
-        title: 'Health Preferences',
-        subtitle: 'Units and health settings',
+        title: AppLocalizations.of(context)!.healthPreferencesTile,
+        subtitle: AppLocalizations.of(context)!.unitsAndHealthSettings,
         onTap: () => context.push('/health-preferences'),
       ),
     ]);
@@ -411,29 +412,29 @@ class _SettingsPrivacyCenterScreenState
       _SettingsTileData(
         icon: Icons.headset_mic_outlined,
         color: AppColors.info,
-        title: 'Help & Support',
-        subtitle: 'FAQs and contact support',
+        title: AppLocalizations.of(context)!.helpSupportTile,
+        subtitle: AppLocalizations.of(context)!.faqsAndContactSupport,
         onTap: () => context.push('/help-support'),
       ),
       _SettingsTileData(
         icon: Icons.description_outlined,
         color: AppColors.success,
-        title: 'Terms of Service',
-        subtitle: 'Read our terms',
+        title: AppLocalizations.of(context)!.termsOfServiceTile,
+        subtitle: AppLocalizations.of(context)!.readOurTerms,
         onTap: () => context.push('/terms-of-service'),
       ),
       _SettingsTileData(
         icon: Icons.verified_user_outlined,
         color: AppColors.primary,
-        title: 'Privacy Policy',
-        subtitle: 'How we protect your data',
+        title: AppLocalizations.of(context)!.privacyPolicyTile,
+        subtitle: AppLocalizations.of(context)!.howWeProtectData,
         onTap: () => context.push('/privacy-policy'),
       ),
       _SettingsTileData(
         icon: Icons.info_outline_rounded,
         color: AppColors.warning,
-        title: 'About Premon Care',
-        subtitle: 'App version 2.4.1',
+        title: AppLocalizations.of(context)!.aboutPremonCareTile,
+        subtitle: AppLocalizations.of(context)!.appVersionLabel,
         onTap: () => context.push('/about'),
       ),
     ]);
@@ -560,7 +561,7 @@ class _SettingsPrivacyCenterScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your privacy is our priority',
+                  AppLocalizations.of(context)!.privacyIsPriority,
                   style: TextStyle(
                     color: AppColors.success,
                     fontSize: 13,
@@ -569,7 +570,7 @@ class _SettingsPrivacyCenterScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'We use industry-standard encryption to protect your data.',
+                  AppLocalizations.of(context)!.industryStandardEncryption,
                   style: TextStyle(
                     color: AppColors.success,
                     fontSize: 11,
@@ -639,7 +640,7 @@ class _SettingsPrivacyCenterScreenState
                       ),
                       const SizedBox(width: 14),
                       Text(
-                        'Delete Account',
+                        AppLocalizations.of(context)!.deleteAccountDialogTitle,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
@@ -660,7 +661,7 @@ class _SettingsPrivacyCenterScreenState
                       ),
                     ),
                     child: Text(
-                      'You are about to permanently delete your account. This action is irreversible and all data will be lost.',
+                      AppLocalizations.of(context)!.deleteAccountWarning,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -671,7 +672,7 @@ class _SettingsPrivacyCenterScreenState
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'This will permanently delete:',
+                    AppLocalizations.of(context)!.willPermanentlyDelete,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -679,33 +680,33 @@ class _SettingsPrivacyCenterScreenState
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const _DeleteSummaryItem(
+                  _DeleteSummaryItem(
                     icon: Icons.person_outline_rounded,
-                    text: 'Your profile and personal information',
+                    text: AppLocalizations.of(ctx)!.profileAndPersonalInfo,
                   ),
-                  const _DeleteSummaryItem(
+                  _DeleteSummaryItem(
                     icon: Icons.calendar_today_rounded,
-                    text: 'All appointments and consultation history',
+                    text: AppLocalizations.of(ctx)!.allAppointmentsHistory,
                   ),
-                  const _DeleteSummaryItem(
+                  _DeleteSummaryItem(
                     icon: Icons.folder_outlined,
-                    text: 'Medical records and uploaded documents',
+                    text: AppLocalizations.of(ctx)!.medicalRecordsAndDocuments,
                   ),
-                  const _DeleteSummaryItem(
+                  _DeleteSummaryItem(
                     icon: Icons.chat_bubble_outline_rounded,
-                    text: 'All messages and chat history',
+                    text: AppLocalizations.of(ctx)!.allMessagesAndChatHistory,
                   ),
-                  const _DeleteSummaryItem(
+                  _DeleteSummaryItem(
                     icon: Icons.receipt_long_rounded,
-                    text: 'Payment records and transaction history',
+                    text: AppLocalizations.of(ctx)!.paymentRecordsAndHistory,
                   ),
-                  const _DeleteSummaryItem(
+                  _DeleteSummaryItem(
                     icon: Icons.star_border_rounded,
-                    text: 'Reviews and ratings you\'ve given',
+                    text: AppLocalizations.of(ctx)!.reviewsAndRatingsGiven,
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Type your email to confirm:',
+                    AppLocalizations.of(context)!.typeEmailToConfirm,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -750,7 +751,7 @@ class _SettingsPrivacyCenterScreenState
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
-                        'Email does not match',
+                        AppLocalizations.of(context)!.emailDoesNotMatch,
                         style: TextStyle(
                           fontSize: 11,
                           color: AppColors.error,
@@ -776,12 +777,7 @@ class _SettingsPrivacyCenterScreenState
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(
-                              color: AppColors.textSecondaryOf(ctx),
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
+                          child: Text(AppLocalizations.of(context)!.cancelLabel, style: TextStyle(
                             ),
                           ),
                         ),
@@ -811,12 +807,11 @@ class _SettingsPrivacyCenterScreenState
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Account scheduled for deletion in 30 days.',
-                                          ),
-                                        ),
-                                      );
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context)!.accountScheduledForDeletion,
+                              ),
+                            );
                                       context.go('/login');
                                     }
                                   } catch (e) {
@@ -840,12 +835,7 @@ class _SettingsPrivacyCenterScreenState
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
-                          child: const Text(
-                            'Delete My Account',
-                            style: TextStyle(
-                              color: AppColors.textInverse,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
+                          child: Text(AppLocalizations.of(context)!.deleteMyAccountButton, style: TextStyle(
                             ),
                           ),
                         ),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
+import '../../l10n/app_localizations.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -25,7 +26,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email address')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterEmail)),
       );
       return;
     }
@@ -35,7 +36,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Reset link sent! Check your email inbox.'),
+            content: Text(AppLocalizations.of(context)!.resetLinkSentCheckInbox),
             backgroundColor: AppColors.success,
           ),
         );
@@ -46,7 +47,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(userFacingError(e, fallback: 'We could not send the reset link. Please try again.')),
+            content: Text(userFacingError(e, fallback: AppLocalizations.of(context)!.couldNotSendResetLink)),
             backgroundColor: AppColors.error,
           ),
         );
@@ -85,7 +86,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 32),
 
               Text(
-                'Forgot Password?',
+                AppLocalizations.of(context)!.forgotPassword,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
@@ -94,7 +95,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'No worries! Enter your email address and we\'ll send you a link to reset your password.',
+                AppLocalizations.of(context)!.forgotPasswordDescription,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondaryOf(context),
@@ -108,7 +109,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 40),
 
               Text(
-                'Email Address',
+                AppLocalizations.of(context)!.emailAddress,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -126,7 +127,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    hintText: 'Enter your email address',
+                    hintText: AppLocalizations.of(context)!.enterYourEmail,
                     hintStyle: TextStyle(
                       color: AppColors.textTertiaryOf(context),
                       fontSize: 14,
@@ -177,8 +178,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Your security is important to us',
+                          Text(
+                            AppLocalizations.of(context)!.yourSecurityImportant,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
@@ -187,7 +188,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'We\'ll send a secure password reset link to your email address.',
+                            AppLocalizations.of(context)!.secureResetLinkDescription,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondaryOf(context),
@@ -209,7 +210,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   icon: _isLoading
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 3))
                       : const Icon(Icons.mail_outline_rounded, size: 20),
-                  label: Text(_isLoading ? 'Sending...' : 'Send Reset Link'),
+                  label: Text(_isLoading ? AppLocalizations.of(context)!.sending : AppLocalizations.of(context)!.sendResetLink),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.textInverse,
@@ -229,7 +230,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'OR',
+                      AppLocalizations.of(context)!.orLabel,
                       style: TextStyle(
                         color: AppColors.textTertiaryOf(context),
                         fontSize: 12,
@@ -245,9 +246,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Phone number reset will be available in a future update. Use email reset for now.'))),
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.phoneResetUnavailable))),
                   icon: const Icon(Icons.phone_outlined, size: 20),
-                  label: const Text('Reset with Phone Number'),
+                  label: Text(AppLocalizations.of(context)!.resetWithPhoneNumber),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     side: BorderSide(color: AppColors.primary),
@@ -263,7 +264,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: TextButton(
                   onPressed: () => context.pop(),
                   child: Text(
-                    'Back to Sign In',
+                    AppLocalizations.of(context)!.backToSignIn,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w900,
@@ -280,7 +281,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Icon(Icons.lock_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 8),
                   Text(
-                    'Your information is secure and encrypted',
+                    AppLocalizations.of(context)!.informationSecureEncrypted,
                     style: TextStyle(
                       color: AppColors.textSecondaryOf(context),
                       fontSize: 12,
@@ -322,21 +323,21 @@ class _EmergencyBadge extends StatelessWidget {
             child: const Icon(Icons.emergency_rounded, color: AppColors.error, size: 24),
           ),
           const SizedBox(width: 12),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'EMERGENCY CARE',
-                style: TextStyle(
+                AppLocalizations.of(context)!.emergencyCare,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   color: AppColors.error,
                 ),
               ),
               Text(
-                '5x Priority Access',
-                style: TextStyle(
+                AppLocalizations.of(context)!.fiveXPriorityAccess,
+                style: const TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.bold,
                   color: AppColors.error,

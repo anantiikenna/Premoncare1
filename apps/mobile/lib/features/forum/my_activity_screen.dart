@@ -84,7 +84,7 @@ class _MyActivityScreenState extends ConsumerState<MyActivityScreen> {
 
   Widget _buildTabContent() {
     final userId = supabase.auth.currentUser?.id;
-    if (userId == null) return const Center(child: Text('Not authenticated'));
+    if (userId == null) return const Center(child: Text\('Not\ authenticated'\));
 
     switch (_selectedTabIndex) {
       case 0:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/app_colors.dart';
 
 class PaymentFailedScreen extends StatelessWidget {
@@ -25,7 +26,7 @@ class PaymentFailedScreen extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Payment Failed',
+          AppLocalizations.of(context)!.paymentFailed,
           style: TextStyle(
             color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.bold,
@@ -156,7 +157,7 @@ class PaymentFailedScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Payment failed',
+              AppLocalizations.of(context)!.paymentFailed,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -165,7 +166,7 @@ class PaymentFailedScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'We couldn\'t process your payment.\nPlease try again.',
+              AppLocalizations.of(context)!.paymentFailedDescription,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -196,7 +197,7 @@ class PaymentFailedScreen extends StatelessWidget {
                     icon: Icons.credit_card_rounded,
                     iconBg: AppColors.surfaceAltOf(context),
                     iconColor: AppColors.primary,
-                    label: 'Payment Method',
+                    label: AppLocalizations.of(context)!.paymentMethod,
                     value: '•••• 4242 (Visa)',
                   ),
                   Padding(
@@ -208,7 +209,7 @@ class PaymentFailedScreen extends StatelessWidget {
                     icon: Icons.calendar_today_rounded,
                     iconBg: AppColors.surfaceAltOf(context),
                     iconColor: AppColors.primary,
-                    label: 'Appointment',
+                    label: AppLocalizations.of(context)!.appointmentDetails,
                     value: doctorName ?? '',
                     subValue: 'Today, 10:30 AM',
                   ),
@@ -221,7 +222,7 @@ class PaymentFailedScreen extends StatelessWidget {
                     icon: Icons.payments_rounded,
                     iconBg: AppColors.surfaceAltOf(context),
                     iconColor: AppColors.primary,
-                    label: 'Amount',
+                    label: AppLocalizations.of(context)!.consultationFee,
                     value: '₦${amount ?? '0'}',
                   ),
                   Padding(
@@ -233,7 +234,7 @@ class PaymentFailedScreen extends StatelessWidget {
                     icon: Icons.access_time_rounded,
                     iconBg: AppColors.surfaceAltOf(context),
                     iconColor: AppColors.primary,
-                    label: 'Time',
+                    label: AppLocalizations.of(context)!.timeLabel,
                     value: 'May 28, 2025 • 9:41 AM',
                   ),
                 ],
@@ -263,7 +264,7 @@ class PaymentFailedScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Network issue detected',
+                          AppLocalizations.of(context)!.networkIssueDetected,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -272,7 +273,7 @@ class PaymentFailedScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Please check your internet connection\nand try again.',
+                          AppLocalizations.of(context)!.checkInternetConnection,
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.error,
@@ -301,13 +302,13 @@ class PaymentFailedScreen extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.refresh_rounded, size: 20),
-                    SizedBox(width: 10),
+                    const Icon(Icons.refresh_rounded, size: 20),
+                    const SizedBox(width: 10),
                     Text(
-                      'Try Again',
+                      AppLocalizations.of(context)!.tryAgain,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -327,13 +328,13 @@ class PaymentFailedScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.credit_card_rounded, size: 20),
-                    SizedBox(width: 10),
+                    const Icon(Icons.credit_card_rounded, size: 20),
+                    const SizedBox(width: 10),
                     Text(
-                      'Use Another Payment Method',
+                      AppLocalizations.of(context)!.useAnotherPaymentMethod,
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -367,7 +368,7 @@ class PaymentFailedScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Need help?',
+                          AppLocalizations.of(context)!.needHelp,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
@@ -376,7 +377,7 @@ class PaymentFailedScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Our support team is here for you.',
+                          AppLocalizations.of(context)!.supportTeam247,
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondaryOf(context),
@@ -388,13 +389,13 @@ class PaymentFailedScreen extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Contact support@premoncare.com for assistance')),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.contactSupportForAssistance)),
                       );
                     },
                     child: Row(
                       children: [
                         Text(
-                          'Contact Support',
+                          AppLocalizations.of(context)!.contactSupport,
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
@@ -420,7 +421,7 @@ class PaymentFailedScreen extends StatelessWidget {
                     Icon(Icons.home_outlined, color: AppColors.textPrimaryOf(context), size: 24),
                     const SizedBox(width: 10),
                     Text(
-                      'Back to Home',
+                      AppLocalizations.of(context)!.backToHomeLabel,
                       style: TextStyle(
                         color: AppColors.textPrimaryOf(context),
                         fontWeight: FontWeight.bold,

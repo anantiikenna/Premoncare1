@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -19,7 +20,7 @@ class AboutScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('About Premon Care', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.aboutPremonCareTitle, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
@@ -47,14 +48,14 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
-          _buildInfoTile(context, icon: Icons.info_outline_rounded, color: AppColors.primary, title: 'About', subtitle: 'Premon Care is a telemedicine platform connecting patients with licensed healthcare providers across Nigeria and Africa.'),
-          _buildInfoTile(context, icon: Icons.code_rounded, color: AppColors.success, title: 'Built With', subtitle: 'Flutter, Supabase, Firebase'),
-          _buildInfoTile(context, icon: Icons.favorite_rounded, color: AppColors.error, title: 'Our Mission', subtitle: 'To make quality healthcare accessible to everyone, everywhere through technology.'),
+          _buildInfoTile(context, icon: Icons.info_outline_rounded, color: AppColors.primary, title: AppLocalizations.of(context)!.aboutText, subtitle: AppLocalizations.of(context)!.aboutDescription),
+          _buildInfoTile(context, icon: Icons.code_rounded, color: AppColors.success, title: AppLocalizations.of(context)!.builtWith, subtitle: AppLocalizations.of(context)!.builtWithDescription),
+          _buildInfoTile(context, icon: Icons.favorite_rounded, color: AppColors.error, title: AppLocalizations.of(context)!.ourMission, subtitle: AppLocalizations.of(context)!.ourMissionDescription),
           _buildTappableTile(
             context,
             icon: Icons.public_rounded,
             color: AppColors.primary,
-            title: 'Website',
+            title: AppLocalizations.of(context)!.websiteLabel,
             subtitle: 'www.premoncare.com',
             url: 'https://www.premoncare.com',
           ),
@@ -62,14 +63,14 @@ class AboutScreen extends StatelessWidget {
             context,
             icon: Icons.email_outlined,
             color: AppColors.warning,
-            title: 'Contact',
+            title: AppLocalizations.of(context)!.contactLabel,
             subtitle: 'hello@premoncare.com',
             url: 'mailto:hello@premoncare.com',
           ),
           const SizedBox(height: 24),
           Center(
             child: Text(
-              'Made with care in Nigeria',
+              AppLocalizations.of(context)!.madeWithCareInNigeria,
               style: AppTypography.captionOf(context),
             ),
           ),

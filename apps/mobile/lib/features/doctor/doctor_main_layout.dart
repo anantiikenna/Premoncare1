@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/global_user_avatar.dart';
+import '../../l10n/app_localizations.dart';
 import 'doctor_dashboard.dart';
 import 'doctor_appointments_screen.dart';
 import 'doctor_patients_screen.dart';
@@ -43,11 +44,11 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Doctor Menu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+            Text(AppLocalizations.of(context)!.doctorMenu, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.person_outline_rounded, color: AppColors.primary),
-              title: const Text('Doctor Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.doctorProfileLabel, style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _currentIndex = 4);
@@ -55,7 +56,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.verified_user_outlined, color: AppColors.primary),
-              title: const Text('Verification Status', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.verificationStatusLabel, style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/verify-practitioner');
@@ -63,7 +64,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.card_membership_outlined, color: AppColors.primary),
-              title: const Text('Subscription', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.subscriptionLabel, style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/doctor/subscription');
@@ -71,7 +72,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.schedule_outlined, color: AppColors.primary),
-              title: const Text('Availability', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.availabilityLabel2, style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/doctor/schedule');
@@ -79,7 +80,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.trending_up_rounded, color: AppColors.primary),
-              title: const Text('Earnings', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.earningsLabel, style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
                 final profile = await supabase
@@ -100,7 +101,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.payments_rounded, color: AppColors.primary),
-              title: const Text('Payment Approvals', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.paymentApprovalsLabel, style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/doctor/payments');
@@ -108,7 +109,7 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined, color: AppColors.primary),
-              title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.settingsLabel, style: TextStyle(fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/settings-privacy');
@@ -117,20 +118,20 @@ class _DoctorMainLayoutState extends ConsumerState<DoctorMainLayout> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout_rounded, color: AppColors.error),
-              title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+              title: Text(AppLocalizations.of(context)!.logoutLabel, style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Log Out'),
+                    title: const Text\('Log\ Out'\),
                     content: const Text('Are you sure you want to log out?'),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text\(AppLocalizations.of(context)!.cancel\)),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(foregroundColor: AppColors.error),
-                        child: const Text('Log Out'),
+                        child: const Text\('Log\ Out'\),
                       ),
                     ],
                   ),

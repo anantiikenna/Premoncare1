@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 import '../../shared/widgets/mesh_circle.dart';
 import '../../core/app_colors.dart';
@@ -52,10 +53,10 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                 children: [
                   _buildAppBar(context, isEmergency),
                   const SizedBox(height: 24),
-                  Text(isEmergency ? 'PRIORITY DISPATCH' : 'CLINICAL BOOKING',
+                  Text(isEmergency ? AppLocalizations.of(context)!.priorityDispatch : AppLocalizations.of(context)!.clinicalBooking,
                       style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                   const SizedBox(height: 12),
-                  Text(isEmergency ? 'Emergency Access' : 'Booking Details',
+                  Text(isEmergency ? AppLocalizations.of(context)!.emergencyAccessTitle : AppLocalizations.of(context)!.bookingDetails,
                       style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
                   const SizedBox(height: 32),
 
@@ -67,7 +68,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('SESSION DURATION'),
+                  _buildSectionTitle(AppLocalizations.of(context)!.sessionDuration),
                   const SizedBox(height: 16),
                   _DurationSelector(
                     selectedDuration: _selectedDuration,
@@ -78,7 +79,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  _buildSectionTitle('PRICING ARCHITECTURE'),
+                  _buildSectionTitle(AppLocalizations.of(context)!.pricingArchitecture),
                   const SizedBox(height: 16),
                   _PricingModule(
                     selectedDuration: _selectedDuration,
@@ -109,7 +110,7 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            isEmergency ? 'AUTHORIZE EMERGENCY CARE' : 'PROCEED TO CONFIRMATION',
+                            isEmergency ? AppLocalizations.of(context)!.authorizeEmergencyCare : AppLocalizations.of(context)!.proceedToConfirmation,
                             style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
                           ),
                           const SizedBox(width: 12),
@@ -288,18 +289,18 @@ class _PricingModule extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _PriceRow(label: 'CLINICAL BASE RATE', value: '₦${perMin.toStringAsFixed(0)} / MIN'),
+          _PriceRow(label: AppLocalizations.of(context)!.clinicalBaseRate, value: '₦${perMin.toStringAsFixed(0)} / MIN'),
           const SizedBox(height: 16),
-          _PriceRow(label: 'SESSION DURATION', value: '$selectedDuration MINUTES'),
+          _PriceRow(label: AppLocalizations.of(context)!.sessionDurationLabel, value: '$selectedDuration MINUTES'),
           if (isEmergency) ...[
             const SizedBox(height: 16),
-            const _PriceRow(label: 'EMERGENCY PREMIUM', value: '5X RATE APPLIED', isUrgent: true),
+            _PriceRow(label: AppLocalizations.of(context)!.emergencyPremium, value: AppLocalizations.of(context)!.fiveXRateApplied, isUrgent: true),
           ],
           Padding(padding: const EdgeInsets.symmetric(vertical: 24), child: Divider(color: AppColors.borderLightOf(context), thickness: 2)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('TOTAL ESTIMATE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
+              Text(AppLocalizations.of(context)!.totalEstimate, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
               Text('₦$totalStr', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32, color: primaryColor, letterSpacing: -1.5)),
             ],
           ),
@@ -337,11 +338,9 @@ class _EmergencyBadge extends StatelessWidget {
         children: [
           Icon(Icons.bolt_rounded, color: AppColors.error, size: 16),
           const SizedBox(width: 8),
-          Text('PRIORITY ACCESS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 0.5)),
+          Text(AppLocalizations.of(context)!.priorityAccess, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 0.5)),
         ],
       ),
     );
   }
 }
-
-

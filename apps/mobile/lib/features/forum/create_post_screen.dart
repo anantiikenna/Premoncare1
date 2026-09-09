@@ -49,7 +49,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     await prefs.setString('forum_draft_body', _bodyController.text);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Draft saved'), backgroundColor: AppColors.success),
+        const SnackBar(content: Text\('Draft\ saved'\), backgroundColor: AppColors.success),
       );
     }
   }

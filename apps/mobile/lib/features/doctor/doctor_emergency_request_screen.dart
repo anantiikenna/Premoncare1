@@ -12,6 +12,7 @@ import '../../core/providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/supabase_locator.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
+import '../../l10n/app_localizations.dart';
 
 class DoctorEmergencyRequestScreen extends ConsumerStatefulWidget {
   final String appointmentId;
@@ -134,7 +135,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Patient has cancelled this emergency request.'),
+        content: Text(AppLocalizations.of(context)!.patientCancelledEmergency),
         backgroundColor: AppColors.warning,
       ),
     );
@@ -188,7 +189,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
         if (accept) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Emergency request accepted. Patient will proceed with payment.'),
+              content: Text(AppLocalizations.of(context)!.emergencyRequestAcceptedProceedPayment),
               backgroundColor: AppColors.success,
             ),
           );
@@ -260,7 +261,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                         Icon(Icons.warning_amber_rounded, color: AppColors.textInverse, size: 16),
                         SizedBox(width: 8),
                         Text(
-                          'EMERGENCY REQUEST',
+                          AppLocalizations.of(context)!.emergencyRequestLabel,
                           style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
                         ),
                       ],
@@ -297,8 +298,8 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    'Time remaining to respond',
+                    Text(
+                      AppLocalizations.of(context)!.timeRemainingToRespond,
                     style: AppTypography.bodySmall.copyWith(color: AppColors.textTertiaryOf(context)),
                   ),
                   const SizedBox(height: 40),
@@ -326,7 +327,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${widget.durationMinutes}-minute emergency consultation',
+                                AppLocalizations.of(context)!.minuteEmergencyConsultation(widget.durationMinutes),
                                 style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryOf(context)),
                               ),
                             ],
@@ -361,7 +362,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'If you accept, the patient will proceed with payment and you will be connected immediately.',
+                            AppLocalizations.of(context)!.ifYouAcceptPatientWillProceed,
                             style: AppTypography.bodySmall.copyWith(color: AppColors.primary, height: 1.3),
                           ),
                         ),
@@ -389,7 +390,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                               children: [
                                 Icon(Icons.close_rounded, size: 20),
                                 SizedBox(width: 8),
-                                Text('Decline', style: TextStyle(fontWeight: FontWeight.w900)),
+                                Text(AppLocalizations.of(context)!.declineLabel, style: TextStyle(fontWeight: FontWeight.w900)),
                               ],
                             ),
                           ),
@@ -419,7 +420,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                                     children: [
                                       Icon(Icons.check_rounded, size: 20),
                                       SizedBox(width: 8),
-                                      Text('Accept Emergency', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                                      Text(AppLocalizations.of(context)!.acceptEmergency, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
                                     ],
                                   ),
                           ),

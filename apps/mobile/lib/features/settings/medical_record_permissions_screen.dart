@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 
 class MedicalRecordPermissionsScreen extends ConsumerStatefulWidget {
@@ -45,7 +46,7 @@ class _MedicalRecordPermissionsScreenState extends ConsumerState<MedicalRecordPe
     try {
       await supabase.from('record_permissions').delete().eq('id', permissionId);
       _loadPermissions();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Access revoked')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.accessRevoked)));
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
@@ -63,7 +64,7 @@ class _MedicalRecordPermissionsScreenState extends ConsumerState<MedicalRecordPe
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Record Permissions', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.recordPermissionsTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: _loading
@@ -89,10 +90,10 @@ class _MedicalRecordPermissionsScreenState extends ConsumerState<MedicalRecordPe
         children: [
           Icon(Icons.lock_open_rounded, color: AppColors.textTertiaryOf(context), size: 56),
           const SizedBox(height: 16),
-          Text('No permissions granted', style: AppTypography.h4Of(context)),
+          Text(AppLocalizations.of(context)!.noPermissionsGranted, style: AppTypography.h4Of(context)),
           const SizedBox(height: 8),
           Text(
-            'Doctors will request access to your medical records when needed.',
+            AppLocalizations.of(context)!.doctorsRequestAccess,
             style: AppTypography.bodySmallOf(context),
             textAlign: TextAlign.center,
           ),
@@ -131,7 +132,7 @@ class _MedicalRecordPermissionsScreenState extends ConsumerState<MedicalRecordPe
           ),
           TextButton(
             onPressed: () => _revokePermission(perm['id']),
-            child: const Text('Revoke', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700, fontSize: 12)),
+            child: Text(AppLocalizations.of(context)!.revokeLabel, style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700, fontSize: 12)),
           ),
         ],
       ),

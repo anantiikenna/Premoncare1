@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import '../../l10n/app_localizations.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -39,13 +40,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Future<void> _resetPassword() async {
     if (!_hasMinLength || !_hasUppercase || !_hasNumber || !_hasSpecial) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please meet all password requirements before continuing.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.passwordRequirementsNotMet)),
       );
       return;
     }
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.passwordsDoNotMatch)),
       );
       return;
     }
@@ -59,7 +60,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to reset password: ${e.toString().replaceAll('Exception: ', '')}'),
+            content: Text('${AppLocalizations.of(context)!.anErrorOccurred} ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -97,7 +98,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               ),
               const SizedBox(height: 32),
               Text(
-                'Reset Password',
+                AppLocalizations.of(context)!.resetPassword,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
@@ -106,7 +107,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Create a new password to secure your account.',
+                AppLocalizations.of(context)!.createNewPasswordDescription,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondaryOf(context),
@@ -116,7 +117,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               ),
               const SizedBox(height: 32),
               Text(
-                'New Password',
+                AppLocalizations.of(context)!.newPassword,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -126,20 +127,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               const SizedBox(height: 8),
               _buildPasswordField(
                 controller: _passwordController,
-                hint: 'Enter new password',
+                hint: AppLocalizations.of(context)!.enterNewPassword,
                 isVisible: _isPasswordVisible,
                 onToggle: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
               ),
               const SizedBox(height: 12),
               _buildStrengthIndicator(),
               const SizedBox(height: 20),
-              _buildRequirementRow('At least 8 characters', _hasMinLength),
-              _buildRequirementRow('One uppercase letter', _hasUppercase),
-              _buildRequirementRow('One number', _hasNumber),
-              _buildRequirementRow('One special character', _hasSpecial),
+              _buildRequirementRow(AppLocalizations.of(context)!.atLeast8Characters, _hasMinLength),
+              _buildRequirementRow(AppLocalizations.of(context)!.oneUppercaseLetter, _hasUppercase),
+              _buildRequirementRow(AppLocalizations.of(context)!.oneNumber, _hasNumber),
+              _buildRequirementRow(AppLocalizations.of(context)!.oneSpecialCharacter, _hasSpecial),
               const SizedBox(height: 32),
               Text(
-                'Confirm New Password',
+                AppLocalizations.of(context)!.confirmNewPassword,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -149,7 +150,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               const SizedBox(height: 8),
               _buildPasswordField(
                 controller: _confirmPasswordController,
-                hint: 'Confirm new password',
+                hint: AppLocalizations.of(context)!.confirmNewPasswordHint,
                 isVisible: _isConfirmPasswordVisible,
                 onToggle: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
               ),
@@ -181,7 +182,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Make sure your password is strong',
+                            AppLocalizations.of(context)!.makePasswordStrong,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
@@ -190,7 +191,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'A strong password keeps your account safe and protects your personal data.',
+                            AppLocalizations.of(context)!.strongPasswordDescription,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondaryOf(context),
@@ -211,7 +212,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   icon: _isSubmitting
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textInverse))
                       : const Icon(Icons.lock_outline_rounded, size: 20),
-                  label: Text(_isSubmitting ? 'Resetting...' : 'Reset Password'),
+                  label: Text(_isSubmitting ? AppLocalizations.of(context)!.resetting : AppLocalizations.of(context)!.resetPassword),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.textInverse,
@@ -230,7 +231,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   Icon(Icons.lock_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 8),
                   Text(
-                    'Your information is secure and encrypted',
+                    AppLocalizations.of(context)!.informationSecureEncrypted,
                     style: TextStyle(
                       color: AppColors.textSecondaryOf(context),
                       fontSize: 12,
@@ -385,7 +386,7 @@ class _EmergencyBadge extends StatelessWidget {
               color: AppColors.surfaceOf(context),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.emergency_rounded, color: AppColors.error, size: 24),
+            child: const Icon(Icons.emergency_rounded, color: AppColors.error, size: 24),
           ),
           const SizedBox(width: 12),
           Column(
@@ -393,16 +394,16 @@ class _EmergencyBadge extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'EMERGENCY CARE',
-                style: TextStyle(
+                AppLocalizations.of(context)!.emergencyCare,
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   color: AppColors.error,
                 ),
               ),
               Text(
-                '5x Priority Access',
-                style: TextStyle(
+                AppLocalizations.of(context)!.fiveXPriorityAccess,
+                style: const TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.bold,
                   color: AppColors.error,

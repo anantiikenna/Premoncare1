@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../core/app_colors.dart';
 
@@ -29,7 +30,7 @@ class BookingFailedScreen extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Booking Failed',
+          AppLocalizations.of(context)!.bookingFailed,
           style: TextStyle(
             color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.bold,
@@ -150,7 +151,7 @@ class BookingFailedScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             Text(
-              'We couldn\'t confirm your booking',
+              AppLocalizations.of(context)!.bookingFailedDescription,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
@@ -161,7 +162,7 @@ class BookingFailedScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'This time slot is no longer available or has just been\nbooked by someone else.\nPlease choose another time.',
+              AppLocalizations.of(context)!.slotUnavailable,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -190,7 +191,7 @@ class BookingFailedScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Booking Details',
+                    AppLocalizations.of(context)!.bookingDetailsLabel,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -255,7 +256,7 @@ class BookingFailedScreen extends StatelessWidget {
                                 Icon(Icons.access_time_rounded, color: AppColors.primaryLight, size: 12),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Unavailable',
+                                  AppLocalizations.of(context)!.unavailableStatus,
                                   style: TextStyle(
                                     color: AppColors.primaryLight,
                                     fontSize: 11,
@@ -306,7 +307,7 @@ class BookingFailedScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Slot not available',
+                                AppLocalizations.of(context)!.slotNotAvailable,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -315,7 +316,7 @@ class BookingFailedScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'This time slot is no longer available. Please select a different time or date.',
+                                AppLocalizations.of(context)!.slotNotAvailableDescription,
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: AppColors.error,
@@ -336,7 +337,7 @@ class BookingFailedScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'What would you like to do?',
+                AppLocalizations.of(context)!.whatWouldYouLikeToDo,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
@@ -359,13 +360,13 @@ class BookingFailedScreen extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.calendar_month_rounded, size: 20),
-                    SizedBox(width: 10),
+                    const Icon(Icons.calendar_month_rounded, size: 20),
+                    const SizedBox(width: 10),
                     Text(
-                      'Choose Another Time',
+                      AppLocalizations.of(context)!.chooseAnotherTime,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -385,13 +386,13 @@ class BookingFailedScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.group_outlined, size: 20),
-                    SizedBox(width: 10),
+                    const Icon(Icons.group_outlined, size: 20),
+                    const SizedBox(width: 10),
                     Text(
-                      'View Other Doctors',
+                      AppLocalizations.of(context)!.viewOtherDoctors,
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -427,7 +428,7 @@ class BookingFailedScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Need help finding a slot?',
+                          AppLocalizations.of(context)!.needHelpFindingSlot,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -436,7 +437,7 @@ class BookingFailedScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Our support team can help you find the next available slot.',
+                          AppLocalizations.of(context)!.supportTeamHelp,
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondaryOf(context),
@@ -449,13 +450,13 @@ class BookingFailedScreen extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Contact support@premoncare.com for assistance')),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.contactSupportForAssistance)),
                       );
                     },
                     child: Row(
                       children: [
                         Text(
-                          'Contact Support',
+                          AppLocalizations.of(context)!.contactSupport,
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
@@ -483,7 +484,7 @@ class BookingFailedScreen extends StatelessWidget {
                     Icon(Icons.home_outlined, color: AppColors.textPrimaryOf(context), size: 24),
                     const SizedBox(width: 10),
                     Text(
-                      'Back to Home',
+                      AppLocalizations.of(context)!.backToHomeLabel,
                       style: TextStyle(
                         color: AppColors.textPrimaryOf(context),
                         fontWeight: FontWeight.bold,

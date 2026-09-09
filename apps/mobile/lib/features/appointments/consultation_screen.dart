@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 
 class ConsultationScreen extends ConsumerStatefulWidget {
@@ -294,7 +295,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
               _EndCallButton(onTap: _endCall),
               _ControlButton(
                 icon: Icons.chat_bubble_outline_rounded,
-                label: 'Chat',
+                label: AppLocalizations.of(context)!.chat,
                 onTap: () {
                   _jitsiMeet.openChat();
                 },

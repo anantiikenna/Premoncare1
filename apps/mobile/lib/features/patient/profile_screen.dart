@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/providers.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'patient_providers.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/mode_switch_dialog.dart';
@@ -67,9 +68,9 @@ class ProfileScreen extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('ACCOUNT SETTINGS', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+            Text(AppLocalizations.of(context)!.accountSettings, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             const SizedBox(height: 8),
-            Text('Your Profile', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
+            Text(AppLocalizations.of(context)!.yourProfile, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
           ],
         ),
         Container(
@@ -95,7 +96,7 @@ class ProfileScreen extends ConsumerWidget {
     final bool isVerified = status == 'approved' || status == 'verified';
     final String badgeText = isVerified 
         ? 'VERIFIED ${role.toUpperCase()}' 
-        : (status == 'pending' ? 'PENDING VERIFICATION' : 'UNVERIFIED PATIENT');
+        : (status == 'pending' ? AppLocalizations.of(context)!.pendingVerification : AppLocalizations.of(context)!.unverifiedPatient);
     final Color badgeColor = isVerified ? AppColors.success : AppColors.warning;
 
     return Container(
@@ -132,7 +133,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(profile?['full_name'] ?? 'Patient', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+                Text(profile?['full_name'] ?? AppLocalizations.of(context)!.defaultPatientName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
                 const SizedBox(height: 4),
                 Text(email, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 12),
@@ -167,19 +168,19 @@ class ProfileScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.sync_rounded, color: AppColors.textInverse, size: 18),
-              SizedBox(width: 12),
-              Text('UNIFIED ACCOUNT', style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+              const Icon(Icons.sync_rounded, color: AppColors.textInverse, size: 18),
+              const SizedBox(width: 12),
+              Text(AppLocalizations.of(context)!.unifiedAccount, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             ],
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _buildModeTab('Patient Mode', Icons.person_rounded, !isDoctorMode, isDoctorMode ? () => _showModeSwitchDialog(context, 'Patient') : () {})),
+              Expanded(child: _buildModeTab(AppLocalizations.of(context)!.patientMode, Icons.person_rounded, !isDoctorMode, isDoctorMode ? () => _showModeSwitchDialog(context, 'Patient') : () {})),
               const SizedBox(width: 12),
-              Expanded(child: _buildModeTab('Doctor Mode', Icons.medical_services_rounded, isDoctorMode, !isDoctorMode ? (isVerified ? () => _showModeSwitchDialog(context, 'Doctor') : null) : () {})),
+              Expanded(child: _buildModeTab(AppLocalizations.of(context)!.doctorMode, Icons.medical_services_rounded, isDoctorMode, !isDoctorMode ? (isVerified ? () => _showModeSwitchDialog(context, 'Doctor') : null) : () {})),
             ],
           ),
           if (!isVerified) ...[
@@ -189,12 +190,12 @@ class ProfileScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.textInverse.withValues(alpha: 0.1))),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textInverse),
-                    SizedBox(width: 12),
-                    Expanded(child: Text('Complete verification to unlock Practitioner features', style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w600))),
-                    Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.textInverse),
+                    const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textInverse),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(AppLocalizations.of(context)!.completeVerificationPractitioner, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w600))),
+                    const Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.textInverse),
                   ],
                 ),
               ),
@@ -239,13 +240,13 @@ class ProfileScreen extends ConsumerWidget {
 
     return Row(
       children: [
-        _buildStatItem(context, apptsCount, 'Appts', Icons.calendar_month_rounded, AppColors.primary),
+        _buildStatItem(context, apptsCount, AppLocalizations.of(context)!.apptsLabel, Icons.calendar_month_rounded, AppColors.primary),
         const SizedBox(width: 12),
-        _buildStatItem(context, historyCount, 'History', Icons.history_rounded, AppColors.success),
+        _buildStatItem(context, historyCount, AppLocalizations.of(context)!.historyLabel, Icons.history_rounded, AppColors.success),
         const SizedBox(width: 12),
-        _buildStatItem(context, reportsCount, 'Reports', Icons.description_rounded, AppColors.primary),
+        _buildStatItem(context, reportsCount, AppLocalizations.of(context)!.reportsLabelNew, Icons.description_rounded, AppColors.primary),
         const SizedBox(width: 12),
-        _buildStatItem(context, '${credits}m', 'Credits', Icons.account_balance_wallet_rounded, AppColors.warning, onTap: () => context.push('/credits')),
+        _buildStatItem(context, '${credits}m', AppLocalizations.of(context)!.credits, Icons.account_balance_wallet_rounded, AppColors.warning, onTap: () => context.push('/credits')),
       ],
     );
   }
@@ -272,21 +273,21 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildMenuSection(BuildContext context, Map<String, dynamic>? profile) {
     final status = profile?['verification_status'] ?? 'unsubmitted';
-    final String statusLabel = status == 'approved' ? 'Verified' : (status == 'pending' ? 'Reviewing' : 'Register');
+    final String statusLabel = status == 'approved' ? AppLocalizations.of(context)!.verifiedLabelCustom : (status == 'pending' ? AppLocalizations.of(context)!.reviewing : AppLocalizations.of(context)!.registerLabel);
     final Color statusColor = status == 'approved' ? AppColors.success : (status == 'pending' ? AppColors.warning : AppColors.primary);
 
     return Container(
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(32), border: Border.all(color: AppColors.borderLightOf(context))),
       child: Column(
         children: [
-          _buildMenuTile(context, Icons.person_rounded, 'Personal Information', onTap: () => context.push('/settings-privacy')),
-          _buildMenuTile(context, Icons.verified_rounded, 'Practitioner Registration', badge: statusLabel, badgeColor: statusColor, onTap: () => context.push('/verify-practitioner')),
-          _buildMenuTile(context, Icons.folder_shared_rounded, 'Medical Records', onTap: () => context.push('/vault')),
-          _buildMenuTile(context, Icons.payment_rounded, 'My Credits & Billing', onTap: () => context.push('/credits')),
-          _buildMenuTile(context, Icons.notifications_rounded, 'Notifications', onTap: () => context.push('/notifications')),
-          _buildMenuTile(context, Icons.help_center_rounded, 'Help & Support', isLast: true, onTap: () {
+          _buildMenuTile(context, Icons.person_rounded, AppLocalizations.of(context)!.personalInformationMenu, onTap: () => context.push('/settings-privacy')),
+          _buildMenuTile(context, Icons.verified_rounded, AppLocalizations.of(context)!.practitionerRegistration, badge: statusLabel, badgeColor: statusColor, onTap: () => context.push('/verify-practitioner')),
+          _buildMenuTile(context, Icons.folder_shared_rounded, AppLocalizations.of(context)!.medicalRecordsMenu, onTap: () => context.push('/vault')),
+          _buildMenuTile(context, Icons.payment_rounded, AppLocalizations.of(context)!.myCreditsAndBilling, onTap: () => context.push('/credits')),
+          _buildMenuTile(context, Icons.notifications_rounded, AppLocalizations.of(context)!.notificationsMenu, onTap: () => context.push('/notifications')),
+          _buildMenuTile(context, Icons.help_center_rounded, AppLocalizations.of(context)!.helpAndSupport, isLast: true, onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Support: support@premoncare.com | WhatsApp: +234 800 000 0000'), duration: Duration(seconds: 4)),
+              SnackBar(content: Text(AppLocalizations.of(context)!.supportContactInfo), duration: const Duration(seconds: 4)),
             );
           }),
         ],
@@ -326,5 +327,3 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 }
-
-

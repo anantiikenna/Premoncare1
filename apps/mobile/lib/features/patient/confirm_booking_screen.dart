@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/utils.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
@@ -210,7 +211,6 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
 
       ref.invalidate(patientAppointmentsProvider);
 
-      // Dispatch notification via web API (handles both DB insert + FCM push)
       try {
         final siteUrl = const String.fromEnvironment(
           'NEXT_PUBLIC_SITE_URL',
@@ -311,11 +311,11 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 24),
-                        _buildSectionTitle(context, 'SPECIALIST REVIEW'),
+                        _buildSectionTitle(context, AppLocalizations.of(context)!.specialistReview),
                         const SizedBox(height: 16),
                         _buildDoctorMiniCard(context),
                         const SizedBox(height: 32),
-                        _buildSectionTitle(context, 'APPOINTMENT DETAILS'),
+                        _buildSectionTitle(context, AppLocalizations.of(context)!.appointmentDetails),
                         const SizedBox(height: 16),
                         _buildDateAndTimeSelector(context),
                         const SizedBox(height: 16),
@@ -323,7 +323,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                         const SizedBox(height: 32),
                         _buildSectionTitle(
                           context,
-                          'TIME BALANCE & AVAILABILITY',
+                          AppLocalizations.of(context)!.timeBalanceAvailability,
                         ),
                         const SizedBox(height: 16),
                         _buildTimeBalanceCard(context),
@@ -333,7 +333,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                           _buildInsufficientBalanceBanner(context),
                         ],
                         const SizedBox(height: 32),
-                        _buildSectionTitle(context, 'PAYMENT SUMMARY'),
+                        _buildSectionTitle(context, AppLocalizations.of(context)!.paymentSummary),
                         const SizedBox(height: 16),
                         _buildPaymentSummary(context),
                         const SizedBox(height: 32),
@@ -421,7 +421,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
             ),
           ),
           Text(
-            widget.isEmergency ? 'Emergency Review' : 'Final Review',
+            widget.isEmergency ? AppLocalizations.of(context)!.emergencyReview : AppLocalizations.of(context)!.finalReview,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -461,7 +461,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                   ),
                 ),
                 Text(
-                  '${widget.durationMinutes} min session',
+                  AppLocalizations.of(context)!.sessionMinutes(widget.durationMinutes),
                   style: TextStyle(
                     color: AppColors.textTertiaryOf(context),
                     fontSize: 12,
@@ -478,7 +478,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'VERIFIED',
+              AppLocalizations.of(context)!.verifiedLabel,
               style: TextStyle(
                 fontSize: 8,
                 fontWeight: FontWeight.w900,
@@ -509,7 +509,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
             child: _buildSelectorRow(
               context,
               Icons.calendar_today_rounded,
-              'Date',
+              AppLocalizations.of(context)!.date,
               dateStr,
             ),
           ),
@@ -522,7 +522,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
             child: _buildSelectorRow(
               context,
               Icons.access_time_rounded,
-              'Time',
+              AppLocalizations.of(context)!.timeLabel,
               timeStr,
             ),
           ),
@@ -587,7 +587,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Consultation Type',
+            AppLocalizations.of(context)!.consultationType,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -600,7 +600,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               Expanded(
                 child: _buildConsultTypeChip(
                   context,
-                  'Video Call',
+                  AppLocalizations.of(context)!.videoCall,
                   Icons.videocam_rounded,
                 ),
               ),
@@ -608,7 +608,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               Expanded(
                 child: _buildConsultTypeChip(
                   context,
-                  'In-Clinic Visit',
+                  AppLocalizations.of(context)!.inClinicVisit,
                   Icons.local_hospital_rounded,
                 ),
               ),
@@ -691,7 +691,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                 ),
                 const SizedBox(width: 16),
                 Text(
-                  'Checking balance...',
+                  AppLocalizations.of(context)!.checkingBalance,
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.textSecondaryOf(context),
@@ -725,7 +725,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Current Time Balance',
+                        AppLocalizations.of(context)!.currentTimeBalance,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -750,7 +750,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'After Booking',
+                      AppLocalizations.of(context)!.afterBooking,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -767,7 +767,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                       ),
                     ),
                     Text(
-                      _hasEnoughBalance ? 'Enough balance' : 'Insufficient',
+                      _hasEnoughBalance ? AppLocalizations.of(context)!.enoughBalance : AppLocalizations.of(context)!.insufficient,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -821,9 +821,9 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
       ),
       child: Column(
         children: [
-          _buildPriceRow(context, 'Consultation Fee', '₦$_amountStr'),
+          _buildPriceRow(context, AppLocalizations.of(context)!.consultationFee, '₦$_amountStr'),
           const SizedBox(height: 12),
-          _buildPriceRow(context, 'Platform Service', 'FREE', isSpecial: true),
+          _buildPriceRow(context, AppLocalizations.of(context)!.platformService, AppLocalizations.of(context)!.freeLabel, isSpecial: true),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: Divider(height: 1, color: AppColors.dividerOf(context)),
@@ -832,7 +832,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total Payable',
+                AppLocalizations.of(context)!.totalPayable,
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 16,
@@ -900,7 +900,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Emergency mode triggers instant notification to the specialist for immediate clinical attention.',
+              AppLocalizations.of(context)!.emergencyModeDescription,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -926,7 +926,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
           ),
           const SizedBox(width: 8),
           Text(
-            'End-to-end encrypted booking & clinical records',
+            AppLocalizations.of(context)!.endToEndEncrypted,
             style: TextStyle(
               fontSize: 11,
               color: AppColors.textTertiaryOf(context),
@@ -1001,7 +1001,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _hasEnoughBalance ? 'Confirm Booking' : 'Purchase Time',
+                        _hasEnoughBalance ? AppLocalizations.of(context)!.confirmBooking : AppLocalizations.of(context)!.purchaseTime,
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 18,

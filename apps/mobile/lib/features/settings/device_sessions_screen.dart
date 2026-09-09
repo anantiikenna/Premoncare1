@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 
 class DeviceSessionsScreen extends StatefulWidget {
@@ -26,13 +27,13 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Device Sessions', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.deviceSessionsTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('ACTIVE SESSIONS', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.activeSessionsSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
           _buildSessionCard(
             icon: Icons.phone_android_rounded,
@@ -42,7 +43,7 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
             isCurrent: true,
           ),
           const SizedBox(height: 24),
-          Text('SECURITY TIPS', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.securityTipsSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
@@ -58,7 +59,7 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'If you see a session you don\'t recognize, log out of all sessions immediately.',
+                    AppLocalizations.of(context)!.securityTipsDescription,
                     style: AppTypography.bodySmallOf(context).copyWith(height: 1.4),
                   ),
                 ),
@@ -82,7 +83,7 @@ class _DeviceSessionsScreenState extends State<DeviceSessionsScreen> {
                 }
               },
               icon: const Icon(Icons.logout_rounded, color: AppColors.error, size: 18),
-              label: const Text('Log Out of All Sessions', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.logOutAllSessions, style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.error),
                 padding: const EdgeInsets.symmetric(vertical: 14),

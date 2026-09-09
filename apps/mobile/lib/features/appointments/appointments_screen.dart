@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 import 'appointment_provider.dart';
 
@@ -76,8 +77,8 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                       return TabBarView(
                         controller: _tabController,
                         children: [
-                          _buildAppointmentList(context, upcoming, 'Your health schedule is clear', isPast: false),
-                          _buildAppointmentList(context, past, 'No past history found', isPast: true),
+                          _buildAppointmentList(context, upcoming, AppLocalizations.of(context)!.emptyUpcomingTitle, isPast: false),
+                          _buildAppointmentList(context, past, AppLocalizations.of(context)!.emptyPastTitle, isPast: true),
                         ],
                       );
                     },
@@ -99,12 +100,12 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('CLINICAL SESSIONS', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.clinicalSessionsHeader, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Appointments', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
+              Text(AppLocalizations.of(context)!.appointments, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
               _buildHeaderAction(Icons.calendar_today_rounded),
             ],
           ),
@@ -138,7 +139,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
           labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
           dividerColor: Colors.transparent,
-          tabs: const [Tab(text: 'Upcoming'), Tab(text: 'Completed')],
+          tabs: [Tab(text: AppLocalizations.of(context)!.upcomingTab), Tab(text: AppLocalizations.of(context)!.completedTab)],
         ),
       ),
     );
@@ -174,7 +175,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
           Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
           const SizedBox(height: 12),
           Text(
-            isPast ? 'Your completed clinical records and summaries will appear here.' : 'Schedule a consultation with our verified specialists to begin your care journey.',
+            isPast ? AppLocalizations.of(context)!.emptyPastDescription : AppLocalizations.of(context)!.emptyUpcomingDescription,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), height: 1.5, fontWeight: FontWeight.w500),
           ),
@@ -192,7 +193,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                   shadowColor: AppColors.primary.withValues(alpha: 0.3),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Book Appointment', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                child: Text(AppLocalizations.of(context)!.bookAppointment, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
               ),
             ),
           ],
@@ -237,7 +238,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                   children: [
                     Text(appointment.doctorName, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.textPrimaryOf(context))),
                     const SizedBox(height: 4),
-                    Text('Verified Specialist', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
+                    child: Text(AppLocalizations.of(context)!.verifiedSpecialist, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -283,7 +284,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('Reschedule', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+                    child: Text(AppLocalizations.of(context)!.rescheduleButton, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -298,7 +299,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('Join Consultation', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                    child: Text(AppLocalizations.of(context)!.joinConsultationButton, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                   ),
                 ),
               ],
@@ -316,7 +317,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text('View Summary', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+                child: Text(AppLocalizations.of(context)!.viewSummaryButton, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
               ),
             ),
           ],
@@ -345,7 +346,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
         children: [
           Icon(Icons.access_time_rounded, size: 16, color: AppColors.primary),
           const SizedBox(width: 8),
-          Text('Starts in ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
+          Text(AppLocalizations.of(context)!.startsInLabel, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondaryOf(context))),
           Text(
             '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.primary, letterSpacing: 1),

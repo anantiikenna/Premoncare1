@@ -10,6 +10,7 @@ import '../../shared/widgets/global_user_avatar.dart';
 import 'package:mobile/features/doctor/propose_followup_dialog.dart';
 import '../../core/app_colors.dart';
 import '../../core/doctor_name_utils.dart';
+import '../../l10n/app_localizations.dart';
 
 class DoctorDashboard extends ConsumerStatefulWidget {
   const DoctorDashboard({super.key});
@@ -102,7 +103,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     if (userId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Not authenticated. Please log in again.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.notAuthenticatedPleaseLogIn)),
         );
       }
       return;
@@ -115,7 +116,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     if (newStatus && !shouldShowOnline) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Online status is disabled in privacy settings')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.onlineStatusDisabledInPrivacy)),
         );
       }
       if (mounted) {
@@ -139,7 +140,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           _startHeartbeat();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('You are now active for emergency consult requests.'),
+              content: Text(AppLocalizations.of(context)!.nowActiveForEmergencyConsult),
               backgroundColor: AppColors.success,
             ),
           );
@@ -147,7 +148,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           _stopHeartbeat();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Emergency presence turned off.'),
+              content: Text(AppLocalizations.of(context)!.emergencyPresenceTurnedOff),
               backgroundColor: AppColors.slate600,
             ),
           );
@@ -156,8 +157,8 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     } catch (e) {
       if (mounted) {
         final msg = e.toString().contains('permission')
-            ? 'Permission denied. Please ensure your profile is fully set up.'
-            : 'Failed to update presence: ${e.toString()}';
+            ? AppLocalizations.of(context)!.permissionDeniedProfileSetup
+            : AppLocalizations.of(context)!.failedToUpdatePresence(e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg)),
         );
@@ -201,15 +202,15 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                   const SizedBox(height: 8),
                   _buildRevenueCard(context, ref, primaryColor),
                   const SizedBox(height: 32),
-                  _buildSectionTitle('PERFORMANCE METRICS'),
+                  _buildSectionTitle(AppLocalizations.of(context)!.performanceMetrics),
                   const SizedBox(height: 20),
                   _buildMetricsGrid(context, ref, primaryColor),
                   const SizedBox(height: 32),
-                  _buildSectionTitle('CLINICAL WORKFLOW'),
+                  _buildSectionTitle(AppLocalizations.of(context)!.clinicalWorkflow),
                   const SizedBox(height: 20),
                   _buildQuickActions(context, primaryColor),
                   const SizedBox(height: 32),
-                  _buildSectionTitle('UPCOMING SESSIONS'),
+                  _buildSectionTitle(AppLocalizations.of(context)!.upcomingSessionsLabel),
                   const SizedBox(height: 20),
                   _buildScheduleList(context, ref, primaryColor),
                   const SizedBox(height: 40),
@@ -238,7 +239,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('PRACTITIONER HUB', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+              Text(AppLocalizations.of(context)!.practitionerHub, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
               const SizedBox(height: 8),
               Text(
                 doctorName,
@@ -263,15 +264,17 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ...requests.map((req) {
+              final patientIdSuffix = (req['patient_id'] ?? '').toString();
+              final lastFour = patientIdSuffix.substring((patientIdSuffix.length - 4).clamp(0, 99));
               final patientName = req['metadata']?['guest_token'] != null
-                  ? 'Emergency Guest'
-                  : 'Patient ···${(req['patient_id'] ?? '').toString().substring(((req['patient_id'] ?? '').toString().length - 4).clamp(0, 99))}';
+                  ? AppLocalizations.of(context)!.emergencyGuest
+                  : AppLocalizations.of(context)!.patientIdDisplay(lastFour);
               final duration = req['duration_minutes'] ?? 15;
               final amount = (req['total_amount'] as num?)?.toInt() ?? 0;
               final createdAt = req['created_at'] != null
                   ? DateTime.tryParse(req['created_at'])?.toLocal()
                   : null;
-              final timeAgo = createdAt != null ? _timeAgo(createdAt) : '';
+              final timeAgo = createdAt != null ? _timeAgo(createdAt, context) : '';
 
               return GestureDetector(
                 onTap: () => context.push('/doctor-emergency-request', extra: {
@@ -309,10 +312,10 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'EMERGENCY REQUEST',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 1),
-                            ),
+                        Text(
+                          AppLocalizations.of(context)!.emergencyRequestLabel,
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 1),
+                        ),
                             const SizedBox(height: 4),
                             Text(
                               '$patientName • ${duration}min • ₦$amount',
@@ -332,9 +335,9 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                           color: AppColors.success,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          'VIEW',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textInverse, letterSpacing: 0.5),
+                        child: Text(
+                          AppLocalizations.of(context)!.viewLabel,
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textInverse, letterSpacing: 0.5),
                         ),
                       ),
                     ],
@@ -350,9 +353,9 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     );
   }
 
-  String _timeAgo(DateTime dt) {
+  String _timeAgo(DateTime dt, BuildContext context) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inSeconds < 60) return AppLocalizations.of(context)!.justNow;
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return '${diff.inDays}d ago';
@@ -386,7 +389,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           ),
           const SizedBox(width: 6),
           Text(
-            _isOnline ? 'ONLINE' : 'OFFLINE',
+            _isOnline ? AppLocalizations.of(context)!.onlineLabel : AppLocalizations.of(context)!.offlineLabel,
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w900,
@@ -506,10 +509,10 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           crossAxisSpacing: 16,
           childAspectRatio: 1.3,
           children: [
-            _buildMetricCard(context, patientsHelped, 'Total Patients', primaryColor, Icons.people_rounded),
-            _buildMetricCard(context, todaySessions, 'Today Sessions', AppColors.success, Icons.calendar_today_rounded),
-            _buildMetricCard(context, rating, 'Clinical Rating', AppColors.primary, Icons.star_rounded),
-            _buildMetricCard(context, '0', 'Avg. Session', AppColors.info, Icons.timer_outlined),
+                  _buildMetricCard(context, patientsHelped, AppLocalizations.of(context)!.totalPatients, primaryColor, Icons.people_rounded),
+            _buildMetricCard(context, todaySessions, AppLocalizations.of(context)!.todaySessions, AppColors.success, Icons.calendar_today_rounded),
+            _buildMetricCard(context, rating, AppLocalizations.of(context)!.clinicalRatingLabel, AppColors.primary, Icons.star_rounded),
+            _buildMetricCard(context, '0', AppLocalizations.of(context)!.avgSession, AppColors.info, Icons.timer_outlined),
           ],
         );
       },
@@ -544,14 +547,14 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildActionItem(context, Icons.calendar_month_rounded, 'Schedule', primaryColor, onTap: () => context.push('/doctor/schedule')),
-          _buildActionItem(context, Icons.person_add_rounded, 'Requests', AppColors.success, onTap: () => context.push('/appointments')),
-          _buildActionItem(context, Icons.history_edu_rounded, 'Follow-up', AppColors.warning, onTap: () {
+          _buildActionItem(context, Icons.calendar_month_rounded, AppLocalizations.of(context)!.scheduleLabel, primaryColor, onTap: () => context.push('/doctor/schedule')),
+          _buildActionItem(context, Icons.person_add_rounded, AppLocalizations.of(context)!.requestsLabel, AppColors.success, onTap: () => context.push('/appointments')),
+          _buildActionItem(context, Icons.history_edu_rounded, AppLocalizations.of(context)!.followUpLabel, AppColors.warning, onTap: () {
             showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (ctx) => const ProposeFollowupDialog());
           }),
-          _buildActionItem(context, Icons.medication_rounded, 'Prescribe', AppColors.primary, onTap: () => context.push('/appointments')),
-          _buildActionItem(context, Icons.verified_user_rounded, 'Compliance', AppColors.info, onTap: () => context.push('/doctor/subscription')),
-          _buildActionItem(context, Icons.payments_rounded, 'Payments', AppColors.success, onTap: () => context.push('/doctor/payments')),
+          _buildActionItem(context, Icons.medication_rounded, AppLocalizations.of(context)!.prescribeLabel, AppColors.primary, onTap: () => context.push('/appointments')),
+          _buildActionItem(context, Icons.verified_user_rounded, AppLocalizations.of(context)!.complianceLabel, AppColors.info, onTap: () => context.push('/doctor/subscription')),
+          _buildActionItem(context, Icons.payments_rounded, AppLocalizations.of(context)!.paymentsLabel, AppColors.success, onTap: () => context.push('/doctor/payments')),
         ],
       ),
     );
@@ -583,7 +586,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       child: appointmentsAsync.when(
         data: (appointments) {
           if (appointments.isEmpty) {
-            return Center(child: Text('No upcoming sessions.', style: TextStyle(color: AppColors.textSecondaryOf(context))));
+            return Center(child: Text(AppLocalizations.of(context)!.noUpcomingSessions, style: TextStyle(color: AppColors.textSecondaryOf(context))));
           }
           return Column(
             children: appointments.asMap().entries.map((entry) {
@@ -600,7 +603,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
 
               return Column(
                 children: [
-                  _buildScheduleItem(context, time, patientName, 'CONSULTATION', isConfirmed, primaryColor),
+                  _buildScheduleItem(context, time, patientName, AppLocalizations.of(context)!.consultationLabel, isConfirmed, primaryColor),
                   if (!isLast) Divider(height: 32, color: AppColors.borderLightOf(context)),
                 ],
               );

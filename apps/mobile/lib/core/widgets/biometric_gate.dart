@@ -17,6 +17,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
   final _biometricService = BiometricService();
   bool _isLocked = true;
   bool _checking = true;
+  int _checkGeneration = 0;
 
   @override
   void initState() {
@@ -41,9 +42,12 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
   }
 
   Future<void> _checkBiometric() async {
+    final generation = ++_checkGeneration;
+
     final enabled = await _biometricService.isEnabled();
+    if (generation != _checkGeneration || !mounted) return;
     if (!enabled) {
-      if (mounted) setState(() {
+      setState(() {
         _isLocked = false;
         _checking = false;
       });
@@ -51,8 +55,9 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
     }
 
     final available = await _biometricService.isAvailable();
+    if (generation != _checkGeneration || !mounted) return;
     if (!available) {
-      if (mounted) setState(() {
+      setState(() {
         _isLocked = false;
         _checking = false;
       });
@@ -60,12 +65,11 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
     }
 
     final authenticated = await _biometricService.authenticate();
-    if (mounted) {
-      setState(() {
-        _isLocked = !authenticated;
-        _checking = false;
-      });
-    }
+    if (generation != _checkGeneration || !mounted) return;
+    setState(() {
+      _isLocked = !authenticated;
+      _checking = false;
+    });
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import 'patient_providers.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 import '../../shared/widgets/mesh_circle.dart';
@@ -29,15 +30,15 @@ class CreditsScreen extends ConsumerWidget {
                 children: [
                   _buildAppBar(context),
                   const SizedBox(height: 24),
-                  Text('FINANCIAL HUB', style: AppTypography.overline.copyWith(color: AppColors.textSecondaryOf(context), letterSpacing: 1.5)),
+                  Text(AppLocalizations.of(context)!.financialHub, style: AppTypography.overline.copyWith(color: AppColors.textSecondaryOf(context), letterSpacing: 1.5)),
                   const SizedBox(height: 12),
-                  Text('Consultation Credits', style: AppTypography.h1.copyWith(letterSpacing: -1.0)),
+                  Text(AppLocalizations.of(context)!.consultationCreditsTitle, style: AppTypography.h1.copyWith(letterSpacing: -1.0)),
                   const SizedBox(height: 32),
                   _HeaderStatsCard(creditsAsync: creditsAsync),
                   const SizedBox(height: 32),
                   _buildActionGrid(context),
                   const SizedBox(height: 40),
-                  Text('MY DOCTOR CREDITS', style: AppTypography.overline.copyWith(color: AppColors.textSecondaryOf(context), letterSpacing: 1.5)),
+                  Text(AppLocalizations.of(context)!.myDoctorCredits, style: AppTypography.overline.copyWith(color: AppColors.textSecondaryOf(context), letterSpacing: 1.5)),
                   const SizedBox(height: 16),
                   creditsAsync.when(
                     data: (credits) {
@@ -94,15 +95,15 @@ class CreditsScreen extends ConsumerWidget {
   Widget _buildActionGrid(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _QuickAction(icon: Icons.timer_rounded, label: 'Buy Time', color: AppColors.primary, onTap: () => context.push('/doctor-search', extra: {'isBuyingTime': true}))),
+        Expanded(child: _QuickAction(icon: Icons.timer_rounded, label: AppLocalizations.of(context)!.buyTime, color: AppColors.primary, onTap: () => context.push('/doctor-search', extra: {'isBuyingTime': true}))),
         const SizedBox(width: 12),
-        Expanded(child: _QuickAction(icon: Icons.upload_file_rounded, label: 'Upload Receipt', color: AppColors.success, onTap: () => context.push('/upload-receipt'))),
+        Expanded(child: _QuickAction(icon: Icons.upload_file_rounded, label: AppLocalizations.of(context)!.uploadReceiptAction, color: AppColors.success, onTap: () => context.push('/upload-receipt'))),
         const SizedBox(width: 12),
-        Expanded(child: _QuickAction(icon: Icons.receipt_long_rounded, label: 'History', color: AppColors.warning, onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transaction history will appear here after your first credit purchase')));
+        Expanded(child: _QuickAction(icon: Icons.receipt_long_rounded, label: AppLocalizations.of(context)!.historyLabel, color: AppColors.warning, onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.transactionHistory)));
         })),
         const SizedBox(width: 12),
-        Expanded(child: _QuickAction(icon: Icons.help_outline_rounded, label: 'Guide', color: AppColors.info, onTap: () {
+        Expanded(child: _QuickAction(icon: Icons.help_outline_rounded, label: AppLocalizations.of(context)!.guide, color: AppColors.info, onTap: () {
           context.push('/help-support');
         })),
       ],
@@ -122,10 +123,10 @@ class CreditsScreen extends ConsumerWidget {
         children: [
           Icon(Icons.account_balance_wallet_outlined, color: AppColors.textTertiaryOf(context), size: 48),
           const SizedBox(height: 16),
-          Text('No credits yet', style: AppTypography.h4),
+          Text(AppLocalizations.of(context)!.noCreditsYet, style: AppTypography.h4),
           const SizedBox(height: 8),
           Text(
-            'Purchase time credits to consult with your doctors',
+            AppLocalizations.of(context)!.purchaseCreditsDescription,
             style: AppTypography.bodySmall,
             textAlign: TextAlign.center,
           ),
@@ -137,7 +138,7 @@ class CreditsScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: Text('Buy Credits', style: AppTypography.labelLarge.copyWith(color: AppColors.textInverse)),
+            child: Text(AppLocalizations.of(context)!.buyCredits, style: AppTypography.labelLarge.copyWith(color: AppColors.textInverse)),
           ),
         ],
       ),
@@ -177,11 +178,11 @@ class _HeaderStatsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.timer_outlined, color: AppColors.textInverse, size: 14),
-                        SizedBox(width: 6),
-                        Text('Total Remaining', style: TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.0)),
+                        const Icon(Icons.timer_outlined, color: AppColors.textInverse, size: 14),
+                        const SizedBox(width: 6),
+                        Text(AppLocalizations.of(context)!.totalRemaining, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.0)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -191,11 +192,11 @@ class _HeaderStatsCard extends StatelessWidget {
                       children: [
                         Text('$totalMinutes', style: const TextStyle(color: AppColors.textInverse, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -2.0)),
                         const SizedBox(width: 6),
-                        const Text('mins', style: TextStyle(color: AppColors.textInverse, fontSize: 16, fontWeight: FontWeight.w700)),
+                        Text(AppLocalizations.of(context)!.minsUnit, style: const TextStyle(color: AppColors.textInverse, fontSize: 16, fontWeight: FontWeight.w700)),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('Across $activeDoctors Active Doctors', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
+                    Text(AppLocalizations.of(context)!.acrossActiveDoctors(activeDoctors), style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -204,13 +205,13 @@ class _HeaderStatsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Active Credits', style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w700)),
+                    Text(AppLocalizations.of(context)!.activeCredits, style: const TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 4),
                     Text('$activeDoctors', style: const TextStyle(color: AppColors.textInverse, fontSize: 18, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 16),
-                    const Text('Status', style: TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w700)),
+                    Text(AppLocalizations.of(context)!.statusLabel, style: const TextStyle(color: AppColors.textInverse, fontSize: 10, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 4),
-                    Text(totalMinutes > 0 ? 'Active' : 'Empty', style: TextStyle(color: totalMinutes > 0 ? AppColors.success : AppColors.warning, fontSize: 18, fontWeight: FontWeight.w900)),
+                    Text(totalMinutes > 0 ? AppLocalizations.of(context)!.active : AppLocalizations.of(context)!.empty, style: TextStyle(color: totalMinutes > 0 ? AppColors.success : AppColors.warning, fontSize: 18, fontWeight: FontWeight.w900)),
                   ],
                 ),
               ),
@@ -321,7 +322,7 @@ class _DoctorCreditCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('$remainingMinutes', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: progressColor, letterSpacing: -1.0)),
-                  Text('mins', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textTertiaryOf(context))),
+                  Text(AppLocalizations.of(context)!.minsUnit, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textTertiaryOf(context))),
                 ],
               ),
             ],
@@ -336,7 +337,7 @@ class _DoctorCreditCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Last used $lastUsed', style: AppTypography.caption),
-              Text('$remainingMinutes / $totalMinutes mins', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryOf(context))),
+              Text('$remainingMinutes / $totalMinutes ${AppLocalizations.of(context)!.minsUnit}', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryOf(context))),
             ],
           ),
           const SizedBox(height: 24),
@@ -346,7 +347,7 @@ class _DoctorCreditCard extends StatelessWidget {
                 child: OutlinedButton(
             onPressed: () => context.push('/doctor-search', extra: {'isBuyingTime': true}),
                   style: OutlinedButton.styleFrom(side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: Text('Buy More', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13)),
+                  child: Text(AppLocalizations.of(context)!.buyMore, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13)),
                 ),
               ),
               const SizedBox(width: 12),
@@ -354,7 +355,7 @@ class _DoctorCreditCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => context.push('/doctor-search'),
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.textInverse, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: const Text('Consult', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                  child: Text(AppLocalizations.of(context)!.consult, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                 ),
               ),
             ],
@@ -380,7 +381,7 @@ class _DisclaimerBanner extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Credits are doctor-specific. Time credits can only be used to consult with the doctor who credited them. Unused time never expires.',
+              AppLocalizations.of(context)!.creditsDisclaimer,
               style: AppTypography.bodySmall.copyWith(height: 1.5, color: AppColors.textSecondaryOf(context)),
             ),
           ),
@@ -389,5 +390,3 @@ class _DisclaimerBanner extends StatelessWidget {
     );
   }
 }
-
-

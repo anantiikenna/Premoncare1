@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class PasswordResetSuccessScreen extends StatelessWidget {
   const PasswordResetSuccessScreen({super.key});
@@ -35,7 +36,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
               const _SuccessIllustration(),
               const SizedBox(height: 40),
               Text(
-                'Password Reset!',
+                AppLocalizations.of(context)!.passwordResetSuccess,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
@@ -44,7 +45,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Your password has been successfully\nreset. You can now sign in with your\nnew password.',
+                AppLocalizations.of(context)!.passwordResetDescription,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -76,22 +77,22 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Your account is secure',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.accountSecure,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                               color: AppColors.success,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'We\'ve sent a confirmation email to your inbox.',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.confirmationEmailSent,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.success,
                             ),
@@ -108,7 +109,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => context.go('/login'),
                   icon: const Icon(Icons.login_rounded, size: 20),
-                  label: const Text('Go to Sign In'),
+                  label: Text(AppLocalizations.of(context)!.goToSignIn),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.textInverse,
@@ -127,7 +128,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'OR',
+                      AppLocalizations.of(context)!.orLabel,
                       style: TextStyle(
                         color: AppColors.textTertiaryOf(context),
                         fontSize: 12,
@@ -142,7 +143,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
               TextButton.icon(
                 onPressed: () => context.go('/'),
                 icon: const Icon(Icons.home_outlined, size: 20),
-                label: const Text('Back to Home'),
+                label: Text(AppLocalizations.of(context)!.backToHome),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
@@ -163,12 +164,12 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Didn\'t receive the email?',
+                          Text(
+                            AppLocalizations.of(context)!.didntReceiveEmail,
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                           ),
                           Text(
-                            'Check your spam folder or resend the email.',
+                            AppLocalizations.of(context)!.checkSpamFolder,
                             style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12),
                           ),
                         ],
@@ -176,14 +177,14 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reset email resent')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.resetEmailResent)));
                         Future.delayed(const Duration(seconds: 2), () {
                           if (context.mounted) context.go('/login');
                         });
                       },
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Text('Resend Email', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                          Text(AppLocalizations.of(context)!.resendEmail, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary)),
                           Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.primary),
                         ],
                       ),
@@ -198,7 +199,7 @@ class PasswordResetSuccessScreen extends StatelessWidget {
                   Icon(Icons.lock_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 8),
                   Text(
-                    'Your information is secure and encrypted',
+                    AppLocalizations.of(context)!.informationSecureEncrypted,
                     style: TextStyle(
                       color: AppColors.textSecondaryOf(context),
                       fontSize: 12,
@@ -240,21 +241,21 @@ class _EmergencyBadge extends StatelessWidget {
             child: const Icon(Icons.emergency_rounded, color: AppColors.error, size: 24),
           ),
           const SizedBox(width: 12),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'EMERGENCY CARE',
-                style: TextStyle(
+                AppLocalizations.of(context)!.emergencyCare,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   color: AppColors.error,
                 ),
               ),
               Text(
-                '5x Priority Access',
-                style: TextStyle(
+                AppLocalizations.of(context)!.fiveXPriorityAccess,
+                style: const TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.bold,
                   color: AppColors.error,

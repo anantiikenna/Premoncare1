@@ -2076,3 +2076,48 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO service_role;
 GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_profiles_updated_at() TO service_role;
 
+-- ============================================================
+-- 5. Consultation Notes (doctor observations per appointment)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.consultation_notes (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  appointment_id uuid REFERENCES public.appointments(id) ON DELETE CASCADE NOT NULL,
+  doctor_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  patient_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  observations text NOT NULL,
+  follow_up_days integer,
+  created_at timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE public.consultation_notes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Doctors can insert consultation notes"
+  ON public.consultation_notes FOR INSERT
+  WITH CHECK (auth.uid() = doctor_id);
+
+CREATE POLICY "Doctors can view their consultation notes"
+  ON public.consultation_notes FOR SELECT
+  USING (auth.uid() = doctor_id);
+
+CREATE POLICY "Patients can view their consultation notes"
+  ON public.consultation_notes FOR SELECT
+  USING (auth.uid() = patient_id);
+
+CREATE POLICY "Admins can view all consultation notes"
+  ON public.consultation_notes FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+CREATE INDEX IF NOT EXISTS idx_consultation_notes_appointment_id ON public.consultation_notes (appointment_id);
+CREATE INDEX IF NOT EXISTS idx_consultation_notes_doctor_id ON public.consultation_notes (doctor_id);
+CREATE INDEX IF NOT EXISTS idx_consultation_notes_patient_id ON public.consultation_notes (patient_id);
+
+GRANT SELECT ON public.consultation_notes TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO service_role;
+
+-- 6. Allow patients to update prescriptions (for acknowledgment)
+DROP POLICY IF EXISTS "patients_update_own_prescriptions" ON public.prescriptions;
+CREATE POLICY "patients_update_own_prescriptions"
+  ON public.prescriptions FOR UPDATE
+  USING (auth.uid() = patient_id);
+

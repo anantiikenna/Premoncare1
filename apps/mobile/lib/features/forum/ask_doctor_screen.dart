@@ -75,7 +75,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
               onChanged: (v) => setState(() => _searchQuery = v.trim().toLowerCase()),
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
               decoration: InputDecoration(
-                hintText: 'Search health questions...',
+                hintText: 'Search\ health\ questions\.\.\.',
                 hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
                 prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 20),
                 filled: true,
@@ -252,7 +252,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () => context.push('/forum/create'),
-                    child: const Text('Ask the First Question'),
+                    child: const Text\('Ask\ the\ First\ Question'\),
                   ),
                 ],
               ),

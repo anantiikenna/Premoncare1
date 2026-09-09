@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show FileOptions;
 
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/providers.dart';
 import '../../shared/widgets/global_user_avatar.dart';
@@ -125,17 +126,17 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Change Profile Photo', style: AppTypography.h4Of(ctx)),
+          Text(AppLocalizations.of(context)!.changeProfilePhotoTitle, style: AppTypography.h4Of(ctx)),
               const SizedBox(height: 20),
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                title: Text('Take Photo', style: AppTypography.bodyLargeOf(ctx)),
+                title: Text(AppLocalizations.of(context)!.takePhotoLabel, style: AppTypography.bodyLargeOf(ctx)),
                 onTap: () => Navigator.pop(ctx, ImageSource.camera),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
-                title: Text('Choose from Gallery', style: AppTypography.bodyLargeOf(ctx)),
+                title: Text(AppLocalizations.of(context)!.chooseFromGallery, style: AppTypography.bodyLargeOf(ctx)),
                 onTap: () => Navigator.pop(ctx, ImageSource.gallery),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -275,7 +276,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Profile updated successfully'),
+            content: Text\('Profile\ updated\ successfully'\),
             backgroundColor: AppColors.success,
           ),
         );
@@ -357,8 +358,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           TextButton.icon(
             onPressed: _pickPhoto,
             icon: const Icon(Icons.camera_alt_rounded, size: 18, color: AppColors.primary),
-            label: Text(
-              'Change Photo',
+              label: Text(
+              AppLocalizations.of(context)!.changePhotoLabel,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w700,
@@ -425,7 +426,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           TextButton(
             onPressed: _pickPhoto,
             child: Text(
-              _selectedPhoto != null ? 'Change selection' : 'Change Photo',
+              _selectedPhoto != null ? AppLocalizations.of(context)!.changeSelectionLabel : AppLocalizations.of(context)!.changePhotoLabel,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w700,
@@ -732,7 +733,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Select Gender', style: AppTypography.h4Of(ctx)),
+            child: Text(AppLocalizations.of(context)!.selectGenderTitle, style: AppTypography.h4Of(ctx)),
               const SizedBox(height: 16),
               for (final gender in ['male', 'female', 'other', 'prefer not to say'])
                 ListTile(

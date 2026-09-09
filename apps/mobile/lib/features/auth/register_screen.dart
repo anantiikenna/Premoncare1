@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/user_facing_errors.dart';
+import '../../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -180,9 +181,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          Text('CLINICAL IDENTITY', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.clinicalIdentity, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          Text('Your Identity', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
+          Text(AppLocalizations.of(context)!.yourIdentity, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
           const SizedBox(height: 8),
           Text('Join the Premoncare ecosystem and access\nworld-class clinical specialists.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w600, height: 1.5)),
           const SizedBox(height: 40),

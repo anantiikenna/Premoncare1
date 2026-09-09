@@ -74,7 +74,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   return const SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.all(40),
-                      child: Center(child: Text('No posts found.')),
+                      child: Center(child: Text\('No\ posts\ found\.'\)),
                     ),
                   );
                 }
@@ -132,7 +132,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   },
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                   decoration: InputDecoration(
-                    hintText: 'Search topics, questions or keywords...',
+                    hintText: 'Search\ topics,\ questions\ or\ keywords\.\.\.',
                     hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
                     prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 20),
                     filled: true,
@@ -600,12 +600,12 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.bookmark_border),
-                title: const Text('Save Post'),
+                title: const Text\('Save\ Post'\),
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
                     await ForumService.toggleSavePost(post.id);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post saved'), backgroundColor: AppColors.success));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text\('Post\ saved'\), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }
@@ -613,10 +613,10 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.share_outlined),
-                title: const Text('Share Post'),
+                title: const Text\('Share\ Post'\),
                 onTap: () {
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post link copied to clipboard'), backgroundColor: AppColors.success));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text\('Post\ link\ copied\ to\ clipboard'\), backgroundColor: AppColors.success));
                 },
               ),
               ListTile(
@@ -628,7 +628,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   final reason = await showDialog<String>(
                     context: context,
                     builder: (dctx) => AlertDialog(
-                      title: const Text('Report Post'),
+                      title: const Text\('Report\ Post'\),
                       content: TextField(
                         controller: reasonController,
                         maxLines: 3,
@@ -638,7 +638,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                         ),
                       ),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(dctx), child: const Text('Cancel')),
+                        TextButton(onPressed: () => Navigator.pop(dctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
                         TextButton(
                           onPressed: () => Navigator.pop(dctx, reasonController.text.trim()),
                           child: const Text('Submit', style: TextStyle(color: AppColors.error)),
@@ -650,7 +650,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   if (reason == null || reason.isEmpty) return;
                   try {
                     await ForumService.report(postId: post.id, reason: reason);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post reported'), backgroundColor: AppColors.success));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text\('Post\ reported'\), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }

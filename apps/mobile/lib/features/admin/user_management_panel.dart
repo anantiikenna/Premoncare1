@@ -325,7 +325,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
         fontSize: 14,
       ),
       tabs: const [
-        Tab(text: 'All Users'),
+        Tab(text: 'All\ Users'),
         Tab(text: 'Doctors'),
         Tab(text: 'Patients'),
         Tab(text: 'Admins'),

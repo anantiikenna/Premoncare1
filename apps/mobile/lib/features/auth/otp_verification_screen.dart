@@ -8,6 +8,7 @@ import '../../core/supabase_locator.dart'
     show supabase, getUserRole, clearRoleCache, performLogout;
 import '../../core/flavor_config.dart';
 import '../../core/user_facing_errors.dart';
+import '../../l10n/app_localizations.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
   final String email;

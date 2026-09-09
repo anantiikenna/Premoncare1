@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/services/biometric_service.dart';
 import '../../core/services/privacy_service.dart';
 
@@ -56,19 +57,19 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
           icon: Icon(Icons.arrow_back_rounded, color: color),
           onPressed: () => context.pop(),
         ),
-        title: Text('Biometric & Privacy', style: TextStyle(color: color, fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.biometricAndPrivacyTile, style: TextStyle(color: color, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('SECURITY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.securitySection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
           _buildToggle(
             icon: Icons.fingerprint_rounded,
             color: AppColors.primary,
-            title: 'Biometric Lock',
-            subtitle: 'Require fingerprint or face to open app',
+            title: AppLocalizations.of(context)!.biometricLock,
+            subtitle: AppLocalizations.of(context)!.biometricLockDescription,
             value: _biometricLock,
             onChanged: (v) async {
               if (v) {
@@ -77,7 +78,7 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
                 if (!available) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Biometrics not available on this device')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.biometricsNotAvailable)),
                     );
                   }
                   return;
@@ -99,15 +100,15 @@ class _BiometricPrivacyScreenState extends State<BiometricPrivacyScreen> {
             },
           ),
           const SizedBox(height: 24),
-          Text('VISIBILITY', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.visibilitySection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.visibility_rounded, color: AppColors.success, title: 'Profile Visibility', subtitle: 'Allow doctors to see your profile', value: _profileVisible, onChanged: (v) { setState(() => _profileVisible = v); _savePreference('privacy_profile_visible', v); PrivacyService().syncToServer(); }),
-          _buildToggle(icon: Icons.circle_rounded, color: AppColors.info, title: 'Online Status', subtitle: 'Show when you are online', value: _showOnlineStatus, onChanged: (v) { setState(() => _showOnlineStatus = v); _savePreference('privacy_online_status', v); PrivacyService().syncToServer(); }),
+          _buildToggle(icon: Icons.visibility_rounded, color: AppColors.success, title: AppLocalizations.of(context)!.profileVisibility, subtitle: AppLocalizations.of(context)!.profileVisibilityDescription, value: _profileVisible, onChanged: (v) { setState(() => _profileVisible = v); _savePreference('privacy_profile_visible', v); PrivacyService().syncToServer(); }),
+          _buildToggle(icon: Icons.circle_rounded, color: AppColors.info, title: AppLocalizations.of(context)!.onlineStatusSection, subtitle: AppLocalizations.of(context)!.onlineStatusDescription, value: _showOnlineStatus, onChanged: (v) { setState(() => _showOnlineStatus = v); _savePreference('privacy_online_status', v); PrivacyService().syncToServer(); }),
           const SizedBox(height: 24),
-          Text('DATA', style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.dataSection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.science_rounded, color: AppColors.primary, title: 'Research Data Sharing', subtitle: 'Share anonymized data for medical research', value: _shareDataForResearch, onChanged: (v) { setState(() => _shareDataForResearch = v); _savePreference('privacy_research', v); }),
-          _buildToggle(icon: Icons.bug_report_rounded, color: AppColors.warning, title: 'Crash Reporting', subtitle: 'Help improve the app by sending crash reports', value: _allowCrashReporting, onChanged: (v) { setState(() => _allowCrashReporting = v); _savePreference('privacy_crash_reporting', v); }),
+          _buildToggle(icon: Icons.science_rounded, color: AppColors.primary, title: AppLocalizations.of(context)!.researchDataSharing, subtitle: AppLocalizations.of(context)!.researchDataSharingDescription, value: _shareDataForResearch, onChanged: (v) { setState(() => _shareDataForResearch = v); _savePreference('privacy_research', v); }),
+          _buildToggle(icon: Icons.bug_report_rounded, color: AppColors.warning, title: AppLocalizations.of(context)!.crashReporting, subtitle: AppLocalizations.of(context)!.crashReportingDescription, value: _allowCrashReporting, onChanged: (v) { setState(() => _allowCrashReporting = v); _savePreference('privacy_crash_reporting', v); }),
         ],
       ),
     );

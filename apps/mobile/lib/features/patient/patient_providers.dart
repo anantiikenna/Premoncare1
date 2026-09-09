@@ -141,3 +141,24 @@ class PatientPaymentService {
     });
   }
 }
+
+/// Provider for consultation summary data (prescriptions + consultation notes)
+final consultationSummaryProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, appointmentId) async {
+  final prescriptions = await supabase
+      .from('prescriptions')
+      .select('id, medication_name, dosage, frequency, duration, instructions')
+      .eq('appointment_id', appointmentId)
+      .order('created_at');
+
+  final notes = await supabase
+      .from('consultation_notes')
+      .select('id, observations, follow_up_days, created_at')
+      .eq('appointment_id', appointmentId)
+      .order('created_at')
+      .maybeSingle();
+
+  return {
+    'prescriptions': List<Map<String, dynamic>>.from(prescriptions),
+    'notes': notes,
+  };
+});

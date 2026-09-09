@@ -1,13 +1,14 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
-import '../../core/app_typography.dart';
-import '../../shared/widgets/generic_user_avatar.dart';
+import '../../l10n/app_localizations.dart';
+import '../../core/user_facing_errors.dart';
+import 'patient_providers.dart';
 
-class EmergencyWaitingScreen extends StatefulWidget {
+class EmergencyWaitingScreen extends ConsumerStatefulWidget {
   final String appointmentId;
   final String doctorId;
   final String doctorName;
@@ -24,60 +25,65 @@ class EmergencyWaitingScreen extends StatefulWidget {
   });
 
   @override
-  State<EmergencyWaitingScreen> createState() => _EmergencyWaitingScreenState();
+  ConsumerState<EmergencyWaitingScreen> createState() =>
+      _EmergencyWaitingScreenState();
 }
 
-class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
-    with SingleTickerProviderStateMixin {
-  late Timer _countdownTimer;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-  int _secondsRemaining = 180; // 3 minutes
-  String _status = 'waiting'; // waiting, accepted, declined, timeout
-  RealtimeChannel? _subscription;
+class _EmergencyWaitingScreenState
+    extends ConsumerState<EmergencyWaitingScreen> {
+  RealtimeChannel? _appointmentChannel;
+  RealtimeChannel? _doctorStatusChannel;
+
+  String _currentStatus = 'emergency_request';
+  bool _navigated = false;
+
+  int _elapsedSeconds = 0;
+  int _doctorRemainingSeconds = 3 * 60;
+  Timer? _patientTimer;
+  Timer? _doctorTimer;
+
+  final List<String> _connectionSteps = [
+    'Emergency request submitted',
+    'Scanning for available doctors',
+    'Sending secure notification to doctor',
+    'Waiting for doctor response',
+    'Doctor verifying credentials',
+  ];
+  int _currentStep = 0;
 
   @override
   void initState() {
     super.initState();
-    _startCountdown();
-    _setupRealtimeSubscription();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _countdownTimer.cancel();
-    _pulseController.dispose();
-    _subscription?.unsubscribe();
-    super.dispose();
-  }
-
-  void _startCountdown() {
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _startTimers();
+    _subscribeToAppointment();
+    _subscribeToDoctorStatus();
+    _doctorTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
       setState(() {
-        if (_secondsRemaining > 0) {
-          _secondsRemaining--;
-        } else {
+        _doctorRemainingSeconds--;
+        if (_doctorRemainingSeconds <= 0) {
           timer.cancel();
-          _handleTimeout();
+          _declineByTimeout();
         }
       });
     });
+    _patientTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() => _elapsedSeconds++);
+    });
   }
 
-  void _setupRealtimeSubscription() {
-    _subscription = Supabase.instance.client
-        .channel('emergency:waiting:${widget.appointmentId}')
+  void _startTimers() {}
+
+  void _subscribeToAppointment() {
+    _appointmentChannel = supabase
+        .channel('emergency:${widget.appointmentId}')
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
           schema: 'public',
@@ -87,113 +93,145 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
             column: 'id',
             value: widget.appointmentId,
           ),
-          callback: (payload) {
-            if (!mounted) return;
-            final newStatus = payload.newRecord['status'] as String?;
-            if (newStatus == 'emergency_accepted') {
-              _handleAccepted();
-            } else if (newStatus == 'emergency_declined') {
-              _handleDeclined();
-            }
-          },
+          callback: _handleAppointmentUpdate,
         )
         .subscribe();
   }
 
-  void _handleAccepted() {
-    _countdownTimer.cancel();
-    setState(() => _status = 'accepted');
-    // Navigate to booking confirmed after showing success animation
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        context.go(
-          '/booking-confirmed',
-          extra: {
-            'consultationFee': widget.totalAmount,
-            'doctorName': widget.doctorName,
-            'doctorId': widget.doctorId,
-            'durationMinutes': widget.durationMinutes,
-            'appointmentId': widget.appointmentId,
-            'consultationType': 'Video Call',
-          },
-        );
-      }
+  void _subscribeToDoctorStatus() {
+    _doctorStatusChannel = supabase
+        .channel('doctor_status:${widget.doctorId}')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'profiles',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: widget.doctorId,
+          ),
+          callback: _handleDoctorStatusUpdate,
+        )
+        .subscribe();
+  }
+
+  void _handleDoctorUpdate(PostgresChangePayload payload) {
+    final status = payload.newRecord['status'] as String?;
+    if (status != null && mounted) {
+      setState(() => _currentStatus = status);
+    }
+  }
+
+  void _handleDoctorStatusUpdate(PostgresChangePayload payload) {
+    final isOnline = payload.newRecord['is_online'] as bool? ?? false;
+    final isActive = isOnline;
+    debugPrint('Doctor online: $isActive');
+  }
+
+  void _handleAppointmentUpdate(PostgresChangePayload payload) {
+    final newRecord = payload.newRecord;
+    final status = newRecord['status'] as String? ?? '';
+    final paymentStatus = newRecord['payment_status'] as String? ?? '';
+
+    if (!mounted || _navigated) return;
+
+    setState(() {
+      _currentStatus = status;
+      _doctorTimer?.cancel();
     });
+
+    if (status == 'emergency_declined') {
+      _showDeclinedDialog();
+    } else if (status == 'ongoing' || paymentStatus == 'completed') {
+      _navigated = true;
+      context.go('/consultation/active/${widget.appointmentId}');
+    }
   }
 
-  void _handleDeclined() {
-    _countdownTimer.cancel();
-    setState(() => _status = 'declined');
+  void _declineByTimeout() {
+    _showDeclinedDialog();
   }
 
-  void _handleTimeout() {
-    setState(() => _status = 'timeout');
-    Supabase.instance.client
-        .from('appointments')
-        .update({'status': 'emergency_declined'})
-        .eq('id', widget.appointmentId)
-        .then((_) {})
-        .catchError((e) {
-          debugPrint('Emergency timeout status update failed: $e');
-        });
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) context.go('/emergency-failed');
-    });
-  }
-
-  String get _timerText {
-    final mins = _secondsRemaining ~/ 60;
-    final secs = _secondsRemaining % 60;
-    return '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundOf(context),
-      body: Stack(
-        children: [
-          // Background pulse effect
-          Positioned(
-            top: -200,
-            left: -100,
-            child: AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                return Container(
-                  width: 500,
-                  height: 500,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color:
-                        (_status == 'accepted'
-                                ? AppColors.success
-                                : _status == 'declined' || _status == 'timeout'
-                                ? AppColors.error
-                                : AppColors.primary)
-                            .withValues(alpha: 0.05 * _pulseAnimation.value),
-                  ),
-                );
-              },
+  void _showDeclinedDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceOf(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.emergency_rounded,
+                color: AppColors.error,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.requestExpired,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          AppLocalizations.of(context)!.requestExpiredMessage,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textSecondaryOf(context),
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _resendEmergencyRequest();
+            },
+            child: Text(
+              AppLocalizations.of(context)!.sendAgain,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.primary,
+              ),
             ),
           ),
-
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-                  _buildStatusHeader(),
-                  const SizedBox(height: 48),
-                  _buildDoctorCard(),
-                  const SizedBox(height: 48),
-                  _buildTimerSection(),
-                  const SizedBox(height: 32),
-                  _buildStatusMessage(),
-                  const Spacer(),
-                  _buildActionButtons(),
-                ],
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.go('/doctors/${widget.doctorId}');
+            },
+            child: Text(
+              AppLocalizations.of(context)!.viewDoctor,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textSecondaryOf(context),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.go('/patient/dashboard');
+            },
+            child: Text(
+              AppLocalizations.of(context)!.goHome,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textSecondaryOf(context),
               ),
             ),
           ),
@@ -202,68 +240,152 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
     );
   }
 
-  Widget _buildStatusHeader() {
-    return Column(
-      children: [
-        AnimatedBuilder(
-          animation: _pulseAnimation,
-          builder: (context, child) {
-            final color = _status == 'accepted'
-                ? AppColors.success
-                : _status == 'declined' || _status == 'timeout'
-                ? AppColors.error
-                : AppColors.primary;
-            return Transform.scale(
-              scale: _status == 'waiting' ? _pulseAnimation.value : 1.0,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: color, width: 3),
-                ),
-                child: Icon(
-                  _status == 'accepted'
-                      ? Icons.check_rounded
-                      : _status == 'declined' || _status == 'timeout'
-                      ? Icons.close_rounded
-                      : Icons.hourglass_top_rounded,
-                  color: color,
-                  size: 36,
+  void _resendEmergencyRequest() async {
+    try {
+      await supabase.from('appointments').update({
+        'status': 'emergency_request',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', widget.appointmentId);
+    } catch (e) {
+      debugPrint('Failed to resend: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _appointmentChannel?.unsubscribe();
+    _doctorStatusChannel?.unsubscribe();
+    _patientTimer?.cancel();
+    _doctorTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.backgroundOf(context),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 48),
+                      _buildPulsingCircle(context),
+                      const SizedBox(height: 40),
+                      _buildDoctorInfo(context),
+                      const SizedBox(height: 48),
+                      _buildConnectionSteps(context),
+                      const SizedBox(height: 32),
+                      _buildCountdownTimer(context),
+                      const SizedBox(height: 32),
+                      _buildTipsSection(context),
+                      const SizedBox(height: 32),
+                      _buildFeeSummary(context),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
               ),
-            );
-          },
+            ],
+          ),
         ),
-        const SizedBox(height: 24),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => context.go('/patient/dashboard'),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceOf(context),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderOf(context)),
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.textPrimaryOf(context),
+                size: 20,
+              ),
+            ),
+          ),
+          Text(
+            AppLocalizations.of(context)!.emergencyMode,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
+          const SizedBox(width: 44),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPulsingCircle(BuildContext context) {
+    return Column(
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 1500),
+          curve: Curves.easeInOut,
+          width: 160 + (_elapsedSeconds % 3) * 20.0,
+          height: 160 + (_elapsedSeconds % 3) * 20.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.error.withValues(alpha: 0.05),
+            border: Border.all(
+              color: AppColors.error.withValues(
+                alpha: 0.2 + (_elapsedSeconds % 3) * 0.1,
+              ),
+              width: 2,
+            ),
+          ),
+          child: Center(
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.error.withValues(alpha: 0.1),
+              ),
+              child: Icon(
+                Icons.emergency_rounded,
+                color: AppColors.error,
+                size: 48,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
         Text(
-          _status == 'accepted'
-              ? 'Doctor Accepted!'
-              : _status == 'declined'
-              ? 'Doctor Unavailable'
-              : _status == 'timeout'
-              ? 'Request Expired'
-              : 'Connecting You...',
-          style: AppTypography.h3.copyWith(
-            color: _status == 'accepted'
-                ? AppColors.success
-                : _status == 'declined' || _status == 'timeout'
-                ? AppColors.error
-                : AppColors.textPrimaryOf(context),
+          AppLocalizations.of(context)!.searchingDoctors,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          _status == 'waiting'
-              ? 'Sending your emergency request to ${widget.doctorName}...'
-              : _status == 'accepted'
-              ? '${widget.doctorName} is ready for your consultation.'
-              : _status == 'declined'
-              ? 'The doctor is currently unavailable. Let us find you another specialist.'
-              : 'The request timed out. We\'ll find you another available doctor.',
-          style: AppTypography.bodyMedium.copyWith(
-            color: AppColors.textSecondaryOf(context),
+          AppLocalizations.of(context)!.searchingDoctorsMessage,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textTertiaryOf(context),
+            height: 1.5,
           ),
           textAlign: TextAlign.center,
         ),
@@ -271,252 +393,378 @@ class _EmergencyWaitingScreenState extends State<EmergencyWaitingScreen>
     );
   }
 
-  Widget _buildDoctorCard() {
+  Widget _buildDoctorInfo(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderOf(context)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(color: AppColors.borderLightOf(context)),
       ),
       child: Row(
         children: [
-          GenericUserAvatar(radius: 36, avatarUrl: null),
-          const SizedBox(width: 20),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              Icons.person_rounded,
+              color: AppColors.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   widget.doctorName,
-                  style: AppTypography.h4.copyWith(fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
                 ),
-                const SizedBox(height: 4),
                 Text(
-                  'Emergency Consultation',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.error,
-                    fontWeight: FontWeight.w600,
+                  AppLocalizations.of(context)!.minutesReview,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textTertiaryOf(context),
                   ),
                 ),
               ],
             ),
           ),
-          if (_status == 'accepted')
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_rounded,
-                color: AppColors.success,
-                size: 20,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.warning.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.pending,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: AppColors.warning,
               ),
             ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTimerSection() {
-    if (_status != 'waiting') return const SizedBox.shrink();
-
+  Widget _buildConnectionSteps(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Circular progress
-        SizedBox(
-          width: 120,
-          height: 120,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 120,
-                height: 120,
-                child: CircularProgressIndicator(
-                  value: _secondsRemaining / 180,
-                  strokeWidth: 6,
-                  backgroundColor: AppColors.borderOf(context),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    _secondsRemaining > 60
-                        ? AppColors.primary
-                        : _secondsRemaining > 30
-                        ? AppColors.warning
-                        : AppColors.error,
-                  ),
-                ),
-              ),
-              Text(
-                _timerText,
-                style: AppTypography.h2.copyWith(
-                  fontSize: 28,
-                  color: _secondsRemaining > 60
-                      ? AppColors.textPrimaryOf(context)
-                      : _secondsRemaining > 30
-                      ? AppColors.warning
-                      : AppColors.error,
-                ),
-              ),
-            ],
+        Text(
+          AppLocalizations.of(context)!.connectionProgress,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         const SizedBox(height: 16),
-        Text(
-          'Waiting for doctor response',
-          style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textTertiaryOf(context),
-          ),
-        ),
+        ...List.generate(_connectionSteps.length, (index) {
+          final isComplete = index < _currentStep;
+          final isCurrent = index == _currentStep;
+          final isPending = index > _currentStep;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: isComplete
+                        ? AppColors.success
+                        : isCurrent
+                            ? AppColors.error
+                            : AppColors.surfaceAltOf(context),
+                    shape: BoxShape.circle,
+                  ),
+                  child: isComplete
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: AppColors.textInverse,
+                          size: 14,
+                        )
+                      : isCurrent
+                          ? SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.textInverse,
+                              ),
+                            )
+                          : null,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    _connectionSteps[index],
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: isPending
+                          ? AppColors.textTertiaryOf(context)
+                          : AppColors.textPrimaryOf(context),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }
 
-  Widget _buildStatusMessage() {
-    if (_status == 'waiting') {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.primaryLight.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.info_outline, color: AppColors.primary, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'The doctor will receive an urgent notification. You\'ll be connected immediately once they accept.',
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.primary,
-                  height: 1.4,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+  Widget _buildCountdownTimer(BuildContext context) {
+    final minutes = (_doctorRemainingSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_doctorRemainingSeconds % 60).toString().padLeft(2, '0');
+    final progress = _doctorRemainingSeconds / (3 * 60);
 
-    if (_status == 'declined' || _status == 'timeout') {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.errorLightOf(context),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.warning_amber_rounded,
-              color: AppColors.error,
-              size: 20,
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            AppLocalizations.of(context)!.doctorRespondTime,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textTertiaryOf(context),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                _status == 'declined'
-                    ? '${widget.doctorName} is unable to take your case right now.'
-                    : 'No response received within the time limit.',
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.error,
-                  height: 1.4,
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: 100,
+            height: 100,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    backgroundColor: AppColors.borderLightOf(context),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _doctorRemainingSeconds > 60
+                          ? AppColors.warning
+                          : AppColors.error,
+                    ),
+                    strokeWidth: 6,
+                  ),
                 ),
-              ),
+                Text(
+                  '$minutes:$seconds',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: _doctorRemainingSeconds > 60
+                        ? AppColors.textPrimaryOf(context)
+                        : AppColors.error,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    }
-
-    return const SizedBox.shrink();
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildActionButtons() {
-    if (_status == 'waiting') {
-      return SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: OutlinedButton(
-          onPressed: () async {
-            _countdownTimer.cancel();
-            // Cancel the appointment
-            await Supabase.instance.client
-                .from('appointments')
-                .update({'status': 'emergency_declined'})
-                .eq('id', widget.appointmentId);
-            if (mounted) context.go('/doctor-search');
-          },
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.textSecondaryOf(context),
-              side: BorderSide(color: AppColors.borderOf(context)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          child: const Text(
-            'Cancel Request',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-        ),
-      );
-    }
-
-    if (_status == 'accepted') {
-      return const SizedBox.shrink(); // Auto-navigates after delay
-    }
-
-    // Declined or timeout — show retry options
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: () => context.go('/doctor-search'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+  Widget _buildTipsSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.lightbulb_rounded,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
               ),
-            ),
-            child: const Text(
-              'Find Another Doctor',
+              const SizedBox(width: 12),
+              Text(
+                AppLocalizations.of(context)!.whileYouWait,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildTipItem(context, AppLocalizations.of(context)!.tipSymptoms),
+          _buildTipItem(context, AppLocalizations.of(context)!.tipRelax),
+          _buildTipItem(context, AppLocalizations.of(context)!.tipConnection),
+          _buildTipItem(context, AppLocalizations.of(context)!.tipSecure),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipItem(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.check_circle_rounded,
+            color: AppColors.success,
+            size: 16,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
               style: TextStyle(
-                fontWeight: FontWeight.w900,
-                color: AppColors.textInverse,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondaryOf(context),
+                height: 1.5,
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton(
-            onPressed: () => context.go('/doctor-search'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textSecondaryOf(context),
-              side: BorderSide(color: AppColors.borderOf(context)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Text(
-              'Back to Home',
-              style: TextStyle(fontWeight: FontWeight.w700),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeeSummary(BuildContext context) {
+    final baseFee = widget.totalAmount / 5;
+    final emergencyFee = widget.totalAmount;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLightOf(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.feeBreakdown,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          _buildFeeRow(context, AppLocalizations.of(context)!.baseConsultationFee, baseFee),
+          _buildFeeRow(context, AppLocalizations.of(context)!.emergencyPremium, emergencyFee),
+          const SizedBox(height: 12),
+          Divider(height: 1, color: AppColors.dividerOf(context)),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.totalEstimated,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textSecondaryOf(context),
+                ),
+              ),
+              Text(
+                '₦${widget.totalAmount.toInt()}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimaryOf(context),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 12,
+                color: AppColors.textTertiaryOf(context),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.emergencyPaymentNote,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeeRow(BuildContext context, String label, double amount) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondaryOf(context),
+            ),
+          ),
+          Text(
+            '₦${amount.toInt()}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
