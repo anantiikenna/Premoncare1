@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
@@ -388,7 +389,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Loading reports...',
+              AppLocalizations.of(context)!.loadingReports,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -415,7 +416,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             Icon(Icons.error_outline_rounded, color: AppColors.error, size: 40),
             const SizedBox(height: 12),
             Text(
-              'Failed to load data',
+              AppLocalizations.of(context)!.couldNotLoadData,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -424,7 +425,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              _error ?? 'Unknown error',
+              _error ?? AppLocalizations.of(context)!.unknownError,
               style: TextStyle(
                 fontSize: 11,
                 color: AppColors.textTertiaryOf(context),
@@ -444,7 +445,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Retry',
+                  AppLocalizations.of(context)!.retryLabel,
                   style: TextStyle(
                     color: AppColors.textInverse,
                     fontWeight: FontWeight.w700,
@@ -467,7 +468,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Reports & Insights Center',
+              AppLocalizations.of(context)!.reportsInsightsCenter,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -477,7 +478,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Track performance, usage and key metrics in real-time',
+              AppLocalizations.of(context)!.trackPerformanceDescription,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -489,9 +490,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         GestureDetector(
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text(
-                  'Report export is being prepared. Check back soon.',
+                  AppLocalizations.of(context)!.exportBeingPrepared,
                 ),
               ),
             );
@@ -512,7 +513,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Export Report',
+                  AppLocalizations.of(context)!.exportReport,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -601,7 +602,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Custom Range',
+                  AppLocalizations.of(context)!.customRange,
                   style: TextStyle(
                     color: AppColors.textSecondaryOf(context),
                     fontSize: 12,
@@ -626,28 +627,28 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       childAspectRatio: 1.25,
       children: [
         _buildKpiCard(
-          'Total Users',
+          AppLocalizations.of(context)!.totalUsers,
           _formatNumber(_totalUsers),
           _usersGrowthPct,
           Icons.group_outlined,
           AppColors.success,
         ),
         _buildKpiCard(
-          'Active Doctors',
+          AppLocalizations.of(context)!.activeDoctors,
           _formatNumber(_totalDoctors),
           _doctorsGrowthPct,
           Icons.medical_services_outlined,
           AppColors.info,
         ),
         _buildKpiCard(
-          'Total Appointments',
+          AppLocalizations.of(context)!.totalAppointments,
           _formatNumber(_totalAppointments),
           _appointmentsGrowthPct,
           Icons.calendar_month_outlined,
           AppColors.primary,
         ),
         _buildKpiCard(
-          'Total Revenue',
+          AppLocalizations.of(context)!.totalRevenue,
           _formatCurrency(_totalRevenue),
           _revenueGrowthPct,
           Icons.account_balance_wallet_outlined,
@@ -780,7 +781,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               Row(
                 children: [
                   Text(
-                    'Appointments Overview',
+                    AppLocalizations.of(context)!.appointmentsOverview,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
@@ -803,7 +804,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               height: 160,
               child: Center(
                 child: Text(
-                  'No appointments in this period',
+                  AppLocalizations.of(context)!.noAppointmentsThisPeriod,
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textTertiaryOf(context),
@@ -816,17 +817,17 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               children: [
                 _buildLegendDot(
                   AppColors.info,
-                  'Completed ($_completedAppointments)',
+                  AppLocalizations.of(context)!.completedCountLabel(_completedAppointments),
                 ),
                 const SizedBox(width: 16),
                 _buildLegendDot(
                   AppColors.error,
-                  'Cancelled ($_cancelledAppointments)',
+                  AppLocalizations.of(context)!.cancelledCountLabel(_cancelledAppointments),
                 ),
                 const SizedBox(width: 16),
                 _buildLegendDot(
                   AppColors.success,
-                  'Rescheduled ($_rescheduledAppointments)',
+                  AppLocalizations.of(context)!.rescheduledCountLabel(_rescheduledAppointments),
                 ),
               ],
             ),
@@ -836,21 +837,21 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               child: Column(
                 children: [
                   _buildBarSegment(
-                    'Completed',
+                    AppLocalizations.of(context)!.completedStatusLabel,
                     completedPct,
                     _completedAppointments,
                     AppColors.info,
                   ),
                   const SizedBox(height: 12),
                   _buildBarSegment(
-                    'Cancelled',
+                    AppLocalizations.of(context)!.cancelledLabel,
                     cancelledPct,
                     _cancelledAppointments,
                     AppColors.error,
                   ),
                   const SizedBox(height: 12),
                   _buildBarSegment(
-                    'Rescheduled',
+                    AppLocalizations.of(context)!.rescheduledLabel,
                     rescheduledPct,
                     _rescheduledAppointments,
                     AppColors.success,
@@ -939,7 +940,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Top Performing Doctors',
+                AppLocalizations.of(context)!.topPerformingDoctors,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
@@ -954,7 +955,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               height: 120,
               child: Center(
                 child: Text(
-                  'No doctor appointments in this period',
+                  AppLocalizations.of(context)!.noDoctorAppointmentsPeriod,
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textTertiaryOf(context),
@@ -968,7 +969,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 Expanded(
                   flex: 4,
                   child: Text(
-                    'Doctor',
+                    AppLocalizations.of(context)!.doctorColumnHeader,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -979,7 +980,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'Appointments',
+                    AppLocalizations.of(context)!.appointmentsLabel,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 10,
@@ -1078,7 +1079,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 ),
               ),
               Text(
-                'appointments',
+                AppLocalizations.of(context)!.appointmentsLowercase,
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
@@ -1105,7 +1106,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Platform Activity',
+            AppLocalizations.of(context)!.platformActivity,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w900,
@@ -1117,7 +1118,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             children: [
               Expanded(
                 child: _buildActivityCard(
-                  'Forum Posts',
+                  AppLocalizations.of(context)!.forumPosts,
                   _formatNumber(_forumPostsCount),
                   Icons.forum_outlined,
                   AppColors.primary,
@@ -1126,7 +1127,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildActivityCard(
-                  'Active Doctors',
+                  AppLocalizations.of(context)!.activeDoctors,
                   _formatNumber(_totalDoctors),
                   Icons.medical_services_outlined,
                   AppColors.info,
@@ -1135,7 +1136,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildActivityCard(
-                  'Completed',
+                  AppLocalizations.of(context)!.completedStatusLabel,
                   '${_totalAppointments > 0 ? (_completedAppointments / _totalAppointments * 100).toStringAsFixed(0) : 0}%',
                   Icons.check_circle_outline,
                   AppColors.success,
@@ -1193,7 +1194,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Reports Shortcuts',
+          AppLocalizations.of(context)!.reportsShortcuts,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -1207,32 +1208,32 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           child: Row(
             children: [
               _buildShortcutCard(
-                'User Analytics',
-                'Detailed user insights',
+                AppLocalizations.of(context)!.userAnalytics,
+                AppLocalizations.of(context)!.detailedUserInsights,
                 Icons.bar_chart_rounded,
                 AppColors.success,
               ),
               _buildShortcutCard(
-                'Doctor Performance',
-                'Track doctor metrics',
+                AppLocalizations.of(context)!.doctorPerformance,
+                AppLocalizations.of(context)!.trackDoctorMetrics,
                 Icons.group_outlined,
                 AppColors.info,
               ),
               _buildShortcutCard(
-                'Financial Reports',
-                'Revenue & transactions',
+                AppLocalizations.of(context)!.financialReports,
+                AppLocalizations.of(context)!.revenueTransactions,
                 Icons.account_balance_wallet_outlined,
                 AppColors.warning,
               ),
               _buildShortcutCard(
-                'Appointment Reports',
-                'Booking & trends',
+                AppLocalizations.of(context)!.appointmentReports,
+                AppLocalizations.of(context)!.bookingTrends,
                 Icons.calendar_today_outlined,
                 AppColors.primary,
               ),
               _buildShortcutCard(
-                'System Reports',
-                'System & audit logs',
+                AppLocalizations.of(context)!.systemReports,
+                AppLocalizations.of(context)!.systemAuditLogs,
                 Icons.settings_system_daydream_outlined,
                 AppColors.primary,
               ),
@@ -1252,7 +1253,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$title report is being developed.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.titleReportDeveloped(title))),
         );
       },
       child: Container(
@@ -1313,7 +1314,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'All reports are updated in real-time and data is securely encrypted.',
+              AppLocalizations.of(context)!.reportsRealTimeEncrypted,
               style: TextStyle(
                 color: AppColors.textPrimaryOf(context),
                 fontSize: 11,
@@ -1325,7 +1326,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           Row(
             children: [
               Text(
-                'Learn more',
+                AppLocalizations.of(context)!.learnMore,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 11,

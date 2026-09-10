@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:file_picker/file_picker.dart' as fp;
 import '../../core/app_colors.dart';
 import '../../shared/widgets/custom_text_field.dart';
@@ -41,7 +42,7 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
   Future<void> _handleUpload() async {
     if (_selectedFile == null || _titleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please provide a title and select a file')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.provideTitleAndFileError)),
       );
       return;
     }
@@ -50,7 +51,7 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
     if (_selectedFile!.lengthSync() > maxSizeBytes) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File size must be under 5MB')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.fileSizeMustBeUnder5MB)),
         );
       }
       return;
@@ -93,25 +94,25 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Secure Vault Upload',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.secureVaultUploadTitle,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'Your files are stored in an encrypted private bucket.',
+              AppLocalizations.of(context)!.filesEncryptedBucketDesc,
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13),
             ),
             const SizedBox(height: 32),
             CustomTextField(
-              label: 'Record Title',
-              hintText: 'e.g. June Blood Test',
+              label: AppLocalizations.of(context)!.recordTitleField,
+              hintText: AppLocalizations.of(context)!.recordTitleHint,
               controller: _titleController,
             ),
             const SizedBox(height: 20),
-            const Text('Record Category', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(AppLocalizations.of(context)!.recordCategoryField, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -139,7 +140,7 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
               ),
               child: _isUploading
                   ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
-                  : const Text('Encrypt & Upload to Vault', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  : Text(AppLocalizations.of(context)!.encryptAndUploadButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 32),
           ],
@@ -163,8 +164,8 @@ class _UploadRecordSheetState extends State<UploadRecordSheet> {
             const SizedBox(height: 16),
             Text(
               _selectedFile != null 
-                ? 'File Selected: ${_selectedFile!.path.split('/').last}'
-                : 'Select PDF or Medical Image',
+                ? AppLocalizations.of(context)!.fileSelectedLabel(_selectedFile!.path.split('/').last)
+                : AppLocalizations.of(context)!.selectPdfOrMedicalImage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,

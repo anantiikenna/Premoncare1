@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/app_colors.dart';
 import 'review_provider.dart';
 
@@ -25,13 +26,14 @@ class _ReviewDialogState extends State<ReviewDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: Text('Rate Dr. ${widget.doctorName}'),
+      title: Text(l10n.rateDoctor(widget.doctorName)),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('How was your consultation experience?'),
+            Text(l10n.howWasConsultationExperience),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -51,9 +53,9 @@ class _ReviewDialogState extends State<ReviewDialog> {
             TextField(
               controller: _commentController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'Add a comment (optional)...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: l10n.addCommentOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -62,7 +64,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text\(AppLocalizations.of(context)!.cancel\),
+          child: Text(l10n.cancelLabel),
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _handleReviewSubmit,
@@ -72,7 +74,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
           ),
           child: _isSubmitting 
             ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
-            : const Text('Submit Review'),
+            : Text(l10n.submitReview),
         ),
       ],
     );
@@ -89,8 +91,9 @@ class _ReviewDialogState extends State<ReviewDialog> {
       );
       if (mounted) {
         Navigator.pop(context);
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Thank you for your feedback!')),
+          SnackBar(content: Text(l10n.thankYouForFeedback)),
         );
       }
     } catch (e) {

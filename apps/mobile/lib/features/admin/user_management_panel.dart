@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_colors.dart';
 import 'admin_avatar.dart';
@@ -45,6 +46,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
   }
 
   Widget _buildQuickActionStrip(Color primaryColor) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
@@ -52,14 +54,12 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
         children: [
           _QuickActionBtn(
             icon: Icons.add,
-            label: 'Add User',
+            label: l10n.addUser,
             color: primaryColor,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'New users register through the patient portal. Send them the registration link.',
-                  ),
+                SnackBar(
+                  content: Text(l10n.addUserDescription),
                 ),
               );
             },
@@ -67,14 +67,12 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           const SizedBox(width: 12),
           _QuickActionBtn(
             icon: Icons.content_copy,
-            label: 'Bulk Actions',
+            label: l10n.bulkActions,
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Bulk actions are being developed. Manage users individually through the list above.',
-                  ),
+                SnackBar(
+                  content: Text(l10n.bulkActionsDescription),
                 ),
               );
             },
@@ -82,14 +80,12 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           const SizedBox(width: 12),
           _QuickActionBtn(
             icon: Icons.download,
-            label: 'Export Users',
+            label: l10n.exportUsers,
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Export is being developed. Use your device\'s screenshot feature to save user data.',
-                  ),
+                SnackBar(
+                  content: Text(l10n.exportUsersDescription),
                 ),
               );
             },
@@ -97,14 +93,12 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           const SizedBox(width: 12),
           _QuickActionBtn(
             icon: Icons.person_add,
-            label: 'Invite User',
+            label: l10n.inviteUser,
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Invitations are sent automatically when users register. Direct them to the signup page.',
-                  ),
+                SnackBar(
+                  content: Text(l10n.inviteUserDescription),
                 ),
               );
             },
@@ -112,14 +106,12 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           const SizedBox(width: 12),
           _QuickActionBtn(
             icon: Icons.description,
-            label: 'User Logs',
+            label: l10n.userLogs,
             color: AppColors.textSecondaryOf(context),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Audit logs are being developed. All admin actions are tracked in the system for compliance.',
-                  ),
+                SnackBar(
+                  content: Text(l10n.userLogsDescription),
                 ),
               );
             },
@@ -133,6 +125,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
   Widget build(BuildContext context) {
     final primaryColor = AppColors.primary;
     final adminService = ref.watch(adminServiceProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return AdminScaffold(
       selectedIndex: 1,
@@ -151,7 +144,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'User Management',
+                      l10n.userManagement,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
@@ -161,7 +154,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'View, manage and take actions on all platform users',
+                      l10n.userManagementSubtitle,
                       style: TextStyle(
                         color: AppColors.textSecondaryOf(context),
                         fontSize: 12,
@@ -189,6 +182,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
   }
 
   Widget _buildStatsGrid(dynamic adminService) {
+    final l10n = AppLocalizations.of(context)!;
     return FutureBuilder<Map<String, dynamic>>(
       future: adminService.getUserManagementStats(),
       builder: (context, snapshot) {
@@ -208,31 +202,31 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
           child: Row(
             children: [
               _StatCard(
-                label: 'Total Users',
+                label: l10n.totalUsers,
                 value: stats['total'].toString(),
                 icon: Icons.people,
                 color: AppColors.primary,
               ),
               _StatCard(
-                label: 'Doctors',
+                label: l10n.doctorsLabel,
                 value: stats['doctors'].toString(),
                 icon: Icons.medical_services,
                 color: AppColors.success,
               ),
               _StatCard(
-                label: 'Patients',
+                label: l10n.patientsLabelAdmin,
                 value: stats['patients'].toString(),
                 icon: Icons.person,
                 color: AppColors.primary,
               ),
               _StatCard(
-                label: 'Pending',
+                label: l10n.pendingLabelAdmin,
                 value: stats['pending'].toString(),
                 icon: Icons.access_time,
                 color: AppColors.warning,
               ),
               _StatCard(
-                label: 'Suspended',
+                label: l10n.suspendedLabel,
                 value: stats['suspended'].toString(),
                 icon: Icons.warning,
                 color: AppColors.error,
@@ -245,6 +239,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
   }
 
   Widget _buildSearchAndFilter(Color primaryColor) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
@@ -269,7 +264,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
                     controller: _searchController,
                     onChanged: (val) => setState(() => _searchQuery = val),
                     decoration: InputDecoration(
-                      hintText: 'Search by name, email or phone...',
+                      hintText: l10n.searchByNameEmailPhone,
                       hintStyle: TextStyle(
                         color: AppColors.textTertiaryOf(context),
                         fontSize: 14,
@@ -299,9 +294,9 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
                 size: 18,
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Filters',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              Text(
+                l10n.filter,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ],
           ),
@@ -311,6 +306,7 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
   }
 
   Widget _buildTabHeader(Color primaryColor) {
+    final l10n = AppLocalizations.of(context)!;
     return TabBar(
       controller: _tabController,
       isScrollable: true,
@@ -324,11 +320,11 @@ class _UserManagementPanelState extends ConsumerState<UserManagementPanel>
         fontWeight: FontWeight.bold,
         fontSize: 14,
       ),
-      tabs: const [
-        Tab(text: 'All\ Users'),
-        Tab(text: 'Doctors'),
-        Tab(text: 'Patients'),
-        Tab(text: 'Admins'),
+      tabs: [
+        Tab(text: l10n.allUsers),
+        Tab(text: l10n.doctorsLabel),
+        Tab(text: l10n.patientsLabelAdmin),
+        Tab(text: l10n.adminsTabLabel),
       ],
     );
   }
@@ -470,6 +466,7 @@ class _UserListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final statusColor = _getStatusColor(
       user['account_status'] ?? 'active',
       context,
@@ -520,7 +517,7 @@ class _UserListItem extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      user['full_name'] ?? 'User Name',
+                      user['full_name'] ?? l10n.userNameFallback,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
@@ -533,7 +530,7 @@ class _UserListItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  user['email'] ?? 'email@example.com',
+                  user['email'] ?? l10n.emailFallback,
                   style: TextStyle(
                     color: AppColors.textSecondaryOf(context),
                     fontSize: 12,
@@ -655,6 +652,7 @@ class _UserActionSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final adminService = ref.watch(adminServiceProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -674,13 +672,13 @@ class _UserActionSheet extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'User Actions',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+          Text(
+            l10n.userActions,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 8),
           Text(
-            'Manage account for ${user['full_name']}',
+            '${user['full_name']}',
             style: TextStyle(
               color: AppColors.textSecondaryOf(context),
               fontSize: 13,
@@ -691,8 +689,8 @@ class _UserActionSheet extends ConsumerWidget {
           _ActionTile(
             icon: Icons.block,
             label: user['account_status'] == 'suspended'
-                ? 'Activate Account'
-                : 'Suspend Account',
+                ? l10n.activateAccount
+                : l10n.suspendAccount,
             color: user['account_status'] == 'suspended'
                 ? AppColors.success
                 : AppColors.warning,
@@ -706,7 +704,7 @@ class _UserActionSheet extends ConsumerWidget {
           ),
           _ActionTile(
             icon: Icons.gpp_bad,
-            label: 'Ban Account (Permanent)',
+            label: l10n.banAccountPermanent,
             color: AppColors.error,
             onTap: () {
               adminService.updateUserAccountStatus(user['id'], 'banned');
@@ -715,14 +713,14 @@ class _UserActionSheet extends ConsumerWidget {
           ),
           _ActionTile(
             icon: Icons.edit,
-            label: 'Edit Profile Information',
+            label: l10n.editProfileInformation,
             onTap: () {
               Navigator.pop(context);
             },
           ),
           _ActionTile(
             icon: Icons.refresh,
-            label: 'Reset Verification State',
+            label: l10n.resetVerificationState,
             onTap: () {
               adminService.resetVerification(user['id']);
               Navigator.pop(context);
@@ -730,7 +728,7 @@ class _UserActionSheet extends ConsumerWidget {
           ),
           _ActionTile(
             icon: Icons.visibility,
-            label: 'Impersonate / Support View',
+            label: l10n.impersonateSupportView,
             color: AppColors.primary,
             onTap: () {
               Navigator.pop(context);
@@ -738,7 +736,7 @@ class _UserActionSheet extends ConsumerWidget {
           ),
           _ActionTile(
             icon: Icons.bolt,
-            label: 'Emergency Intervention',
+            label: l10n.emergencyIntervention,
             color: AppColors.warning,
             onTap: () {
               Navigator.pop(context);

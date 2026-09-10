@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
@@ -25,7 +26,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(children: [SizedBox(height: 24), AdminStatsSkeleton()]),
       ),
-      error: (e, _) => Center(child: Text('Failed to load dashboard: $e')),
+      error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingDashboard(e))),
       data: (stats) => Stack(
         children: [
           Positioned(
@@ -64,31 +65,31 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                   const SizedBox(height: 28),
                   _buildStatsGrid(),
                   const SizedBox(height: 32),
-                  _buildSectionHeader('Priority Alerts'),
+                  _buildSectionHeader(AppLocalizations.of(context)!.priorityAlerts),
                   const SizedBox(height: 16),
                   _buildPriorityAlerts(context),
                   const SizedBox(height: 32),
-                  _buildSectionHeader('Analytics Overview'),
+                  _buildSectionHeader(AppLocalizations.of(context)!.analyticsOverview),
                   const SizedBox(height: 16),
                   _buildAnalyticsSection(AppColors.primary),
                   const SizedBox(height: 32),
                   const AdminChartsWidget(),
                   const SizedBox(height: 32),
                   _buildSectionHeader(
-                    'Recent Doctor Applications',
+                    AppLocalizations.of(context)!.recentDoctorApplications,
                     onSeeAll: () => context.push('/admin/doctor-verification'),
                   ),
                   const SizedBox(height: 16),
                   _buildDoctorApplications(context),
                   const SizedBox(height: 32),
                   _buildSectionHeader(
-                    'Recent Transactions',
+                    AppLocalizations.of(context)!.recentTransactions,
                     onSeeAll: () => context.push('/admin/financial'),
                   ),
                   const SizedBox(height: 16),
                   _buildTransactions(),
                   const SizedBox(height: 32),
-                  _buildSectionHeader('Quick Actions'),
+                  _buildSectionHeader(AppLocalizations.of(context)!.quickActions),
                   const SizedBox(height: 16),
                   _buildQuickActions(context),
                   const SizedBox(height: 40),
@@ -186,13 +187,13 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                       color: AppColors.success.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.circle, color: Colors.white, size: 6),
-                        SizedBox(width: 6),
+                        const Icon(Icons.circle, color: Colors.white, size: 6),
+                        const SizedBox(width: 6),
                         Text(
-                          'Systems Online',
-                          style: TextStyle(
+                          AppLocalizations.of(context)!.systemsOnline,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -216,7 +217,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Total Platform Revenue',
+                AppLocalizations.of(context)!.totalPlatformRevenue,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 13,
@@ -228,12 +229,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 children: [
                   _heroChip(
                     Icons.calendar_today_rounded,
-                    '$todayAppts appointments today',
+                    AppLocalizations.of(context)!.appointmentsTodayCount(todayAppts),
                   ),
                   const SizedBox(width: 12),
                   _heroChip(
                     Icons.medical_services_rounded,
-                    '$verifiedDoctors verified doctors',
+                    AppLocalizations.of(context)!.verifiedDoctorsCount(verifiedDoctors),
                   ),
                 ],
               ),
@@ -288,25 +289,25 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           childAspectRatio: 1.5,
           children: [
             AdminStatCard(
-              title: 'Total Users',
+              title: AppLocalizations.of(context)!.totalUsers,
               value: '${stats['totalUsers']}',
               icon: Icons.people_outline_rounded,
               color: AppColors.info,
             ),
             AdminStatCard(
-              title: 'Verified Doctors',
+              title: AppLocalizations.of(context)!.verifiedDoctors,
               value: '${stats['verifiedDoctors']}',
               icon: Icons.medical_services_outlined,
               color: AppColors.success,
             ),
             AdminStatCard(
-              title: 'Appointments Today',
+              title: AppLocalizations.of(context)!.appointmentsToday,
               value: '${stats['todayAppointments']}',
               icon: Icons.calendar_today_outlined,
               color: AppColors.primary,
             ),
             AdminStatCard(
-              title: 'Total Revenue',
+              title: AppLocalizations.of(context)!.totalRevenue,
               value: formattedRevenue,
               icon: Icons.currency_exchange_rounded,
               color: AppColors.warning,
@@ -331,7 +332,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           ),
         ),
       ),
-      error: (_, _) => const Center(child: Text('Failed to load stats')),
+      error: (_, _) => Center(child: Text(AppLocalizations.of(context)!.failedToLoadStats)),
     );
   }
 
@@ -349,9 +350,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         children: [
           _AlertCard(
             count: '$verificationsCount',
-            title: 'Doctor Verifications',
-            subtitle: 'Pending review',
-            btnLabel: 'Review Now',
+            title: AppLocalizations.of(context)!.doctorVerifications,
+            subtitle: AppLocalizations.of(context)!.pendingReview,
+            btnLabel: AppLocalizations.of(context)!.reviewNow,
             color: AppColors.warning,
             icon: Icons.verified_user_rounded,
             hasUrgency: verificationsCount > 0,
@@ -360,9 +361,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           const SizedBox(width: 14),
           _AlertCard(
             count: '$disputesCount',
-            title: 'Payment Disputes',
-            subtitle: 'Needs resolution',
-            btnLabel: 'Resolve Now',
+            title: AppLocalizations.of(context)!.paymentDisputes,
+            subtitle: AppLocalizations.of(context)!.needsResolution,
+            btnLabel: AppLocalizations.of(context)!.resolveNow,
             color: AppColors.error,
             icon: Icons.gavel_rounded,
             hasUrgency: disputesCount > 0,
@@ -371,9 +372,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           const SizedBox(width: 14),
           _AlertCard(
             count: '—',
-            title: 'Emergency Queue',
-            subtitle: 'Live monitoring',
-            btnLabel: 'Open Queue',
+            title: AppLocalizations.of(context)!.emergencyQueueLabel,
+            subtitle: AppLocalizations.of(context)!.liveMonitoring,
+            btnLabel: AppLocalizations.of(context)!.openQueue,
             color: AppColors.info,
             icon: Icons.emergency_rounded,
             hasUrgency: false,
@@ -420,7 +421,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Revenue Overview',
+                      AppLocalizations.of(context)!.revenueOverview,
                       style: AppTypography.labelMediumOf(context),
                     ),
                     const SizedBox(height: 6),
@@ -437,9 +438,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Today', style: AppTypography.captionOf(context)),
+                        Text(AppLocalizations.of(context)!.todayLabel, style: AppTypography.captionOf(context)),
                         Text(
-                          '$todayAppointments appointments',
+                          AppLocalizations.of(context)!.appointmentsCount(todayAppointments),
                           style: AppTypography.captionOf(context),
                         ),
                       ],
@@ -455,7 +456,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 child: Column(
                   children: [
                     Text(
-                      'Appointments',
+                      AppLocalizations.of(context)!.appointmentsLabel,
                       textAlign: TextAlign.center,
                       style: AppTypography.labelMediumOf(context),
                     ),
@@ -482,7 +483,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                               style: AppTypography.h3Of(context),
                             ),
                             Text(
-                              'Total',
+                              AppLocalizations.of(context)!.totalLabel,
                               style: AppTypography.captionOf(context),
                             ),
                           ],
@@ -491,17 +492,17 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                     ),
                     const SizedBox(height: 20),
                     _buildAnalyticsLegend(
-                      'Completed',
+                      AppLocalizations.of(context)!.completedStatusLabel,
                       '$completedPct%',
                       primaryColor,
                     ),
                     _buildAnalyticsLegend(
-                      'Upcoming',
+                      AppLocalizations.of(context)!.upcomingTab,
                       '$upcomingPct%',
                       AppColors.info,
                     ),
                     _buildAnalyticsLegend(
-                      'Cancelled',
+                      AppLocalizations.of(context)!.cancelledLabel,
                       '$cancelledPct%',
                       AppColors.warning,
                     ),
@@ -588,10 +589,10 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     return appsAsync.when(
       data: (apps) {
         if (apps.isEmpty) {
-          return const AdminEmptyState(
+          return AdminEmptyState(
             icon: Icons.person_off_outlined,
-            title: 'No pending applications',
-            subtitle: 'All doctor applications have been reviewed.',
+            title: AppLocalizations.of(context)!.noPendingApplications,
+            subtitle: AppLocalizations.of(context)!.allApplicationsReviewed,
           );
         }
         return Column(
@@ -620,12 +621,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       },
       loading: () => const Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: CircularProgressIndicator(),
         ),
       ),
       error: (_, _) =>
-          const AdminErrorState(message: 'Failed to load applications'),
+          AdminErrorState(message: AppLocalizations.of(context)!.failedToLoadApplications),
     );
   }
 
@@ -641,11 +642,11 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     return txAsync.when(
       data: (txs) {
         if (txs.isEmpty) {
-          return const AdminEmptyState(
+          return AdminEmptyState(
             icon: Icons.receipt_long_outlined,
-            title: 'No recent transactions',
+            title: AppLocalizations.of(context)!.noRecentTransactions,
             subtitle:
-                'Transactions will appear here once payments are processed.',
+                AppLocalizations.of(context)!.transactionsWillAppear,
           );
         }
         return Column(
@@ -662,13 +663,13 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               padding: const EdgeInsets.only(bottom: 12),
               child: _TransactionTile(
                 amount: '₦${amount.toStringAsFixed(0)}',
-                sub: 'Payment ${status.toUpperCase()}',
+                sub: AppLocalizations.of(context)!.paymentStatus(status.toUpperCase()),
                 date: timeAgo,
                 status: isCompleted
-                    ? 'Completed'
+                    ? AppLocalizations.of(context)!.completedStatusLabel
                     : isRefunded
-                    ? 'Refunded'
-                    : 'Pending',
+                    ? AppLocalizations.of(context)!.refundedLabel
+                    : AppLocalizations.of(context)!.pendingLabel,
                 statusColor: isCompleted
                     ? AppColors.success
                     : isRefunded
@@ -691,12 +692,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       },
       loading: () => const Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: CircularProgressIndicator(),
         ),
       ),
       error: (_, _) =>
-          const AdminErrorState(message: 'Failed to load transactions'),
+          AdminErrorState(message: AppLocalizations.of(context)!.failedToLoadTransactions),
     );
   }
 
@@ -711,7 +712,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       children: [
         _QuickActionItem(
           icon: Icons.verified_user_rounded,
-          label: 'Verify Doctors',
+          label: AppLocalizations.of(context)!.verifyDoctors,
           gradient: LinearGradient(
             colors: [
               AppColors.primary,
@@ -724,7 +725,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         ),
         _QuickActionItem(
           icon: Icons.groups_rounded,
-          label: 'Manage Users',
+          label: AppLocalizations.of(context)!.manageUsers,
           gradient: LinearGradient(
             colors: [AppColors.info, AppColors.info.withValues(alpha: 0.7)],
             begin: Alignment.topLeft,
@@ -734,7 +735,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         ),
         _QuickActionItem(
           icon: Icons.campaign_rounded,
-          label: 'Broadcast',
+          label: AppLocalizations.of(context)!.broadcast,
           gradient: LinearGradient(
             colors: [
               AppColors.success,
@@ -747,7 +748,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         ),
         _QuickActionItem(
           icon: Icons.description_rounded,
-          label: 'Audit Logs',
+          label: AppLocalizations.of(context)!.auditLogs,
           gradient: LinearGradient(
             colors: [
               AppColors.warning,
@@ -760,7 +761,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         ),
         _QuickActionItem(
           icon: Icons.account_balance_wallet_rounded,
-          label: 'Payments',
+          label: AppLocalizations.of(context)!.paymentsLabel,
           gradient: LinearGradient(
             colors: [
               AppColors.primary,
@@ -773,7 +774,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         ),
         _QuickActionItem(
           icon: Icons.gavel_rounded,
-          label: 'Disputes',
+          label: AppLocalizations.of(context)!.disputesLabel,
           gradient: LinearGradient(
             colors: [AppColors.error, AppColors.error.withValues(alpha: 0.7)],
             begin: Alignment.topLeft,
@@ -783,7 +784,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         ),
         _QuickActionItem(
           icon: Icons.forum_rounded,
-          label: 'Forum Mod',
+          label: AppLocalizations.of(context)!.forumMod,
           gradient: LinearGradient(
             colors: [AppColors.info, AppColors.info.withValues(alpha: 0.7)],
             begin: Alignment.topLeft,
@@ -812,7 +813,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           TextButton(
             onPressed: onSeeAll,
             child: Text(
-              'View All',
+              AppLocalizations.of(context)!.viewAll,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w700,
@@ -1052,9 +1053,9 @@ class _ApplicationTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Approve',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                child: Text(
+                  AppLocalizations.of(context)!.approveLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
                 ),
               ),
               const SizedBox(width: 6),
@@ -1071,9 +1072,9 @@ class _ApplicationTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Review',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                child: Text(
+                  AppLocalizations.of(context)!.reviewLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
                 ),
               ),
             ],

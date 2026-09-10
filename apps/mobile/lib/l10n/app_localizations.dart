@@ -777,6 +777,7 @@ abstract class AppLocalizations {
   String get premiumPlanLabel;
   String get allInOnePremiumHealthcare;
   String get priceLabel;
+  String get pricePerMonth;
   String get nextBillingDate;
   String get unlimitedLabel;
   String get priorityLabel;
@@ -1170,6 +1171,562 @@ abstract class AppLocalizations {
   String get skipLabel;
   String get getStarted;
   String get loginLabel;
+  String get unlimitedConsultations;
+  String get prioritySupport;
+  String get timeCreditsIncluded;
+  String get familyAccountUpTo5;
+  String get standardSupport;
+  String get timeCreditsNaira2000;
+  String get familyAccountNA;
+  String get vipSupport;
+  String get timeCreditsNaira7500;
+  String get familyAccountUpTo10;
+  String get timeCreditsNaira20000;
+  String get tenConsultationsPerMonth;
+  String get renewsOnMay25;
+  String get fortyPercentUsed;
+  String get thirtyPercentUsed;
+  String get basicPlan;
+  String get proPlan;
+  String get patientLabel;
+  String get recordLabel;
+  String get otherLabel;
+  String get doctorAvailabilitySchedule;
+  String get manageWorkingHoursDescription;
+  String get availabilityStatus;
+  String get available;
+  String get openForBookings;
+  String get pauseBookingsDescription;
+  String get emergencyAvailability;
+  String get premonCareSupport;
+  String get yesterdayLabel;
+  String get dayMon;
+  String get dayTue;
+  String get dayWed;
+  String get dayThu;
+  String get dayFri;
+  String get daySat;
+  String get daySun;
+  String get specialistLabel;
+  String get statusOnlineLabel;
+  String get statusOfflineLabel;
+  String get startConsultationTitle;
+  String get feelFreeToAskDesc2;
+  String get prescriptionLabel;
+  String get reportsLabel2;
+  String get imagesLabel;
+  String get locationLabel2;
+  String get practitionerVerificationTitle;
+  String get actionRequiredLabel;
+  String get specialtyLabel;
+  String get experienceYearsLabel;
+  String get licenseNumberLabel;
+  String get uploadIdLabel;
+  String get proofOfAddressLabel2;
+  String noMatchesForSearch(String query);
+  String get monthJan;
+  String get monthFeb;
+  String get monthMar;
+  String get monthApr;
+  String get monthMay;
+  String get monthJun;
+  String get monthJul;
+  String get monthAug;
+  String get monthSep;
+  String get monthOct;
+  String get monthNov;
+  String get monthDec;
+  String get consultationFallback;
+  String get durationMinUnit;
+  String get askAQuestionFAB;
+  String get communityForum;
+  String get askShareLearn;
+  String get sortByLabel;
+  String get latestLabel;
+  String get mostAnsweredLabel;
+  String get mostLikedLabel;
+  String get allTopics;
+  String get trendingDiscussions;
+  String get trendingLabel;
+  String get popularLabel;
+  String get latestDiscussions;
+  String failedToLoadCategoriesError(String error);
+  String get submitLabel;
+  String get noRepliesYet;
+  String get beFirstToReply;
+  String get general;
+  String get createPostTitle;
+  String get saveDraftLabel;
+  String get createAPost;
+  String get createPostDescription;
+  String get selectCategoryStep;
+  String get postTitleStep;
+  String get describeQuestionStep;
+  String get addAttachmentsStep;
+  String get optionalParen;
+  String get tipMoreDetails;
+  String get uploadImagesOrDocuments;
+  String get addPhoto;
+  String get addDocument;
+  String get addLabResult;
+  String get addOther;
+  String get supportedFormats;
+  String get postAnonymously;
+  String get nameHiddenFromMembers;
+  String get postQuestionButton;
+  String failedToPostError(String error);
+  String get postDetailTitle;
+  String get forumBreadcrumb;
+  String get postDetailsBreadcrumb;
+  String get doctorRoleLabel;
+  String get communityMemberLabel;
+  String get postedInLabel;
+  String get viewsLabel;
+  String get repliesLabel;
+  String get likesLabel;
+  String get followLabel;
+  String get topRepliesLabel;
+  String get allRepliesLabel;
+  String get doctorAnswersLabel;
+  String get verifiedDoctorBadge;
+  String helpfulCount(int count);
+  String get replyButtonLabel;
+  String get writeReplyHint;
+  String get userManagement;
+  String get userManagementSubtitle;
+  String get addUser;
+  String get addUserDescription;
+  String get bulkActions;
+  String get bulkActionsDescription;
+  String get exportUsers;
+  String get exportUsersDescription;
+  String get inviteUser;
+  String get inviteUserDescription;
+  String get userLogs;
+  String get userLogsDescription;
+  String get totalUsers;
+  String get doctorsLabel;
+  String get patientsLabelAdmin;
+  String get pendingLabelAdmin;
+  String get suspendedLabel;
+  String get adminsTabLabel;
+  String get userNameFallback;
+  String get emailFallback;
+  String get userActions;
+  String get activateAccount;
+  String get suspendAccount;
+  String get banAccountPermanent;
+  String get editProfileInformation;
+  String get resetVerificationState;
+  String get impersonateSupportView;
+  String get emergencyIntervention;
+  String get approveDoctorQuestion;
+  String approveDoctorDescription(String name);
+  String get approve;
+  String get rejectApplication;
+  String get rejectApplicationDescription;
+  String get reject;
+  String get requestInformation;
+  String get requestInformationDescription;
+  String get requestInformationHint;
+  String get sendRequest;
+  String get infoRequestSentStatus;
+  String get pendingTab;
+  String get underReviewTab;
+  String get verifiedTab;
+  String get rejectedTab;
+  String get unsubmittedLabel;
+  String get allCaughtUpCategory;
+  String get backToQueue;
+  String get submittedDocuments;
+  String get applicationDetails;
+  String get adminNotesLabel;
+  String get requestMoreInfo;
+  String get approveAndVerify;
+  String get doctorVerifiedMessage;
+  String get applicationRejectedMessage;
+  String get identityComparison;
+  String get governmentId;
+  String get liveSelfie;
+  String get viewBtn;
+  String get userIdLabel;
+  String get licenseNumberLabel;
+  String get yearsOfExperience;
+  String get specializationLabel;
+  String get idType;
+  String get verificationStatus;
+  String get medicalLicense;
+  String get idDocumentFront;
+  String get idDocumentBack;
+  String get addressDocument;
+  String get noDocumentsSubmitted;
+  String get noDocumentsYet;
+  String get applicationDateUnknown;
+  String get inReviewStat;
+  String get approvedStat;
+  String get allTransactions;
+  String get financialAlerts;
+  String get recentTransactions;
+  String get quickActions;
+  String get totalRevenue;
+  String get totalPayouts;
+  String get pendingPayoutsLabel;
+  String get refundsLabel;
+  String get searchByTransaction;
+  String get exportBtn;
+  String get paymentDisputes;
+  String get requireAttention;
+  String get reviewNow;
+  String get awaitingApproval;
+  String get viewNow;
+  String get refundRequests;
+  String get pendingReview;
+  String get noTransactionsFound;
+  String get revenueOverview;
+  String get revenueBreakdown;
+  String get total;
+  String get approvedBreakdown;
+  String get pendingBreakdown;
+  String get otherBreakdown;
+  String get vsLastMonth;
+  String get recentDisputes;
+  String get noDisputes;
+  String get noOpenDisputes;
+  String get noPendingPayouts;
+  String get allPayoutsProcessed;
+  String get approvePayouts;
+  String get resolveDisputes;
+  String get transactionReports;
+  String get payoutSettings;
+  String get approvePayoutsQuestion;
+  String approvePayoutsDescription(String amount, int count);
+  String get approveAll;
+  String get refundType;
+  String get awaitingApprovalType;
+  String get disputedPayment;
+  String get consultationPayment;
+  String get disputeResolutionCenter;
+  String get disputeResolutionSubtitle;
+  String get openDisputes;
+  String get inReview;
+  String get resolved;
+  String get highRisk;
+  String get filterAll;
+  String get filterPayment;
+  String get filterConsultation;
+  String get filterRefund;
+  String get filterFraud;
+  String get filterBehavior;
+  String get filterOther;
+  String get noDisputesFound;
+  String get noDisputesMatch;
+  String get disputeDetails;
+  String get categoryLabel;
+  String get riskLevelLabel;
+  String get amountLabel;
+  String get disputeIdLabel;
+  String get createdLabel;
+  String get patientLabelDetail;
+  String get patientEmailLabel;
+  String get doctorLabelDetail;
+  String get doctorEmailLabel;
+  String get descriptionLabel;
+  String get resolutionNotesLabel;
+  String get resolutionActionsLabel;
+  String get markAsInReview;
+  String get resolveLabel;
+  String get closeLabel;
+  String get disputeInsights;
+  String get thisMonthLabel;
+  String get openStatusLabel;
+  String get learnMore;
+  String get fairResolutionText;
+  String get markAsUnderReview;
+  String get resolveDisputeAction;
+  String get closeDisputeAction;
+  String get noDescription;
+  String get savedAndFollowedTitle;
+  String get savedPostsTab;
+  String get tapBookmarkToSave;
+  String get tapFollowToTrack;
+  String get followedCategoriesLabel;
+  String get followedPostsLabel;
+  String get unfollowLabel;
+  String get sharedPatientRecordsTitle;
+  String get noSharedRecordsEmptyTitle;
+  String get patientsMustShareDesc;
+  String get viewRecordButton;
+  String get secureMedicalStorageTitle;
+  String get yourVaultIsEmptyTitle;
+  String get securelyStoreManageDesc;
+  String get uploadHealthRecordButton;
+  String get scheduleConsultationButton;
+  String get endToEndEncryptionTitle;
+  String get clinicalDataConfidentialDesc;
+  String get shareWithDoctorOption;
+  String get onlyAuthorizedDoctorsDesc;
+  String get secureVaultUploadTitle;
+  String get filesEncryptedBucketDesc;
+  String get recordTitleField;
+  String get recordCategoryField;
+  String get encryptAndUploadButton;
+  String get provideTitleAndFileError;
+  String get fileSizeMustBeUnder5MB;
+  String get selectPdfOrMedicalImage;
+  String get encryptedTLS;
+  String get messagesEncryptedTLS;
+  String get unreadMessageLabel;
+  String get startYourConsultationTitle;
+  String get feelFreeToAskDesc;
+  String get chatsTitle;
+  String get toStartConversationDesc;
+  String get noConversationsYetTitle;
+  String get startChatSpecialistDesc;
+  String noMatchesForSearch(String query);
+  String get professionalCredentialsTitle;
+  String get helpVerifyExpertiseDesc;
+  String get professionalTitleField;
+  String get medicalSpecialtyField;
+  String get experienceYearsField;
+  String get uploadMedicalLicenseLabel;
+  String get pdfJpgPng5MB;
+  String get identityVerificationScreenTitle;
+  String get secureUploadGovtIdDesc;
+  String get governmentIdLabel;
+  String get intlPassportOrNationalId;
+  String get proofOfAddressLabel;
+  String get utilityBillOrBankStatement;
+  String get faceRecognitionTitle;
+  String get verifyIdentityDocumentDesc;
+  String get reviewSubmissionTitle;
+  String get confirmDetailsBeforeDesc;
+  String get docsStatusLabel;
+  String get verificationReadyLabel;
+  String get certifyInfoAccurate;
+  String get submitApplicationButton;
+  String get selectSpecialtyError;
+  String get uploadMedicalLicenseError;
+  String get uploadIdDocumentError;
+  String get uploadProofOfAddressError;
+  String get captureLiveSelfieError;
+  String get verificationWizardTitle;
+  String get professionalProfileStep;
+  String get identityDocumentsStep;
+  String get facialBiometricsStep;
+  String get reviewAndSubmitStep;
+  String get submitForReviewButton;
+  String get applicationSubmittedTitle;
+  String get credentialsUnderReviewDesc;
+  String get returnToDashboardButton;
+  String get pleaseEnterValidEmail;
+  String get verifyYourNumber;
+  String get verifyPhoneNumberDescription;
+  String get createYourProfile;
+  String get tellUsAboutYourself;
+  String get emergencyGuestConversionFlow;
+  String get convertGuestUsersDescription;
+  String get yourHealthMatters;
+  String get healthJourneySupportMessage;
+  String get viewHealthRecords;
+  String get viewHealthRecordsDescription;
+  String get bookAppointments;
+  String get bookAppointmentsDescription;
+  String get getHealthReminders;
+  String get getHealthRemindersDescription;
+  String get chatWithDoctors;
+  String get chatWithDoctorsDescription;
+  String get phoneLabel;
+  String get emailLabel;
+  String get fullNameLabel;
+  String get viewMyHealthRecord;
+  String get healthDataAlwaysProtected;
+  String get iIllDoThisLater;
+  String get codeExpired;
+  String get didntReceiveCode;
+  String get unlimitedConsultations;
+  String get prioritySupport;
+  String get timeCreditsIncluded;
+  String get familyAccountUpTo5;
+  String get standardSupport;
+  String get timeCreditsNaira2000;
+  String get familyAccountNA;
+  String get vipSupport;
+  String get timeCreditsNaira7500;
+  String get familyAccountUpTo10;
+  String get timeCreditsNaira20000;
+  String get tenConsultationsPerMonth;
+  String get renewsOnMay25;
+  String get fortyPercentUsed;
+  String get thirtyPercentUsed;
+  String get basicPlan;
+  String get proPlan;
+  String get patientLabel;
+  String get recordLabel;
+  String get otherLabel;
+  String get doctorAvailabilitySchedule;
+  String get manageWorkingHoursDescription;
+  String get availabilityStatus;
+  String get available;
+  String get openForBookings;
+  String get pauseBookingsDescription;
+  String get emergencyAvailability;
+  String get premonCareSupport;
+  String get yesterdayLabel;
+  String get dayMon;
+  String get dayTue;
+  String get dayWed;
+  String get dayThu;
+  String get dayFri;
+  String get daySat;
+  String get daySun;
+  String get specialistLabel;
+  String get statusOnlineLabel;
+  String get statusOfflineLabel;
+  String get startConsultationTitle;
+  String get feelFreeToAskDesc2;
+  String get prescriptionLabel;
+  String get reportsLabel2;
+  String get imagesLabel;
+  String get locationLabel2;
+  String get practitionerVerificationTitle;
+  String get actionRequiredLabel;
+  String get specialtyLabel;
+  String get experienceYearsLabel;
+  String get licenseNumberLabel;
+  String get uploadIdLabel;
+  String get proofOfAddressLabel2;
+  String get unknownDoctor;
+  String get healthcareProvider;
+  String get recordTitleHint;
+  String fileSelectedLabel(String fileName);
+  String get priorityAlerts;
+  String get analyticsOverview;
+  String get recentDoctorApplications;
+  String get systemsOnline;
+  String get totalPlatformRevenue;
+  String appointmentsTodayCount(int count);
+  String verifiedDoctorsCount(int count);
+  String get verifiedDoctors;
+  String get appointmentsToday;
+  String get doctorVerifications;
+  String get needsResolution;
+  String get emergencyQueueLabel;
+  String get liveMonitoring;
+  String get openQueue;
+  String appointmentsCount(int count);
+  String get totalLabel;
+  String get cancelledLabel;
+  String get noPendingApplications;
+  String get allApplicationsReviewed;
+  String get failedToLoadApplications;
+  String get noRecentTransactions;
+  String get transactionsWillAppear;
+  String get refundedLabel;
+  String get failedToLoadTransactions;
+  String get verifyDoctors;
+  String get manageUsers;
+  String get broadcast;
+  String get auditLogs;
+  String get disputesLabel;
+  String get forumMod;
+  String get viewAll;
+  String get reviewLabel;
+  String get accountSectionLabel;
+  String get adminProfile;
+  String get adminProfileDeveloped;
+  String get permissionsRole;
+  String get securitySettings;
+  String get operationalModules;
+  String get reportsAndInsights;
+  String get p2pMonitoring;
+  String get notificationControl;
+  String get doctorSubscriptions;
+  String get premonCareAdmin;
+  String get adminPortal;
+  String get doctorVerification;
+  String get financialModeration;
+  String get forumModeration;
+  String get auditTimeline;
+  String get subscriptionPlans;
+  String get disputeResolution;
+  String get platformSettings;
+  String get usersLabel;
+  String get forumLabel;
+  String get moreLabel;
+  String get loadingReports;
+  String get unknownError;
+  String get reportsInsightsCenter;
+  String get trackPerformanceDescription;
+  String get exportReport;
+  String get customRange;
+  String get activeDoctors;
+  String get appointmentsOverview;
+  String get noAppointmentsThisPeriod;
+  String completedCountLabel(int count);
+  String cancelledCountLabel(int count);
+  String rescheduledCountLabel(int count);
+  String get rescheduledLabel;
+  String get topPerformingDoctors;
+  String get noDoctorAppointmentsPeriod;
+  String get doctorColumnHeader;
+  String get appointmentsLowercase;
+  String get platformActivity;
+  String get forumPosts;
+  String get reportsShortcuts;
+  String get userAnalytics;
+  String get detailedUserInsights;
+  String get doctorPerformance;
+  String get trackDoctorMetrics;
+  String get financialReports;
+  String get revenueTransactions;
+  String get appointmentReports;
+  String get bookingTrends;
+  String get systemReports;
+  String get systemAuditLogs;
+  String get reportsRealTimeEncrypted;
+  String get failedToLoadEmergencyQueue;
+  String emergencyQueueSubtitle(int pending, int accepted);
+  String get acceptedStatusLabel;
+  String get watchingLabel;
+  String get noEmergencyConsultsWaiting;
+  String get guestEmergencyBookingsWillAppear;
+  String get responseChecklist;
+  String get confirmDoctorAvailability;
+  String get ensureSpecialistOnline;
+  String get validateEmergencyPayment;
+  String get checkP2pEvidence;
+  String get monitorConversionFollowup;
+  String get guideGuestsRecords;
+  String get guestPatient;
+  String get unassignedDoctor;
+  String get noDate;
+  String paymentStatus(String status);
+  String get reasonForRejection;
+  String get infoRequestSent;
+  String failedToLoadDoctors(String error);
+  String failedToLoadCounts(String error);
+  String get addAdminNotesHint;
+  String get applicationRejected;
+  String get dateOfBirth;
+  String get doctorVerifiedSuccessfully;
+  String get agoLabel;
+  String get allClearMessage;
+  String get chooseCaseFromQueue;
+  String get clinicalDetails;
+  String get connectionIssue;
+  String get consultationInProgress;
+  String get doctorAcceptedRequest;
+  String get emergencyRequestChecklist;
+  String get emergencyRequestReceived;
+  String get failedToLoadQueue;
+  String get loadingEmergencies;
+  String get noSpecialty;
+  String get noSpecialtyAssigned;
+  String get notifyAvailableDoctors;
+  String get selectAnEmergencyCase;
+  String get symptomsLabel;
+  String get timeOfRequest;
+  String get unknownPatient;
 }
 
 class _AppLocalizationsDelegate
@@ -3561,6 +4118,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get priceLabel => 'Price';
 
   @override
+  String get pricePerMonth => '₦15,000 / month';
+
+  @override
   String get nextBillingDate => 'Next billing date: 15 June 2025';
 
   @override
@@ -4748,4 +5308,1708 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginLabel => 'Login';
+
+  @override
+  String get unlimitedConsultations => 'Unlimited consultations';
+
+  @override
+  String get prioritySupport => 'Priority support';
+
+  @override
+  String get timeCreditsIncluded => 'Time credits included';
+
+  @override
+  String get familyAccountUpTo5 => 'Family account (up to 5)';
+
+  @override
+  String get standardSupport => 'Standard support';
+
+  @override
+  String get timeCreditsNaira2000 => 'Time credits (₦2,000)';
+
+  @override
+  String get familyAccountNA => 'Family account (N/A)';
+
+  @override
+  String get vipSupport => 'VIP support';
+
+  @override
+  String get timeCreditsNaira7500 => 'Time credits (₦7,500)';
+
+  @override
+  String get familyAccountUpTo10 => 'Family account (up to 10)';
+
+  @override
+  String get timeCreditsNaira20000 => 'Time credits (₦20,000)';
+
+  @override
+  String get tenConsultationsPerMonth => '10 consultations / month';
+
+  @override
+  String get renewsOnMay25 => 'Renews on May 25, 2025';
+
+  @override
+  String get fortyPercentUsed => '40% used';
+
+  @override
+  String get thirtyPercentUsed => '30% used';
+
+  @override
+  String get basicPlan => 'Basic';
+
+  @override
+  String get proPlan => 'Pro';
+
+  @override
+  String get patientLabel => 'Patient';
+
+  @override
+  String get recordLabel => 'Record';
+
+  @override
+  String get otherLabel => 'Other';
+
+  @override
+  String get doctorAvailabilitySchedule => 'Doctor Availability & Schedule';
+
+  @override
+  String get manageWorkingHoursDescription => 'Manage your working hours, availability and preferences';
+
+  @override
+  String get availabilityStatus => 'Availability Status';
+
+  @override
+  String get available => 'Available';
+
+  @override
+  String get openForBookings => 'You are open for bookings';
+
+  @override
+  String get pauseBookingsDescription => 'Turn on to pause bookings';
+
+  @override
+  String get emergencyAvailability => 'Emergency Availability';
+
+  @override
+  String get premonCareSupport => 'Premon Care Support';
+
+  @override
+  String get yesterdayLabel => 'Yesterday';
+
+  @override
+  String get dayMon => 'Mon';
+
+  @override
+  String get dayTue => 'Tue';
+
+  @override
+  String get dayWed => 'Wed';
+
+  @override
+  String get dayThu => 'Thu';
+
+  @override
+  String get dayFri => 'Fri';
+
+  @override
+  String get daySat => 'Sat';
+
+  @override
+  String get daySun => 'Sun';
+
+  @override
+  String get specialistLabel => 'Specialist';
+
+  @override
+  String get statusOnlineLabel => 'Online';
+
+  @override
+  String get statusOfflineLabel => 'Offline';
+
+  @override
+  String get startConsultationTitle => 'Start your consultation';
+
+  @override
+  String get feelFreeToAskDesc2 => 'Feel free to ask questions or share symptoms with your specialist.';
+
+  @override
+  String get prescriptionLabel => 'Prescription';
+
+  @override
+  String get reportsLabel2 => 'Reports';
+
+  @override
+  String get imagesLabel => 'Images';
+
+  @override
+  String get locationLabel2 => 'Location';
+
+  @override
+  String get practitionerVerificationTitle => 'Practitioner Verification';
+
+  @override
+  String get actionRequiredLabel => 'Action Required';
+
+  @override
+  String get specialtyLabel => 'Specialty';
+
+  @override
+  String get experienceYearsLabel => 'Experience (Years)';
+
+  @override
+  String get licenseNumberLabel => 'License Number';
+
+  @override
+  String get uploadIdLabel => 'Government ID';
+
+  @override
+  String get proofOfAddressLabel2 => 'Proof of Address';
+
+  @override
+  String noMatchesForSearch(String query) {
+    return 'No matches for "$query"';
+  }
+
+  @override
+  String get monthJan => 'Jan';
+
+  @override
+  String get monthFeb => 'Feb';
+
+  @override
+  String get monthMar => 'Mar';
+
+  @override
+  String get monthApr => 'Apr';
+
+  @override
+  String get monthMay => 'May';
+
+  @override
+  String get monthJun => 'Jun';
+
+  @override
+  String get monthJul => 'Jul';
+
+  @override
+  String get monthAug => 'Aug';
+
+  @override
+  String get monthSep => 'Sep';
+
+  @override
+  String get monthOct => 'Oct';
+
+  @override
+  String get monthNov => 'Nov';
+
+  @override
+  String get monthDec => 'Dec';
+
+  @override
+  String get consultationFallback => 'Consultation';
+
+  @override
+  String get durationMinUnit => 'min';
+
+  @override
+  String get askAQuestionFAB => 'Ask a Question';
+
+  @override
+  String get communityForum => 'Community Forum';
+
+  @override
+  String get askShareLearn => 'Ask questions, share experiences and learn from others';
+
+  @override
+  String get sortByLabel => 'Sort By';
+
+  @override
+  String get latestLabel => 'Latest';
+
+  @override
+  String get mostAnsweredLabel => 'Most Answered';
+
+  @override
+  String get mostLikedLabel => 'Most Liked';
+
+  @override
+  String get allTopics => 'All Topics';
+
+  @override
+  String get trendingDiscussions => 'Trending Discussions';
+
+  @override
+  String get trendingLabel => 'Trending';
+
+  @override
+  String get popularLabel => 'Popular';
+
+  @override
+  String get latestDiscussions => 'Latest Discussions';
+
+  @override
+  String failedToLoadCategoriesError(String error) {
+    return 'Failed to load categories: $error';
+  }
+
+  @override
+  String get submitLabel => 'Submit';
+
+  @override
+  String get noRepliesYet => 'No replies yet';
+
+  @override
+  String get beFirstToReply => 'Be the first to reply';
+
+  @override
+  String get general => 'General';
+
+  @override
+  String get createPostTitle => 'Create Post';
+
+  @override
+  String get saveDraftLabel => 'Save Draft';
+
+  @override
+  String get createAPost => 'Create a Post';
+
+  @override
+  String get createPostDescription => 'Ask a question, share your experience or start a discussion.';
+
+  @override
+  String get selectCategoryStep => '1. Select Category ';
+
+  @override
+  String get postTitleStep => '2. Post Title ';
+
+  @override
+  String get describeQuestionStep => '3. Describe Your Question or Topic ';
+
+  @override
+  String get addAttachmentsStep => '4. Add Attachments ';
+
+  @override
+  String get optionalParen => '(Optional)';
+
+  @override
+  String get tipMoreDetails => 'Tip: The more details you provide, the better and more helpful the responses you\'ll receive.';
+
+  @override
+  String get uploadImagesOrDocuments => 'You can upload images or documents to provide more context.';
+
+  @override
+  String get addPhoto => 'Add Photo';
+
+  @override
+  String get addDocument => 'Add Document';
+
+  @override
+  String get addLabResult => 'Add Lab Result';
+
+  @override
+  String get addOther => 'Add Other';
+
+  @override
+  String get supportedFormats => 'Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file';
+
+  @override
+  String get postAnonymously => 'Post Anonymously';
+
+  @override
+  String get nameHiddenFromMembers => 'Your name will be hidden from other members.';
+
+  @override
+  String get postQuestionButton => 'Post Question';
+
+  @override
+  String failedToPostError(String error) {
+    return 'Failed to post: $error';
+  }
+
+  @override
+  String get postDetailTitle => 'Post Detail';
+
+  @override
+  String get forumBreadcrumb => 'Forum';
+
+  @override
+  String get postDetailsBreadcrumb => 'Post Details';
+
+  @override
+  String get doctorRoleLabel => 'Doctor';
+
+  @override
+  String get communityMemberLabel => 'Community Member';
+
+  @override
+  String get postedInLabel => '• Posted in ';
+
+  @override
+  String get viewsLabel => 'Views';
+
+  @override
+  String get repliesLabel => 'Replies';
+
+  @override
+  String get likesLabel => 'Likes';
+
+  @override
+  String get followLabel => 'Follow';
+
+  @override
+  String get topRepliesLabel => 'Top Replies';
+
+  @override
+  String get allRepliesLabel => 'All Replies';
+
+  @override
+  String get doctorAnswersLabel => 'Doctor Answers';
+
+  @override
+  String get verifiedDoctorBadge => 'Verified Doctor';
+
+  @override
+  String helpfulCount(int count) {
+    return 'Helpful ($count)';
+  }
+
+  @override
+  String get replyButtonLabel => 'Reply';
+
+  @override
+  String get writeReplyHint => 'Write a reply...';
+
+  @override
+  String get userManagement => 'User Management';
+
+  @override
+  String get userManagementSubtitle => 'View, manage and take actions on all platform users';
+
+  @override
+  String get addUser => 'Add User';
+
+  @override
+  String get addUserDescription => 'New users register through the patient portal. Send them the registration link.';
+
+  @override
+  String get bulkActions => 'Bulk Actions';
+
+  @override
+  String get bulkActionsDescription => 'Bulk actions are being developed. Manage users individually through the list above.';
+
+  @override
+  String get exportUsers => 'Export Users';
+
+  @override
+  String get exportUsersDescription => 'Export is being developed. Use your device\'s screenshot feature to save user data.';
+
+  @override
+  String get inviteUser => 'Invite User';
+
+  @override
+  String get inviteUserDescription => 'Invitations are sent automatically when users register. Direct them to the signup page.';
+
+  @override
+  String get userLogs => 'User Logs';
+
+  @override
+  String get userLogsDescription => 'Audit logs are being developed. All admin actions are tracked in the system for compliance.';
+
+  @override
+  String get totalUsers => 'Total Users';
+
+  @override
+  String get doctorsLabel => 'Doctors';
+
+  @override
+  String get patientsLabelAdmin => 'Patients';
+
+  @override
+  String get pendingLabelAdmin => 'Pending';
+
+  @override
+  String get suspendedLabel => 'Suspended';
+
+  @override
+  String get adminsTabLabel => 'Admins';
+
+  @override
+  String get userNameFallback => 'User Name';
+
+  @override
+  String get emailFallback => 'email@example.com';
+
+  @override
+  String get userActions => 'User Actions';
+
+  @override
+  String get activateAccount => 'Activate Account';
+
+  @override
+  String get suspendAccount => 'Suspend Account';
+
+  @override
+  String get banAccountPermanent => 'Ban Account (Permanent)';
+
+  @override
+  String get editProfileInformation => 'Edit Profile Information';
+
+  @override
+  String get resetVerificationState => 'Reset Verification State';
+
+  @override
+  String get impersonateSupportView => 'Impersonate / Support View';
+
+  @override
+  String get emergencyIntervention => 'Emergency Intervention';
+
+  @override
+  String get approveDoctorQuestion => 'Approve Doctor?';
+
+  @override
+  String approveDoctorDescription(String name) {
+    return 'Are you sure you want to approve $name? This will immediately grant them practitioner access and operational scheduling capabilities.';
+  }
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get rejectApplication => 'Reject Application';
+
+  @override
+  String get rejectApplicationDescription => 'Please provide a reason for rejecting this application. This will be sent to the user.';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get requestInformation => 'Request Information';
+
+  @override
+  String get requestInformationDescription => 'What additional information do you need from the applicant?';
+
+  @override
+  String get requestInformationHint => 'E.g. Please upload a clearer copy of your Medical License.';
+
+  @override
+  String get sendRequest => 'Send Request';
+
+  @override
+  String get infoRequestSentStatus => 'Information request sent. Status set to Under Review.';
+
+  @override
+  String get pendingTab => 'Pending';
+
+  @override
+  String get underReviewTab => 'Under Review';
+
+  @override
+  String get verifiedTab => 'Verified';
+
+  @override
+  String get rejectedTab => 'Rejected';
+
+  @override
+  String get unsubmittedLabel => 'Unsubmitted';
+
+  @override
+  String get allCaughtUpCategory => 'All caught up for this category!';
+
+  @override
+  String get backToQueue => 'Back to Queue';
+
+  @override
+  String get submittedDocuments => 'Submitted Documents';
+
+  @override
+  String get applicationDetails => 'Application Details';
+
+  @override
+  String get adminNotesLabel => 'Admin Notes';
+
+  @override
+  String get requestMoreInfo => 'Request More Info';
+
+  @override
+  String get approveAndVerify => 'Approve & Verify';
+
+  @override
+  String get doctorVerifiedMessage => 'This doctor has been verified';
+
+  @override
+  String get applicationRejectedMessage => 'This application was rejected';
+
+  @override
+  String get identityComparison => 'Identity Comparison';
+
+  @override
+  String get governmentId => 'Government ID';
+
+  @override
+  String get liveSelfie => 'Live Selfie';
+
+  @override
+  String get viewBtn => 'View';
+
+  @override
+  String get userIdLabel => 'User ID';
+
+  @override
+  String get licenseNumberLabel => 'License Number';
+
+  @override
+  String get yearsOfExperience => 'Years of Experience';
+
+  @override
+  String get specializationLabel => 'Specialization';
+
+  @override
+  String get idType => 'ID Type';
+
+  @override
+  String get verificationStatus => 'Verification Status';
+
+  @override
+  String get medicalLicense => 'Medical License';
+
+  @override
+  String get idDocumentFront => 'ID Document (Front)';
+
+  @override
+  String get idDocumentBack => 'ID Document (Back)';
+
+  @override
+  String get addressDocument => 'Address Document';
+
+  @override
+  String get noDocumentsSubmitted => 'No documents submitted';
+
+  @override
+  String get noDocumentsYet => 'The applicant has not uploaded any documents yet.';
+
+  @override
+  String get applicationDateUnknown => 'Application date unknown';
+
+  @override
+  String get inReviewStat => 'In Review';
+
+  @override
+  String get approvedStat => 'Approved';
+
+  @override
+  String get allTransactions => 'All Transactions';
+
+  @override
+  String get financialAlerts => 'Financial Alerts';
+
+  @override
+  String get recentTransactions => 'Recent Transactions';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get totalRevenue => 'Total Revenue';
+
+  @override
+  String get totalPayouts => 'Total Payouts';
+
+  @override
+  String get pendingPayoutsLabel => 'Pending Payouts';
+
+  @override
+  String get refundsLabel => 'Refunds';
+
+  @override
+  String get searchByTransaction => 'Search by name, transaction ID...';
+
+  @override
+  String get exportBtn => 'Export';
+
+  @override
+  String get paymentDisputes => 'Payment Disputes';
+
+  @override
+  String get requireAttention => 'Require attention';
+
+  @override
+  String get reviewNow => 'Review Now';
+
+  @override
+  String get awaitingApproval => 'Awaiting approval';
+
+  @override
+  String get viewNow => 'View Now';
+
+  @override
+  String get refundRequests => 'Refund Requests';
+
+  @override
+  String get pendingReview => 'Pending review';
+
+  @override
+  String get noTransactionsFound => 'No transactions found';
+
+  @override
+  String get revenueOverview => 'Revenue Overview';
+
+  @override
+  String get revenueBreakdown => 'Revenue Breakdown';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get approvedBreakdown => 'Approved';
+
+  @override
+  String get pendingBreakdown => 'Pending';
+
+  @override
+  String get otherBreakdown => 'Other';
+
+  @override
+  String get vsLastMonth => 'vs last month';
+
+  @override
+  String get recentDisputes => 'Recent Disputes';
+
+  @override
+  String get noDisputes => 'No disputes';
+
+  @override
+  String get noOpenDisputes => 'No open disputes to review';
+
+  @override
+  String get noPendingPayouts => 'No pending payouts';
+
+  @override
+  String get allPayoutsProcessed => 'All payouts have been processed';
+
+  @override
+  String get approvePayouts => 'Approve Payouts';
+
+  @override
+  String get resolveDisputes => 'Resolve Disputes';
+
+  @override
+  String get transactionReports => 'Transaction Reports';
+
+  @override
+  String get payoutSettings => 'Payout Settings';
+
+  @override
+  String get approvePayoutsQuestion => 'Approve Payouts?';
+
+  @override
+  String approvePayoutsDescription(String amount, int count) {
+    return 'Are you sure you want to approve all pending payouts? This will process $amount across $count transactions.';
+  }
+
+  @override
+  String get approveAll => 'Approve All';
+
+  @override
+  String get refundType => 'Refund';
+
+  @override
+  String get awaitingApprovalType => 'Awaiting Approval';
+
+  @override
+  String get disputedPayment => 'Disputed Payment';
+
+  @override
+  String get consultationPayment => 'Consultation Payment';
+
+  @override
+  String get disputeResolutionCenter => 'Dispute Resolution Center';
+
+  @override
+  String get disputeResolutionSubtitle => 'Manage, review and resolve disputes fairly and efficiently.';
+
+  @override
+  String get openDisputes => 'Open Disputes';
+
+  @override
+  String get inReview => 'In Review';
+
+  @override
+  String get resolved => 'Resolved';
+
+  @override
+  String get highRisk => 'High Risk';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterPayment => 'Payment';
+
+  @override
+  String get filterConsultation => 'Consultation';
+
+  @override
+  String get filterRefund => 'Refund';
+
+  @override
+  String get filterFraud => 'Fraud';
+
+  @override
+  String get filterBehavior => 'Behavior';
+
+  @override
+  String get filterOther => 'Other';
+
+  @override
+  String get noDisputesFound => 'No disputes found';
+
+  @override
+  String get noDisputesMatch => 'No disputes match the current filter.';
+
+  @override
+  String get disputeDetails => 'Dispute Details';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get riskLevelLabel => 'Risk Level';
+
+  @override
+  String get amountLabel => 'Amount';
+
+  @override
+  String get disputeIdLabel => 'Dispute ID';
+
+  @override
+  String get createdLabel => 'Created';
+
+  @override
+  String get patientLabelDetail => 'Patient';
+
+  @override
+  String get patientEmailLabel => 'Patient Email';
+
+  @override
+  String get doctorLabelDetail => 'Doctor';
+
+  @override
+  String get doctorEmailLabel => 'Doctor Email';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get resolutionNotesLabel => 'Resolution Notes';
+
+  @override
+  String get resolutionActionsLabel => 'Resolution Actions';
+
+  @override
+  String get markAsInReview => 'Mark as In Review';
+
+  @override
+  String get resolveLabel => 'Resolve';
+
+  @override
+  String get closeLabel => 'Close';
+
+  @override
+  String get disputeInsights => 'Dispute Insights';
+
+  @override
+  String get thisMonthLabel => 'This Month';
+
+  @override
+  String get openStatusLabel => 'Open';
+
+  @override
+  String get learnMore => 'Learn more';
+
+  @override
+  String get fairResolutionText => 'We ensure fair, secure and transparent resolution for all parties involved.';
+
+  @override
+  String get markAsUnderReview => 'Mark as Under Review';
+
+  @override
+  String get resolveDisputeAction => 'Resolve Dispute';
+
+  @override
+  String get closeDisputeAction => 'Close Dispute';
+
+  @override
+  String get noDescription => 'No description';
+
+  @override
+  String get savedAndFollowedTitle => 'Saved & Followed';
+
+  @override
+  String get savedPostsTab => 'Saved Posts';
+
+  @override
+  String get tapBookmarkToSave => 'Tap the bookmark icon on any post to save it here';
+
+  @override
+  String get tapFollowToTrack => 'Tap Follow on any post or category to track it here';
+
+  @override
+  String get followedCategoriesLabel => 'Followed Categories';
+
+  @override
+  String get followedPostsLabel => 'Followed Posts';
+
+  @override
+  String get unfollowLabel => 'Unfollow';
+
+  @override
+  String get sharedPatientRecordsTitle => 'Shared Patient Records';
+
+  @override
+  String get noSharedRecordsEmptyTitle => 'No Shared Records';
+
+  @override
+  String get patientsMustShareDesc => 'Patients must explicitly share their vault documents with you for them to appear here.';
+
+  @override
+  String get viewRecordButton => 'View Record';
+
+  @override
+  String get secureMedicalStorageTitle => 'SECURE MEDICAL STORAGE';
+
+  @override
+  String get yourVaultIsEmptyTitle => 'Your vault is empty';
+
+  @override
+  String get securelyStoreManageDesc => 'Securely store and manage your clinical reports, prescriptions, and medical history in one encrypted location.';
+
+  @override
+  String get uploadHealthRecordButton => 'Upload Health Record';
+
+  @override
+  String get scheduleConsultationButton => 'Schedule Consultation';
+
+  @override
+  String get endToEndEncryptionTitle => 'End-to-End Encryption';
+
+  @override
+  String get clinicalDataConfidentialDesc => 'Your clinical data is strictly confidential and accessible only by you and your authorized specialists.';
+
+  @override
+  String get shareWithDoctorOption => 'Share with Doctor';
+
+  @override
+  String get onlyAuthorizedDoctorsDesc => 'Only authorized doctors can view and decrypt this record.';
+
+  @override
+  String get secureVaultUploadTitle => 'Secure Vault Upload';
+
+  @override
+  String get filesEncryptedBucketDesc => 'Your files are stored in an encrypted private bucket.';
+
+  @override
+  String get recordTitleField => 'Record Title';
+
+  @override
+  String get recordCategoryField => 'Record Category';
+
+  @override
+  String get encryptAndUploadButton => 'Encrypt & Upload to Vault';
+
+  @override
+  String get provideTitleAndFileError => 'Please provide a title and select a file';
+
+  @override
+  String get fileSizeMustBeUnder5MB => 'File size must be under 5MB';
+
+  @override
+  String get selectPdfOrMedicalImage => 'Select PDF or Medical Image';
+
+  @override
+  String get encryptedTLS => 'Encrypted TLS';
+
+  @override
+  String get messagesEncryptedTLS => 'Messages are encrypted in transit via TLS.';
+
+  @override
+  String get unreadMessageLabel => '1 Unread Message';
+
+  @override
+  String get startYourConsultationTitle => 'Start your consultation';
+
+  @override
+  String get feelFreeToAskDesc => 'Feel free to ask questions or share symptoms with your specialist.';
+
+  @override
+  String get chatsTitle => 'Chats';
+
+  @override
+  String get toStartConversationDesc => 'To start a conversation, go to a doctor\'s profile and tap Send Message';
+
+  @override
+  String get noConversationsYetTitle => 'No conversations yet';
+
+  @override
+  String get startChatSpecialistDesc => 'Start a chat with a specialist to see it here.';
+
+  @override
+  String noMatchesForSearch(String query) {
+    return 'No matches for "$query"';
+  }
+
+  @override
+  String get professionalCredentialsTitle => 'Professional Credentials';
+
+  @override
+  String get helpVerifyExpertiseDesc => 'Help us verify your medical expertise and practice history.';
+
+  @override
+  String get professionalTitleField => 'Professional Title';
+
+  @override
+  String get medicalSpecialtyField => 'Medical Specialty';
+
+  @override
+  String get experienceYearsField => 'Experience (Years)';
+
+  @override
+  String get uploadMedicalLicenseLabel => 'Upload Medical License';
+
+  @override
+  String get pdfJpgPng5MB => 'PDF, JPG or PNG (Max 5MB)';
+
+  @override
+  String get identityVerificationScreenTitle => 'Identity Verification';
+
+  @override
+  String get secureUploadGovtIdDesc => 'Securely upload your government-issued identification.';
+
+  @override
+  String get governmentIdLabel => 'Government ID';
+
+  @override
+  String get intlPassportOrNationalId => 'International Passport or National ID';
+
+  @override
+  String get proofOfAddressLabel => 'Proof of Address';
+
+  @override
+  String get utilityBillOrBankStatement => 'Utility Bill or Bank Statement';
+
+  @override
+  String get faceRecognitionTitle => 'Face Recognition';
+
+  @override
+  String get verifyIdentityDocumentDesc => 'Verify that you are the person on the identity document.';
+
+  @override
+  String get reviewSubmissionTitle => 'Review Submission';
+
+  @override
+  String get confirmDetailsBeforeDesc => 'Confirm your details before submitting for official review.';
+
+  @override
+  String get docsStatusLabel => 'Docs Status';
+
+  @override
+  String get verificationReadyLabel => 'Verification Ready';
+
+  @override
+  String get certifyInfoAccurate => 'I certify that the provided information is accurate and comply with Premon Care Professional Terms.';
+
+  @override
+  String get submitApplicationButton => 'Submit Application';
+
+  @override
+  String get selectSpecialtyError => 'Select your specialty';
+
+  @override
+  String get uploadMedicalLicenseError => 'Upload medical license';
+
+  @override
+  String get uploadIdDocumentError => 'Upload ID document';
+
+  @override
+  String get uploadProofOfAddressError => 'Upload proof of address';
+
+  @override
+  String get captureLiveSelfieError => 'Capture live selfie';
+
+  @override
+  String get verificationWizardTitle => 'Verification Wizard';
+
+  @override
+  String get professionalProfileStep => 'Professional Profile';
+
+  @override
+  String get identityDocumentsStep => 'Identity Documents';
+
+  @override
+  String get facialBiometricsStep => 'Facial Biometrics';
+
+  @override
+  String get reviewAndSubmitStep => 'Review & Submit';
+
+  @override
+  String get submitForReviewButton => 'Submit for Review';
+
+  @override
+  String get applicationSubmittedTitle => 'Application Submitted!';
+
+  @override
+  String get credentialsUnderReviewDesc => 'Your professional credentials are now under review. This typically takes 24-48 hours. We will notify you once your account has been verified.';
+
+  @override
+  String get returnToDashboardButton => 'Return to Dashboard';
+
+  @override
+  String get pleaseEnterValidEmail => 'Please enter a valid email address';
+
+  @override
+  String get verifyYourNumber => 'Verify Your Number';
+
+  @override
+  String get verifyPhoneNumberDescription => 'Verify your phone number to continue and secure your emergency care.';
+
+  @override
+  String get createYourProfile => 'Create Your Profile';
+
+  @override
+  String get tellUsAboutYourself => 'Tell us a bit about yourself to personalize your healthcare experience.';
+
+  @override
+  String get emergencyGuestConversionFlow => 'Emergency Guest\nConversion Flow';
+
+  @override
+  String get convertGuestUsersDescription => 'Convert emergency guest users to verified accounts for continuity of care and better support.';
+
+  @override
+  String get yourHealthMatters => 'Your Health Matters';
+
+  @override
+  String get healthJourneySupportMessage => 'We\'re here to support you on your health journey. Thank you for choosing Premon Care.';
+
+  @override
+  String get viewHealthRecords => 'View Health\nRecords';
+
+  @override
+  String get viewHealthRecordsDescription => 'Access your emergency consultation and health history.';
+
+  @override
+  String get bookAppointments => 'Book\nAppointments';
+
+  @override
+  String get bookAppointmentsDescription => 'Schedule consultations with trusted doctors.';
+
+  @override
+  String get getHealthReminders => 'Get Health\nReminders';
+
+  @override
+  String get getHealthRemindersDescription => 'Receive medication reminders and follow-ups.';
+
+  @override
+  String get chatWithDoctors => 'Chat with\nDoctors';
+
+  @override
+  String get chatWithDoctorsDescription => 'Connect with doctors anytime for follow-up care.';
+
+  @override
+  String get phoneLabel => 'Phone Number';
+
+  @override
+  String get emailLabel => 'Email Address';
+
+  @override
+  String get fullNameLabel => 'Full Name';
+
+  @override
+  String get viewMyHealthRecord => 'View My Health Record';
+
+  @override
+  String get healthDataAlwaysProtected => 'Your health. Your data. Always protected.';
+
+  @override
+  String get iIllDoThisLater => 'I\'ll Do This Later';
+
+  @override
+  String get codeExpired => 'Code expired';
+
+  @override
+  String get didntReceiveCode => 'Didn\'t receive code?';
+
+  @override
+  String get unlimitedConsultations => 'Unlimited consultations';
+
+  @override
+  String get prioritySupport => 'Priority support';
+
+  @override
+  String get timeCreditsIncluded => 'Time credits included';
+
+  @override
+  String get familyAccountUpTo5 => 'Family account (up to 5)';
+
+  @override
+  String get standardSupport => 'Standard support';
+
+  @override
+  String get timeCreditsNaira2000 => 'Time credits (\u20A62,000)';
+
+  @override
+  String get familyAccountNA => 'Family account (N/A)';
+
+  @override
+  String get vipSupport => 'VIP support';
+
+  @override
+  String get timeCreditsNaira7500 => 'Time credits (\u20A67,500)';
+
+  @override
+  String get familyAccountUpTo10 => 'Family account (up to 10)';
+
+  @override
+  String get timeCreditsNaira20000 => 'Time credits (\u20A620,000)';
+
+  @override
+  String get tenConsultationsPerMonth => '10 consultations / month';
+
+  @override
+  String get renewsOnMay25 => 'Renews on May 25, 2025';
+
+  @override
+  String get fortyPercentUsed => '40% used';
+
+  @override
+  String get thirtyPercentUsed => '30% used';
+
+  @override
+  String get basicPlan => 'Basic';
+
+  @override
+  String get proPlan => 'Pro';
+
+  @override
+  String get patientLabel => 'Patient';
+
+  @override
+  String get recordLabel => 'Record';
+
+  @override
+  String get otherLabel => 'Other';
+
+  @override
+  String get doctorAvailabilitySchedule => 'Doctor Availability & Schedule';
+
+  @override
+  String get manageWorkingHoursDescription => 'Manage your working hours, availability and preferences';
+
+  @override
+  String get availabilityStatus => 'Availability Status';
+
+  @override
+  String get available => 'Available';
+
+  @override
+  String get openForBookings => 'You are open for bookings';
+
+  @override
+  String get pauseBookingsDescription => 'Turn on to pause bookings';
+
+  @override
+  String get emergencyAvailability => 'Emergency Availability';
+
+  @override
+  String get premonCareSupport => 'Premon Care Support';
+
+  @override
+  String get yesterdayLabel => 'Yesterday';
+
+  @override
+  String get dayMon => 'Mon';
+
+  @override
+  String get dayTue => 'Tue';
+
+  @override
+  String get dayWed => 'Wed';
+
+  @override
+  String get dayThu => 'Thu';
+
+  @override
+  String get dayFri => 'Fri';
+
+  @override
+  String get daySat => 'Sat';
+
+  @override
+  String get daySun => 'Sun';
+
+  @override
+  String get specialistLabel => 'Specialist';
+
+  @override
+  String get statusOnlineLabel => 'Online';
+
+  @override
+  String get statusOfflineLabel => 'Offline';
+
+  @override
+  String get startConsultationTitle => 'Start your consultation';
+
+  @override
+  String get feelFreeToAskDesc2 => 'Feel free to ask questions or share symptoms with your specialist.';
+
+  @override
+  String get prescriptionLabel => 'Prescription';
+
+  @override
+  String get reportsLabel2 => 'Reports';
+
+  @override
+  String get imagesLabel => 'Images';
+
+  @override
+  String get locationLabel2 => 'Location';
+
+  @override
+  String get practitionerVerificationTitle => 'Practitioner Verification';
+
+  @override
+  String get actionRequiredLabel => 'Action Required';
+
+  @override
+  String get specialtyLabel => 'Specialty';
+
+  @override
+  String get experienceYearsLabel => 'Experience (Years)';
+
+  @override
+  String get licenseNumberLabel => 'License Number';
+
+  @override
+  String get uploadIdLabel => 'Government ID';
+
+  @override
+  String get proofOfAddressLabel2 => 'Proof of Address';
+
+  @override
+  String get unknownDoctor => 'Unknown Doctor';
+
+  @override
+  String get healthcareProvider => 'Healthcare Provider';
+
+  @override
+  String get recordTitleHint => 'e.g. June Blood Test';
+
+  @override
+  String fileSelectedLabel(String fileName) {
+    return 'File Selected: $fileName';
+  }
+
+  @override
+  String get priorityAlerts => 'Priority Alerts';
+
+  @override
+  String get analyticsOverview => 'Analytics Overview';
+
+  @override
+  String get recentDoctorApplications => 'Recent Doctor Applications';
+
+  @override
+  String get systemsOnline => 'Systems Online';
+
+  @override
+  String get totalPlatformRevenue => 'Total Platform Revenue';
+
+  @override
+  String appointmentsTodayCount(int count) {
+    return '$count appointments today';
+  }
+
+  @override
+  String verifiedDoctorsCount(int count) {
+    return '$count verified doctors';
+  }
+
+  @override
+  String get verifiedDoctors => 'Verified Doctors';
+
+  @override
+  String get appointmentsToday => 'Appointments Today';
+
+  @override
+  String get doctorVerifications => 'Doctor Verifications';
+
+  @override
+  String get needsResolution => 'Needs resolution';
+
+  @override
+  String get emergencyQueueLabel => 'Emergency Queue';
+
+  @override
+  String get liveMonitoring => 'Live monitoring';
+
+  @override
+  String get openQueue => 'Open Queue';
+
+  @override
+  String appointmentsCount(int count) {
+    return '$count appointments';
+  }
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get cancelledLabel => 'Cancelled';
+
+  @override
+  String get noPendingApplications => 'No pending applications';
+
+  @override
+  String get allApplicationsReviewed => 'All doctor applications have been reviewed.';
+
+  @override
+  String get failedToLoadApplications => 'Failed to load applications';
+
+  @override
+  String get noRecentTransactions => 'No recent transactions';
+
+  @override
+  String get transactionsWillAppear => 'Transactions will appear here once payments are processed.';
+
+  @override
+  String get refundedLabel => 'Refunded';
+
+  @override
+  String get failedToLoadTransactions => 'Failed to load transactions';
+
+  @override
+  String get verifyDoctors => 'Verify Doctors';
+
+  @override
+  String get manageUsers => 'Manage Users';
+
+  @override
+  String get broadcast => 'Broadcast';
+
+  @override
+  String get auditLogs => 'Audit Logs';
+
+  @override
+  String get disputesLabel => 'Disputes';
+
+  @override
+  String get forumMod => 'Forum Mod';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get reviewLabel => 'Review';
+
+  @override
+  String get accountSectionLabel => 'Account Section';
+
+  @override
+  String get adminProfile => 'Admin Profile';
+
+  @override
+  String get adminProfileDeveloped => 'Admin profile settings are being developed. Your account is managed by the platform owner.';
+
+  @override
+  String get permissionsRole => 'Permissions / Role';
+
+  @override
+  String get securitySettings => 'Security Settings';
+
+  @override
+  String get operationalModules => 'Operational Modules';
+
+  @override
+  String get reportsAndInsights => 'Reports & Insights';
+
+  @override
+  String get p2pMonitoring => 'P2P Monitoring';
+
+  @override
+  String get notificationControl => 'Notification Control';
+
+  @override
+  String get doctorSubscriptions => 'Doctor Subscriptions';
+
+  @override
+  String get premonCareAdmin => 'Premon Care Admin';
+
+  @override
+  String get adminPortal => 'Admin Portal';
+
+  @override
+  String get doctorVerification => 'Doctor Verification';
+
+  @override
+  String get financialModeration => 'Financial Moderation';
+
+  @override
+  String get forumModeration => 'Forum Moderation';
+
+  @override
+  String get auditTimeline => 'Audit Timeline';
+
+  @override
+  String get subscriptionPlans => 'Subscription Plans';
+
+  @override
+  String get disputeResolution => 'Dispute Resolution';
+
+  @override
+  String get platformSettings => 'Platform Settings';
+
+  @override
+  String get usersLabel => 'Users';
+
+  @override
+  String get forumLabel => 'Forum';
+
+  @override
+  String get moreLabel => 'More';
+
+  @override
+  String get loadingReports => 'Loading reports...';
+
+  @override
+  String get unknownError => 'Unknown error';
+
+  @override
+  String get reportsInsightsCenter => 'Reports & Insights Center';
+
+  @override
+  String get trackPerformanceDescription => 'Track performance, usage and key metrics in real-time';
+
+  @override
+  String get exportReport => 'Export Report';
+
+  @override
+  String get customRange => 'Custom Range';
+
+  @override
+  String get activeDoctors => 'Active Doctors';
+
+  @override
+  String get appointmentsOverview => 'Appointments Overview';
+
+  @override
+  String get noAppointmentsThisPeriod => 'No appointments in this period';
+
+  @override
+  String completedCountLabel(int count) {
+    return 'Completed ($count)';
+  }
+
+  @override
+  String cancelledCountLabel(int count) {
+    return 'Cancelled ($count)';
+  }
+
+  @override
+  String rescheduledCountLabel(int count) {
+    return 'Rescheduled ($count)';
+  }
+
+  @override
+  String get rescheduledLabel => 'Rescheduled';
+
+  @override
+  String get topPerformingDoctors => 'Top Performing Doctors';
+
+  @override
+  String get noDoctorAppointmentsPeriod => 'No doctor appointments in this period';
+
+  @override
+  String get doctorColumnHeader => 'Doctor';
+
+  @override
+  String get appointmentsLowercase => 'appointments';
+
+  @override
+  String get platformActivity => 'Platform Activity';
+
+  @override
+  String get forumPosts => 'Forum Posts';
+
+  @override
+  String get reportsShortcuts => 'Reports Shortcuts';
+
+  @override
+  String get userAnalytics => 'User Analytics';
+
+  @override
+  String get detailedUserInsights => 'Detailed user insights';
+
+  @override
+  String get doctorPerformance => 'Doctor Performance';
+
+  @override
+  String get trackDoctorMetrics => 'Track doctor metrics';
+
+  @override
+  String get financialReports => 'Financial Reports';
+
+  @override
+  String get revenueTransactions => 'Revenue & transactions';
+
+  @override
+  String get appointmentReports => 'Appointment Reports';
+
+  @override
+  String get bookingTrends => 'Booking & trends';
+
+  @override
+  String get systemReports => 'System Reports';
+
+  @override
+  String get systemAuditLogs => 'System & audit logs';
+
+  @override
+  String get reportsRealTimeEncrypted => 'All reports are updated in real-time and data is securely encrypted.';
+
+  @override
+  String get failedToLoadEmergencyQueue => 'Failed to load emergency queue';
+
+  @override
+  String emergencyQueueSubtitle(int pending, int accepted) {
+    return '$pending pending \u2022 $accepted accepted today';
+  }
+
+  @override
+  String get acceptedStatusLabel => 'ACCEPTED';
+
+  @override
+  String get watchingLabel => 'WATCHING';
+
+  @override
+  String get noEmergencyConsultsWaiting => 'No emergency consults waiting';
+
+  @override
+  String get guestEmergencyBookingsWillAppear => 'New guest emergency bookings will appear here for immediate operational review.';
+
+  @override
+  String get responseChecklist => 'Response Checklist';
+
+  @override
+  String get confirmDoctorAvailability => 'Confirm doctor availability';
+
+  @override
+  String get ensureSpecialistOnline => 'Ensure the selected specialist is online and responsive.';
+
+  @override
+  String get validateEmergencyPayment => 'Validate emergency payment';
+
+  @override
+  String get checkP2pEvidence => 'Check P2P evidence before session activation.';
+
+  @override
+  String get monitorConversionFollowup => 'Monitor conversion follow-up';
+
+  @override
+  String get guideGuestsRecords => 'Guide guests to secure their records after consultation.';
+
+  @override
+  String get guestPatient => 'Guest Patient';
+
+  @override
+  String get unassignedDoctor => 'Unassigned';
+
+  @override
+  String get noDate => 'No date';
+
+  @override
+  String paymentStatus(String status) {
+    return 'Payment $status';
+  }
+
+  @override
+  String get reasonForRejection => 'Reason for rejection...';
+
+  @override
+  String get infoRequestSent => 'Information request sent. Status set to Under Review.';
+
+  @override
+  String failedToLoadDoctors(String error) {
+    return 'Failed to load doctors: $error';
+  }
+
+  @override
+  String failedToLoadCounts(String error) {
+    return 'Failed to load counts: $error';
+  }
+
+  @override
+  String get addAdminNotesHint => 'Add a note (optional)...';
+
+  @override
+  String get applicationRejected => 'Application rejected.';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
+
+  @override
+  String get doctorVerifiedSuccessfully => 'Doctor verified successfully!';
+
+  @override
+  String get agoLabel => 'ago';
+
+  @override
+  String get allClearMessage => 'All clear! No emergency consultations currently waiting. New guest emergency bookings will appear here for immediate operational review.';
+
+  @override
+  String get chooseCaseFromQueue => 'Choose a case from the queue to view details and respond.';
+
+  @override
+  String get clinicalDetails => 'Clinical Details';
+
+  @override
+  String get connectionIssue => 'There was a connection issue. Please try again.';
+
+  @override
+  String get consultationInProgress => 'Consultation in progress';
+
+  @override
+  String get doctorAcceptedRequest => 'Doctor accepted request';
+
+  @override
+  String get emergencyRequestChecklist => 'Response Checklist';
+
+  @override
+  String get emergencyRequestReceived => 'Emergency request received';
+
+  @override
+  String get failedToLoadQueue => 'Failed to Load Queue';
+
+  @override
+  String get loadingEmergencies => 'Loading emergency cases...';
+
+  @override
+  String get noSpecialty => 'No specialty';
+
+  @override
+  String get noSpecialtyAssigned => 'No specialty assigned';
+
+  @override
+  String get notifyAvailableDoctors => 'Notify available doctors';
+
+  @override
+  String get selectAnEmergencyCase => 'Select an Emergency Case';
+
+  @override
+  String get symptomsLabel => 'Symptoms';
+
+  @override
+  String get timeOfRequest => 'Time of Request';
+
+  @override
+  String get unknownPatient => 'Unknown Patient';
 }

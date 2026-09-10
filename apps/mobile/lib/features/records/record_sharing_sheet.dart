@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_colors.dart';
 import '../patient/patient_providers.dart';
@@ -13,7 +14,7 @@ class RecordSharingSheet extends ConsumerWidget {
     final doctorsAsync = ref.watch(availableDoctorsProvider);
 
     return AlertDialog(
-      title: const Text('Manage Sharing Access'),
+      title: Text(AppLocalizations.of(context)!.manageSharingAccess),
       content: SizedBox(
         width: double.maxFinite,
         child: Column(
@@ -21,16 +22,16 @@ class RecordSharingSheet extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Only authorized doctors can view and decrypt this record.',
+              AppLocalizations.of(context)!.onlyAuthorizedDoctorsDesc,
               style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13),
             ),
             const SizedBox(height: 20),
             doctorsAsync.when(
               data: (doctors) {
                 if (doctors.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: Text\('No\ verified\ doctors\ found\.'\)),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(child: Text(AppLocalizations.of(context)!.noVerifiedDoctorsFound)),
                   );
                 }
                 return Flexible(
@@ -45,8 +46,8 @@ class RecordSharingSheet extends ConsumerWidget {
                         leading: CircleAvatar(
                           child: Text(doc['full_name']?[0] ?? 'D'),
                         ),
-                        title: Text(doc['full_name'] ?? 'Unknown Doctor'),
-                        subtitle: Text(doc['specialty'] ?? 'Healthcare Provider'),
+                        title: Text(doc['full_name'] ?? AppLocalizations.of(context)!.unknownDoctor),
+                        subtitle: Text(doc['specialty'] ?? AppLocalizations.of(context)!.healthcareProvider),
                         trailing: Switch(
                           value: isAuthorized,
                           activeThumbColor: AppColors.success,
@@ -76,7 +77,7 @@ class RecordSharingSheet extends ConsumerWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: Text(AppLocalizations.of(context)!.closeLabel),
         ),
       ],
     );

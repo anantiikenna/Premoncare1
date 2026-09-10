@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProposeFollowupDialog extends StatefulWidget {
   const ProposeFollowupDialog({super.key});
@@ -53,9 +54,10 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
   }
 
   void _submitProposal() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_reasonController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please provide a clinical reason')),
+        SnackBar(content: Text(l10n.pleaseProvideClinicalReason)),
       );
       return;
     }
@@ -66,8 +68,8 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Follow-up proposal sent successfully'),
+        SnackBar(
+          content: Text(l10n.followUpProposalSentSuccessfully),
           backgroundColor: AppColors.success,
         ),
       );
@@ -76,6 +78,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -96,11 +99,11 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Propose Follow-up',
+                    l10n.proposeFollowUp,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5),
                   ),
                   Text(
-                    'Patient Retention & Care',
+                    l10n.patientRetentionAndCare,
                     style: TextStyle(fontSize: 10, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w900, letterSpacing: 1),
                   ),
                 ],
@@ -113,7 +116,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
           ),
           const SizedBox(height: 32),
           
-          Text('Select Patient', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
+          Text(l10n.selectPatient, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -126,7 +129,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
                   child: Text('S', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold, fontSize: 9)),
                 ),
                 const SizedBox(width: 12),
-                Text('Sarah Johnson (Today)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
+                Text(l10n.sarahJohnsonToday, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
                 const Spacer(),
                 Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textTertiaryOf(context), size: 20),
               ],
@@ -140,7 +143,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Proposed Date', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
+                    Text(l10n.proposedDate, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
                     const SizedBox(height: 12),
                     InkWell(
                       onTap: () => _selectDate(context),
@@ -164,7 +167,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Preferred Time', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
+                    Text(l10n.preferredTime, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
                     const SizedBox(height: 12),
                     InkWell(
                       onTap: () => _selectTime(context),
@@ -187,13 +190,13 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
           ),
           
           const SizedBox(height: 24),
-          Text('Clinical Reason / Instructions', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
+          Text(l10n.clinicalReasonInstructions, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
           const SizedBox(height: 12),
           TextField(
             controller: _reasonController,
             maxLines: 4,
             decoration: InputDecoration(
-              hintText: 'Explain why this follow-up is necessary...',
+              hintText: l10n.explainFollowUpNecessary,
               hintStyle: TextStyle(fontSize: 13, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.w500),
               filled: true,
               fillColor: AppColors.surfaceAltOf(context),
@@ -217,12 +220,12 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
               ),
               child: _isLoading 
                 ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.send_rounded, size: 18),
-                      SizedBox(width: 12),
-                      Text('SEND PROPOSAL TO PATIENT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)),
+                      const Icon(Icons.send_rounded, size: 18),
+                      const SizedBox(width: 12),
+                      Text(l10n.sendProposalToPatient, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)),
                     ],
                   ),
             ),
@@ -230,7 +233,7 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
           const SizedBox(height: 16),
           Center(
             child: Text(
-              '* Patient will be notified to confirm and pay.',
+              l10n.patientWillBeNotified,
               style: TextStyle(fontSize: 10, color: AppColors.textTertiaryOf(context), fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
             ),
           ),

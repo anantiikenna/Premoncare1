@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import '../../l10n/app_localizations.dart';
 
 final patientDetailsProvider = FutureProvider.autoDispose.family<Map<String, dynamic>?, String>((ref, patientId) async {
   final data = await supabase
@@ -62,6 +63,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
   @override
   Widget build(BuildContext context) {
     final patientAsync = ref.watch(patientDetailsProvider(widget.patientId));
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
@@ -71,7 +73,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
           patientAsync.when(
             data: (patient) => _buildPatientHeader(context, patient),
             loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
-            error: (_, _) => const SizedBox(height: 100, child: Center(child: Text('Could not load patient'))),
+            error: (_, _) => SizedBox(height: 100, child: Center(child: Text(l10n.couldNotLoadPatient))),
           ),
           const SizedBox(height: 20),
           _buildTabBar(),
@@ -91,6 +93,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
       backgroundColor: AppColors.surfaceOf(context),
       elevation: 0,
@@ -99,7 +102,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
         onPressed: () => context.pop(),
       ),
       title: Text(
-        'Patient Details',
+        l10n.patientDetailsLabel,
         style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w900, fontSize: 18),
       ),
       actions: [
@@ -116,6 +119,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
   }
 
   void _showPatientMenu(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -138,7 +142,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.message_rounded, color: AppColors.success),
-                title: const Text('Send Message', style: TextStyle(fontWeight: FontWeight.w700)),
+                title: Text(l10n.sendMessageLabel, style: const TextStyle(fontWeight: FontWeight.w700)),
                 onTap: () {
                   Navigator.pop(ctx);
                   context.push('/chat/${widget.patientId}');
@@ -146,7 +150,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
               ),
               ListTile(
                 leading: const Icon(Icons.block_rounded, color: AppColors.error),
-                title: const Text('Block Patient', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.error)),
+                title: Text(l10n.blockPatientLabel, style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.error)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _confirmBlockPatient(context);
@@ -160,13 +164,14 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
   }
 
   void _confirmBlockPatient(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Block Patient'),
-        content: const Text('Are you sure you want to block this patient? They won\'t be able to book consultations with you.'),
+        title: Text(l10n.blockPatientLabel),
+        content: Text(l10n.areYouSureBlockPatient),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancelLabel)),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -177,18 +182,18 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
                 });
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Patient blocked')),
+                    SnackBar(content: Text(l10n.patientBlocked)),
                   );
                 }
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to block: $e'), backgroundColor: AppColors.error),
+                    SnackBar(content: Text(l10n.failedToBlock(e.toString())), backgroundColor: AppColors.error),
                   );
                 }
               }
             },
-            child: const Text('Block', style: TextStyle(color: AppColors.error)),
+            child: Text(l10n.blockLabel, style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -196,8 +201,9 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
   }
 
   Widget _buildPatientHeader(BuildContext context, Map<String, dynamic>? patient) {
+    final l10n = AppLocalizations.of(context)!;
     final isProfileVisible = patient?['is_profile_visible'] ?? true;
-    final name = isProfileVisible ? (patient?['full_name'] as String? ?? 'Patient') : 'Patient (Hidden)';
+    final name = isProfileVisible ? (patient?['full_name'] as String? ?? l10n.patientLabel) : l10n.patientHiddenLabel;
     final initial = isProfileVisible && name.isNotEmpty ? name[0].toUpperCase() : '?';
 
     return Container(
@@ -218,7 +224,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
                 Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
                 const SizedBox(height: 4),
                 Text(
-                  isProfileVisible ? 'Patient ID: ${widget.patientId.substring(0, 8)}...' : 'Privacy Protected',
+                  isProfileVisible ? l10n.patientIdLabel(widget.patientId.substring(0, 8)) : l10n.privacyProtected,
                   style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, fontWeight: FontWeight.w600),
                 ),
               ],
@@ -230,6 +236,7 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
   }
 
   Widget _buildTabBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       color: AppColors.surfaceOf(context),
       child: TabBar(
@@ -240,10 +247,10 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
         indicatorWeight: 3,
         labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-        tabs: const [
-          Tab(text: 'OVERVIEW'),
-          Tab(text: 'CONSULTATIONS'),
-          Tab(text: 'RECORDS'),
+        tabs: [
+          Tab(text: l10n.overviewTab),
+          Tab(text: l10n.consultationsTab),
+          Tab(text: l10n.recordsTab),
         ],
       ),
     );
@@ -257,6 +264,7 @@ class _OverviewTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appointmentsAsync = ref.watch(patientAppointmentsHistoryProvider(patientId));
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -270,8 +278,8 @@ class _OverviewTab extends ConsumerWidget {
               final total = appointments.length;
               return _buildAppointmentSummary(context, total, completed, pending);
             },
-            loading: () => const _SectionCard(title: 'Appointment Summary', child: SizedBox(height: 40, child: Center(child: CircularProgressIndicator()))),
-            error: (_, _) => const _SectionCard(title: 'Appointment Summary', child: Text('Could not load data')),
+            loading: () => _SectionCard(title: l10n.appointmentSummary, child: const SizedBox(height: 40, child: Center(child: CircularProgressIndicator()))),
+            error: (_, _) => _SectionCard(title: l10n.appointmentSummary, child: Text(l10n.couldNotLoadData)),
           ),
         ],
       ),
@@ -279,15 +287,16 @@ class _OverviewTab extends ConsumerWidget {
   }
 
   Widget _buildAppointmentSummary(BuildContext context, int total, int completed, int pending) {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
-      title: 'Appointment Summary',
+      title: l10n.appointmentSummary,
       child: Column(
         children: [
-          _buildSummaryRow(context, 'Total Appointments', total.toString()),
+          _buildSummaryRow(context, l10n.totalAppointments, total.toString()),
           const SizedBox(height: 12),
-          _buildSummaryRow(context, 'Completed', completed.toString()),
+          _buildSummaryRow(context, l10n.completedStatusLabel, completed.toString()),
           const SizedBox(height: 12),
-          _buildSummaryRow(context, 'Pending', pending.toString()),
+          _buildSummaryRow(context, l10n.pendingStatusLabel, pending.toString()),
         ],
       ),
     );
@@ -311,6 +320,7 @@ class _ConsultationsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appointmentsAsync = ref.watch(patientAppointmentsHistoryProvider(patientId));
+    final l10n = AppLocalizations.of(context)!;
 
     return appointmentsAsync.when(
       data: (appointments) {
@@ -321,7 +331,7 @@ class _ConsultationsTab extends ConsumerWidget {
               children: [
                 Icon(Icons.calendar_today_rounded, size: 48, color: AppColors.textTertiaryOf(context)),
                 const SizedBox(height: 16),
-                Text('No consultations yet', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(l10n.noConsultationsYet, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 16, fontWeight: FontWeight.w600)),
               ],
             ),
           );
@@ -333,13 +343,14 @@ class _ConsultationsTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) => const Center(child: Text('Could not load consultations')),
+      error: (_, _) => Center(child: Text(l10n.couldNotLoadConsultations)),
     );
   }
 
   Widget _buildAppointmentItem(BuildContext context, Map<String, dynamic> appt) {
+    final l10n = AppLocalizations.of(context)!;
     final date = appt['appointment_date'] != null ? DateTime.parse(appt['appointment_date']) : null;
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [l10n.monthJan, l10n.monthFeb, l10n.monthMar, l10n.monthApr, l10n.monthMay, l10n.monthJun, l10n.monthJul, l10n.monthAug, l10n.monthSep, l10n.monthOct, l10n.monthNov, l10n.monthDec];
     final monthStr = date != null ? months[date.month - 1] : '';
     final dayStr = date != null ? date.day.toString() : '';
 
@@ -364,9 +375,9 @@ class _ConsultationsTab extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(appt['consultation_mode']?.toString().toUpperCase() ?? 'Consultation', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+                Text(appt['consultation_mode']?.toString().toUpperCase() ?? l10n.consultationFallback, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppColors.textPrimaryOf(context))),
                 const SizedBox(height: 2),
-                Text('${appt['duration_minutes'] ?? 30} min', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
+                Text('${appt['duration_minutes'] ?? 30} ${l10n.durationMinUnit}', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -399,6 +410,7 @@ class _RecordsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recordsAsync = ref.watch(patientRecordsForDoctorProvider(patientId));
+    final l10n = AppLocalizations.of(context)!;
 
     return recordsAsync.when(
       data: (records) {
@@ -409,9 +421,9 @@ class _RecordsTab extends ConsumerWidget {
               children: [
                 Icon(Icons.folder_open_rounded, size: 48, color: AppColors.textTertiaryOf(context)),
                 const SizedBox(height: 16),
-                Text('No shared records', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(l10n.noSharedRecords, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 16, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
-                Text('Records shared by the patient will appear here.', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13)),
+                Text(l10n.recordsSharedWillAppearHere, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13)),
               ],
             ),
           );
@@ -423,11 +435,12 @@ class _RecordsTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) => const Center(child: Text('Could not load records')),
+      error: (_, _) => Center(child: Text(l10n.couldNotLoadRecords)),
     );
   }
 
   Widget _buildRecordItem(BuildContext context, Map<String, dynamic> record) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -440,9 +453,9 @@ class _RecordsTab extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(record['title'] ?? 'Record', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppColors.textPrimaryOf(context))),
+                Text(record['title'] ?? l10n.recordLabel, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppColors.textPrimaryOf(context))),
                 const SizedBox(height: 2),
-                Text(record['record_type'] ?? 'Other', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
+                Text(record['record_type'] ?? l10n.otherLabel, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 11, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -450,7 +463,7 @@ class _RecordsTab extends ConsumerWidget {
             icon: const Icon(Icons.visibility_rounded, color: AppColors.primary),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Opening record...')),
+                SnackBar(content: Text(l10n.openingRecord)),
               );
             },
           ),

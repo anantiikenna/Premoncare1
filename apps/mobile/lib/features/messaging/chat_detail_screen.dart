@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
@@ -111,7 +112,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   children: [
                     Text(_partnerProfile!['full_name'], style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 15, fontWeight: FontWeight.w900)),
                     Text(
-                      '${_partnerProfile!['specialty'] ?? 'Specialist'} • ${_partnerProfile!['is_online'] == true ? 'Online' : 'Offline'}',
+                      '${_partnerProfile!['specialty'] ?? AppLocalizations.of(context)!.specialistLabel} • ${_partnerProfile!['is_online'] == true ? AppLocalizations.of(context)!.statusOnlineLabel : AppLocalizations.of(context)!.statusOfflineLabel}',
                       style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -123,7 +124,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             icon: Icon(Icons.phone, color: AppColors.primary, size: 18),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Phone call feature - start a consultation to use this.')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.phoneCallFeature)),
               );
             },
           ),
@@ -131,7 +132,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             icon: Icon(Icons.videocam, color: AppColors.primary, size: 20),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Video call feature - start a consultation to use this.')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.videoCallFeature)),
               );
             },
           ),
@@ -150,7 +151,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 Icon(Icons.verified, color: AppColors.success, size: 14),
                 const SizedBox(width: 8),
                 Text(
-                  'Messages are encrypted in transit via TLS.',
+                  AppLocalizations.of(context)!.messagesEncryptedTLS,
                   style: TextStyle(fontSize: 10, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w600),
                 ),
               ],
@@ -186,7 +187,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-              error: (err, _) => Center(child: Text('Error: $err')),
+              error: (err, _) => Center(child: Text('${AppLocalizations.of(context)!.errorLabelShort}: $err')),
             ),
           ),
           _buildInputArea(),
@@ -203,7 +204,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           Expanded(child: Container(height: 1, color: AppColors.primary.withValues(alpha: 0.2))),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text('1 Unread Message', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w900)),
+            child: Text(AppLocalizations.of(context)!.unreadMessageLabel, style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w900)),
           ),
           Expanded(child: Container(height: 1, color: AppColors.primary.withValues(alpha: 0.2))),
         ],
@@ -222,11 +223,11 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             child: Icon(Icons.chat_bubble, size: 48, color: AppColors.primary.withValues(alpha: 0.2)),
           ),
           const SizedBox(height: 24),
-          Text('Start your consultation', style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900)),
+          Text(AppLocalizations.of(context)!.startYourConsultationTitle, style: TextStyle(color: AppColors.textPrimaryOf(context), fontSize: 18, fontWeight: FontWeight.w900)),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: Text('Feel free to ask questions or share symptoms with your specialist.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, height: 1.5)),
+            child: Text(AppLocalizations.of(context)!.feelFreeToAskDesc, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13, height: 1.5)),
           ),
         ],
       ),
@@ -261,7 +262,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       controller: _messageController,
                       maxLines: null,
                       decoration: InputDecoration(
-                        hintText: 'Type\ a\ message\.\.\.',
+                        hintText: AppLocalizations.of(context)!.typeMessage,
                         hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -305,19 +306,19 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               children: [
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(Icons.description, 'Prescription', AppColors.success),
+                  child: _buildAttachmentOption(context, Icons.description, AppLocalizations.of(context)!.prescriptionLabel, AppColors.success),
                 ),
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(Icons.assignment, 'Reports', AppColors.primary),
+                  child: _buildAttachmentOption(context, Icons.assignment, AppLocalizations.of(context)!.reportsLabel, AppColors.primary),
                 ),
                 GestureDetector(
                   onTap: () { Navigator.pop(context); context.push('/vault'); },
-                  child: _buildAttachmentOption(Icons.image, 'Images', AppColors.primary),
+                  child: _buildAttachmentOption(context, Icons.image, AppLocalizations.of(context)!.imagesLabel, AppColors.primary),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: _buildAttachmentOption(Icons.location_on, 'Location', AppColors.info),
+                  child: _buildAttachmentOption(context, Icons.location_on, AppLocalizations.of(context)!.locationLabel, AppColors.info),
                 ),
               ],
             ),
@@ -328,7 +329,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     );
   }
 
-  Widget _buildAttachmentOption(IconData icon, String label, Color color) {
+  Widget _buildAttachmentOption(BuildContext context, IconData icon, String label, Color color) {
     return Column(
       children: [
         Container(

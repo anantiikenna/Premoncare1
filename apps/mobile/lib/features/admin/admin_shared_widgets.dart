@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/app_colors.dart';
 
 class AdminCard extends StatelessWidget {

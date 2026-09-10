@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math' as math;
@@ -32,14 +33,14 @@ class _DisputeResolutionScreenState
   int _resolvedCount = 0;
   int _highRiskCount = 0;
 
-  final filters = [
-    'All',
-    'Payment',
-    'Consultation',
-    'Refund',
-    'Fraud',
-    'Behavior',
-    'Other',
+  List<String> _getFilters(AppLocalizations l10n) => [
+    l10n.filterAll,
+    l10n.filterPayment,
+    l10n.filterConsultation,
+    l10n.filterRefund,
+    l10n.filterFraud,
+    l10n.filterBehavior,
+    l10n.filterOther,
   ];
 
   @override
@@ -231,15 +232,16 @@ class _DisputeResolutionScreenState
   }
 
   String _statusLabel(String status) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case 'open':
-        return 'Open';
+        return l10n.openStatusLabel;
       case 'under_review':
-        return 'In Review';
+        return l10n.inReview;
       case 'resolved':
-        return 'Resolved';
+        return l10n.resolved;
       case 'dismissed':
-        return 'Closed';
+        return l10n.closeLabel;
       default:
         return status;
     }
@@ -373,7 +375,7 @@ class _DisputeResolutionScreenState
               ),
               const SizedBox(height: 6),
               Text(
-                'Manage, review and resolve disputes fairly and efficiently.',
+                AppLocalizations.of(context)!.disputeResolutionSubtitle,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textTertiaryOf(context),
@@ -413,28 +415,28 @@ class _DisputeResolutionScreenState
       child: Row(
         children: [
           _buildStatCard(
-            'Open Disputes',
+            AppLocalizations.of(context)!.openDisputes,
             _openCount.toString(),
             Icons.warning_amber,
             AppColors.warning,
           ),
           const SizedBox(width: 16),
           _buildStatCard(
-            'In Review',
+            AppLocalizations.of(context)!.inReview,
             _inReviewCount.toString(),
             Icons.access_time,
             AppColors.warning,
           ),
           const SizedBox(width: 16),
           _buildStatCard(
-            'Resolved',
+            AppLocalizations.of(context)!.resolved,
             _resolvedCount.toString(),
             Icons.check_circle,
             AppColors.success,
           ),
           const SizedBox(width: 16),
           _buildStatCard(
-            'High Risk',
+            AppLocalizations.of(context)!.highRisk,
             _highRiskCount.toString(),
             Icons.flag,
             AppColors.error,
@@ -500,10 +502,12 @@ class _DisputeResolutionScreenState
   }
 
   Widget _buildFilterChips() {
+    final l10n = AppLocalizations.of(context)!;
+    final filterList = _getFilters(l10n);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: filters.map((filter) {
+        children: filterList.map((filter) {
           final isSelected = filter == _selectedFilter;
           return Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -541,8 +545,8 @@ class _DisputeResolutionScreenState
     if (_filteredDisputes.isEmpty) {
       return AdminEmptyState(
         icon: Icons.inbox_outlined,
-        title: 'No disputes found',
-        subtitle: 'No disputes match the current filter.',
+        title: AppLocalizations.of(context)!.noDisputesFound,
+        subtitle: AppLocalizations.of(context)!.noDisputesMatch,
       );
     }
 
@@ -819,7 +823,7 @@ class _DisputeResolutionScreenState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Dispute Insights',
+              AppLocalizations.of(context)!.disputeInsights,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -833,10 +837,10 @@ class _DisputeResolutionScreenState
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.borderLightOf(context)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Text(
-                    'This Month',
+                    AppLocalizations.of(context)!.thisMonthLabel,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                   SizedBox(width: 4),
@@ -886,7 +890,7 @@ class _DisputeResolutionScreenState
                           ),
                         ),
                         Text(
-                          'Total',
+                          AppLocalizations.of(context)!.totalLabel,
                           style: TextStyle(
                             fontSize: 13,
                             color: AppColors.textTertiaryOf(context),
@@ -900,22 +904,22 @@ class _DisputeResolutionScreenState
               const SizedBox(height: 32),
               _buildInsightLegendRow(
                 AppColors.warning,
-                'Open',
+                AppLocalizations.of(context)!.openStatusLabel,
                 '$_openCount ($openPct%)',
               ),
               _buildInsightLegendRow(
                 AppColors.warning,
-                'In Review',
+                AppLocalizations.of(context)!.inReview,
                 '$_inReviewCount ($reviewPct%)',
               ),
               _buildInsightLegendRow(
                 AppColors.success,
-                'Resolved',
+                AppLocalizations.of(context)!.resolved,
                 '$_resolvedCount ($resolvedPct%)',
               ),
               _buildInsightLegendRow(
                 AppColors.error,
-                'High Risk',
+                AppLocalizations.of(context)!.highRisk,
                 '$_highRiskCount',
               ),
             ],
@@ -945,19 +949,20 @@ class _DisputeResolutionScreenState
               ),
               const SizedBox(height: 16),
               Text(
-                'We ensure fair, secure and transparent resolution for all parties involved.',
+                AppLocalizations.of(context)!.fairResolutionText,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.textPrimaryOf(context),
                   height: 1.5,
                 ),
+              ),
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Text(
-                    'Learn more',
+                    AppLocalizations.of(context)!.learnMore,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -994,7 +999,7 @@ class _DisputeResolutionScreenState
           children: [
             Expanded(
               child: Text(
-                'Dispute Details',
+                AppLocalizations.of(context)!.disputeDetails,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -1075,32 +1080,32 @@ class _DisputeResolutionScreenState
               ),
               const SizedBox(height: 20),
               _buildDetailRow(
-                'Category',
+                AppLocalizations.of(context)!.categoryLabel,
                 category[0].toUpperCase() + category.substring(1),
               ),
               _buildDetailRow(
-                'Risk Level',
+                AppLocalizations.of(context)!.riskLevelLabel,
                 '${riskLevel[0].toUpperCase()}${riskLevel.substring(1)}',
                 valueColor: _riskColor(riskLevel),
               ),
               if (d['amount'] != null)
-                _buildDetailRow('Amount', _formatAmount(d['amount'])),
+                _buildDetailRow(AppLocalizations.of(context)!.amountLabel, _formatAmount(d['amount'])),
               _buildDetailRow(
-                'Dispute ID',
+                AppLocalizations.of(context)!.disputeIdLabel,
                 '#DSP-${d['id'].toString().substring(0, math.min(8, d['id'].toString().length)).toUpperCase()}',
               ),
-              _buildDetailRow('Created', _formatDate(createdAt)),
+              _buildDetailRow(AppLocalizations.of(context)!.createdLabel, _formatDate(createdAt)),
               const Divider(height: 32),
-              _buildDetailRow('Patient', patientName),
-              _buildDetailRow('Patient Email', patient?['email'] ?? 'N/A'),
+              _buildDetailRow(AppLocalizations.of(context)!.patientLabelDetail, patientName),
+              _buildDetailRow(AppLocalizations.of(context)!.patientEmailLabel, patient?['email'] ?? 'N/A'),
               const SizedBox(height: 8),
-              _buildDetailRow('Doctor', doctorName),
-              _buildDetailRow('Doctor Email', doctor?['email'] ?? 'N/A'),
+              _buildDetailRow(AppLocalizations.of(context)!.doctorLabelDetail, doctorName),
+              _buildDetailRow(AppLocalizations.of(context)!.doctorEmailLabel, doctor?['email'] ?? 'N/A'),
               if (d['description'] != null &&
                   d['description'].toString().isNotEmpty) ...[
                 const Divider(height: 32),
                 Text(
-                  'Description',
+                  AppLocalizations.of(context)!.descriptionLabel,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -1129,8 +1134,8 @@ class _DisputeResolutionScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Resolution Notes',
+                      Text(
+                        AppLocalizations.of(context)!.resolutionNotesLabel,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -1173,7 +1178,7 @@ class _DisputeResolutionScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Resolution Actions',
+                  AppLocalizations.of(context)!.resolutionActionsLabel,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -1187,10 +1192,10 @@ class _DisputeResolutionScreenState
                     onPressed: () => _showResolveDialog(
                       d['id'],
                       'under_review',
-                      'Mark as Under Review',
+                      AppLocalizations.of(context)!.markAsUnderReview,
                     ),
                     icon: const Icon(Icons.search, size: 18),
-                    label: const Text('Mark as In Review'),
+                    label: Text(AppLocalizations.of(context)!.markAsInReview),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.warning,
                       foregroundColor: AppColors.textInverse,
@@ -1209,10 +1214,10 @@ class _DisputeResolutionScreenState
                         onPressed: () => _showResolveDialog(
                           d['id'],
                           'resolved',
-                          'Resolve Dispute',
+                          AppLocalizations.of(context)!.resolveDisputeAction,
                         ),
                         icon: const Icon(Icons.check_circle, size: 18),
-                        label: const Text('Resolve'),
+                        label: Text(AppLocalizations.of(context)!.resolveLabel),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
                           foregroundColor: AppColors.textInverse,
@@ -1229,10 +1234,10 @@ class _DisputeResolutionScreenState
                         onPressed: () => _showResolveDialog(
                           d['id'],
                           'dismissed',
-                          'Close Dispute',
+                          AppLocalizations.of(context)!.closeDisputeAction,
                         ),
                         icon: const Icon(Icons.close, size: 18),
-                        label: const Text('Close'),
+                        label: Text(AppLocalizations.of(context)!.closeLabel),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.borderOf(context),
                           foregroundColor: AppColors.textInverse,

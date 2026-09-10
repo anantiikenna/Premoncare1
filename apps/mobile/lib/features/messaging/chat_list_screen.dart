@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
@@ -36,7 +37,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
             const Icon(Icons.chat, color: AppColors.primary, size: 24),
             const SizedBox(width: 12),
             Text(
-              'Chats',
+              AppLocalizations.of(context)!.chatsTitle,
               style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w900, fontSize: 24, letterSpacing: -1),
             ),
             const SizedBox(width: 8),
@@ -63,7 +64,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('To start a conversation, go to a doctor\'s profile and tap Send Message')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.toStartConversationDesc)),
               );
             },
           ),
@@ -86,7 +87,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 controller: _searchController,
                 onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
                 decoration: InputDecoration(
-                  hintText: 'Search\ chats\.\.\.',
+                  hintText: AppLocalizations.of(context)!.searchChats,
                   hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                   prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 18),
                   suffixIcon: _searchQuery.isNotEmpty
@@ -120,7 +121,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       ).toList();
                 if (filtered.isEmpty) {
                   return Center(
-                    child: Text('No matches for "$_searchQuery"', style: TextStyle(color: AppColors.textSecondaryOf(context))),
+                    child: Text(AppLocalizations.of(context)!.noMatchesForSearch(_searchQuery), style: TextStyle(color: AppColors.textSecondaryOf(context))),
                   );
                 }
                 return ListView.separated(
@@ -134,7 +135,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-              error: (err, _) => Center(child: Text('Error: $err')),
+              error: (err, _) => Center(child: Text('${AppLocalizations.of(context)!.errorLabelShort}: $err')),
             ),
           ),
         ],
@@ -150,12 +151,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           Icon(Icons.chat_bubble, size: 64, color: AppColors.primary.withValues(alpha: 0.1)),
           const SizedBox(height: 16),
           Text(
-            'No conversations yet',
+            AppLocalizations.of(context)!.noConversationsYetTitle,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start a chat with a specialist to see it here.',
+            AppLocalizations.of(context)!.startChatSpecialistDesc,
             style: TextStyle(color: AppColors.textSecondaryOf(context)),
           ),
         ],
@@ -231,14 +232,14 @@ class _ChatTile extends StatelessWidget {
                         style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context)),
                       ),
                       Text(
-                        _formatTime(contact.lastMessage.createdAt),
+                        _formatTime(context, contact.lastMessage.createdAt),
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textTertiaryOf(context)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    contact.specialty ?? 'Premon Care Support',
+                    contact.specialty ?? AppLocalizations.of(context)!.premonCareSupport,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context)),
                   ),
                   const SizedBox(height: 6),
@@ -272,7 +273,7 @@ class _ChatTile extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime date) {
+  String _formatTime(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
     if (diff.inDays == 0) {
@@ -281,9 +282,10 @@ class _ChatTile extends StatelessWidget {
       final p = date.hour >= 12 ? 'PM' : 'AM';
       return '$h:$m $p';
     } else if (diff.inDays == 1) {
-      return 'Yesterday';
+      return AppLocalizations.of(context)!.yesterdayLabel;
     } else {
-      final List<String> days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      final l10n = AppLocalizations.of(context)!;
+      final List<String> days = [l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu, l10n.dayFri, l10n.daySat, l10n.daySun];
       return days[date.weekday - 1];
     }
   }

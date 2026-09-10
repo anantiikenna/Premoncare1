@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,7 +33,7 @@ class VerificationWizard extends ConsumerWidget {
           },
         ),
         title: Text(
-          'Practitioner Verification',
+          AppLocalizations.of(context)!.practitionerVerificationTitle,
           style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w900, fontSize: 18),
         ),
       ),
@@ -157,7 +158,7 @@ class VerificationWizard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Action Required',
+                  AppLocalizations.of(context)!.actionRequiredLabel,
                   style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w900, fontSize: 15),
                 ),
                 const SizedBox(height: 4),
@@ -216,7 +217,7 @@ class VerificationWizard extends ConsumerWidget {
             child: state.isSubmitting || state.isUploading
               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 3))
               : Text(
-                  isLastStep ? 'Submit Application' : 'Continue',
+                  isLastStep ? AppLocalizations.of(context)!.submitApplicationButton : AppLocalizations.of(context)!.continueLabel,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                 ),
           ),
@@ -228,13 +229,13 @@ class VerificationWizard extends ConsumerWidget {
   bool _validateStep(BuildContext context, VerificationState state) {
     String? error;
     if (state.currentStep == VerificationStep.professional) {
-      if (state.specialty.isEmpty) { error = 'Select your specialty'; }
-      else if (state.licenseUrl == null) { error = 'Upload medical license'; }
+      if (state.specialty.isEmpty) { error = AppLocalizations.of(context)!.selectSpecialtyError; }
+      else if (state.licenseUrl == null) { error = AppLocalizations.of(context)!.uploadMedicalLicenseError; }
     } else if (state.currentStep == VerificationStep.identity) {
-      if (state.idUrl == null) { error = 'Upload ID document'; }
-      else if (state.addressUrl == null) { error = 'Upload proof of address'; }
+      if (state.idUrl == null) { error = AppLocalizations.of(context)!.uploadIdDocumentError; }
+      else if (state.addressUrl == null) { error = AppLocalizations.of(context)!.uploadProofOfAddressError; }
     } else if (state.currentStep == VerificationStep.facial) {
-      if (state.selfieUrl == null) error = 'Capture live selfie';
+      if (state.selfieUrl == null) error = AppLocalizations.of(context)!.captureLiveSelfieError;
     }
 
     if (error != null) {
@@ -261,19 +262,19 @@ class _ProfessionalStep extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Professional Credentials', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
+        Text(AppLocalizations.of(context)!.professionalCredentialsTitle, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
         const SizedBox(height: 8),
-        Text('Help us verify your medical expertise and practice history.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
+        Text(AppLocalizations.of(context)!.helpVerifyExpertiseDesc, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
         const SizedBox(height: 32),
         CustomTextField(
-          label: 'Professional Title',
-          hintText: 'e.g. Dr., Prof.',
+          label: AppLocalizations.of(context)!.professionalTitleField,
+          hintText: AppLocalizations.of(context)!.enterTitleHint,
           onChanged: (v) => notifier.updateProfessional(v, state.specialty, state.experience, state.licenseNumber),
         ),
         const SizedBox(height: 20),
         CustomTextField(
-          label: 'Medical Specialty',
-          hintText: 'e.g. General Practitioner',
+          label: AppLocalizations.of(context)!.medicalSpecialtyField,
+          hintText: AppLocalizations.of(context)!.enterSpecialtyHint,
           onChanged: (v) => notifier.updateProfessional(state.title, v, state.experience, state.licenseNumber),
         ),
         const SizedBox(height: 20),
@@ -281,8 +282,8 @@ class _ProfessionalStep extends ConsumerWidget {
           children: [
             Expanded(
               child: CustomTextField(
-                label: 'Experience (Years)',
-                hintText: 'e.g. 5',
+                label: AppLocalizations.of(context)!.experienceYearsField,
+                hintText: AppLocalizations.of(context)!.enterExperienceHint,
                 keyboardType: TextInputType.number,
                 onChanged: (v) => notifier.updateProfessional(state.title, state.specialty, v, state.licenseNumber),
               ),
@@ -290,8 +291,8 @@ class _ProfessionalStep extends ConsumerWidget {
             const SizedBox(width: 16),
             Expanded(
               child: CustomTextField(
-                label: 'License Number',
-                hintText: 'MD-XXXXX',
+                label: AppLocalizations.of(context)!.licenseNumberLabel,
+                hintText: AppLocalizations.of(context)!.licenseNumberHint,
                 onChanged: (v) => notifier.updateProfessional(state.title, state.specialty, state.experience, v),
               ),
             ),
@@ -300,8 +301,8 @@ class _ProfessionalStep extends ConsumerWidget {
         const SizedBox(height: 32),
         _buildUploadBox(
           context: context,
-          label: 'Upload Medical License',
-          subLabel: 'PDF, JPG or PNG (Max 5MB)',
+          label: AppLocalizations.of(context)!.uploadMedicalLicenseLabel,
+          subLabel: AppLocalizations.of(context)!.pdfJpgPng5MB,
           isUploaded: state.licenseUrl != null,
           isUploading: state.isUploading && state.licenseUrl == null,
           onTap: () async {
@@ -325,14 +326,14 @@ class _IdentityStep extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Identity Verification', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
+        Text(AppLocalizations.of(context)!.identityVerificationScreenTitle, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
         const SizedBox(height: 8),
-        Text('Securely upload your government-issued identification.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
+        Text(AppLocalizations.of(context)!.secureUploadGovtIdDesc, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
         const SizedBox(height: 32),
         _buildUploadBox(
           context: context,
-          label: 'Government ID',
-          subLabel: 'International Passport or National ID',
+          label: AppLocalizations.of(context)!.governmentIdLabel,
+          subLabel: AppLocalizations.of(context)!.intlPassportOrNationalId,
           isUploaded: state.idUrl != null,
           isUploading: state.isUploading && state.idUrl == null,
           onTap: () async {
@@ -345,8 +346,8 @@ class _IdentityStep extends ConsumerWidget {
         const SizedBox(height: 20),
         _buildUploadBox(
           context: context,
-          label: 'Proof of Address',
-          subLabel: 'Utility Bill or Bank Statement',
+          label: AppLocalizations.of(context)!.proofOfAddressLabel,
+          subLabel: AppLocalizations.of(context)!.utilityBillOrBankStatement,
           isUploaded: state.addressUrl != null,
           isUploading: state.isUploading && state.addressUrl == null,
           onTap: () async {
@@ -375,9 +376,9 @@ class _FacialStep extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Face Recognition', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
+              Text(AppLocalizations.of(context)!.faceRecognitionTitle, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
               const SizedBox(height: 8),
-              Text('Verify that you are the person on the identity document.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
+              Text(AppLocalizations.of(context)!.verifyIdentityDocumentDesc, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
             ],
           ),
         ),
@@ -422,7 +423,7 @@ class _FacialStep extends ConsumerWidget {
             }
           },
           icon: const Icon(Icons.camera_alt_rounded),
-          label: const Text\('Capture\ Selfie'\),
+          label: Text(AppLocalizations.of(context)!.captureSelfie),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.surfaceAltOf(context),
             foregroundColor: AppColors.primary,
@@ -445,9 +446,9 @@ class _ReviewStep extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Review Submission', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
+        Text(AppLocalizations.of(context)!.reviewSubmissionTitle, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1)),
         const SizedBox(height: 8),
-        Text('Confirm your details before submitting for official review.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
+        Text(AppLocalizations.of(context)!.confirmDetailsBeforeDesc, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14)),
         const SizedBox(height: 32),
         Container(
           padding: const EdgeInsets.all(24),
@@ -458,10 +459,10 @@ class _ReviewStep extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              _buildReviewRow(context, 'Specialty', state.specialty),
-              _buildReviewRow(context, 'Experience', '${state.experience} Years'),
-              _buildReviewRow(context, 'License Number', state.licenseNumber),
-              _buildReviewRow(context, 'Docs Status', 'Verification Ready', isSuccess: true),
+              _buildReviewRow(context, AppLocalizations.of(context)!.specialtyLabel, state.specialty),
+              _buildReviewRow(context, AppLocalizations.of(context)!.experienceYearsLabel, '${state.experience} Years'),
+              _buildReviewRow(context, AppLocalizations.of(context)!.licenseNumberLabel, state.licenseNumber),
+              _buildReviewRow(context, AppLocalizations.of(context)!.docsStatusLabel, AppLocalizations.of(context)!.verificationReadyLabel, isSuccess: true),
             ],
           ),
         ),
@@ -482,7 +483,7 @@ class _ReviewStep extends ConsumerWidget {
               ),
               Expanded(
                 child: Text(
-                  'I certify that the provided information is accurate and comply with Premon Care Professional Terms.',
+                  AppLocalizations.of(context)!.certifyInfoAccurate,
                   style: TextStyle(fontSize: 12, color: AppColors.info, fontWeight: FontWeight.w600, height: 1.4),
                 ),
               ),

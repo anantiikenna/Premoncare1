@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/providers.dart';
+import '../../l10n/app_localizations.dart';
 
 class DoctorPaymentsScreen extends ConsumerWidget {
   const DoctorPaymentsScreen({super.key});
@@ -16,7 +17,7 @@ class DoctorPaymentsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Payment Approvals', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w800, fontSize: 20)),
+        title: Text(AppLocalizations.of(context)!.paymentApprovalsLabel, style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w800, fontSize: 20)),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimaryOf(context)),
@@ -32,9 +33,9 @@ class DoctorPaymentsScreen extends ConsumerWidget {
                 children: [
                   Icon(Icons.payments_rounded, size: 64, color: AppColors.textTertiaryOf(context)),
                   const SizedBox(height: 16),
-                  Text('No pending payments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimaryOf(context))),
+                  Text(AppLocalizations.of(context)!.noPendingPayments, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimaryOf(context))),
                   const SizedBox(height: 8),
-                  Text('Payments sent to you will appear here.', style: TextStyle(color: AppColors.textSecondaryOf(context))),
+                  Text(AppLocalizations.of(context)!.paymentsSentWillAppearHere, style: TextStyle(color: AppColors.textSecondaryOf(context))),
                 ],
               ),
             );
@@ -113,7 +114,7 @@ class DoctorPaymentsScreen extends ConsumerWidget {
                       side: BorderSide(color: AppColors.success),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Approve', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+                    child: Text(AppLocalizations.of(context)!.approveLabel, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
                   ),
                 ),
               ),
@@ -128,7 +129,7 @@ class DoctorPaymentsScreen extends ConsumerWidget {
                       side: BorderSide(color: AppColors.error),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Reject', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+                    child: Text(AppLocalizations.of(context)!.rejectLabel, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
                   ),
                 ),
               ),

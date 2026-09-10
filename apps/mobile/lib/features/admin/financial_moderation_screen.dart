@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
@@ -31,12 +32,12 @@ class _FinancialModerationScreenState
   int _disputedCount = 0;
   int _refundRequestCount = 0;
 
-  static const _tabLabels = [
-    'All Transactions',
-    'Pending',
-    'Approved',
-    'Refunded',
-    'Disputed',
+  List<String> _getTabLabels(AppLocalizations l10n) => [
+    l10n.allTransactions,
+    l10n.pendingLabel,
+    l10n.approvedLabel,
+    l10n.refundedLabel,
+    l10n.disputedLabel,
   ];
 
   static const _tabStatuses = <String?>[
@@ -337,11 +338,11 @@ class _FinancialModerationScreenState
                     const SizedBox(height: 20),
                     _buildSearchAndFilters(),
                     const SizedBox(height: 32),
-                    _buildSectionHeader('Financial Alerts', onSeeAll: () {}),
+                    _buildSectionHeader(AppLocalizations.of(context)!.financialAlerts, onSeeAll: () {}),
                     const SizedBox(height: 16),
                     _buildFinancialAlerts(),
                     const SizedBox(height: 32),
-                    _buildSectionHeader('Recent Transactions', onSeeAll: () {}),
+                    _buildSectionHeader(AppLocalizations.of(context)!.recentTransactions, onSeeAll: () {}),
                     const SizedBox(height: 16),
                     _buildTransactionsList(),
                     const SizedBox(height: 32),
@@ -349,7 +350,7 @@ class _FinancialModerationScreenState
                     const SizedBox(height: 32),
                     _buildDisputesAndPayouts(),
                     const SizedBox(height: 32),
-                    _buildSectionHeader('Quick Actions'),
+                    _buildSectionHeader(AppLocalizations.of(context)!.quickActions),
                     const SizedBox(height: 16),
                     _buildQuickActions(context),
                     const SizedBox(height: 40),
@@ -370,7 +371,7 @@ class _FinancialModerationScreenState
       childAspectRatio: 1.4,
       children: [
         _FinanceStatCard(
-          title: 'Total Revenue',
+          title: AppLocalizations.of(context)!.totalRevenue,
           value: _formatAmount(_totalRevenue),
           trend: '${_transactions.length} txns',
           trendPositive: true,
@@ -378,7 +379,7 @@ class _FinancialModerationScreenState
           color: AppColors.success,
         ),
         _FinanceStatCard(
-          title: 'Total Payouts',
+          title: AppLocalizations.of(context)!.totalPayouts,
           value: _formatAmount(_totalPayouts),
           trend:
               '${_transactions.where((t) => t['status'] == 'approved').length} txns',
@@ -387,7 +388,7 @@ class _FinancialModerationScreenState
           color: AppColors.primary,
         ),
         _FinanceStatCard(
-          title: 'Pending Payouts',
+          title: AppLocalizations.of(context)!.pendingPayoutsLabel,
           value: _formatAmount(_pendingPayouts),
           trend: '$_pendingPayoutCount transactions',
           trendPositive: true,
@@ -396,7 +397,7 @@ class _FinancialModerationScreenState
           isTransactionCount: true,
         ),
         _FinanceStatCard(
-          title: 'Refunds',
+          title: AppLocalizations.of(context)!.refundsLabel,
           value: _formatAmount(_refunds),
           trend: '$_refundRequestCount requests',
           trendPositive: false,
@@ -408,10 +409,12 @@ class _FinancialModerationScreenState
   }
 
   Widget _buildFilterTabs() {
+    final l10n = AppLocalizations.of(context)!;
+    final tabLabels = _getTabLabels(l10n);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: List.generate(_tabLabels.length, (i) {
+        children: List.generate(tabLabels.length, (i) {
           return Padding(
             padding: const EdgeInsets.only(right: 12),
             child: GestureDetector(
@@ -420,7 +423,7 @@ class _FinancialModerationScreenState
                 _loadTransactions();
               },
               child: _TabItem(
-                label: _tabLabels[i],
+                label: tabLabels[i],
                 isSelected: _selectedTab == i,
               ),
             ),
@@ -455,7 +458,7 @@ class _FinancialModerationScreenState
                     ),
                     SizedBox(width: 12),
                     Text(
-                      'Search by name, transaction ID...',
+                      AppLocalizations.of(context)!.searchByTransaction,
                       style: TextStyle(
                         color: AppColors.textTertiaryOf(context),
                         fontSize: 13,
@@ -469,7 +472,7 @@ class _FinancialModerationScreenState
             const SizedBox(width: 12),
             _IconButton(icon: Icons.filter_list_rounded, label: AppLocalizations.of(context)!.filter),
             const SizedBox(width: 12),
-            _IconButton(icon: Icons.file_download_outlined, label: 'Export'),
+            _IconButton(icon: Icons.file_download_outlined, label: AppLocalizations.of(context)!.exportBtn),
           ],
         ),
       ],
@@ -483,27 +486,27 @@ class _FinancialModerationScreenState
         children: [
           _AlertCard(
             count: '$_disputedCount',
-            title: 'Payment Disputes',
-            sub: 'Require attention',
-            btnLabel: 'Review Now',
+            title: AppLocalizations.of(context)!.paymentDisputes,
+            sub: AppLocalizations.of(context)!.requireAttention,
+            btnLabel: AppLocalizations.of(context)!.reviewNow,
             color: AppColors.warning,
             icon: Icons.warning_amber_rounded,
           ),
           const SizedBox(width: 16),
           _AlertCard(
             count: '$_pendingPayoutCount',
-            title: 'Pending Payouts',
-            sub: 'Awaiting approval',
-            btnLabel: 'View Now',
+            title: AppLocalizations.of(context)!.pendingPayoutsLabel,
+            sub: AppLocalizations.of(context)!.awaitingApproval,
+            btnLabel: AppLocalizations.of(context)!.viewNow,
             color: AppColors.error,
             icon: Icons.error_outline_rounded,
           ),
           const SizedBox(width: 16),
           _AlertCard(
             count: '$_refundRequestCount',
-            title: 'Refund Requests',
-            sub: 'Pending review',
-            btnLabel: 'View Now',
+            title: AppLocalizations.of(context)!.refundRequests,
+            sub: AppLocalizations.of(context)!.pendingReview,
+            btnLabel: AppLocalizations.of(context)!.viewNow,
             color: AppColors.primary,
             icon: Icons.info_outline_rounded,
           ),
@@ -523,7 +526,7 @@ class _FinancialModerationScreenState
         ),
         child: Center(
           child: Text(
-            'No transactions found',
+            AppLocalizations.of(context)!.noTransactionsFound,
             style: TextStyle(
               color: AppColors.textTertiaryOf(context),
               fontSize: 14,
@@ -622,7 +625,7 @@ class _FinancialModerationScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildAnalyticsHeader('Revenue Overview'),
+                _buildAnalyticsHeader(AppLocalizations.of(context)!.revenueOverview),
                 const SizedBox(height: 16),
                 Text(
                   _formatAmount(_totalRevenue),
@@ -659,7 +662,7 @@ class _FinancialModerationScreenState
             ),
             child: Column(
               children: [
-                _buildAnalyticsHeader('Revenue Breakdown'),
+                _buildAnalyticsHeader(AppLocalizations.of(context)!.revenueBreakdown),
                 const SizedBox(height: 20),
                 Stack(
                   alignment: Alignment.center,
@@ -687,7 +690,7 @@ class _FinancialModerationScreenState
                           ),
                         ),
                         Text(
-                          'Total',
+                          AppLocalizations.of(context)!.totalLabel,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -700,19 +703,19 @@ class _FinancialModerationScreenState
                 ),
                 const SizedBox(height: 20),
                 _BreakdownItem(
-                  label: 'Approved',
+                  label: AppLocalizations.of(context)!.approvedBreakdown,
                   value: _formatAmount(approved),
                   percentage: '$approvedPct%',
                   color: AppColors.primary,
                 ),
                 _BreakdownItem(
-                  label: 'Pending',
+                  label: AppLocalizations.of(context)!.pendingBreakdown,
                   value: _formatAmount(pending),
                   percentage: '$pendingPct%',
                   color: AppColors.warning,
                 ),
                 _BreakdownItem(
-                  label: 'Other',
+                  label: AppLocalizations.of(context)!.otherBreakdown,
                   value: _formatAmount(otherPositive),
                   percentage: '$otherPct%',
                   color: AppColors.textTertiaryOf(context),
@@ -805,13 +808,13 @@ class _FinancialModerationScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildListHeader('Recent Disputes'),
+                _buildListHeader(AppLocalizations.of(context)!.recentDisputes),
                 const SizedBox(height: 20),
                 if (_disputes.isEmpty)
-                  const AdminEmptyState(
+                  AdminEmptyState(
                     icon: Icons.gavel_outlined,
-                    title: 'No disputes',
-                    subtitle: 'No open disputes to review',
+                    title: AppLocalizations.of(context)!.noDisputes,
+                    subtitle: AppLocalizations.of(context)!.noOpenDisputes,
                   )
                 else
                   ..._disputes
@@ -823,7 +826,7 @@ class _FinancialModerationScreenState
                             sub:
                                 d['title'] as String? ??
                                 d['description'] as String? ??
-                                'No description',
+                                AppLocalizations.of(context)!.noDescription,
                             id: (d['id'] as String? ?? '').substring(0, 8),
                             time: _formatDate(d['created_at'] as String?),
                             status: _capitalizeStatus(
@@ -853,13 +856,13 @@ class _FinancialModerationScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildListHeader('Pending Payouts'),
+                _buildListHeader(AppLocalizations.of(context)!.pendingPayoutsLabel),
                 const SizedBox(height: 20),
                 if (pendingPayments.isEmpty)
-                  const AdminEmptyState(
+                  AdminEmptyState(
                     icon: Icons.account_balance_wallet_outlined,
-                    title: 'No pending payouts',
-                    subtitle: 'All payouts have been processed',
+                    title: AppLocalizations.of(context)!.noPendingPayouts,
+                    subtitle: AppLocalizations.of(context)!.allPayoutsProcessed,
                   )
                 else
                   ...pendingPayments.take(3).expand((p) {
@@ -924,7 +927,7 @@ class _FinancialModerationScreenState
       children: [
         _QuickAction(
           icon: Icons.check_circle_outline_rounded,
-          label: 'Approve Payouts',
+          label: AppLocalizations.of(context)!.approvePayouts,
           color: AppColors.success,
           onTap: () => _showApprovePayoutsDialog(context),
         ),
@@ -950,19 +953,19 @@ class _FinancialModerationScreenState
         ),
         _QuickAction(
           icon: Icons.warning_amber_rounded,
-          label: 'Resolve Disputes',
+          label: AppLocalizations.of(context)!.resolveDisputes,
           color: AppColors.warning,
           onTap: () => context.push('/admin/disputes'),
         ),
         _QuickAction(
           icon: Icons.bar_chart_rounded,
-          label: 'Transaction Reports',
+          label: AppLocalizations.of(context)!.transactionReports,
           color: AppColors.primary,
           onTap: () => context.push('/admin/reports'),
         ),
         _QuickAction(
           icon: Icons.settings_outlined,
-          label: 'Payout Settings',
+          label: AppLocalizations.of(context)!.payoutSettings,
           color: AppColors.info,
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -986,7 +989,7 @@ class _FinancialModerationScreenState
             Icon(Icons.check_circle_rounded, color: AppColors.success),
             SizedBox(width: 12),
             Text(
-              'Approve Payouts?',
+              AppLocalizations.of(context)!.approvePayoutsQuestion,
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimaryOf(context),
@@ -996,7 +999,7 @@ class _FinancialModerationScreenState
           ],
         ),
         content: Text(
-          'Are you sure you want to approve all pending payouts? This will process ${_formatAmount(_pendingPayouts)} across $_pendingPayoutCount transactions.',
+          AppLocalizations.of(context)!.approvePayoutsDescription(_formatAmount(_pendingPayouts), _pendingPayoutCount),
           style: TextStyle(
             color: AppColors.textSecondaryOf(context),
             height: 1.5,
@@ -1008,7 +1011,7 @@ class _FinancialModerationScreenState
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              AppLocalizations.of(context)!.cancel,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontWeight: FontWeight.bold,
@@ -1051,8 +1054,8 @@ class _FinancialModerationScreenState
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Approve All',
+            child: Text(
+              AppLocalizations.of(context)!.approveAll,
               style: TextStyle(
                 color: AppColors.textInverse,
                 fontWeight: FontWeight.bold,
@@ -1183,7 +1186,7 @@ class _FinanceStatCard extends StatelessWidget {
               const SizedBox(width: 4),
               if (!isTransactionCount)
                 Text(
-                  'vs last month',
+                  AppLocalizations.of(context)!.vsLastMonth,
                   style: TextStyle(
                     color: AppColors.textTertiaryOf(context),
                     fontSize: 10,

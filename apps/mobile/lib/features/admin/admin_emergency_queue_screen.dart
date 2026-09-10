@@ -1,29 +1,141 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
-import 'admin_avatar.dart';
-import 'admin_scaffold.dart';
+import '../../core/app_typography.dart';
+import '../../l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-final adminEmergencyRequestsProvider =
-    StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
-      return supabase
+final _supabase = Supabase.instance.client;
+
+class EmergencyCase {
+  final String id;
+  final String patientId;
+  final String? patientName;
+  final String? patientAvatarUrl;
+  final String? specialty;
+  final String? reason;
+  final String? symptomDescription;
+  final String? status;
+  final DateTime createdAt;
+  final bool isUrgent;
+
+  const EmergencyCase({
+    required this.id,
+    required this.patientId,
+    this.patientName,
+    this.patientAvatarUrl,
+    this.specialty,
+    this.reason,
+    this.symptomDescription,
+    this.status,
+    required this.createdAt,
+    this.isUrgent = false,
+  });
+
+  factory EmergencyCase.fromJson(Map<String, dynamic> json) {
+    final profile = json['patient_profile'] as Map<String, dynamic>?;
+    final symptom = json['symptom_entries'] as List<dynamic>?;
+    final symptomEntry =
+        symptom != null && symptom.isNotEmpty ? symptom.first : null;
+
+    return EmergencyCase(
+      id: json['id'] as String,
+      patientId: json['patient_id'] as String,
+      patientName: profile?['full_name'] as String?,
+      patientAvatarUrl: profile?['avatar_url'] as String?,
+      specialty: json['specialty'] as String?,
+      reason: json['reason'] as String?,
+      symptomDescription: symptomEntry?['description'] as String?,
+      status: json['status'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      isUrgent: json['is_emergency'] as bool? ?? false,
+    );
+  }
+}
+
+class EmergencyQueueAsync {
+  final List<EmergencyCase> cases;
+
+  const EmergencyQueueAsync({required this.cases});
+}
+
+final emergencyQueueProvider =
+    StreamProvider.autoDispose<EmergencyQueueAsync>((ref) async* {
+      final stream = _supabase
           .from('appointments')
           .stream(primaryKey: ['id'])
-          .eq('status', 'emergency_request')
-          .order('created_at', ascending: false)
-          .map((data) => List<Map<String, dynamic>>.from(data));
+          .eq('is_emergency', true)
+          .inFilter('status', [
+            'emergency_request',
+            'emergency_accepted',
+            'emergency_active',
+            'ongoing',
+          ])
+          .order('created_at', ascending: false);
+
+      await for (final events in stream) {
+        if (events.isEmpty) {
+          yield const EmergencyQueueAsync(cases: []);
+          return;
+        }
+
+        final caseIds = events.map((e) => e['id'] as String).toList();
+
+        final profilesQuery = await _supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .inFilter('id', events.map((e) => e['patient_id'] as String).toList());
+
+        final profilesMap = <String, Map<String, dynamic>>{};
+        for (final p in profilesQuery) {
+          profilesMap[p['id'] as String] = p;
+        }
+
+        final symptomsQuery = await _supabase
+            .from('symptom_entries')
+            .select('id, description, appointment_id')
+            .inFilter('appointment_id', caseIds);
+
+        final symptomsMap = <String, List<Map<String, dynamic>>>{};
+        for (final s in symptomsQuery) {
+          final apptId = s['appointment_id'] as String;
+          symptomsMap.putIfAbsent(apptId, () => []).add(s);
+        }
+
+        final emergencyCases =
+            events.map((e) {
+              final caseId = e['id'] as String;
+              final patientId = e['patient_id'] as String;
+              final patientProfile = profilesMap[patientId];
+              final caseSymptoms = symptomsMap[caseId];
+              final firstSymptom =
+                  caseSymptoms != null && caseSymptoms.isNotEmpty
+                      ? caseSymptoms.first
+                      : null;
+
+              return EmergencyCase(
+                id: caseId,
+                patientId: patientId,
+                patientName: patientProfile?['full_name'] as String?,
+                patientAvatarUrl:
+                    patientProfile?['avatar_url'] as String?,
+                specialty: e['specialty'] as String?,
+                reason: e['reason'] as String?,
+                symptomDescription:
+                    firstSymptom?['description'] as String?,
+                status: e['status'] as String?,
+                createdAt: DateTime.parse(e['created_at'] as String),
+                isUrgent: e['is_emergency'] as bool? ?? false,
+              );
+            }).toList();
+
+        yield EmergencyQueueAsync(cases: emergencyCases);
+      }
     });
 
-final emergencyAcceptedProvider =
-    StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
-      return supabase
-          .from('appointments')
-          .stream(primaryKey: ['id'])
-          .eq('status', 'emergency_accepted')
-          .order('created_at', ascending: false)
-          .map((data) => List<Map<String, dynamic>>.from(data));
-    });
+final selectedCaseProvider = StateProvider<EmergencyCase?>((ref) => null);
 
 class AdminEmergencyQueueScreen extends ConsumerStatefulWidget {
   const AdminEmergencyQueueScreen({super.key});
@@ -35,163 +147,285 @@ class AdminEmergencyQueueScreen extends ConsumerStatefulWidget {
 
 class _AdminEmergencyQueueScreenState
     extends ConsumerState<AdminEmergencyQueueScreen> {
-  List<Map<String, dynamic>> _enrichedRequests = [];
-  bool _loadingProfiles = false;
-  String _lastRequestIds = '';
-
-  Future<void> _enrichRequests(List<Map<String, dynamic>> requests) async {
-    final requestIds = requests.map((r) => r['id'] as String).join(',');
-    if (requestIds == _lastRequestIds) return;
-    _lastRequestIds = requestIds;
-    if (requests.isEmpty) {
-      setState(() {
-        _enrichedRequests = [];
-        _loadingProfiles = false;
-      });
-      return;
-    }
-
-    setState(() => _loadingProfiles = true);
-
-    final ids = <String>{
-      for (final r in requests) ...[
-        if (r['patient_id'] != null) r['patient_id'] as String,
-        if (r['doctor_id'] != null) r['doctor_id'] as String,
-      ],
-    };
-
-    final profiles = await supabase
-        .from('profiles')
-        .select('id, full_name, avatar_url')
-        .inFilter('id', ids.toList());
-
-    if (!mounted) return;
-
-    final profileMap = {
-      for (final p in profiles)
-        p['id'] as String: {
-          'full_name': p['full_name'] as String,
-          'avatar_url': p['avatar_url'] as String?,
-        },
-    };
-
-    setState(() {
-      _enrichedRequests = requests.map((r) {
-        final patientProfile = r['patient_id'] != null
-            ? profileMap[r['patient_id']]
-            : null;
-        final doctorProfile = r['doctor_id'] != null
-            ? profileMap[r['doctor_id']]
-            : null;
-        final patientName = patientProfile != null
-            ? (patientProfile['full_name'] ?? 'Unknown Patient')
-            : 'Guest Patient';
-        final doctorName = doctorProfile != null
-            ? (doctorProfile['full_name'] ?? 'Unknown Doctor')
-            : 'Unassigned';
-        return {
-          ...r,
-          '_patientName': patientName,
-          '_doctorName': doctorName,
-          '_patientAvatar': patientProfile?['avatar_url'],
-          '_doctorAvatar': doctorProfile?['avatar_url'],
-        };
-      }).toList();
-      _loadingProfiles = false;
-    });
-  }
-
-  String _timeAgo(String? iso) {
-    if (iso == null) return '';
-    final date = DateTime.tryParse(iso);
-    if (date == null) return '';
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final requestsAsync = ref.watch(adminEmergencyRequestsProvider);
-    final acceptedAsync = ref.watch(emergencyAcceptedProvider);
+    final queueAsync = ref.watch(emergencyQueueProvider);
+    final selectedCase = ref.watch(selectedCaseProvider);
 
-    return AdminScaffold(
-      selectedIndex: 4,
-      body: requestsAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, color: AppColors.error, size: 48),
-              const SizedBox(height: 12),
-              Text(
-                'Failed to load emergency queue',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimaryOf(context),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () => ref.invalidate(adminEmergencyRequestsProvider),
-                child: const Text\(AppLocalizations.of(context)!.retryLabel\),
-              ),
-            ],
+    return Scaffold(
+      backgroundColor: AppColors.backgroundOf(context),
+      body: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: _buildQueueList(queueAsync),
+          ),
+          if (MediaQuery.of(context).size.width > 900)
+            Expanded(
+              flex: 3,
+              child: selectedCase != null
+                  ? _buildDetailView(selectedCase)
+                  : _buildEmptyDetailView(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQueueList(AsyncValue<EmergencyQueueAsync> queueAsync) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceOf(context),
+        border: Border(
+          right: BorderSide(
+            color: AppColors.borderLightOf(context),
+            width: 1,
           ),
         ),
-        data: (requests) {
-          final acceptedCount =
-              acceptedAsync.whenOrNull(data: (a) => a.length) ?? 0;
-
-          _enrichRequests(requests);
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: AppColors.borderLightOf(context),
+                  width: 1,
+                ),
+              ),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 24),
                 Row(
                   children: [
                     Container(
-                      width: 54,
-                      height: 54,
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(18),
+                        color: AppColors.errorLightOf(context),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                        Icons.emergency_rounded,
+                      child: Icon(
+                        Icons.emergency,
                         color: AppColors.error,
-                        size: 28,
+                        size: 20,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.emergencyQueue,
+                        style: AppTypography.headlineMedium(context).copyWith(
+                          color: AppColors.textPrimaryOf(context),
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                queueAsync.when(
+                  data: (queue) {
+                    final pending = queue.cases
+                        .where((c) => c.status == 'emergency_request')
+                        .length;
+                    final accepted = queue.cases
+                        .where((c) =>
+                            c.status == 'emergency_accepted' ||
+                            c.status == 'ongoing')
+                        .length;
+
+                    return Row(
+                      children: [
+                        _buildStatusChip(
+                          '${queue.cases.length} ${AppLocalizations.of(context)!.totalLabel}',
+                          AppColors.error,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStatusChip(
+                          '$pending ${AppLocalizations.of(context)!.pendingLabel}',
+                          AppColors.warning,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStatusChip(
+                          '$accepted ${AppLocalizations.of(context)!.acceptedStatusLabel}',
+                          AppColors.success,
+                        ),
+                      ],
+                    );
+                  },
+                  loading: () => const SizedBox(height: 24),
+                  error: (_, __) => const SizedBox(height: 24),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: queueAsync.when(
+              data: (queue) {
+                if (queue.cases.isEmpty) {
+                  return _buildEmptyState();
+                }
+                return _buildCaseList(queue.cases);
+              },
+              loading: () => _buildLoadingState(),
+              error: (error, stack) => _buildErrorState(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.labelMedium(context).copyWith(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCaseList(List<EmergencyCase> cases) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: cases.length,
+      itemBuilder: (context, index) {
+        final emergencyCase = cases[index];
+        return _buildCaseCard(emergencyCase);
+      },
+    );
+  }
+
+  Widget _buildCaseCard(EmergencyCase emergencyCase) {
+    final isSelected = ref.watch(selectedCaseProvider)?.id == emergencyCase.id;
+    final statusColor = _getStatusColor(emergencyCase.status);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            ref.read(selectedCaseProvider.notifier).state = emergencyCase;
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? statusColor.withValues(alpha: 0.05)
+                  : AppColors.surfaceOf(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected
+                    ? statusColor.withValues(alpha: 0.5)
+                    : AppColors.borderLightOf(context),
+                width: isSelected ? 2 : 1,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: statusColor.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Stack(
+                      children: [
+                        _buildPatientAvatar(
+                          emergencyCase.patientName,
+                          emergencyCase.patientAvatarUrl,
+                        ),
+                        if (emergencyCase.isUrgent)
+                          Positioned(
+                            right: -2,
+                            top: -2,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppColors.error,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.backgroundOf(context),
+                                  width: 2,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.warning,
+                                color: Colors.white,
+                                size: 10,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Emergency Queue',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.textPrimaryOf(context),
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  emergencyCase.patientName ?? AppLocalizations.of(context)!.unknownPatient,
+                                  style: AppTypography.titleMedium(context)
+                                      .copyWith(
+                                    color: AppColors.textPrimaryOf(context),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (emergencyCase.status ==
+                                  'emergency_request')
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.error.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.pendingReview,
+                                    style: AppTypography.labelSmall(
+                                      context,
+                                    ).copyWith(
+                                      color: AppColors.error,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${requests.length} pending • $acceptedCount accepted today',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                            emergencyCase.specialty ?? AppLocalizations.of(context)!.noSpecialtyAssigned,
+                            style: AppTypography.bodySmall(context).copyWith(
                               color: AppColors.textSecondaryOf(context),
                             ),
                           ),
@@ -200,378 +434,206 @@ class _AdminEmergencyQueueScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 12),
+                if (emergencyCase.reason != null &&
+                    emergencyCase.reason!.isNotEmpty)
+                  _buildInfoRow(
+                    Icons.info_outline,
+                    AppLocalizations.of(context)!.reasonLabel,
+                    emergencyCase.reason!,
+                  ),
+                if (emergencyCase.symptomDescription != null &&
+                    emergencyCase.symptomDescription!.isNotEmpty)
+                  _buildInfoRow(
+                    Icons.medical_services_outlined,
+                    AppLocalizations.of(context)!.symptomsLabel,
+                    emergencyCase.symptomDescription!,
+                  ),
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(
-                      child: _StatCard(
-                        label: 'PENDING',
-                        value: '${requests.length}',
-                        icon: Icons.flash_on_rounded,
-                        color: AppColors.error,
+                    Icon(
+                      Icons.access_time,
+                      size: 14,
+                      color: AppColors.textTertiaryOf(context),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _formatTimeAgo(emergencyCase.createdAt),
+                      style: AppTypography.labelMedium(context).copyWith(
+                        color: AppColors.textSecondaryOf(context),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _StatCard(
-                        label: 'ACCEPTED',
-                        value: '$acceptedCount',
-                        icon: Icons.check_circle_outline_rounded,
-                        color: AppColors.success,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _StatCard(
-                        label: 'WATCHING',
-                        value: '24/7',
-                        icon: Icons.monitor_heart_rounded,
-                        color: AppColors.primary,
-                      ),
+                    const Spacer(),
+                    _buildStatusChip(
+                      _getStatusLabel(emergencyCase.status),
+                      statusColor,
                     ),
                   ],
                 ),
-                const SizedBox(height: 28),
-                if (_loadingProfiles && _enrichedRequests.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceOf(context),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: AppColors.borderLightOf(context),
-                      ),
-                    ),
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  )
-                else if (_enrichedRequests.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceOf(context),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: AppColors.borderLightOf(context),
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: AppColors.shadowLight,
-                          blurRadius: 24,
-                          offset: Offset(0, 12),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 72,
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: AppColors.success.withValues(alpha: 0.08),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.health_and_safety_rounded,
-                            color: AppColors.success,
-                            size: 34,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Text(
-                          'No emergency consults waiting',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.textPrimaryOf(context),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'New guest emergency bookings will appear here for immediate operational review.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            height: 1.5,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondaryOf(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ..._enrichedRequests.map(
-                    (req) => _EmergencyRequestCard(
-                      appointment: req,
-                      timeAgo: _timeAgo(req['created_at'] as String?),
-                    ),
-                  ),
-                const SizedBox(height: 28),
-                Text(
-                  'Response Checklist',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textPrimaryOf(context),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const _ChecklistItem(
-                  title: 'Confirm doctor availability',
-                  subtitle:
-                      'Ensure the selected specialist is online and responsive.',
-                ),
-                const _ChecklistItem(
-                  title: 'Validate emergency payment',
-                  subtitle: 'Check P2P evidence before session activation.',
-                ),
-                const _ChecklistItem(
-                  title: 'Monitor conversion follow-up',
-                  subtitle:
-                      'Guide guests to secure their records after consultation.',
-                ),
-                const SizedBox(height: 40),
               ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
-}
 
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.borderLightOf(context)),
-      ),
-      child: Column(
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 14),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimaryOf(context),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textSecondaryOf(context),
-              letterSpacing: 1.2,
+          Icon(icon, size: 14, color: AppColors.textTertiaryOf(context)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: RichText(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$label: ',
+                    style: AppTypography.labelMedium(context).copyWith(
+                      color: AppColors.textTertiaryOf(context),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: value,
+                    style: AppTypography.labelMedium(context).copyWith(
+                      color: AppColors.textSecondaryOf(context),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
-}
 
-class _EmergencyRequestCard extends StatelessWidget {
-  final Map<String, dynamic> appointment;
-  final String timeAgo;
+  Widget _buildPatientAvatar(String? name, String? avatarUrl) {
+    final initial =
+        name != null && name.isNotEmpty ? name[0].toUpperCase() : '?';
 
-  const _EmergencyRequestCard({
-    required this.appointment,
-    required this.timeAgo,
-  });
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      return CircleAvatar(
+        radius: 20,
+        backgroundColor: AppColors.textTertiaryOf(context),
+        backgroundImage: NetworkImage(avatarUrl),
+        onBackgroundImageError: (_, __) {},
+        child: null,
+      );
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    final status = appointment['status'] as String? ?? 'emergency_request';
-    final isAccepted = status == 'emergency_accepted';
-    final patientName = appointment['_patientName'] as String? ?? 'Unknown';
-    final doctorName = appointment['_doctorName'] as String? ?? 'Unassigned';
-    final amount = (appointment['total_amount'] as num?) ?? 0;
-    final metadata = appointment['metadata'] as Map<String, dynamic>?;
-    final isGuest =
-        patientName == 'Guest Patient' ||
-        (metadata != null && metadata.containsKey('guest_token'));
-    final appointmentDate = appointment['appointment_date'] as String?;
+    return CircleAvatar(
+      radius: 20,
+      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+      child: Text(
+        initial,
+        style: AppTypography.titleMedium(context).copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
 
-    final statusColor = isAccepted ? AppColors.success : AppColors.error;
-    final statusLabel = isAccepted ? 'ACCEPTED' : 'PENDING';
-    final statusIcon = isAccepted
-        ? Icons.check_circle_outline_rounded
-        : Icons.access_time_rounded;
+  Widget _buildDetailView(EmergencyCase emergencyCase) {
+    final statusColor = _getStatusColor(emergencyCase.status);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceOf(context),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: statusColor.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+      color: AppColors.backgroundOf(context),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              AdminAvatar(
-                imageUrl: appointment['_doctorAvatar'] as String?,
-                name: doctorName,
-                radius: 20,
-                backgroundColor: AppColors.error,
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.errorLightOf(context),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  Icons.emergency,
+                  color: AppColors.error,
+                  size: 24,
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      doctorName,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
+                      emergencyCase.patientName ?? AppLocalizations.of(context)!.unknownPatient,
+                      style: AppTypography.headlineMedium(context).copyWith(
                         color: AppColors.textPrimaryOf(context),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Emergency consultation',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondaryOf(context),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(statusIcon, color: statusColor, size: 14),
-                    const SizedBox(width: 4),
-                    Text(
-                      statusLabel,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontSize: 10,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${emergencyCase.specialty ?? AppLocalizations.of(context)!.noSpecialty} - ${_getStatusLabel(emergencyCase.status)}',
+                      style: AppTypography.bodyMedium(context).copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Divider(color: AppColors.borderLightOf(context), height: 1),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              AdminAvatar(
-                imageUrl: appointment['_patientAvatar'] as String?,
-                name: patientName,
-                radius: 10,
-              ),
-              const SizedBox(width: 6),
-              _infoChip(
-                Icons.person_outline_rounded,
-                patientName,
-                isGuest
-                    ? AppColors.warning
-                    : AppColors.textSecondaryOf(context),
-              ),
-              const SizedBox(width: 10),
-              _infoChip(
-                Icons.calendar_today_rounded,
-                _formatDate(appointmentDate),
-                AppColors.textSecondaryOf(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _infoChip(
-                Icons.currency_exchange_rounded,
-                '₦${amount.toStringAsFixed(0)}',
-                AppColors.success,
-              ),
-              const Spacer(),
-              Text(
-                timeAgo,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textTertiaryOf(context),
+              IconButton(
+                icon: Icon(
+                  Icons.close,
+                  color: AppColors.textSecondaryOf(context),
                 ),
+                onPressed: () {
+                  ref.read(selectedCaseProvider.notifier).state = null;
+                },
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _infoChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 13),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: color,
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDetailCard(
+                    AppLocalizations.of(context)!.emergencyRequestChecklist,
+                    _buildResponseChecklist(emergencyCase),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDetailCard(
+                    AppLocalizations.of(context)!.clinicalDetails,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDetailRow(
+                          AppLocalizations.of(context)!.reasonLabel,
+                          emergencyCase.reason ?? AppLocalizations.of(context)!.notProvided,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildDetailRow(
+                          AppLocalizations.of(context)!.symptomsLabel,
+                          emergencyCase.symptomDescription ?? AppLocalizations.of(context)!.notProvided,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildDetailRow(
+                          AppLocalizations.of(context)!.timeOfRequest,
+                          _formatDateTime(emergencyCase.createdAt),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -579,87 +641,327 @@ class _EmergencyRequestCard extends StatelessWidget {
     );
   }
 
-  static String _formatDate(String? iso) {
-    if (iso == null) return 'No date';
-    final date = DateTime.tryParse(iso);
-    if (date == null) return 'No date';
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  Widget _buildResponseChecklist(EmergencyCase emergencyCase) {
+    final status = emergencyCase.status;
+    final hasAccepted =
+        status == 'emergency_accepted' ||
+        status == 'ongoing' ||
+        status == 'emergency_active';
+    final hasStarted =
+        status == 'ongoing' || status == 'emergency_active';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildChecklistItem(
+          AppLocalizations.of(context)!.emergencyRequestReceived,
+          true,
+          AppColors.success,
+        ),
+        _buildChecklistItem(
+          AppLocalizations.of(context)!.notifyAvailableDoctors,
+          hasAccepted,
+          hasAccepted ? AppColors.success : AppColors.warning,
+        ),
+        _buildChecklistItem(
+          AppLocalizations.of(context)!.doctorAcceptedRequest,
+          hasAccepted,
+          hasAccepted ? AppColors.success : AppColors.textTertiaryOf(context),
+        ),
+        _buildChecklistItem(
+          AppLocalizations.of(context)!.consultationInProgress,
+          hasStarted,
+          hasStarted ? AppColors.success : AppColors.textTertiaryOf(context),
+        ),
+      ],
+    );
   }
-}
 
-class _ChecklistItem extends StatelessWidget {
-  final String title;
-  final String subtitle;
+  Widget _buildChecklistItem(String label, bool completed, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: completed ? color.withValues(alpha: 0.1) : Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: color,
+                width: 2,
+              ),
+            ),
+            child: completed
+                ? Icon(Icons.check, color: color, size: 16)
+                : null,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTypography.bodyMedium(context).copyWith(
+                color: completed
+                    ? AppColors.textPrimaryOf(context)
+                    : AppColors.textSecondaryOf(context),
+                fontWeight: completed ? FontWeight.w600 : FontWeight.w400,
+                decoration: completed ? TextDecoration.lineThrough : null,
+                decorationColor: AppColors.textTertiaryOf(context),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  const _ChecklistItem({required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildDetailCard(String title, Widget child) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.borderLightOf(context)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.check_rounded,
-              color: AppColors.success,
-              size: 18,
+          Text(
+            title,
+            style: AppTypography.titleMedium(context).copyWith(
+              color: AppColors.textPrimaryOf(context),
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textPrimaryOf(context),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondaryOf(context),
-                    height: 1.4,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTypography.labelMedium(context).copyWith(
+            color: AppColors.textTertiaryOf(context),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: AppTypography.bodyMedium(context).copyWith(
+            color: AppColors.textPrimaryOf(context),
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyDetailView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.textTertiaryOf(context).withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.touch_app,
+              color: AppColors.textTertiaryOf(context),
+              size: 48,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            AppLocalizations.of(context)!.selectAnEmergencyCase,
+            style: AppTypography.titleLarge(context).copyWith(
+              color: AppColors.textPrimaryOf(context),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            AppLocalizations.of(context)!.chooseCaseFromQueue,
+            style: AppTypography.bodyMedium(context).copyWith(
+              color: AppColors.textSecondaryOf(context),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.successLightOf(context),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_circle_outline,
+                color: AppColors.success,
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              AppLocalizations.of(context)!.noEmergencyConsults,
+              style: AppTypography.titleLarge(context).copyWith(
+                color: AppColors.textPrimaryOf(context),
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.allClearMessage,
+              style: AppTypography.bodyMedium(context).copyWith(
+                color: AppColors.textSecondaryOf(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(
+            color: AppColors.error,
+            strokeWidth: 2.5,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            AppLocalizations.of(context)!.loadingEmergencies,
+            style: AppTypography.bodyMedium(context).copyWith(
+              color: AppColors.textSecondaryOf(context),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.errorLightOf(context),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                color: AppColors.error,
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              AppLocalizations.of(context)!.failedToLoadQueue,
+              style: AppTypography.titleLarge(context).copyWith(
+                color: AppColors.textPrimaryOf(context),
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.connectionIssue,
+              style: AppTypography.bodyMedium(context).copyWith(
+                color: AppColors.textSecondaryOf(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 1) {
+      return AppLocalizations.of(context)!.justNow;
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ${AppLocalizations.of(context)!.agoLabel}';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ${AppLocalizations.of(context)!.agoLabel}';
+    } else {
+      return DateFormat('MMM d, y').format(dateTime);
+    }
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 1) {
+      return AppLocalizations.of(context)!.justNow;
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ${AppLocalizations.of(context)!.agoLabel}';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ${AppLocalizations.of(context)!.agoLabel}';
+    } else {
+      return DateFormat('MMM d, y HH:mm').format(dateTime);
+    }
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case 'emergency_request':
+        return AppColors.warning;
+      case 'emergency_accepted':
+        return AppColors.info;
+      case 'ongoing':
+      case 'emergency_active':
+        return AppColors.success;
+      default:
+        return AppColors.textTertiaryOf(context);
+    }
+  }
+
+  String _getStatusLabel(String? status) {
+    switch (status) {
+      case 'emergency_request':
+        return AppLocalizations.of(context)!.pendingLabel;
+      case 'emergency_accepted':
+        return AppLocalizations.of(context)!.acceptedStatusLabel;
+      case 'ongoing':
+      case 'emergency_active':
+        return AppLocalizations.of(context)!.watchingLabel;
+      default:
+        return status?.toUpperCase() ?? '';
+    }
   }
 }

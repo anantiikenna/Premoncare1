@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math' as math;
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
+import '../../l10n/app_localizations.dart';
 
 final earningsProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final user = supabase.auth.currentUser;
@@ -62,7 +63,7 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Earnings & Analytics',
+          AppLocalizations.of(context)!.earningsAndAnalytics,
           style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.w800, fontSize: 20),
         ),
         centerTitle: true,
@@ -79,7 +80,7 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Date range filtering is being developed. Currently showing all-time earnings.')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.dateRangeFilteringBeingDeveloped)),
               );
             },
           ),

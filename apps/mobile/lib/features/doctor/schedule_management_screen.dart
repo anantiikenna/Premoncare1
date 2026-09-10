@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../shared/widgets/global_user_avatar.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class ScheduleManagementScreen extends StatefulWidget {
   const ScheduleManagementScreen({super.key});
@@ -17,22 +18,28 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
   bool _emergencyAvailability = false;
   bool _autoAccept = false;
   final String _timezone = '(GMT+1) West Africa Time (WAT)';
-  
-  final List<Map<String, dynamic>> _weeklyHours = [
-    {'day': 'Monday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-    {'day': 'Tuesday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-    {'day': 'Wednesday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-    {'day': 'Thursday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-    {'day': 'Friday', 'enabled': true, 'start': '08:00 AM', 'end': '05:00 PM'},
-    {'day': 'Saturday', 'enabled': false, 'start': '09:00 AM', 'end': '01:00 PM'},
-    {'day': 'Sunday', 'enabled': false, 'start': 'Unavailable', 'end': ''},
-  ];
 
-  final List<Map<String, String>> _breakTimes = [
-    {'label': 'Lunch Break', 'time': '12:00 PM - 01:00 PM'},
-    {'label': 'Short Break', 'time': '04:00 PM - 04:15 PM'},
-    {'label': 'Personal Time', 'time': '07:30 PM - 08:00 PM'},
-  ];
+  List<Map<String, dynamic>> _buildWeeklyHours(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      {'day': 'Monday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
+      {'day': 'Tuesday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
+      {'day': 'Wednesday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
+      {'day': 'Thursday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
+      {'day': 'Friday', 'enabled': true, 'start': '08:00 AM', 'end': '05:00 PM'},
+      {'day': 'Saturday', 'enabled': false, 'start': '09:00 AM', 'end': '01:00 PM'},
+      {'day': 'Sunday', 'enabled': false, 'start': l10n.unavailableStatus, 'end': ''},
+    ];
+  }
+
+  List<Map<String, String>> _buildBreakTimes(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      {'label': l10n.lunchBreak, 'time': '12:00 PM - 01:00 PM'},
+      {'label': l10n.shortBreak, 'time': '04:00 PM - 04:15 PM'},
+      {'label': l10n.personalTime, 'time': '07:30 PM - 08:00 PM'},
+    ];
+  }
 
   @override
   void initState() {
@@ -41,7 +48,6 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
   }
 
   Future<void> _fetchSchedule() async {
-    // In a real app, fetch from doctor_schedules table
     await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
       setState(() {
@@ -52,6 +58,10 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final weeklyHours = _buildWeeklyHours(context);
+    final breakTimes = _buildBreakTimes(context);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
@@ -62,7 +72,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Doctor Availability & Schedule',
+          l10n.doctorAvailabilitySchedule,
           style: TextStyle(
             color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.w900,
@@ -92,27 +102,26 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Manage your working hours, availability and preferences',
+                    l10n.manageWorkingHoursDescription,
                     style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 24),
 
-                  // Status Cards
                   Row(
                     children: [
                       Expanded(
                         child: _buildStatusCard(
-                          'Availability Status',
-                          'Available',
-                          'You are open for bookings',
+                          l10n.availabilityStatus,
+                          l10n.available,
+                          l10n.openForBookings,
                           AppColors.success,
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildToggleCard(
-                          'Vacation Mode',
-                          'Turn on to pause bookings',
+                          l10n.vacationMode,
+                          l10n.pauseBookingsDescription,
                           _isVacationMode,
                           (val) => setState(() => _isVacationMode = val),
                         ),
@@ -121,7 +130,6 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Quick Grid Actions
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -129,10 +137,10 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     children: [
-                      _buildQuickAction(Icons.access_time, 'Working Hours', AppColors.primary, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Working hours management is being developed. Edit your available slots in the schedule table above.')))),
-                      _buildQuickAction(Icons.calendar_today, 'Unavailable Days', AppColors.error, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Date blocking is being developed. Remove individual time slots from the schedule to block specific dates.')))),
-                      _buildQuickAction(Icons.local_cafe, 'Break Times', AppColors.warning, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Break scheduling is being developed. Remove time slots from the table to create breaks between appointments.')))),
-                      _buildQuickAction(Icons.warning, 'Emergency Availability', AppColors.success, onTap: () async {
+                      _buildQuickAction(Icons.access_time, l10n.workingHours, AppColors.primary, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.workingHoursDescription)))),
+                      _buildQuickAction(Icons.calendar_today, l10n.unavailableDays, AppColors.error, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.unavailableDaysDescription)))),
+                      _buildQuickAction(Icons.local_cafe, l10n.breakTimes, AppColors.warning, onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.breakTimesDescription)))),
+                      _buildQuickAction(Icons.warning, l10n.emergencyAvailability, AppColors.success, onTap: () async {
   final user = supabase.auth.currentUser;
   if (user == null) return;
   final messenger = ScaffoldMessenger.of(context);
@@ -143,13 +151,13 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     if (mounted) {
       setState(() => _emergencyAvailability = !currentValue);
       messenger.showSnackBar(SnackBar(
-        content: Text(!currentValue ? 'Emergency availability enabled. Patients can now book emergency consultations.' : 'Emergency availability disabled. You will no longer receive emergency consultation requests.'),
+        content: Text(!currentValue ? l10n.emergencyAvailabilityEnabled : l10n.emergencyAvailabilityDisabled),
         backgroundColor: AppColors.success,
       ));
     }
   } catch (e) {
     if (mounted) {
-      messenger.showSnackBar(SnackBar(content: const Text('Failed to update emergency availability. Please try again.'), backgroundColor: AppColors.error));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.failedToUpdateSchedule), backgroundColor: AppColors.error));
     }
   }
 }),
@@ -157,7 +165,6 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Timezone
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -173,7 +180,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Timezone', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context))),
+                              Text(l10n.timezoneLabel, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context))),
                               Text(_timezone, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context))),
                             ],
                           ),
@@ -184,38 +191,35 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Weekly Working Hours
-                  _buildSectionHeader('Weekly Working Hours', onAction: () {
+                  _buildSectionHeader(l10n.weeklyWorkingHours, onAction: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Schedule hours copied to all days')),
+                      SnackBar(content: Text(l10n.scheduleCopiedToAllDays)),
                     );
-                  }, actionLabel: 'Copy to all', actionIcon: Icons.content_copy),
+                  }, actionLabel: l10n.copyToAll, actionIcon: Icons.content_copy),
                   const SizedBox(height: 16),
-                  ..._weeklyHours.map((day) => _buildDayRow(day)),
+                  ...weeklyHours.map((day) => _buildDayRow(day)),
                   const SizedBox(height: 32),
 
-                  // Break Times
-                  _buildSectionHeader('Break Times (Daily)', onAction: () {
+                  _buildSectionHeader(l10n.breakTimesDaily, onAction: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Break time added')),
+                      SnackBar(content: Text(l10n.breakTimeAdded)),
                     );
-                  }, actionLabel: 'Add Break', actionIcon: Icons.add),
+                  }, actionLabel: l10n.addBreak, actionIcon: Icons.add),
                   const SizedBox(height: 16),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: _breakTimes.map((brk) => _buildBreakCard(brk)).toList(),
+                      children: breakTimes.map((brk) => _buildBreakCard(brk)).toList(),
                     ),
                   ),
                   const SizedBox(height: 32),
 
-                  // Emergency & Auto-Accept
                   Row(
                     children: [
                       Expanded(
                         child: _buildActionToggleCard(
-                          'Emergency Availability',
-                          'Allow emergency bookings outside regular hours',
+                          l10n.emergencyAvailability,
+                          l10n.allowEmergencyBookingsOutside,
                           _emergencyAvailability,
                           (val) => setState(() => _emergencyAvailability = val),
                           footer: Container(
@@ -231,7 +235,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Emergency rate: 5x normal rate',
+                                    l10n.emergencyRate5xNormal,
                                     style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -243,8 +247,8 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildActionToggleCard(
-                          'Auto-Accept Bookings',
-                          'Automatically accept new bookings within your working hours',
+                          l10n.autoAcceptBookings,
+                          l10n.autoAcceptDescription,
                           _autoAccept,
                           (val) => setState(() => _autoAccept = val),
                           footer: Container(
@@ -260,7 +264,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'You will be notified of all new bookings',
+                                    l10n.notifiedOfAllNewBookings,
                                     style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -276,7 +280,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   final user = supabase.auth.currentUser;
                   if (user == null) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: const Text('Schedule saved successfully ✓'), backgroundColor: AppColors.success),
+                    SnackBar(content: Text(l10n.scheduleSavedSuccessfully), backgroundColor: AppColors.success),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -284,7 +288,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                   minimumSize: const Size.fromHeight(54),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Save Schedule', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 16)),
+                child: Text(l10n.saveSchedule, style: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 16)),
               ),
           const SizedBox(height: 40),
                 ],
@@ -429,6 +433,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
 
   Widget _buildDayRow(Map<String, dynamic> day) {
     bool enabled = day['enabled'];
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -457,11 +462,11 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
             _buildTimePicker(day['start']),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text('to', style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context))),
+              child: Text(l10n.timeConnector, style: TextStyle(fontSize: 12, color: AppColors.textTertiaryOf(context))),
             ),
             _buildTimePicker(day['end']),
           ] else
-            Text('Unavailable', style: TextStyle(fontSize: 14, color: AppColors.textTertiaryOf(context), fontStyle: FontStyle.italic)),
+            Text(l10n.unavailableStatus, style: TextStyle(fontSize: 14, color: AppColors.textTertiaryOf(context), fontStyle: FontStyle.italic)),
           const SizedBox(width: 8),
           Icon(Icons.add, size: 18, color: AppColors.slate300),
         ],

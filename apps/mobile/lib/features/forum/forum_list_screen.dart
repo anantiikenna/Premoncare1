@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -74,7 +75,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   return const SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.all(40),
-                      child: Center(child: Text\('No\ posts\ found\.'\)),
+                      child: Center(child: Text('No posts found.')),
                     ),
                   );
                 }
@@ -99,7 +100,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
         foregroundColor: AppColors.textInverse,
         elevation: 4,
         icon: const Icon(Icons.add_rounded, size: 22),
-        label: const Text('Ask a Question', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+        label: Text(AppLocalizations.of(context)!.askAQuestionFAB, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
       ),
     );
   }
@@ -111,12 +112,12 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Community Forum',
+            AppLocalizations.of(context)!.communityForum,
             style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5),
           ),
           const SizedBox(height: 4),
           Text(
-            'Ask questions, share experiences and learn from others',
+            AppLocalizations.of(context)!.askShareLearn,
             style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 14, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
@@ -132,7 +133,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   },
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                   decoration: InputDecoration(
-                    hintText: 'Search\ topics,\ questions\ or\ keywords\.\.\.',
+                    hintText: AppLocalizations.of(context)!.searchTopics,
                     hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 13, fontWeight: FontWeight.w500),
                     prefixIcon: Icon(Icons.search, color: AppColors.textTertiaryOf(context), size: 20),
                     filled: true,
@@ -168,7 +169,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                     children: [
                       Icon(Icons.filter_list, color: AppColors.textSecondaryOf(context), size: 20),
                       const SizedBox(width: 8),
-                      const Text('Filter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text(AppLocalizations.of(context)!.filter, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     ],
                   ),
                 ),
@@ -191,11 +192,11 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Sort By', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(AppLocalizations.of(context)!.sortByLabel, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            _buildSortOption('Latest', 0),
-            _buildSortOption('Most Answered', 1),
-            _buildSortOption('Most Liked', 2),
+            _buildSortOption(AppLocalizations.of(context)!.latestLabel, 0),
+            _buildSortOption(AppLocalizations.of(context)!.mostAnsweredLabel, 1),
+            _buildSortOption(AppLocalizations.of(context)!.mostLikedLabel, 2),
             const SizedBox(height: 16),
           ],
         ),
@@ -225,7 +226,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
         data: (categories) {
           final allTopics = ForumCategory(
             id: 'all',
-            name: 'All Topics',
+            name: AppLocalizations.of(context)!.allTopics,
             iconName: 'article',
             description: '',
             isActive: true,
@@ -297,7 +298,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Failed to load categories: $err')),
+        error: (err, stack) => Center(child: Text(AppLocalizations.of(context)!.failedToLoadCategoriesError(err.toString()))),
       ),
     );
   }
@@ -324,7 +325,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                       const Icon(Icons.local_fire_department_rounded, color: AppColors.error, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Trending Discussions',
+                        AppLocalizations.of(context)!.trendingDiscussions,
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryOf(context)),
                       ),
                     ],
@@ -382,7 +383,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   const Icon(Icons.star, size: 10, color: Colors.deepOrange),
                   const SizedBox(width: 4),
                   Text(
-                    post.upvotes > 10 ? 'Trending' : 'Popular',
+                    post.upvotes > 10 ? AppLocalizations.of(context)!.trendingLabel : AppLocalizations.of(context)!.popularLabel,
                     style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.deepOrange[700]),
                   ),
                 ],
@@ -438,9 +439,9 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
           ),
           child: Row(
             children: [
-              _buildTab('Latest Discussions', 0),
-              _buildTab('Most Answered', 1),
-              _buildTab('Most Liked', 2),
+              _buildTab(AppLocalizations.of(context)!.latestDiscussions, 0),
+              _buildTab(AppLocalizations.of(context)!.mostAnsweredLabel, 1),
+              _buildTab(AppLocalizations.of(context)!.mostLikedLabel, 2),
             ],
           ),
         ),
@@ -600,12 +601,12 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.bookmark_border),
-                title: const Text\('Save\ Post'\),
+                title: Text(AppLocalizations.of(context)!.savePost),
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
                     await ForumService.toggleSavePost(post.id);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text\('Post\ saved'\), backgroundColor: AppColors.success));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.postSaved), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }
@@ -613,35 +614,35 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.share_outlined),
-                title: const Text\('Share\ Post'\),
+                title: Text(AppLocalizations.of(context)!.sharePost),
                 onTap: () {
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text\('Post\ link\ copied\ to\ clipboard'\), backgroundColor: AppColors.success));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.postLinkCopied), backgroundColor: AppColors.success));
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.flag_outlined, color: AppColors.error),
-                title: const Text('Report Post', style: TextStyle(color: AppColors.error)),
+                title: Text(AppLocalizations.of(context)!.reportPost, style: const TextStyle(color: AppColors.error)),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final reasonController = TextEditingController();
                   final reason = await showDialog<String>(
                     context: context,
                     builder: (dctx) => AlertDialog(
-                      title: const Text\('Report\ Post'\),
+                      title: Text(AppLocalizations.of(context)!.reportPost),
                       content: TextField(
                         controller: reasonController,
                         maxLines: 3,
-                        decoration: const InputDecoration(
-                          hintText: 'Why are you reporting this post?',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.whyReportingPost,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(dctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
+                        TextButton(onPressed: () => Navigator.pop(dctx), child: Text(AppLocalizations.of(context)!.cancel)),
                         TextButton(
                           onPressed: () => Navigator.pop(dctx, reasonController.text.trim()),
-                          child: const Text('Submit', style: TextStyle(color: AppColors.error)),
+                          child: Text(AppLocalizations.of(context)!.submitLabel, style: const TextStyle(color: AppColors.error)),
                         ),
                       ],
                     ),
@@ -650,7 +651,7 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
                   if (reason == null || reason.isEmpty) return;
                   try {
                     await ForumService.report(postId: post.id, reason: reason);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text\('Post\ reported'\), backgroundColor: AppColors.success));
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.postReported), backgroundColor: AppColors.success));
                   } catch (e) {
                     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
                   }

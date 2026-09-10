@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
@@ -62,7 +63,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Account Section',
+              AppLocalizations.of(context)!.accountSectionLabel,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
@@ -72,16 +73,16 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             const SizedBox(height: 16),
             ListTile(
               leading: Icon(Icons.person_rounded, color: AppColors.primary),
-              title: const Text(
-                'Admin Profile',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              title: Text(
+                AppLocalizations.of(context)!.adminProfile,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
-                      'Admin profile settings are being developed. Your account is managed by the platform owner.',
+                      AppLocalizations.of(context)!.adminProfileDeveloped,
                     ),
                   ),
                 );
@@ -92,9 +93,9 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                 Icons.admin_panel_settings_rounded,
                 color: AppColors.primary,
               ),
-              title: const Text(
-                'Permissions / Role',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              title: Text(
+                AppLocalizations.of(context)!.permissionsRole,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -103,9 +104,9 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             ),
             ListTile(
               leading: Icon(Icons.security_rounded, color: AppColors.primary),
-              title: const Text(
-                'Security Settings',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              title: Text(
+                AppLocalizations.of(context)!.securitySettings,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -114,9 +115,9 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             ),
             ListTile(
               leading: Icon(Icons.devices_rounded, color: AppColors.primary),
-              title: const Text(
-                'Device Sessions',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              title: Text(
+                AppLocalizations.of(context)!.deviceSessionsTile,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -129,24 +130,24 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                 Icons.help_center_rounded,
                 color: AppColors.primary,
               ),
-              title: const Text(
-                'Help & Support',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              title: Text(
+                AppLocalizations.of(context)!.helpAndSupport,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Contact support: support@premoncare.com'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.contactSupportPremoncare),
                   ),
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.logout_rounded, color: AppColors.error),
-              title: const Text(
-                'Logout',
-                style: TextStyle(
+              title: Text(
+                AppLocalizations.of(context)!.logoutLabel,
+                style: const TextStyle(
                   color: AppColors.error,
                   fontWeight: FontWeight.bold,
                 ),
@@ -156,19 +157,19 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text\('Log\ Out'\),
-                    content: const Text('Are you sure you want to log out?'),
+                    title: Text(AppLocalizations.of(context)!.logOut),
+                    content: Text(AppLocalizations.of(context)!.areYouSureLogOut),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text\(AppLocalizations.of(context)!.cancel\),
+                        child: Text(AppLocalizations.of(context)!.cancelLabel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.error,
                         ),
-                        child: const Text\('Log\ Out'\),
+                        child: Text(AppLocalizations.of(context)!.logOutLabel),
                       ),
                     ],
                   ),
@@ -214,7 +215,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Operational Modules',
+                AppLocalizations.of(context)!.operationalModules,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -225,25 +226,25 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               _buildMoreTile(
                 context,
                 Icons.analytics_outlined,
-                'Reports & Insights',
+                AppLocalizations.of(context)!.reportsAndInsights,
                 '/admin/reports',
               ),
               _buildMoreTile(
                 context,
                 Icons.monetization_on_outlined,
-                'P2P Monitoring',
+                AppLocalizations.of(context)!.p2pMonitoring,
                 '/admin/p2p-monitoring',
               ),
               _buildMoreTile(
                 context,
                 Icons.notifications_outlined,
-                'Notification Control',
+                AppLocalizations.of(context)!.notificationControl,
                 '/admin/notifications',
               ),
               _buildMoreTile(
                 context,
                 Icons.person_add_alt_1_outlined,
-                'Doctor Subscriptions',
+                AppLocalizations.of(context)!.doctorSubscriptions,
                 '/admin/doctor-subscriptions',
               ),
               const SizedBox(height: 16),
@@ -328,7 +329,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
           ),
         ),
         title: Text(
-          'Premon Care Admin',
+          AppLocalizations.of(context)!.premonCareAdmin,
           style: TextStyle(
             color: AppColors.textPrimaryOf(context),
             fontWeight: FontWeight.w900,
@@ -395,9 +396,9 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Premon Care',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.appTitle,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 20,
                         color: Colors.white,
@@ -406,7 +407,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Admin Portal',
+                      AppLocalizations.of(context)!.adminPortal,
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.white.withValues(alpha: 0.8),
@@ -423,77 +424,77 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                     _buildDrawerItem(
                       context,
                       Icons.dashboard_outlined,
-                      'Dashboard',
+                      AppLocalizations.of(context)!.dashboardLabel,
                       '/admin-dashboard',
                       isCurrent: activeIndex == 0,
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.people_outline,
-                      'User Management',
+                      AppLocalizations.of(context)!.userManagement,
                       '/admin/user-management',
                       isCurrent: activeIndex == 1,
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.verified_user_outlined,
-                      'Doctor Verification',
+                      AppLocalizations.of(context)!.doctorVerification,
                       '/admin/doctor-verification',
                       isCurrent: activeIndex == 2,
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.account_balance_wallet_outlined,
-                      'Financial Moderation',
+                      AppLocalizations.of(context)!.financialModeration,
                       '/admin/financial',
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.monetization_on_outlined,
-                      'P2P Monitoring',
+                      AppLocalizations.of(context)!.p2pMonitoring,
                       '/admin/p2p-monitoring',
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.emergency_outlined,
-                      'Emergency Queue',
+                      AppLocalizations.of(context)!.emergencyQueueLabel,
                       '/admin/emergency-queue',
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.forum_outlined,
-                      'Forum Moderation',
+                      AppLocalizations.of(context)!.forumModeration,
                       '/admin/forum-moderation',
                       isCurrent: activeIndex == 3,
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.analytics_outlined,
-                      'Reports',
+                      AppLocalizations.of(context)!.reportsLabel,
                       '/admin/reports',
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.history_outlined,
-                      'Audit Timeline',
+                      AppLocalizations.of(context)!.auditTimeline,
                       '/admin/audit-timeline',
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.card_membership_outlined,
-                      'Subscription Plans',
+                      AppLocalizations.of(context)!.subscriptionPlans,
                       '/admin/subscription-control',
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.gavel_outlined,
-                      'Dispute Resolution',
+                      AppLocalizations.of(context)!.disputeResolution,
                       '/admin/disputes',
                     ),
                     _buildDrawerItem(
                       context,
                       Icons.settings_outlined,
-                      'Platform Settings',
+                      AppLocalizations.of(context)!.platformSettings,
                       '/settings-privacy',
                     ),
                   ],
@@ -521,7 +522,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               _buildNavItem(
                 context,
                 Icons.home_rounded,
-                'Dashboard',
+                AppLocalizations.of(context)!.dashboardLabel,
                 isSelected: activeIndex == 0,
                 activeColor: AppColors.primary,
                 onTap: () {
@@ -535,7 +536,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               _buildNavItem(
                 context,
                 Icons.people_alt_rounded,
-                'Users',
+                AppLocalizations.of(context)!.usersLabel,
                 isSelected: activeIndex == 1,
                 activeColor: AppColors.primary,
                 onTap: () {
@@ -549,7 +550,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               _buildNavItem(
                 context,
                 Icons.medical_services_rounded,
-                'Doctors',
+                AppLocalizations.of(context)!.doctorsLabel,
                 isSelected: activeIndex == 2,
                 activeColor: AppColors.primary,
                 badgeCount:
@@ -568,7 +569,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               _buildNavItem(
                 context,
                 Icons.forum_rounded,
-                'Forum',
+                AppLocalizations.of(context)!.forumLabel,
                 isSelected: activeIndex == 3,
                 activeColor: AppColors.primary,
                 onTap: () {
@@ -582,7 +583,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
               _buildNavItem(
                 context,
                 Icons.more_horiz_rounded,
-                'More',
+                AppLocalizations.of(context)!.moreLabel,
                 isSelected: activeIndex == 4,
                 activeColor: AppColors.primary,
                 onTap: () => _showMoreSheet(context),

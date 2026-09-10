@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
@@ -14,7 +15,7 @@ class DoctorSharedRecordsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shared Patient Records'),
+        title: Text(AppLocalizations.of(context)!.sharedPatientRecordsTitle),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -38,13 +39,13 @@ class DoctorSharedRecordsScreen extends ConsumerWidget {
                     children: [
                       Icon(Icons.lock_outline, size: 60, color: AppColors.textTertiaryOf(context)),
                       const SizedBox(height: 16),
-                      const Text(
-                        'No Shared Records',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Text(
+                        AppLocalizations.of(context)!.noSharedRecordsEmptyTitle,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Patients must explicitly share their vault documents with you for them to appear here.',
+                        AppLocalizations.of(context)!.patientsMustShareDesc,
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.textSecondaryOf(context)),
                       ),
@@ -123,7 +124,7 @@ class _SharedRecordCard extends StatelessWidget {
                   'title': record.title,
                 }),
                 icon: const Icon(Icons.visibility),
-                label: const Text('View Record'),
+                label: Text(AppLocalizations.of(context)!.viewRecordButton),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   foregroundColor: AppColors.primary,

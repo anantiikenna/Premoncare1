@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
@@ -61,12 +62,12 @@ class MedicalVaultScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('SECURE MEDICAL STORAGE', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+          Text(AppLocalizations.of(context)!.secureMedicalStorageTitle, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Medical Vault', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
+              Text(AppLocalizations.of(context)!.medicalVault, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -1.0)),
               Container(
                 width: 48,
                 height: 48,
@@ -92,16 +93,16 @@ class MedicalVaultScreen extends ConsumerWidget {
             child: Icon(Icons.folder_shared_rounded, size: 80, color: AppColors.primary.withValues(alpha: 0.2)),
           ),
           const SizedBox(height: 40),
-          Text('Your vault is empty', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
+          Text(AppLocalizations.of(context)!.yourVaultIsEmptyTitle, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context), letterSpacing: -0.5)),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text('Securely store and manage your clinical reports, prescriptions, and medical history in one encrypted location.', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), height: 1.5, fontWeight: FontWeight.w500)),
+            child: Text(AppLocalizations.of(context)!.securelyStoreManageDesc, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: AppColors.textSecondaryOf(context), height: 1.5, fontWeight: FontWeight.w500)),
           ),
           const SizedBox(height: 48),
-          _buildActionButton(context, 'Upload Health Record', Icons.cloud_upload_rounded, AppColors.primary, isPrimary: true, onTap: () => _showUpload(context)),
+          _buildActionButton(context, AppLocalizations.of(context)!.uploadHealthRecordButton, Icons.cloud_upload_rounded, AppColors.primary, isPrimary: true, onTap: () => _showUpload(context)),
           const SizedBox(height: 16),
-          _buildActionButton(context, 'Schedule Consultation', Icons.calendar_today_rounded, AppColors.primary, isPrimary: false, onTap: () => context.push('/doctor-search')),
+          _buildActionButton(context, AppLocalizations.of(context)!.scheduleConsultationButton, Icons.calendar_today_rounded, AppColors.primary, isPrimary: false, onTap: () => context.push('/doctor-search')),
           const SizedBox(height: 48),
           _buildSecurityCard(context),
           const SizedBox(height: 40),
@@ -142,9 +143,9 @@ class MedicalVaultScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('End-to-End Encryption', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textInverse)),
+                Text(AppLocalizations.of(context)!.endToEndEncryptionTitle, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textInverse)),
                 const SizedBox(height: 4),
-                Text('Your clinical data is strictly confidential and accessible only by you and your authorized specialists.', style: TextStyle(fontSize: 12, color: AppColors.textInverse.withValues(alpha: 0.6), height: 1.4, fontWeight: FontWeight.w500)),
+                Text(AppLocalizations.of(context)!.clinicalDataConfidentialDesc, style: TextStyle(fontSize: 12, color: AppColors.textInverse.withValues(alpha: 0.6), height: 1.4, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -225,17 +226,17 @@ class MedicalVaultScreen extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(record.recordType.name, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
             const SizedBox(height: 24),
-            _optionTile(ctx, Icons.visibility_rounded, 'View Record', () {
+            _optionTile(ctx, Icons.visibility_rounded, AppLocalizations.of(context)!.viewRecordButton, () {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Opening ${record.title}...')),
               );
             }),
-            _optionTile(ctx, Icons.share_rounded, 'Share with Doctor', () {
+            _optionTile(ctx, Icons.share_rounded, AppLocalizations.of(context)!.shareWithDoctorOption, () {
               Navigator.pop(ctx);
               context.push('/doctor-search?shareRecord=${record.id}');
             }),
-            _optionTile(ctx, Icons.delete_outline_rounded, 'Delete Record', () {
+            _optionTile(ctx, Icons.delete_outline_rounded, AppLocalizations.of(context)!.deleteRecord, () {
               Navigator.pop(ctx);
               _confirmDelete(context, record);
             }, isDestructive: true),
@@ -251,10 +252,10 @@ class MedicalVaultScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text\('Delete\ Record'\),
-        content: Text('Are you sure you want to delete "${record.title}"? This cannot be undone.'),
+        title: Text(AppLocalizations.of(context)!.deleteRecord),
+        content: Text(AppLocalizations.of(context)!.deleteRecordConfirmation(record.title)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(AppLocalizations.of(context)!.cancelLabel)),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -274,7 +275,7 @@ class MedicalVaultScreen extends ConsumerWidget {
               }
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text\(AppLocalizations.of(context)!.deleteLabel\),
+            child: Text(AppLocalizations.of(context)!.deleteLabel),
           ),
         ],
       ),

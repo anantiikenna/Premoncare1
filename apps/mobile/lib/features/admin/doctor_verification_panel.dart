@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -132,7 +133,7 @@ class _DoctorVerificationPanelState
         setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load doctors: $e'),
+            content: Text(AppLocalizations.of(context)!.failedToLoadDoctors(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -184,7 +185,7 @@ class _DoctorVerificationPanelState
         setState(() => _error = e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load counts: $e'),
+            content: Text(AppLocalizations.of(context)!.failedToLoadCounts(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -209,6 +210,7 @@ class _DoctorVerificationPanelState
   }
 
   Future<void> _approveDoctor(Map<String, dynamic> doctor) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -218,7 +220,7 @@ class _DoctorVerificationPanelState
             Icon(Icons.check_circle_rounded, color: AppColors.success),
             SizedBox(width: 12),
             Text(
-              'Approve Doctor?',
+              l10n.approveDoctorQuestion,
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimaryOf(context),
@@ -228,7 +230,7 @@ class _DoctorVerificationPanelState
           ],
         ),
         content: Text(
-          'Are you sure you want to approve ${doctor['full_name'] ?? 'this doctor'}? This will immediately grant them practitioner access and operational scheduling capabilities.',
+          l10n.approveDoctorDescription(doctor['full_name'] ?? ''),
           style: TextStyle(
             color: AppColors.textTertiaryOf(context),
             height: 1.5,
@@ -240,7 +242,7 @@ class _DoctorVerificationPanelState
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              l10n.cancel,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontWeight: FontWeight.bold,
@@ -255,8 +257,8 @@ class _DoctorVerificationPanelState
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Approve',
+            child: Text(
+              l10n.approve,
               style: TextStyle(
                 color: AppColors.textInverse,
                 fontWeight: FontWeight.bold,
@@ -273,8 +275,8 @@ class _DoctorVerificationPanelState
         await _adminService.updateVerificationStatus(doctor['id'], 'approved');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Doctor verified successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.doctorVerifiedSuccessfully),
               backgroundColor: AppColors.success,
             ),
           );
@@ -297,6 +299,7 @@ class _DoctorVerificationPanelState
   }
 
   Future<void> _rejectDoctor(Map<String, dynamic> doctor) async {
+    final l10n = AppLocalizations.of(context)!;
     final reasonController = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
@@ -307,7 +310,7 @@ class _DoctorVerificationPanelState
             Icon(Icons.cancel_rounded, color: AppColors.error),
             SizedBox(width: 12),
             Text(
-              'Reject Application',
+              l10n.rejectApplication,
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimaryOf(context),
@@ -321,7 +324,7 @@ class _DoctorVerificationPanelState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Please provide a reason for rejecting this application. This will be sent to the user.',
+              l10n.rejectApplicationDescription,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 height: 1.5,
@@ -333,7 +336,7 @@ class _DoctorVerificationPanelState
               controller: reasonController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Reason for rejection...',
+                hintText: l10n.reasonForRejection,
                 hintStyle: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 13,
@@ -353,7 +356,7 @@ class _DoctorVerificationPanelState
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              l10n.cancel,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontWeight: FontWeight.bold,
@@ -368,8 +371,8 @@ class _DoctorVerificationPanelState
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Reject',
+            child: Text(
+              l10n.reject,
               style: TextStyle(
                 color: AppColors.textInverse,
                 fontWeight: FontWeight.bold,
@@ -390,8 +393,8 @@ class _DoctorVerificationPanelState
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text\('Application\ rejected\.'\),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.applicationRejected),
               backgroundColor: AppColors.error,
             ),
           );
@@ -415,6 +418,7 @@ class _DoctorVerificationPanelState
   }
 
   Future<void> _requestMoreInfo(Map<String, dynamic> doctor) async {
+    final l10n = AppLocalizations.of(context)!;
     final infoController = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
@@ -425,7 +429,7 @@ class _DoctorVerificationPanelState
             Icon(Icons.help_rounded, color: AppColors.warning),
             SizedBox(width: 12),
             Text(
-              'Request Information',
+              l10n.requestInformation,
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimaryOf(context),
@@ -439,7 +443,7 @@ class _DoctorVerificationPanelState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'What additional information do you need from the applicant?',
+              l10n.requestInformationDescription,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 height: 1.5,
@@ -451,8 +455,7 @@ class _DoctorVerificationPanelState
               controller: infoController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText:
-                    'E.g. Please upload a clearer copy of your Medical License.',
+                hintText: l10n.requestInformationHint,
                 hintStyle: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontSize: 13,
@@ -472,7 +475,7 @@ class _DoctorVerificationPanelState
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              l10n.cancel,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontWeight: FontWeight.bold,
@@ -487,8 +490,8 @@ class _DoctorVerificationPanelState
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Send Request',
+            child: Text(
+              l10n.sendRequest,
               style: TextStyle(
                 color: AppColors.textInverse,
                 fontWeight: FontWeight.bold,
@@ -509,10 +512,8 @@ class _DoctorVerificationPanelState
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Information request sent. Status set to Under Review.',
-              ),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.infoRequestSent),
               backgroundColor: AppColors.warning,
             ),
           );
@@ -551,17 +552,18 @@ class _DoctorVerificationPanelState
   }
 
   String _statusLabel(String? status) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case 'pending':
-        return 'Pending';
+        return l10n.pendingTab;
       case 'under_review':
-        return 'Under Review';
+        return l10n.underReviewTab;
       case 'approved':
-        return 'Verified';
+        return l10n.verifiedTab;
       case 'rejected':
-        return 'Rejected';
+        return l10n.rejectedTab;
       case 'unsubmitted':
-        return 'Unsubmitted';
+        return l10n.unsubmittedLabel;
       default:
         return 'Unknown';
     }
@@ -623,7 +625,7 @@ class _DoctorVerificationPanelState
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Back to Queue',
+                  AppLocalizations.of(context)!.backToQueue,
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700,
@@ -636,13 +638,13 @@ class _DoctorVerificationPanelState
           const SizedBox(height: 24),
           _buildDoctorProfileCard(doctor),
           const SizedBox(height: 32),
-          _buildSectionHeader('Submitted Documents'),
+          _buildSectionHeader(AppLocalizations.of(context)!.submittedDocuments),
           const SizedBox(height: 16),
           _buildDocumentsGrid(doctor),
           const SizedBox(height: 32),
           _buildIdentityComparison(doctor),
           const SizedBox(height: 32),
-          _buildSectionHeader('Application Details'),
+          _buildSectionHeader(AppLocalizations.of(context)!.applicationDetails),
           const SizedBox(height: 16),
           _buildDetailsGrid(doctor),
           const SizedBox(height: 32),
@@ -656,12 +658,13 @@ class _DoctorVerificationPanelState
   }
 
   Widget _buildTabFilters() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
           _TabItem(
-            label: 'Pending',
+            label: l10n.pendingTab,
             count: '${_counts['pending'] ?? 0}',
             isSelected: _selectedTab == _TabStatus.pending,
             color: AppColors.warning,
@@ -669,7 +672,7 @@ class _DoctorVerificationPanelState
           ),
           const SizedBox(width: 12),
           _TabItem(
-            label: 'Under Review',
+            label: l10n.underReviewTab,
             count: '${_counts['under_review'] ?? 0}',
             isSelected: _selectedTab == _TabStatus.underReview,
             color: AppColors.info,
@@ -677,7 +680,7 @@ class _DoctorVerificationPanelState
           ),
           const SizedBox(width: 12),
           _TabItem(
-            label: 'Verified',
+            label: l10n.verifiedTab,
             count: '${_counts['approved'] ?? 0}',
             isSelected: _selectedTab == _TabStatus.verified,
             color: AppColors.success,
@@ -685,7 +688,7 @@ class _DoctorVerificationPanelState
           ),
           const SizedBox(width: 12),
           _TabItem(
-            label: 'Rejected',
+            label: l10n.rejectedTab,
             count: '${_counts['rejected'] ?? 0}',
             isSelected: _selectedTab == _TabStatus.rejected,
             color: AppColors.error,
@@ -1166,7 +1169,7 @@ class _DoctorVerificationPanelState
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'User ID',
+                              AppLocalizations.of(context)!.userIdLabel,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: AppColors.textTertiaryOf(context),
@@ -1253,31 +1256,32 @@ class _DoctorVerificationPanelState
   }
 
   Widget _buildDocumentsGrid(Map<String, dynamic> doctor) {
+    final l10n = AppLocalizations.of(context)!;
     final docs = <_DocItem>[
       if ((doctor['verification_document_url'] as String?)?.isNotEmpty == true)
         _DocItem(
-          title: 'Medical License',
+          title: l10n.medicalLicense,
           path: doctor['verification_document_url'],
           bucket: 'doctor-verifications',
           icon: Icons.local_hospital_outlined,
         ),
       if ((doctor['identity_document_front_url'] as String?)?.isNotEmpty == true)
         _DocItem(
-          title: 'ID Document (Front)',
+          title: l10n.idDocumentFront,
           path: doctor['identity_document_front_url'],
           bucket: 'doctor-identities',
           icon: Icons.badge_outlined,
         ),
       if ((doctor['identity_document_back_url'] as String?)?.isNotEmpty == true)
         _DocItem(
-          title: 'ID Document (Back)',
+          title: l10n.idDocumentBack,
           path: doctor['identity_document_back_url'],
           bucket: 'doctor-identities',
           icon: Icons.badge_outlined,
         ),
       if ((doctor['address_document_url'] as String?)?.isNotEmpty == true)
         _DocItem(
-          title: 'Address Document',
+          title: l10n.addressDocument,
           path: doctor['address_document_url'],
           bucket: 'doctor-identities',
           icon: Icons.home_outlined,
@@ -1285,6 +1289,7 @@ class _DoctorVerificationPanelState
     ];
 
     if (docs.isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(32),
@@ -1302,7 +1307,7 @@ class _DoctorVerificationPanelState
             ),
             const SizedBox(height: 12),
             Text(
-              'No documents submitted',
+              l10n.noDocumentsSubmitted,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontSize: 13,
@@ -1311,7 +1316,7 @@ class _DoctorVerificationPanelState
             ),
             const SizedBox(height: 4),
             Text(
-              'The applicant has not uploaded any documents yet.',
+              l10n.noDocumentsYet,
               style: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontSize: 11,
@@ -1365,7 +1370,7 @@ class _DoctorVerificationPanelState
               Expanded(
                 child: _DetailItem(
                   icon: Icons.badge_outlined,
-                  label: 'License Number',
+                  label: AppLocalizations.of(context)!.licenseNumberLabel,
                   value: doctor['medical_license_number'] ?? 'N/A',
                 ),
               ),
@@ -1377,7 +1382,7 @@ class _DoctorVerificationPanelState
               Expanded(
                 child: _DetailItem(
                   icon: Icons.cake_outlined,
-                  label: 'Date\ of\ Birth',
+                  label: AppLocalizations.of(context)!.dateOfBirth,
                   value: doctor['dob'] ?? 'N/A',
                 ),
               ),
@@ -1396,14 +1401,14 @@ class _DoctorVerificationPanelState
               Expanded(
                 child: _DetailItem(
                   icon: Icons.work_outline_rounded,
-                  label: 'Years of Experience',
+                  label: AppLocalizations.of(context)!.yearsOfExperience,
                   value: '${doctor['experience_years'] ?? 'N/A'}',
                 ),
               ),
               Expanded(
                 child: _DetailItem(
                   icon: Icons.medical_services_outlined,
-                  label: 'Specialization',
+                  label: AppLocalizations.of(context)!.specializationLabel,
                   value: doctor['specialty'] ?? 'N/A',
                 ),
               ),
@@ -1415,14 +1420,14 @@ class _DoctorVerificationPanelState
               Expanded(
                 child: _DetailItem(
                   icon: Icons.badge_outlined,
-                  label: 'ID Type',
+                  label: AppLocalizations.of(context)!.idType,
                   value: doctor['identity_type'] ?? 'N/A',
                 ),
               ),
               Expanded(
                 child: _DetailItem(
                   icon: Icons.check_circle_outline,
-                  label: 'Verification Status',
+                  label: AppLocalizations.of(context)!.verificationStatus,
                   value: _statusLabel(doctor['verification_status'] ?? 'pending'),
                 ),
               ),
@@ -1442,14 +1447,14 @@ class _DoctorVerificationPanelState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Identity Comparison'),
+        _buildSectionHeader(AppLocalizations.of(context)!.identityComparison),
         const SizedBox(height: 16),
         Row(
           children: [
             if (idFront != null)
               Expanded(
                 child: _IdentityImageCard(
-                  title: 'Government ID',
+                  title: AppLocalizations.of(context)!.governmentId,
                   path: idFront,
                   bucket: 'doctor-identities',
                 ),
@@ -1458,7 +1463,7 @@ class _DoctorVerificationPanelState
             if (selfie != null)
               Expanded(
                 child: _IdentityImageCard(
-                  title: 'Live Selfie',
+                  title: AppLocalizations.of(context)!.liveSelfie,
                   path: selfie,
                   bucket: 'doctor-identities',
                 ),
@@ -1470,11 +1475,12 @@ class _DoctorVerificationPanelState
   }
 
   Widget _buildAdminNotes() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Admin Notes',
+          l10n.adminNotesLabel,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -1500,7 +1506,7 @@ class _DoctorVerificationPanelState
               fontWeight: FontWeight.w600,
             ),
             decoration: InputDecoration(
-              hintText: 'Add a note (optional)...',
+              hintText: l10n.addAdminNotesHint,
               hintStyle: TextStyle(
                 color: AppColors.textTertiaryOf(context),
                 fontSize: 13,
@@ -1520,6 +1526,7 @@ class _DoctorVerificationPanelState
     final status = doctor['verification_status'];
     final canApprove = status == 'pending' || status == 'under_review';
     final canReject = status == 'pending' || status == 'under_review';
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
@@ -1528,7 +1535,7 @@ class _DoctorVerificationPanelState
             children: [
               Expanded(
                 child: _ActionButton(
-                  label: 'Reject Application',
+                  label: l10n.rejectApplication,
                   color: AppColors.error,
                   icon: Icons.cancel_outlined,
                   onTap: canReject ? () => _rejectDoctor(doctor) : null,
@@ -1537,7 +1544,7 @@ class _DoctorVerificationPanelState
               const SizedBox(width: 12),
               Expanded(
                 child: _ActionButton(
-                  label: 'Request More Info',
+                  label: l10n.requestMoreInfo,
                   color: AppColors.warning,
                   icon: Icons.help_outline_rounded,
                   onTap: canReject ? () => _requestMoreInfo(doctor) : null,
@@ -1546,7 +1553,7 @@ class _DoctorVerificationPanelState
               const SizedBox(width: 12),
               Expanded(
                 child: _ActionButton(
-                  label: 'Approve & Verify',
+                  label: l10n.approveAndVerify,
                   color: AppColors.success,
                   icon: Icons.check_circle_outline_rounded,
                   onTap: canApprove ? () => _approveDoctor(doctor) : null,
@@ -1560,7 +1567,7 @@ class _DoctorVerificationPanelState
             children: [
               Expanded(
                 child: _ActionButton(
-                  label: 'Reject',
+                  label: l10n.reject,
                   color: AppColors.error,
                   icon: Icons.cancel_outlined,
                   onTap: () => _rejectDoctor(doctor),
@@ -1569,7 +1576,7 @@ class _DoctorVerificationPanelState
               const SizedBox(width: 12),
               Expanded(
                 child: _ActionButton(
-                  label: 'Approve & Verify',
+                  label: l10n.approveAndVerify,
                   color: AppColors.success,
                   icon: Icons.check_circle_outline_rounded,
                   onTap: () => _approveDoctor(doctor),
@@ -1585,7 +1592,7 @@ class _DoctorVerificationPanelState
               color: AppColors.successLightOf(context),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
@@ -1595,7 +1602,7 @@ class _DoctorVerificationPanelState
                 ),
                 SizedBox(width: 8),
                 Text(
-                  'This doctor has been verified',
+                  l10n.doctorVerifiedMessage,
                   style: TextStyle(
                     color: AppColors.success,
                     fontWeight: FontWeight.w800,
@@ -1612,13 +1619,13 @@ class _DoctorVerificationPanelState
               color: AppColors.errorLightOf(context),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.cancel_rounded, color: AppColors.error, size: 20),
                 SizedBox(width: 8),
                 Text(
-                  'This application was rejected',
+                  l10n.applicationRejectedMessage,
                   style: TextStyle(
                     color: AppColors.error,
                     fontWeight: FontWeight.w800,
@@ -1869,7 +1876,7 @@ class _DocumentCard extends StatelessWidget {
                   Icon(Icons.visibility_outlined, size: 10, color: AppColors.primary),
                   const SizedBox(width: 4),
                   Text(
-                    'View',
+                    AppLocalizations.of(context)!.viewBtn,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 10,

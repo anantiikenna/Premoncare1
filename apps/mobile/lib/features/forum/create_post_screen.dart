@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,7 +50,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     await prefs.setString('forum_draft_body', _bodyController.text);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text\('Draft\ saved'\), backgroundColor: AppColors.success),
+        SnackBar(content: Text(AppLocalizations.of(context)!.draftSaved), backgroundColor: AppColors.success),
       );
     }
   }
@@ -60,13 +61,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title'), backgroundColor: AppColors.warning),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterTitle), backgroundColor: AppColors.warning),
       );
       return;
     }
     if (body.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please describe your question'), backgroundColor: AppColors.warning),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseDescribeQuestion), backgroundColor: AppColors.warning),
       );
       return;
     }
@@ -86,14 +87,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post submitted for review'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(AppLocalizations.of(context)!.postSubmittedForReview), backgroundColor: AppColors.success),
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text(AppLocalizations.of(context)!.failedToPostError(e.toString())), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -112,11 +113,11 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
           icon: Icon(Icons.arrow_back, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
-        title: Text('Create Post', style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.bold)),
+        title: Text(AppLocalizations.of(context)!.createPostTitle, style: TextStyle(color: AppColors.textPrimaryOf(context), fontWeight: FontWeight.bold)),
         actions: [
           TextButton(
             onPressed: _saveDraft,
-            child: const Text('Save Draft', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13)),
+            child: Text(AppLocalizations.of(context)!.saveDraftLabel, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13)),
           ),
           const SizedBox(width: 8),
         ],
@@ -126,13 +127,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Create a Post', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
+            Text(AppLocalizations.of(context)!.createAPost, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
             const SizedBox(height: 4),
-            Text('Ask a question, share your experience or start a discussion.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
+            Text(AppLocalizations.of(context)!.createPostDescription, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 13)),
             const SizedBox(height: 32),
 
             Text.rich(TextSpan(children: [
-              TextSpan(text: '1. Select Category ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              TextSpan(text: AppLocalizations.of(context)!.selectCategoryStep, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
               const TextSpan(text: '*', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 16),
@@ -140,7 +141,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             const SizedBox(height: 32),
 
             Text.rich(TextSpan(children: [
-              TextSpan(text: '2. Post Title ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              TextSpan(text: AppLocalizations.of(context)!.postTitleStep, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
               const TextSpan(text: '*', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 12),
@@ -155,7 +156,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 controller: _titleController,
                 maxLength: 100,
                 decoration: InputDecoration(
-                  hintText: 'Write a clear and short title for your post',
+                  hintText: AppLocalizations.of(context)!.writePostTitle,
                   hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14),
                   border: InputBorder.none,
                   counterText: '',
@@ -166,7 +167,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             const SizedBox(height: 32),
 
             Text.rich(TextSpan(children: [
-              TextSpan(text: '3. Describe Your Question or Topic ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              TextSpan(text: AppLocalizations.of(context)!.describeQuestionStep, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
               const TextSpan(text: '*', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 15)),
             ])),
             const SizedBox(height: 12),
@@ -184,7 +185,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     controller: _bodyController,
                     maxLines: 6,
                     decoration: InputDecoration(
-                      hintText: 'Provide more details about your question or topic.',
+                      hintText: AppLocalizations.of(context)!.provideMoreDetails,
                       hintStyle: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, height: 1.5),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
@@ -202,7 +203,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Tip: The more details you provide, the better and more helpful the responses you\'ll receive.',
+                    AppLocalizations.of(context)!.tipMoreDetails,
                     style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold, height: 1.4),
                   ),
                 ),
@@ -211,25 +212,25 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             const SizedBox(height: 32),
 
             Text.rich(TextSpan(children: [
-              TextSpan(text: '4. Add Attachments ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
-              TextSpan(text: '(Optional)', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 15)),
+              TextSpan(text: AppLocalizations.of(context)!.addAttachmentsStep, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryOf(context))),
+              TextSpan(text: AppLocalizations.of(context)!.optionalParen, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 15)),
             ])),
             const SizedBox(height: 4),
-            Text('You can upload images or documents to provide more context.', style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
+            Text(AppLocalizations.of(context)!.uploadImagesOrDocuments, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 12)),
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildAttachmentButton(Icons.image_outlined, 'Add Photo', AppColors.primary)),
+                Expanded(child: _buildAttachmentButton(Icons.image_outlined, AppLocalizations.of(context)!.addPhoto, AppColors.primary)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildAttachmentButton(Icons.description_outlined, 'Add Document', AppColors.teal)),
+                Expanded(child: _buildAttachmentButton(Icons.description_outlined, AppLocalizations.of(context)!.addDocument, AppColors.teal)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildAttachmentButton(Icons.science_outlined, 'Add Lab Result', AppColors.pink)),
+                Expanded(child: _buildAttachmentButton(Icons.science_outlined, AppLocalizations.of(context)!.addLabResult, AppColors.pink)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildAttachmentButton(Icons.attach_file, 'Add Other', AppColors.textSecondaryOf(context))),
+                Expanded(child: _buildAttachmentButton(Icons.attach_file, AppLocalizations.of(context)!.addOther, AppColors.textSecondaryOf(context))),
               ],
             ),
             const SizedBox(height: 12),
-            Text('Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file', style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
+            Text(AppLocalizations.of(context)!.supportedFormats, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 10)),
             const SizedBox(height: 32),
 
             Container(
@@ -251,9 +252,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Post Anonymously', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
+                        Text(AppLocalizations.of(context)!.postAnonymously, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryOf(context))),
                         const SizedBox(height: 2),
-                        Text('Your name will be hidden from other members.', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
+                        Text(AppLocalizations.of(context)!.nameHiddenFromMembers, style: TextStyle(fontSize: 11, color: AppColors.textSecondaryOf(context))),
                       ],
                     ),
                   ),
@@ -288,12 +289,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 ),
                 child: _isSubmitting
                     ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2.5))
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.send, color: AppColors.textInverse, size: 20),
-                          SizedBox(width: 8),
-                          Text('Post Question', style: TextStyle(color: AppColors.textInverse, fontSize: 16, fontWeight: FontWeight.bold)),
+                          const Icon(Icons.send, color: AppColors.textInverse, size: 20),
+                          const SizedBox(width: 8),
+                          Text(AppLocalizations.of(context)!.postQuestionButton, style: const TextStyle(color: AppColors.textInverse, fontSize: 16, fontWeight: FontWeight.bold)),
                         ],
                       ),
               ),
@@ -365,7 +366,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label: Coming soon'), backgroundColor: AppColors.info),
+          SnackBar(content: Text(AppLocalizations.of(context)!.comingSoon(label)), backgroundColor: AppColors.info),
         );
       },
       child: Container(
