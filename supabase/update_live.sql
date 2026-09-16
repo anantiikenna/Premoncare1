@@ -2091,21 +2091,17 @@ CREATE TABLE IF NOT EXISTS public.consultation_notes (
 
 ALTER TABLE public.consultation_notes ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Doctors can insert consultation notes"
-  ON public.consultation_notes FOR INSERT
-  WITH CHECK (auth.uid() = doctor_id);
+SELECT public._safe_policy('Doctors can insert consultation notes', 'consultation_notes',
+  'CREATE POLICY "Doctors can insert consultation notes" ON public.consultation_notes FOR INSERT WITH CHECK (auth.uid() = doctor_id)');
 
-CREATE POLICY "Doctors can view their consultation notes"
-  ON public.consultation_notes FOR SELECT
-  USING (auth.uid() = doctor_id);
+SELECT public._safe_policy('Doctors can view their consultation notes', 'consultation_notes',
+  'CREATE POLICY "Doctors can view their consultation notes" ON public.consultation_notes FOR SELECT USING (auth.uid() = doctor_id)');
 
-CREATE POLICY "Patients can view their consultation notes"
-  ON public.consultation_notes FOR SELECT
-  USING (auth.uid() = patient_id);
+SELECT public._safe_policy('Patients can view their consultation notes', 'consultation_notes',
+  'CREATE POLICY "Patients can view their consultation notes" ON public.consultation_notes FOR SELECT USING (auth.uid() = patient_id)');
 
-CREATE POLICY "Admins can view all consultation notes"
-  ON public.consultation_notes FOR SELECT
-  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+SELECT public._safe_policy('Admins can view all consultation notes', 'consultation_notes',
+  'CREATE POLICY "Admins can view all consultation notes" ON public.consultation_notes FOR SELECT USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = ''admin''))');
 
 CREATE INDEX IF NOT EXISTS idx_consultation_notes_appointment_id ON public.consultation_notes (appointment_id);
 CREATE INDEX IF NOT EXISTS idx_consultation_notes_doctor_id ON public.consultation_notes (doctor_id);
