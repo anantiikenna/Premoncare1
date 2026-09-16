@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -125,7 +126,7 @@ class _EmergencyWaitingScreenState
   void _handleDoctorStatusUpdate(PostgresChangePayload payload) {
     final isOnline = payload.newRecord['is_online'] as bool? ?? false;
     final isActive = isOnline;
-    debugPrint('Doctor online: $isActive');
+    if (kDebugMode) debugPrint('Doctor online: $isActive');
   }
 
   void _handleAppointmentUpdate(PostgresChangePayload payload) {
@@ -247,7 +248,7 @@ class _EmergencyWaitingScreenState
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', widget.appointmentId);
     } catch (e) {
-      debugPrint('Failed to resend: $e');
+      if (kDebugMode) debugPrint('Failed to resend: $e');
     }
   }
 

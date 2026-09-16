@@ -36,7 +36,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           .single();
       if (mounted) setState(() => _partnerProfile = data);
     } catch (e) {
-      debugPrint('Error loading partner profile: $e');
+      if (kDebugMode) debugPrint('Error loading partner profile: $e');
     }
   }
 

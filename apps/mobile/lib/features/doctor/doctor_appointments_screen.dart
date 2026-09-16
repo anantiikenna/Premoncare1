@@ -434,13 +434,13 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('DAILY PROGRESS', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                Text('DAILY PROGRESS', style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                 const SizedBox(height: 8),
-                Text('${pct}% Completed', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                Text('${pct}% Completed', style: TextStyle(color: AppColors.textInverse, fontSize: 20, fontWeight: FontWeight.w900)),
                 const SizedBox(height: 4),
                 Text(
                   remaining > 0 ? AppLocalizations.of(context)!.keepGoingMoreSessions(remaining) : AppLocalizations.of(context)!.allSessionsCompletedToday,
-                  style: const TextStyle(color: Colors.white60, fontSize: 12, height: 1.4, fontWeight: FontWeight.w500),
+                  style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.6), fontSize: 12, height: 1.4, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -459,7 +459,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
                   strokeCap: StrokeCap.round,
                 ),
               ),
-              Text('$pct%', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900)),
+              Text('$pct%', style: TextStyle(color: AppColors.textInverse, fontSize: 14, fontWeight: FontWeight.w900)),
             ],
           ),
         ],

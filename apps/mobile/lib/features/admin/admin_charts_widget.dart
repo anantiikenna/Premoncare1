@@ -323,7 +323,7 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
                       '${s.y.toInt()}',
                       AppTypography.bodySmallOf(
                         context,
-                      ).copyWith(color: Colors.white),
+                      ).copyWith(color: AppColors.textInverse),
                     ),
                   )
                   .toList(),
@@ -431,7 +431,7 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(
                   _formatCurrency(rod.toY.toInt()),
-                  AppTypography.bodySmall.copyWith(color: Colors.white),
+                  AppTypography.bodySmall.copyWith(color: AppColors.textInverse),
                 );
               },
             ),
@@ -472,7 +472,7 @@ class _AdminChartsWidgetState extends ConsumerState<AdminChartsWidget> {
         color: color,
         radius: 90,
         titleStyle: AppTypography.labelSmallOf(context).copyWith(
-          color: Colors.white,
+          color: AppColors.textInverse,
           fontSize: 11,
           fontWeight: FontWeight.w800,
         ),

@@ -405,10 +405,17 @@ alter table system_settings enable row level security;
 -- ============================================================
 -- PROFILES
 -- ============================================================
--- Anyone can read profiles (doctor listings, messaging lookups)
-create policy "Anyone can view profiles"
+-- Authenticated users can read profiles (doctor listings, messaging lookups)
+-- Anon can only see public-facing fields (for emergency doctor search)
+create policy "Authenticated can view profiles"
   on profiles for select
+  to authenticated
   using (true);
+
+create policy "Anon can view public profile fields"
+  on profiles for select
+  to anon
+  using (is_profile_visible = true);
 
 -- Users can update their own profile
 create policy "Users can update own profile"

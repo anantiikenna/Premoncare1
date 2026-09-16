@@ -18,7 +18,7 @@ class PrivacyService {
         'is_showing_online_status': showOnlineStatus,
       }).eq('id', userId);
     } catch (e) {
-      debugPrint('PrivacyService sync error (non-critical): $e');
+      if (kDebugMode) debugPrint('PrivacyService sync error (non-critical): $e');
     }
   }
 

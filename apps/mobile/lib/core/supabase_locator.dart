@@ -42,7 +42,7 @@ Future<String> getUserRole() async {
     _cachedRole = role;
     return role;
   } catch (e) {
-    debugPrint('getUserRole error (non-fatal): $e');
+    if (kDebugMode) debugPrint('getUserRole error (non-fatal): $e');
     return _cachedRole ?? 'denied';
   }
 }

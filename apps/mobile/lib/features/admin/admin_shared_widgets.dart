@@ -274,7 +274,7 @@ class AdminTabBar extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: isSelected
-                      ? Colors.white
+                      ? AppColors.textInverse
                       : AppColors.textSecondaryOf(context),
                 ),
               ),
