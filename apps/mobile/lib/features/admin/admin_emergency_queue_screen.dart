@@ -372,7 +372,7 @@ class _AdminEmergencyQueueScreenState
                               ),
                               child: const Icon(
                                 Icons.warning,
-                                color: Colors.white,
+                                color: AppColors.textInverse,
                                 size: 10,
                               ),
                             ),

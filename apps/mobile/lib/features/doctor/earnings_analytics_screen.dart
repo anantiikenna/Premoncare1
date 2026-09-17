@@ -157,14 +157,14 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
                   Text(
                     filter,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
+                      color: isSelected ? AppColors.textInverse : AppColors.textSecondaryOf(context),
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                       fontSize: 13,
                     ),
                   ),
                   if (filter == 'Custom') ...[
                     const SizedBox(width: 4),
-                    Icon(Icons.calendar_month_rounded, size: 14, color: isSelected ? Colors.white : AppColors.textSecondaryOf(context)),
+                    Icon(Icons.calendar_month_rounded, size: 14, color: isSelected ? AppColors.textInverse : AppColors.textSecondaryOf(context)),
                   ]
                 ],
               ),
@@ -202,12 +202,12 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
             children: [
               Text(
                 'Total Earnings',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.9), fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
               Text(
                 formatted,
-                style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900),
+                style: const TextStyle(color: AppColors.textInverse, fontSize: 40, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 16),
               Container(
@@ -219,9 +219,9 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 14),
+                    Icon(Icons.arrow_upward_rounded, color: AppColors.textInverse, size: 14),
                     SizedBox(width: 4),
-                    Text('18.6%', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12)),
+                    Text('18.6%', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w800, fontSize: 12)),
                     SizedBox(width: 8),
                     Text('vs last week', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)),
                   ],
@@ -286,7 +286,7 @@ class _EarningsAnalyticsScreenState extends ConsumerState<EarningsAnalyticsScree
         border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
       ),
-      child: const Center(child: Icon(Icons.payments_rounded, size: 12, color: Colors.white)),
+      child: const Center(child: Icon(Icons.payments_rounded, size: 12, color: AppColors.textInverse)),
     );
   }
 

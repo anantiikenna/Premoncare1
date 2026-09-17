@@ -162,7 +162,7 @@ class FacialStep extends ConsumerWidget {
                           const Text(
                             'Camera ready',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textInverse,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -182,7 +182,7 @@ class FacialStep extends ConsumerWidget {
                       ),
                       child: const Icon(
                         Icons.flash_off_rounded,
-                        color: Colors.white,
+                        color: AppColors.textInverse,
                         size: 16,
                       ),
                     ),
@@ -234,7 +234,7 @@ class FacialStep extends ConsumerWidget {
                         'Position your face inside the oval',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textInverse,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -255,7 +255,7 @@ class FacialStep extends ConsumerWidget {
                         Text(
                           'Selfie Captured Successfully',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textInverse,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -363,7 +363,7 @@ class FacialStep extends ConsumerWidget {
                   ),
                   child: const Icon(
                     Icons.camera_alt_rounded,
-                    color: Colors.white,
+                    color: AppColors.textInverse,
                     size: 32,
                   ),
                 ),

@@ -352,10 +352,10 @@ class _PrimaryAction extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                    style: const TextStyle(color: AppColors.textInverse, fontSize: 18, fontWeight: FontWeight.w800),
                   ),
                 ),
-                const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 24),
+                const Icon(Icons.arrow_forward_rounded, color: AppColors.textInverse, size: 24),
               ],
             ),
           ),

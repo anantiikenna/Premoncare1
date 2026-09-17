@@ -389,7 +389,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                         child: const Center(
                           child: Icon(
                             Icons.shield_rounded,
-                            color: Colors.white,
+                            color: AppColors.textInverse,
                             size: 26,
                           ),
                         ),
@@ -401,7 +401,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 20,
-                        color: Colors.white,
+                        color: AppColors.textInverse,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -410,7 +410,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                       AppLocalizations.of(context)!.adminPortal,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: AppColors.textInverse.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -633,7 +633,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
                     child: Text(
                       '$badgeCount',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textInverse,
                         fontSize: 8,
                         fontWeight: FontWeight.w900,
                       ),

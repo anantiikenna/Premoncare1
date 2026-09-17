@@ -2107,7 +2107,6 @@ CREATE INDEX IF NOT EXISTS idx_consultation_notes_appointment_id ON public.consu
 CREATE INDEX IF NOT EXISTS idx_consultation_notes_doctor_id ON public.consultation_notes (doctor_id);
 CREATE INDEX IF NOT EXISTS idx_consultation_notes_patient_id ON public.consultation_notes (patient_id);
 
-GRANT SELECT ON public.consultation_notes TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO service_role;
 
@@ -2116,4 +2115,44 @@ DROP POLICY IF EXISTS "patients_update_own_prescriptions" ON public.prescription
 CREATE POLICY "patients_update_own_prescriptions"
   ON public.prescriptions FOR UPDATE
   USING (auth.uid() = patient_id);
+
+-- ============================================================
+-- SECURITY AUDIT: Revoke anon SELECT from sensitive tables
+-- Run after deployment — removes anonymous read access to PHI
+-- ============================================================
+
+REVOKE SELECT ON public.payments FROM anon;
+REVOKE SELECT ON public.messages FROM anon;
+REVOKE SELECT ON public.notifications FROM anon;
+REVOKE SELECT ON public.medical_records FROM anon;
+REVOKE SELECT ON public.health_records FROM anon;
+REVOKE SELECT ON public.medical_documents FROM anon;
+REVOKE SELECT ON public.fee_negotiation_messages FROM anon;
+REVOKE SELECT ON public.record_permissions FROM anon;
+REVOKE SELECT ON public.medical_profiles FROM anon;
+REVOKE SELECT ON public.prescriptions FROM anon;
+REVOKE SELECT ON public.consultation_notes FROM anon;
+REVOKE SELECT ON public.admin_notification_settings FROM anon;
+REVOKE SELECT ON public.device_sessions FROM anon;
+REVOKE SELECT ON public.payouts FROM anon;
+REVOKE SELECT ON public.refunds FROM anon;
+REVOKE SELECT ON public.disputes FROM anon;
+REVOKE SELECT ON public.blocked_users FROM anon;
+REVOKE SELECT ON public.doctor_subscriptions FROM anon;
+REVOKE SELECT ON public.audit_logs FROM anon;
+
+-- ============================================================
+-- SECURITY AUDIT: Fix profiles SELECT policy
+-- Anon can only see visible profiles; authenticated gets full access
+-- ============================================================
+
+DROP POLICY IF EXISTS "Anyone can view profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated can view profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Anon can view public profile fields" ON public.profiles;
+
+CREATE POLICY "Authenticated can view profiles"
+  ON public.profiles FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "Anon can view public profile fields"
+  ON public.profiles FOR SELECT TO anon USING (is_profile_visible = true);
 

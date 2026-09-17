@@ -67,7 +67,7 @@ create table profiles (
   subscription_status subscription_status default 'inactive'::subscription_status,
   subscription_expires_at timestamp with time zone,
   last_subscription_payment_at timestamp with time zone,
-  verified_by uuid references profiles(id),
+  verified_by uuid references profiles(id) on delete set null,
   hourly_rate numeric default 0,
   email_alerts_enabled boolean default true,
   payment_instructions text,
@@ -367,7 +367,7 @@ create table doctor_subscriptions (
 -- Reviews
 create table reviews (
   id uuid default uuid_generate_v4() primary key,
-  appointment_id uuid references appointments(id) unique not null,
+  appointment_id uuid references appointments(id) on delete cascade unique not null,
   patient_id uuid references profiles(id) on delete cascade not null,
   doctor_id uuid references profiles(id) on delete cascade not null,
   rating integer not null check (rating >= 1 and rating <= 5),
@@ -1400,13 +1400,13 @@ create index if not exists idx_login_attempts_email
 create table payouts (
   id uuid default uuid_generate_v4() primary key,
   created_at timestamp with time zone default now(),
-  doctor_id uuid references profiles(id) not null,
+  doctor_id uuid references profiles(id) on delete set null not null,
   amount numeric not null,
   status payout_status default 'pending',
   transaction_count integer default 0,
   due_date timestamp with time zone,
   processed_at timestamp with time zone,
-  processed_by uuid references profiles(id),
+  processed_by uuid references profiles(id) on delete set null,
   rejection_reason text
 );
 
@@ -1432,13 +1432,13 @@ FROM payments p JOIN profiles u ON p.user_id = u.id WHERE p.status = 'pending';
 create table refunds (
   id uuid default uuid_generate_v4() primary key,
   created_at timestamp with time zone default now(),
-  payment_id uuid references payments(id) not null,
-  patient_id uuid references profiles(id) not null,
+  payment_id uuid references payments(id) on delete cascade not null,
+  patient_id uuid references profiles(id) on delete set null not null,
   amount numeric not null,
   reason text,
   status refund_status default 'pending',
   processed_at timestamp with time zone,
-  processed_by uuid references profiles(id)
+  processed_by uuid references profiles(id) on delete set null
 );
 
 alter table refunds enable row level security;
@@ -1456,9 +1456,9 @@ create table disputes (
   id uuid default uuid_generate_v4() primary key,
   created_at timestamp with time zone default now(),
   transaction_id text not null,
-  user_id uuid references profiles(id) not null,
-  patient_id uuid references profiles(id),
-  doctor_id uuid references profiles(id),
+  user_id uuid references profiles(id) on delete set null not null,
+  patient_id uuid references profiles(id) on delete set null,
+  doctor_id uuid references profiles(id) on delete set null,
   amount numeric,
   risk_level text check (risk_level in ('low', 'medium', 'high')) default 'low',
   category text check (category in ('payment', 'consultation', 'refund', 'fraud', 'behavior', 'other')) default 'other',
@@ -1467,7 +1467,7 @@ create table disputes (
   status dispute_status default 'open',
   resolution_notes text,
   resolved_at timestamp with time zone,
-  resolved_by uuid references profiles(id)
+  resolved_by uuid references profiles(id) on delete set null
 );
 
 alter table disputes enable row level security;
@@ -1490,9 +1490,9 @@ create policy "Users can view their own disputes"
 create table blocked_users (
   id uuid default uuid_generate_v4() primary key,
   created_at timestamp with time zone default now(),
-  user_id uuid references profiles(id) not null unique,
+  user_id uuid references profiles(id) on delete cascade not null unique,
   reason text,
-  blocked_by uuid references profiles(id) not null
+  blocked_by uuid references profiles(id) on delete set null not null
 );
 
 alter table blocked_users enable row level security;
@@ -1574,7 +1574,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.appointments TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.appointments TO service_role;
 
 -- payments
-GRANT SELECT ON public.payments TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payments TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payments TO service_role;
 
@@ -1584,57 +1583,46 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.time_balances TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.time_balances TO service_role;
 
 -- messages
-GRANT SELECT ON public.messages TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.messages TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.messages TO service_role;
 
 -- notifications
-GRANT SELECT ON public.notifications TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO service_role;
 
 -- medical_records
-GRANT SELECT ON public.medical_records TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_records TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_records TO service_role;
 
 -- health_records
-GRANT SELECT ON public.health_records TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.health_records TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.health_records TO service_role;
 
 -- medical_documents
-GRANT SELECT ON public.medical_documents TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_documents TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_documents TO service_role;
 
 -- fee_negotiation_messages
-GRANT SELECT ON public.fee_negotiation_messages TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.fee_negotiation_messages TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.fee_negotiation_messages TO service_role;
 
 -- record_permissions
-GRANT SELECT ON public.record_permissions TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.record_permissions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.record_permissions TO service_role;
 
 -- medical_profiles
-GRANT SELECT ON public.medical_profiles TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_profiles TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_profiles TO service_role;
 
 -- prescriptions
-GRANT SELECT ON public.prescriptions TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.prescriptions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.prescriptions TO service_role;
 
 -- consultation_notes
-GRANT SELECT ON public.consultation_notes TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO service_role;
 
 -- admin_notification_settings
-GRANT SELECT ON public.admin_notification_settings TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.admin_notification_settings TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.admin_notification_settings TO service_role;
 
@@ -1698,7 +1686,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.subscription_plans TO authenticat
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.subscription_plans TO service_role;
 
 -- doctor_subscriptions
-GRANT SELECT ON public.doctor_subscriptions TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.doctor_subscriptions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.doctor_subscriptions TO service_role;
 
@@ -1708,12 +1695,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.reviews TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.reviews TO service_role;
 
 -- audit_logs
-GRANT SELECT ON public.audit_logs TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.audit_logs TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.audit_logs TO service_role;
 
 -- device_sessions
-GRANT SELECT ON public.device_sessions TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.device_sessions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.device_sessions TO service_role;
 
@@ -1721,22 +1706,18 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.device_sessions TO service_role;
 GRANT SELECT, INSERT, DELETE ON public.login_attempts TO service_role;
 
 -- payouts
-GRANT SELECT ON public.payouts TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payouts TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payouts TO service_role;
 
 -- refunds
-GRANT SELECT ON public.refunds TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.refunds TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.refunds TO service_role;
 
 -- disputes
-GRANT SELECT ON public.disputes TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.disputes TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.disputes TO service_role;
 
 -- blocked_users
-GRANT SELECT ON public.blocked_users TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.blocked_users TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.blocked_users TO service_role;
 
@@ -1798,7 +1779,7 @@ create table forum_reports (
   reason text not null,
   status forum_report_status default 'pending'::forum_report_status,
   resolved_at timestamp with time zone,
-  resolved_by uuid references profiles(id)
+  resolved_by uuid references profiles(id) on delete set null
 );
 
 create table forum_saves (

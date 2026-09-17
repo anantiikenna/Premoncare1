@@ -55,14 +55,14 @@ class _DocumentViewerState extends State<DocumentViewer> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(widget.title, style: const TextStyle(color: Colors.white)),
-        leading: const CloseButton(color: Colors.white),
+        title: Text(widget.title, style: const TextStyle(color: AppColors.textInverse)),
+        leading: const CloseButton(color: AppColors.textInverse),
       ),
       body: FutureBuilder<String?>(
         future: _urlFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.white));
+            return const Center(child: CircularProgressIndicator(color: AppColors.textInverse));
           }
           
           if (snapshot.hasError || snapshot.data == null) {
@@ -74,7 +74,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                   const SizedBox(height: 16),
                   const Text(
                     'Failed to load document',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(color: AppColors.textInverse, fontSize: 18),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
@@ -133,12 +133,12 @@ class _DocumentViewerState extends State<DocumentViewer> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.picture_as_pdf, color: Colors.white, size: 80),
+                    const Icon(Icons.picture_as_pdf, color: AppColors.textInverse, size: 80),
                     const SizedBox(height: 24),
                     const Text(
                       'Document format not supported for in-app preview',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.textInverse, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -153,7 +153,7 @@ class _DocumentViewerState extends State<DocumentViewer> {
                       label: const Text('Open External Viewer'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textInverse,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
                     ),

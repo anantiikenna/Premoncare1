@@ -1519,7 +1519,7 @@ class _TransactionItem extends StatelessWidget {
                         top: 8,
                         right: 8,
                         child: IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
+                          icon: const Icon(Icons.close, color: AppColors.textInverse),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),

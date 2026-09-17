@@ -535,7 +535,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 shape: BoxShape.circle,
               ),
               child: _isSubmittingReply
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
                   : Icon(Icons.send, color: AppColors.textInverse, size: 20),
             ),
           ),

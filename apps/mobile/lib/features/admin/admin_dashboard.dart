@@ -173,7 +173,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                     ),
                     child: const Icon(
                       Icons.shield_rounded,
-                      color: Colors.white,
+                      color: AppColors.textInverse,
                       size: 22,
                     ),
                   ),
@@ -189,12 +189,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.circle, color: Colors.white, size: 6),
+                        const Icon(Icons.circle, color: AppColors.textInverse, size: 6),
                         const SizedBox(width: 6),
                         Text(
                           AppLocalizations.of(context)!.systemsOnline,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textInverse,
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.3,
@@ -211,7 +211,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                 style: const TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppColors.textInverse,
                   letterSpacing: -1,
                 ),
               ),
@@ -219,7 +219,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               Text(
                 AppLocalizations.of(context)!.totalPlatformRevenue,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
+                  color: AppColors.textInverse.withValues(alpha: 0.7),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -255,12 +255,12 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.white, size: 14),
+          Icon(icon, color: AppColors.textInverse, size: 14),
           const SizedBox(width: 6),
           Text(
             label,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.textInverse,
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),
@@ -960,7 +960,7 @@ class _AlertCardState extends State<_AlertCard>
               onPressed: widget.onTap,
               style: ElevatedButton.styleFrom(
                 backgroundColor: widget.color,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textInverse,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -1216,7 +1216,7 @@ class _QuickActionItem extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.25),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.white, size: 22),
+              child: Icon(icon, color: AppColors.textInverse, size: 22),
             ),
             const SizedBox(height: 10),
             Text(
@@ -1225,7 +1225,7 @@ class _QuickActionItem extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: AppColors.textInverse,
               ),
             ),
           ],

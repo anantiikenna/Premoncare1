@@ -374,17 +374,17 @@ class _ForumListScreenState extends ConsumerState<ForumListScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.deepOrange[50],
+                color: AppColors.warningLightOf(context),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.star, size: 10, color: Colors.deepOrange),
+                  Icon(Icons.star, size: 10, color: AppColors.warningOf(context)),
                   const SizedBox(width: 4),
                   Text(
                     post.upvotes > 10 ? AppLocalizations.of(context)!.trendingLabel : AppLocalizations.of(context)!.popularLabel,
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.deepOrange[700]),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.warningOf(context)),
                   ),
                 ],
               ),

@@ -104,7 +104,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
 
   Widget _buildCategoriesStrip() {
     final categories = [
-      {'name': 'All', 'icon': null, 'color': AppColors.primary, 'bg': AppColors.primary, 'text': Colors.white},
+      {'name': 'All', 'icon': null, 'color': AppColors.primary, 'bg': AppColors.primary, 'text': AppColors.textInverse},
       {'name': 'Heart Health', 'icon': Icons.favorite_border, 'color': AppColors.error, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
       {'name': 'Mental Health', 'icon': Icons.psychology_outlined, 'color': AppColors.pink, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
       {'name': 'Nutrition', 'icon': Icons.apple_outlined, 'color': AppColors.warning, 'bg': AppColors.surfaceOf(context), 'text': AppColors.textPrimaryOf(context)},
@@ -148,13 +148,13 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (hasIcon) ...[
-                    Icon(cat['icon'] as IconData, color: isSelected ? Colors.white : cat['color'] as Color, size: 16),
+                    Icon(cat['icon'] as IconData, color: isSelected ? AppColors.textInverse : cat['color'] as Color, size: 16),
                     const SizedBox(width: 6),
                   ],
                   Text(
                     name,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : cat['text'] as Color,
+                      color: isSelected ? AppColors.textInverse : cat['text'] as Color,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -193,9 +193,9 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Need urgent advice?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text('Need urgent advice?', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
-                const Text('Ask a verified doctor and receive professional responses.', style: TextStyle(color: Colors.white, fontSize: 12, height: 1.3)),
+                const Text('Ask a verified doctor and receive professional responses.', style: TextStyle(color: AppColors.textInverse, fontSize: 12, height: 1.3)),
               ],
             ),
           ),

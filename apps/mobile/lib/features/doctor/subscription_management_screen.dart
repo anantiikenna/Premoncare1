@@ -153,12 +153,12 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
-                child: Text(l10n.currentPlanLabel, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text(l10n.currentPlanLabel, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Text(l10n.premiumPlanLabel, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900)),
+                  Text(l10n.premiumPlanLabel, style: const TextStyle(color: AppColors.textInverse, fontSize: 28, fontWeight: FontWeight.w900)),
                   const SizedBox(width: 8),
                   Icon(Icons.check_circle_rounded, color: AppColors.success, size: 24),
                 ],
@@ -168,7 +168,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
               const SizedBox(height: 24),
               Text(l10n.priceLabel, style: const TextStyle(color: Colors.white60, fontSize: 12, fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              Text(l10n.pricePerMonth, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+              Text(l10n.pricePerMonth, style: const TextStyle(color: AppColors.textInverse, fontSize: 20, fontWeight: FontWeight.w900)),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -176,9 +176,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.calendar_today_rounded, color: Colors.white, size: 14),
+                    const Icon(Icons.calendar_today_rounded, color: AppColors.textInverse, size: 14),
                     const SizedBox(width: 8),
-                    Text(l10n.nextBillingDate, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                    Text(l10n.nextBillingDate, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -207,7 +207,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
           alignment: Alignment.center,
           children: [
             const Icon(Icons.shield_rounded, size: 90, color: Colors.white24),
-            const Text('P', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
+            const Text('P', style: TextStyle(color: AppColors.textInverse, fontSize: 40, fontWeight: FontWeight.w900)),
           ],
         ),
       ),
@@ -450,11 +450,11 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             ),
             child: Row(
               children: [
-                const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 20),
+                const Icon(Icons.workspace_premium_rounded, color: AppColors.textInverse, size: 20),
                 const SizedBox(width: 8),
-                Text(l10n.premiumPlanLabel, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800)),
+                Text(l10n.premiumPlanLabel, style: const TextStyle(color: AppColors.textInverse, fontSize: 16, fontWeight: FontWeight.w800)),
                 const Spacer(),
-                Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)), child: Text(l10n.activeLabel, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold))),
+                Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)), child: Text(l10n.activeLabel, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.bold))),
               ],
             ),
           ),
@@ -552,9 +552,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.white, size: 10),
+                    const Icon(Icons.star_rounded, color: AppColors.textInverse, size: 10),
                     const SizedBox(width: 4),
-                    Text(l10n.mostPopularLabel, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                    Text(l10n.mostPopularLabel, style: const TextStyle(color: AppColors.textInverse, fontSize: 9, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -629,7 +629,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
       children: [
         Container(width: 50, height: 50, decoration: BoxDecoration(color: AppColors.successLightOf(context), shape: BoxShape.circle)),
         Icon(Icons.shield_rounded, color: AppColors.success, size: 30),
-        const Icon(Icons.lock_rounded, color: Colors.white, size: 12),
+        const Icon(Icons.lock_rounded, color: AppColors.textInverse, size: 12),
       ],
     );
   }

@@ -416,7 +416,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                       color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.camera_alt_rounded, size: 16, color: Colors.white),
+                    child: const Icon(Icons.camera_alt_rounded, size: 16, color: AppColors.textInverse),
                   ),
                 ),
               ),
@@ -578,7 +578,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2),
                         )
                       : const Text('Save', style: AppTypography.buttonPrimary),
                 ),
