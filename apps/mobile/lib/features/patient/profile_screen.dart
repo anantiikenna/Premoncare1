@@ -281,7 +281,8 @@ class ProfileScreen extends ConsumerWidget {
       child: Column(
         children: [
           _buildMenuTile(context, Icons.person_rounded, AppLocalizations.of(context)!.personalInformationMenu, onTap: () => context.push('/settings-privacy')),
-          _buildMenuTile(context, Icons.verified_rounded, AppLocalizations.of(context)!.practitionerRegistration, badge: statusLabel, badgeColor: statusColor, onTap: () => context.push('/verify-practitioner')),
+          if (status != 'approved')
+            _buildMenuTile(context, Icons.verified_rounded, AppLocalizations.of(context)!.practitionerRegistration, badge: statusLabel, badgeColor: statusColor, onTap: () => context.push('/verify-practitioner')),
           _buildMenuTile(context, Icons.folder_shared_rounded, AppLocalizations.of(context)!.medicalRecordsMenu, onTap: () => context.push('/vault')),
           _buildMenuTile(context, Icons.payment_rounded, AppLocalizations.of(context)!.myCreditsAndBilling, onTap: () => context.push('/credits')),
           _buildMenuTile(context, Icons.notifications_rounded, AppLocalizations.of(context)!.notificationsMenu, onTap: () => context.push('/notifications')),

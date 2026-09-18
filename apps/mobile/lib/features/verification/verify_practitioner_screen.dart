@@ -36,6 +36,7 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
     final isPending = state.verificationStatus == 'pending';
     final isApproved = state.verificationStatus == 'approved';
     final isRejected = state.verificationStatus == 'rejected';
+    final isUnderReview = state.verificationStatus == 'under_review';
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
@@ -57,7 +58,7 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
         ),
         centerTitle: true,
         actions: [
-          if (!isPending && !isApproved && !isRejected)
+          if (!isPending && !isApproved && !isRejected && !isUnderReview)
             TextButton(
               onPressed: () => context.pop(),
               child: Text(
@@ -106,7 +107,7 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
                           onResubmit: notifier.resetVerification,
                         ),
                       )
-                    : isPending
+                    : isPending || isUnderReview
                         ? Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: VerificationPendingScreen(),

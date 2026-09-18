@@ -298,6 +298,112 @@ class _DoctorVerificationPanelState
     }
   }
 
+  Future<void> _revokeDoctor(Map<String, dynamic> doctor) async {
+    final l10n = AppLocalizations.of(context)!;
+    final reasonController = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Icon(Icons.remove_circle_outline_rounded, color: AppColors.error),
+            SizedBox(width: 12),
+            Text(
+              l10n.revokeVerificationTitle,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimaryOf(context),
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.revokeVerificationDescription(doctor['full_name'] ?? ''),
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                height: 1.5,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: reasonController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: l10n.revokeReasonHint,
+                hintStyle: TextStyle(color: AppColors.textTertiaryOf(context)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.all(16),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              l10n.cancel,
+              style: TextStyle(
+                color: AppColors.textTertiaryOf(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l10n.revoke,
+              style: TextStyle(
+                color: AppColors.textInverse,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() => _doctorsLoading = true);
+      try {
+        await _adminService.resetVerification(doctor['id']);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.verificationRevokedSuccessfully),
+              backgroundColor: AppColors.warning,
+            ),
+          );
+          _deselectDoctor();
+          _refreshAll();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _doctorsLoading = false);
+      }
+    }
+  }
+
   Future<void> _rejectDoctor(Map<String, dynamic> doctor) async {
     final l10n = AppLocalizations.of(context)!;
     final reasonController = TextEditingController();
@@ -1586,31 +1692,42 @@ class _DoctorVerificationPanelState
           ),
         ],
         if (status == 'approved')
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.successLightOf(context),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.check_circle_rounded,
-                  color: AppColors.success,
-                  size: 20,
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.successLightOf(context),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                SizedBox(width: 8),
-                Text(
-                  l10n.doctorVerifiedMessage,
-                  style: TextStyle(
-                    color: AppColors.success,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 13,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: AppColors.success,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      l10n.doctorVerifiedMessage,
+                      style: TextStyle(
+                        color: AppColors.success,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              _ActionButton(
+                label: l10n.revokeVerification,
+                color: AppColors.error,
+                icon: Icons.remove_circle_outline_rounded,
+                onTap: () => _revokeDoctor(doctor),
+              ),
+            ],
           ),
         if (status == 'rejected')
           Container(
