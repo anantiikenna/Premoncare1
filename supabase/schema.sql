@@ -1037,62 +1037,135 @@ CREATE OR REPLACE FUNCTION public.export_user_data(p_user_id uuid)
 RETURNS jsonb AS $$
 DECLARE
   v_profile jsonb;
-  v_appointments jsonb;
+  v_appointments_as_patient jsonb;
+  v_appointments_as_doctor jsonb;
   v_messages jsonb;
   v_medical_records jsonb;
-  v_prescriptions jsonb;
+  v_prescriptions_as_patient jsonb;
+  v_prescriptions_as_doctor jsonb;
   v_payments jsonb;
-  v_reviews jsonb;
+  v_reviews_as_patient jsonb;
+  v_reviews_as_doctor jsonb;
   v_forum_posts jsonb;
   v_forum_replies jsonb;
+  v_notifications jsonb;
+  v_audit_logs jsonb;
+  v_record_count integer := 0;
+  v_last_export timestamp with time zone;
 BEGIN
   -- Only the user themselves can export
   IF auth.uid() != p_user_id THEN
     RETURN jsonb_build_object('error', 'Unauthorized');
   END IF;
 
+  -- Rate limiting: max 1 export per 24 hours
+  SELECT MAX(created_at) INTO v_last_export
+  FROM audit_logs
+  WHERE user_id = p_user_id AND action = 'data_export_completed';
+
+  IF v_last_export IS NOT NULL AND v_last_export > now() - interval '24 hours' THEN
+    RETURN jsonb_build_object(
+      'error', 'Rate limited. You can export once every 24 hours.',
+      'next_allowed_at', v_last_export + interval '24 hours'
+    );
+  END IF;
+
+  -- Profile
   SELECT to_jsonb(p.*) INTO v_profile
   FROM profiles p WHERE p.id = p_user_id;
 
-  SELECT jsonb_agg(to_jsonb(a.*)) INTO v_appointments
+  -- Appointments as patient
+  SELECT jsonb_agg(to_jsonb(a.*)) INTO v_appointments_as_patient
   FROM appointments a WHERE a.patient_id = p_user_id;
 
+  -- Appointments as doctor (professional data)
+  SELECT jsonb_agg(to_jsonb(a.*)) INTO v_appointments_as_doctor
+  FROM appointments a WHERE a.doctor_id = p_user_id;
+
+  -- Messages (sent and received)
   SELECT jsonb_agg(to_jsonb(m.*)) INTO v_messages
   FROM messages m WHERE m.sender_id = p_user_id OR m.receiver_id = p_user_id;
 
+  -- Medical records
   SELECT jsonb_agg(to_jsonb(mr.*)) INTO v_medical_records
   FROM medical_records mr WHERE mr.patient_id = p_user_id;
 
-  SELECT jsonb_agg(to_jsonb(pr.*)) INTO v_prescriptions
+  -- Prescriptions as patient
+  SELECT jsonb_agg(to_jsonb(pr.*)) INTO v_prescriptions_as_patient
   FROM prescriptions pr WHERE pr.patient_id = p_user_id;
 
+  -- Prescriptions as doctor (professional data)
+  SELECT jsonb_agg(to_jsonb(pr.*)) INTO v_prescriptions_as_doctor
+  FROM prescriptions pr WHERE pr.doctor_id = p_user_id;
+
+  -- Payments
   SELECT jsonb_agg(to_jsonb(pay.*)) INTO v_payments
   FROM payments pay WHERE pay.user_id = p_user_id;
 
-  SELECT jsonb_agg(to_jsonb(r.*)) INTO v_reviews
+  -- Reviews as patient (reviews they wrote)
+  SELECT jsonb_agg(to_jsonb(r.*)) INTO v_reviews_as_patient
   FROM reviews r WHERE r.patient_id = p_user_id;
 
+  -- Reviews as doctor (reviews received about them)
+  SELECT jsonb_agg(to_jsonb(r.*)) INTO v_reviews_as_doctor
+  FROM reviews r WHERE r.doctor_id = p_user_id;
+
+  -- Forum posts
   SELECT jsonb_agg(to_jsonb(fp.*)) INTO v_forum_posts
   FROM forum_posts fp WHERE fp.author_id = p_user_id;
 
+  -- Forum replies
   SELECT jsonb_agg(to_jsonb(fr.*)) INTO v_forum_replies
   FROM forum_replies fr WHERE fr.author_id = p_user_id;
 
-  INSERT INTO audit_logs (user_id, action, action_type, severity, description)
+  -- Notifications
+  SELECT jsonb_agg(to_jsonb(n.*)) INTO v_notifications
+  FROM notifications n WHERE n.user_id = p_user_id;
+
+  -- User's own audit logs (Right to Access)
+  SELECT jsonb_agg(to_jsonb(al.*)) INTO v_audit_logs
+  FROM audit_logs al WHERE al.user_id = p_user_id;
+
+  -- Count total records exported
+  SELECT
+    COALESCE(jsonb_array_length(v_appointments_as_patient), 0) +
+    COALESCE(jsonb_array_length(v_appointments_as_doctor), 0) +
+    COALESCE(jsonb_array_length(v_messages), 0) +
+    COALESCE(jsonb_array_length(v_medical_records), 0) +
+    COALESCE(jsonb_array_length(v_prescriptions_as_patient), 0) +
+    COALESCE(jsonb_array_length(v_prescriptions_as_doctor), 0) +
+    COALESCE(jsonb_array_length(v_payments), 0) +
+    COALESCE(jsonb_array_length(v_reviews_as_patient), 0) +
+    COALESCE(jsonb_array_length(v_reviews_as_doctor), 0) +
+    COALESCE(jsonb_array_length(v_forum_posts), 0) +
+    COALESCE(jsonb_array_length(v_forum_replies), 0) +
+    COALESCE(jsonb_array_length(v_notifications), 0) +
+    COALESCE(jsonb_array_length(v_audit_logs), 0)
+  INTO v_record_count;
+
+  -- Audit log with record count
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description, details)
   VALUES (p_user_id, 'data_export_completed', 'security', 'info',
-          'User exercised right to data portability');
+          'User exercised right to data portability',
+          jsonb_build_object('record_count', v_record_count, 'exported_at', now()));
 
   RETURN jsonb_build_object(
     'profile', v_profile,
-    'appointments', COALESCE(v_appointments, '[]'::jsonb),
+    'appointments_as_patient', COALESCE(v_appointments_as_patient, '[]'::jsonb),
+    'appointments_as_doctor', COALESCE(v_appointments_as_doctor, '[]'::jsonb),
     'messages', COALESCE(v_messages, '[]'::jsonb),
     'medical_records', COALESCE(v_medical_records, '[]'::jsonb),
-    'prescriptions', COALESCE(v_prescriptions, '[]'::jsonb),
+    'prescriptions_as_patient', COALESCE(v_prescriptions_as_patient, '[]'::jsonb),
+    'prescriptions_as_doctor', COALESCE(v_prescriptions_as_doctor, '[]'::jsonb),
     'payments', COALESCE(v_payments, '[]'::jsonb),
-    'reviews', COALESCE(v_reviews, '[]'::jsonb),
+    'reviews_as_patient', COALESCE(v_reviews_as_patient, '[]'::jsonb),
+    'reviews_as_doctor', COALESCE(v_reviews_as_doctor, '[]'::jsonb),
     'forum_posts', COALESCE(v_forum_posts, '[]'::jsonb),
     'forum_replies', COALESCE(v_forum_replies, '[]'::jsonb),
-    'exported_at', now()
+    'notifications', COALESCE(v_notifications, '[]'::jsonb),
+    'audit_logs', COALESCE(v_audit_logs, '[]'::jsonb),
+    'exported_at', now(),
+    'record_count', v_record_count
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
@@ -1217,6 +1290,7 @@ GRANT EXECUTE ON FUNCTION public.reset_otp_attempts(text) TO anon, authenticated
 
 -- GDPR function GRANTs
 GRANT EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.export_user_data(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.export_user_data(uuid) TO authenticated;
 
 -- HIPAA audit function GRANTs

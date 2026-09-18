@@ -71,7 +71,15 @@ export default function SettingsPrivacyPage() {
   const handleExportData = async () => {
     try {
       const res = await fetch('/api/user/export')
-      if (!res.ok) throw new Error('Export failed')
+      if (!res.ok) {
+        const body = await res.json().catch(() => null)
+        if (res.status === 429) {
+          toast.error(body?.error || 'You can only export once every 24 hours.')
+        } else {
+          toast.error('Failed to export data. Please try again.')
+        }
+        return
+      }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')

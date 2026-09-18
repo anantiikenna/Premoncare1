@@ -30,7 +30,8 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
       });
 
       if (data == null || data is Map && data.containsKey('error')) {
-        throw Exception(data?['error'] ?? 'Export failed');
+        final errorMsg = data?['error'] ?? 'Export failed';
+        throw Exception(errorMsg);
       }
 
       // Copy JSON to clipboard as a simple export mechanism
@@ -45,7 +46,10 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      final msg = e.toString().contains('Rate limited')
+          ? 'You can only export once every 24 hours. Please try again later.'
+          : 'Export failed. Please try again.';
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 

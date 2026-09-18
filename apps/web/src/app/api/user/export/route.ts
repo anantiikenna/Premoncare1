@@ -14,6 +14,10 @@ async function exportHandler(req: NextRequest, sessionUser: any) {
         return NextResponse.json({ error: 'Failed to export data' }, { status: 500 })
     }
 
+    if (data?.error) {
+        return NextResponse.json({ error: data.error }, { status: 429 })
+    }
+
     return new NextResponse(JSON.stringify(data, null, 2), {
         headers: {
             'Content-Type': 'application/json',
