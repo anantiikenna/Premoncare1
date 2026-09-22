@@ -125,6 +125,16 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
       await supabase.storage.from('payment-receipts').uploadBinary(fileName, fileBytes);
       final publicUrl = supabase.storage.from('payment-receipts').getPublicUrl(fileName);
 
+      int? durationMinutes;
+      if (widget.appointmentId != null) {
+        final apt = await supabase
+            .from('appointments')
+            .select('duration_minutes')
+            .eq('id', widget.appointmentId!)
+            .maybeSingle();
+        durationMinutes = apt?['duration_minutes'] as int?;
+      }
+
       await supabase.from('payments').insert({
         'user_id': user.id,
         'recipient_id': _selectedDoctorId,
@@ -132,6 +142,8 @@ class _UploadReceiptScreenState extends ConsumerState<UploadReceiptScreen> {
         'method': 'manual',
         'receipt_url': publicUrl,
         'status': 'pending',
+        if (widget.appointmentId != null) 'appointment_id': widget.appointmentId,
+        if (durationMinutes != null) 'duration_minutes': durationMinutes,
         if (_refController.text.isNotEmpty) 'transaction_id': _refController.text,
       });
 

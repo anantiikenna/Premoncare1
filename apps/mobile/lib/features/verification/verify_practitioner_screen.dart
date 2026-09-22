@@ -44,7 +44,7 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context),
+          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryOf(context)),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -282,7 +282,9 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
                         _showSuccessDialog(context);
                       }
                     } else {
-                      notifier.nextStep();
+                      if (_validateStep(context, state)) {
+                        notifier.nextStep();
+                      }
                     }
                   },
             style: ElevatedButton.styleFrom(
@@ -305,6 +307,34 @@ class _VerifyPractitionerScreenState extends ConsumerState<VerifyPractitionerScr
         ),
       ),
     );
+  }
+
+  bool _validateStep(BuildContext context, VerificationState state) {
+    String? error;
+    if (state.currentStep == VerificationStep.professional) {
+      if (state.specialty.isEmpty) {
+        error = AppLocalizations.of(context)!.selectSpecialtyError;
+      } else if (state.licenseUrl == null) {
+        error = AppLocalizations.of(context)!.uploadMedicalLicenseError;
+      }
+    } else if (state.currentStep == VerificationStep.identity) {
+      if (state.idUrl == null && state.idFrontUrl == null) {
+        error = AppLocalizations.of(context)!.uploadIdDocumentError;
+      } else if (state.addressUrl == null) {
+        error = AppLocalizations.of(context)!.uploadProofOfAddressError;
+      }
+    } else if (state.currentStep == VerificationStep.facial) {
+      if (state.selfieUrl == null) {
+        error = AppLocalizations.of(context)!.captureLiveSelfieError;
+      }
+    }
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: AppColors.error),
+      );
+      return false;
+    }
+    return true;
   }
 
   void _showSuccessDialog(BuildContext context) {

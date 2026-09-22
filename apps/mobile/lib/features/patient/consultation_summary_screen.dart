@@ -176,7 +176,7 @@ class _ConsultationSummaryScreenState
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => context.go('/patient/dashboard'),
+            onTap: () => context.go('/patient_dashboard'),
             child: Container(
               width: 44,
               height: 44,

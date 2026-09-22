@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
 import '../../core/providers.dart';
+import '../../core/supabase_locator.dart';
 import '../../l10n/app_localizations.dart';
 
 class DoctorPaymentsScreen extends ConsumerWidget {
@@ -43,7 +44,7 @@ class DoctorPaymentsScreen extends ConsumerWidget {
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: payments.length,
-            itemBuilder: (context, index) => _buildPaymentCard(context, payments[index]),
+            itemBuilder: (context, index) => _buildPaymentCard(context, ref, payments[index]),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -52,10 +53,54 @@ class DoctorPaymentsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPaymentCard(BuildContext context, Map<String, dynamic> payment) {
+  Widget _buildPaymentCard(BuildContext context, WidgetRef ref, Map<String, dynamic> payment) {
     final amount = payment['amount'] ?? 0;
     final status = payment['status'] ?? 'pending';
     final patientName = payment['patient_name'] ?? 'Patient';
+    final paymentId = payment['id'] as String?;
+    final isPending = status == 'pending';
+
+    Future<void> handleApprove() async {
+      if (paymentId == null) return;
+      final messenger = ScaffoldMessenger.of(context);
+      try {
+        final user = supabase.auth.currentUser;
+        if (user == null) throw Exception('Not signed in');
+        final { error } = await supabase.rpc(
+          'approve_payment',
+          params: {'p_payment_id': paymentId, 'p_processor_id': user.id},
+        );
+        if (error != null) throw error;
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Payment approved'), backgroundColor: AppColors.success),
+        );
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('$e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+
+    Future<void> handleReject() async {
+      if (paymentId == null) return;
+      final messenger = ScaffoldMessenger.of(context);
+      try {
+        final user = supabase.auth.currentUser;
+        if (user == null) throw Exception('Not signed in');
+        final { error } = await supabase.rpc(
+          'reject_payment',
+          params: {'p_payment_id': paymentId, 'p_reason': 'Rejected by doctor', 'p_processor_id': user.id},
+        );
+        if (error != null) throw error;
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Payment rejected'), backgroundColor: AppColors.success),
+        );
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('$e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -108,7 +153,7 @@ class DoctorPaymentsScreen extends ConsumerWidget {
                 child: SizedBox(
                   height: 44,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: isPending ? handleApprove : null,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.success,
                       side: BorderSide(color: AppColors.success),
@@ -123,7 +168,7 @@ class DoctorPaymentsScreen extends ConsumerWidget {
                 child: SizedBox(
                   height: 44,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: isPending ? handleReject : null,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.error,
                       side: BorderSide(color: AppColors.error),

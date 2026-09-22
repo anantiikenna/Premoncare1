@@ -240,11 +240,15 @@ class VerificationNotifier extends Notifier<VerificationState> {
       final user = supabase.auth.currentUser;
       if (user == null) throw Exception('Not authenticated');
 
+      final experienceMatch = RegExp(r'\d+').firstMatch(state.experience);
+      final experienceYears = experienceMatch != null ? int.parse(experienceMatch.group(0)!) : 0;
+
       await supabase.from('profiles').update({
         'title': state.title,
         'specialty': state.specialty,
-        'experience_years': int.tryParse(state.experience) ?? 0,
+        'experience_years': experienceYears,
         'verification_document_url': state.licenseUrl,
+        'identity_document_url': state.idUrl ?? state.idFrontUrl,
         'identity_document_front_url': state.idFrontUrl,
         'identity_document_back_url': state.idBackUrl,
         'identity_type': state.idType,

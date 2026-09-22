@@ -73,12 +73,13 @@ function maybeCleanup() {
 }
 
 function getTrustedIp(req: NextRequest): string {
-    // In production behind a reverse proxy, x-forwarded-for contains the real client IP
+    // In production behind a reverse proxy, x-forwarded-for contains the real client IP.
+    // Take the RIGHTMOST entry (appended by the trusted proxy); leftmost is client-controlled.
     const forwarded = req.headers.get('x-forwarded-for')
     if (forwarded) {
-        // Take the first (leftmost) IP, which is the original client
-        const firstIp = forwarded.split(',')[0]?.trim()
-        if (firstIp) return firstIp
+        const parts = forwarded.split(',').map(p => p.trim()).filter(Boolean)
+        const lastIp = parts[parts.length - 1]
+        if (lastIp) return lastIp
     }
     return req.headers.get('x-real-ip') || 'unknown'
 }
@@ -155,8 +156,18 @@ export async function withSecurity(
     let sessionUser = null
     if (options.requireAuth) {
         const supabase = await createClient()
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
-        
+        let { data: { user }, error: authError } = await supabase.auth.getUser()
+
+        // Support mobile clients that send Authorization: Bearer <access_token>
+        if ((authError || !user) && req.headers.get('authorization')?.startsWith('Bearer ')) {
+            const token = req.headers.get('authorization')!.slice(7)
+            const { data, error } = await supabase.auth.getUser(token)
+            if (!error && data.user) {
+                user = data.user
+                authError = null
+            }
+        }
+
         if (authError || !user) {
             const res = NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 })
             return setCorsHeaders(res, requestOrigin)

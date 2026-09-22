@@ -51,11 +51,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
   List<Map<String, dynamic>> _filterNotifications(List<Map<String, dynamic>> notifications) {
     if (_selectedTab == 'All') return notifications;
 
+    if (_selectedTab == 'Emergency') {
+      return notifications.where((n) {
+        final title = (n['title'] ?? '').toString().toLowerCase();
+        final message = (n['message'] ?? '').toString().toLowerCase();
+        final type = (n['type'] ?? '').toString();
+        return title.contains('emergency') ||
+            message.contains('emergency') ||
+            type == 'emergency';
+      }).toList();
+    }
+
     final typeMap = {
       'Clinical': 'prescription',
       'Appointments': 'appointment',
       'Payment': 'payment',
-      'Emergency': 'system',
     };
 
     final type = typeMap[_selectedTab];
@@ -176,7 +186,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> with 
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => ref.invalidate(notificationsProvider),
-                child: const Text\(AppLocalizations.of(context)!.retryLabel\),
+                 child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),

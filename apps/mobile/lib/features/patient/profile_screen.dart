@@ -233,7 +233,7 @@ class ProfileScreen extends ConsumerWidget {
     final recordsAsync = ref.watch(patientMedicalRecordsProvider);
     final creditsAsync = ref.watch(patientCreditsProvider);
 
-    final apptsCount = appointmentsAsync.asData?.value.where((a) => a['status'] == 'scheduled').length.toString() ?? '0';
+    final apptsCount = appointmentsAsync.asData?.value.where((a) => ['pending', 'confirmed', 'rescheduled'].contains(a['status'])).length.toString() ?? '0';
     final historyCount = appointmentsAsync.asData?.value.where((a) => a['status'] == 'completed').length.toString() ?? '0';
     final reportsCount = recordsAsync.asData?.value.length.toString() ?? '0';
     final credits = creditsAsync.asData?.value ?? 0;

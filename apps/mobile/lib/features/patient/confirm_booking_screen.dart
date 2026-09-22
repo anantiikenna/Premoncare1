@@ -43,7 +43,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   TimeOfDay _selectedTime = TimeOfDay.fromDateTime(
     DateTime.now().add(const Duration(hours: 1)),
   );
-  String _consultationType = 'Video Call';
+  String _consultationType = 'video';
   int? _currentBalanceMinutes;
 
   @override
@@ -180,9 +180,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
         'total_amount': widget.totalAmount,
         'is_patient_approved': true,
         'is_doctor_approved': false,
-        'consultation_mode': _consultationType == 'Video Call'
-            ? 'video'
-            : 'in_person',
+        'consultation_mode': _consultationType,
         'reason': widget.isEmergency
             ? 'EMERGENCY CONSULTATION${userId == null ? ' (Guest)' : ''}'
             : null,
@@ -266,7 +264,9 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               'durationMinutes': widget.durationMinutes,
               'appointmentId': appointmentId,
               'appointmentDate': appointmentDate,
-              'consultationType': _consultationType,
+              'consultationType': _consultationType == 'video'
+                  ? AppLocalizations.of(context)!.videoCall
+                  : AppLocalizations.of(context)!.inClinicVisit,
             },
           );
         }
@@ -600,6 +600,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               Expanded(
                 child: _buildConsultTypeChip(
                   context,
+                  'video',
                   AppLocalizations.of(context)!.videoCall,
                   Icons.videocam_rounded,
                 ),
@@ -608,6 +609,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
               Expanded(
                 child: _buildConsultTypeChip(
                   context,
+                  'in_person',
                   AppLocalizations.of(context)!.inClinicVisit,
                   Icons.local_hospital_rounded,
                 ),
@@ -622,6 +624,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   Widget _buildConsultTypeChip(
     BuildContext context,
     String type,
+    String label,
     IconData icon,
   ) {
     final isSelected = _consultationType == type;
@@ -650,7 +653,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              type,
+              label,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w900,

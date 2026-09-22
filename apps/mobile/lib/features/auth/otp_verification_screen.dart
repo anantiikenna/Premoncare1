@@ -127,11 +127,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         type: widget.isSignup ? OtpType.signup : OtpType.email,
       );
 
-      // Reset attempts on success (non-blocking)
-      try {
-        await supabase.rpc('reset_otp_attempts', params: {'p_email': widget.email});
-      } catch (_) {}
-
       if (!mounted) return;
 
       final role = await getUserRole();

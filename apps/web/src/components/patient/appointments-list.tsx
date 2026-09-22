@@ -64,7 +64,7 @@ export function PatientAppointmentsList({ userId }: { userId: string }) {
         }
     }, [userId, supabase])
 
-    const upcomingApts = appointments.filter(a => a.status === 'pending' || a.status === 'confirmed')
+    const upcomingApts = appointments.filter(a => ['pending', 'confirmed', 'rescheduled', 'ongoing', 'emergency_request', 'emergency_accepted'].includes(a.status))
     const completedApts = appointments.filter(a => a.status === 'completed')
 
     if (loading) {

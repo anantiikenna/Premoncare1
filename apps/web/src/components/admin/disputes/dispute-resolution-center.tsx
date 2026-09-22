@@ -676,18 +676,30 @@ function DisputeCard({
 
             {/* Parties */}
             <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl mb-4">
-                <img
-                    src={dispute.patient?.avatar_url || `https://i.pravatar.cc/100?u=${dispute.patient_id || 'p'}`}
-                    className="w-8 h-8 rounded-full shadow-sm"
-                    alt="Patient"
-                />
+                {dispute.patient?.avatar_url ? (
+                    <img
+                        src={dispute.patient.avatar_url}
+                        className="w-8 h-8 rounded-full shadow-sm"
+                        alt="Patient"
+                    />
+                ) : (
+                    <div className="w-8 h-8 rounded-full shadow-sm bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
+                        {(dispute.patient?.full_name || 'P').charAt(0)}
+                    </div>
+                )}
                 <span className="text-sm font-semibold text-slate-900">{dispute.patient?.full_name || 'Unknown Patient'}</span>
                 <span className="text-xs font-bold text-slate-400 uppercase">vs</span>
-                <img
-                    src={dispute.doctor?.avatar_url || `https://i.pravatar.cc/100?u=${dispute.doctor_id || 'd'}`}
-                    className="w-8 h-8 rounded-full shadow-sm"
-                    alt="Doctor"
-                />
+                {dispute.doctor?.avatar_url ? (
+                    <img
+                        src={dispute.doctor.avatar_url}
+                        className="w-8 h-8 rounded-full shadow-sm"
+                        alt="Doctor"
+                    />
+                ) : (
+                    <div className="w-8 h-8 rounded-full shadow-sm bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
+                        {(dispute.doctor?.full_name || 'D').charAt(0)}
+                    </div>
+                )}
                 <span className="text-sm font-semibold text-slate-900">{dispute.doctor?.full_name || 'Unknown Doctor'}</span>
                 <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
                     <ChevronRight className="w-5 h-5 text-slate-400" />

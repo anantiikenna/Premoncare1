@@ -120,7 +120,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifyAndFinalize => 'VERIFY & FINALIZE';
 
   @override
-  String get continue => 'CONTINUE';
+  String get continueLabel => 'CONTINUE';
 
   @override
   String get forgotPassword => 'Forgot Password?';

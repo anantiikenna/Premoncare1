@@ -115,7 +115,7 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.subscriptionCancelled)));
                   },
-                  child: Text(l10n.confirmLabel),
+                  child: Text(l10n.confirm),
                 ),
               ],
             ),

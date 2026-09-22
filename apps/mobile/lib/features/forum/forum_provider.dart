@@ -191,12 +191,16 @@ final forumPostsProvider = StreamProvider.autoDispose<List<ForumPost>>((ref) {
       .stream(primaryKey: ['id'])
       .order('created_at', ascending: false)
       .asyncMap((data) async {
-    final approved = data.where((item) => item['status'] == 'approved').toList();
-    if (approved.isEmpty) return [];
+    final visible = data
+        .where((item) =>
+            item['status'] == 'approved' ||
+            (item['status'] == 'pending' && item['author_id'] == supabase.auth.currentUser?.id))
+        .toList();
+    if (visible.isEmpty) return [];
 
     // Collect unique author IDs and category IDs for batch fetch
-    final authorIds = approved.map((e) => e['author_id'] as String).toSet().toList();
-    final categoryIds = approved
+    final authorIds = visible.map((e) => e['author_id'] as String).toSet().toList();
+    final categoryIds = visible
         .map((e) => e['category_id'] as String?)
         .where((id) => id != null)
         .toSet()
@@ -219,7 +223,7 @@ final forumPostsProvider = StreamProvider.autoDispose<List<ForumPost>>((ref) {
       for (final c in categoriesResult) c['id'] as String: c,
     };
 
-    return approved.map((item) {
+    return visible.map((item) {
       final authorData = authorMap[item['author_id'] as String];
       final categoryData = item['category_id'] != null ? categoryMap[item['category_id'] as String] : null;
       return ForumPost.fromJson({
@@ -316,7 +320,7 @@ class ForumService {
         'attachments': attachments ?? [],
         'is_anonymous': isAnonymous,
         'is_ask_doctor_queue': isAskDoctorQueue,
-        'status': 'approved',
+        'status': 'pending',
       });
     } catch (e) {
       if (kDebugMode) debugPrint('Error creating forum post: $e');

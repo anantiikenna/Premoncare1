@@ -65,11 +65,7 @@ export function RegisterForm() {
         }
       } catch (_) {}
 
-      // Record the attempt (non-blocking)
-      try {
-        await supabase.rpc('record_otp_attempt', { p_email: email })
-      } catch (_) {}
-
+      // OTP send — no client-side attempt recording (avoids lockout abuse)
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {

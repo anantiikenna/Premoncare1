@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/supabase_locator.dart';
 import 'core/router.dart';
 import 'core/flavor_config.dart';
@@ -22,6 +23,38 @@ final accessibilityProvider = ChangeNotifierProvider<AccessibilityProvider>((ref
   provider.load();
   return provider;
 });
+
+const _languageToLocale = <String, Locale>{
+  'English': Locale('en'),
+  'French': Locale('fr'),
+  'Yoruba': Locale('yo'),
+  'Igbo': Locale('ig'),
+  'Hausa': Locale('ha'),
+  'Swahili': Locale('sw'),
+};
+
+class LocaleNotifier extends Notifier<Locale?> {
+  @override
+  Locale? build() {
+    _load();
+    return null;
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lang = prefs.getString('locale_language');
+    if (lang != null && _languageToLocale.containsKey(lang)) {
+      state = _languageToLocale[lang];
+    }
+  }
+
+  void setLanguage(String language) {
+    final locale = _languageToLocale[language];
+    if (locale != null) state = locale;
+  }
+}
+
+final localeProvider = NotifierProvider<LocaleNotifier, Locale?>(LocaleNotifier.new);
 
 Future<void> mainCommon() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,12 +99,14 @@ class PremonCareApp extends ConsumerWidget {
     final config = FlavorConfig.instance;
     final themeMode = ref.watch(themeModeProvider);
     final accessibility = ref.watch(accessibilityProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: config.appTitle,
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       themeMode: themeMode,
+      locale: locale,
       routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [

@@ -32,7 +32,7 @@ export default async function PatientDashboard() {
             .eq('is_read', false),
     ])
 
-    const upcomingAppointments = appointments?.filter(a => a.status === 'pending' || a.status === 'confirmed') || []
+    const upcomingAppointments = appointments?.filter(a => ['pending', 'confirmed', 'rescheduled', 'ongoing', 'emergency_accepted'].includes(a.status)) || []
 
     return (
         <div className="space-y-12 pb-24 animate-in-fade relative overflow-hidden">
@@ -139,11 +139,11 @@ export default async function PatientDashboard() {
                             <CardContent className="p-8 pt-4">
                                 <div className="grid grid-cols-2 gap-8">
                                     <div className="space-y-1">
-                                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{profile?.weight || '72'}kg</p>
+                                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{profile?.weight ? `${profile.weight}kg` : '—'}</p>
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Weight Status</p>
                                     </div>
                                     <div className="space-y-1 border-l border-slate-100 pl-8">
-                                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{profile?.blood_group || 'O+'}</p>
+                                        <p className="text-3xl font-black text-slate-900 tracking-tighter">{profile?.blood_group || '—'}</p>
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Blood Type</p>
                                     </div>
                                 </div>

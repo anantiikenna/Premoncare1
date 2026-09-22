@@ -74,11 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         }
       } catch (_) {}
 
-      // Record the attempt (non-blocking)
-      try {
-        await supabase.rpc('record_otp_attempt', params: {'p_email': email});
-      } catch (_) {}
-
+      // OTP send — no client-side attempt recording (avoids lockout abuse)
       await supabase.auth.signInWithOtp(
         email: email,
         data: {

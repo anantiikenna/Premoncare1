@@ -481,11 +481,11 @@ class _AdminAuditTimelineScreenState
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final filter = filters[index];
-          final isSelected = _selectedFilter == filter;
+          final isSelected = index == _selectedFilterIndex;
           return GestureDetector(
             onTap: () {
               setState(() {
-                _selectedFilter = filter;
+                _selectedFilterIndex = index;
                 _applyFilter();
               });
             },

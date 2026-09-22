@@ -1296,7 +1296,7 @@ class _DisputeResolutionScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text\(AppLocalizations.of(context)!.cancel\),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1317,7 +1317,7 @@ class _DisputeResolutionScreenState
                   : AppColors.warning,
               foregroundColor: AppColors.textInverse,
             ),
-            child: const Text\(AppLocalizations.of(context)!.confirmLabel\),
+            child: Text(AppLocalizations.of(context)!.confirm),
           ),
         ],
       ),

@@ -134,7 +134,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
   void _showPatientCancelled() {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(AppLocalizations.of(context)!.patientCancelledEmergency),
         backgroundColor: AppColors.warning,
       ),
@@ -156,7 +156,8 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
             'is_doctor_approved': accept,
             if (!accept) 'accepted_at': null,
           })
-          .eq('id', widget.appointmentId);
+          .eq('id', widget.appointmentId)
+          .eq('status', 'emergency_request');
 
       ref.invalidate(emergencyRequestsProvider);
       ref.invalidate(upcomingAppointmentsProvider);
@@ -188,7 +189,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
       if (mounted) {
         if (accept) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(AppLocalizations.of(context)!.emergencyRequestAcceptedProceedPayment),
               backgroundColor: AppColors.success,
             ),
@@ -261,7 +262,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                         Icon(Icons.warning_amber_rounded, color: AppColors.textInverse, size: 16),
                         SizedBox(width: 8),
                         Text(
-                          AppLocalizations.of(context)!.emergencyRequestLabel,
+                           AppLocalizations.of(context)!.emergencyRequest,
                           style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
                         ),
                       ],
@@ -390,7 +391,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                               children: [
                                 Icon(Icons.close_rounded, size: 20),
                                 SizedBox(width: 8),
-                                Text(AppLocalizations.of(context)!.declineLabel, style: TextStyle(fontWeight: FontWeight.w900)),
+                                Text(AppLocalizations.of(context)!.decline, style: TextStyle(fontWeight: FontWeight.w900)),
                               ],
                             ),
                           ),

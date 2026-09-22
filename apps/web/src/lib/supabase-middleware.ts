@@ -55,23 +55,21 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (user) {
-        // Fetch role to enforce route protection
-        let role = request.cookies.get('premon_role')?.value
+        // Fetch role from DB every request (cookie is advisory only — never trust client-set values alone)
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
 
-        if (!role) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single()
+        let role = profile?.role || 'patient'
 
-            role = profile?.role || 'patient'
-            
-            // Cache role in cookie to skip DB query on next request
+        // Refresh cached cookie for non-security UX (skip DB on public pages)
+        if (request.cookies.get('premon_role')?.value !== role) {
             supabaseResponse.cookies.set('premon_role', role as string, {
                 path: '/',
-                maxAge: 60 * 60 * 24 * 7, // 1 week
-                httpOnly: false,
+                maxAge: 60 * 60 * 24 * 7,
+                httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
             })

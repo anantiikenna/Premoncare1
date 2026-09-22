@@ -93,11 +93,6 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
     const handleConfirmPayment = async (apt: any) => {
         setIsCrediting(true)
         try {
-            const { error: aptError } = await updateAppointmentStatus(apt.id, { 
-                status: 'confirmed'
-            })
-            if (aptError) throw aptError
-
             const { error: balanceError } = await supabase.rpc('increment_time_balance', {
                 p_patient_id: apt.patient_id,
                 p_doctor_id: docId,
@@ -114,13 +109,19 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
                 
                 const newTotal = (currentBalance?.minutes_remaining || 0) + creditedMinutes
                 
-                await supabase.from('time_balances').upsert({
+                const { error: upsertError } = await supabase.from('time_balances').upsert({
                     patient_id: apt.patient_id,
                     doctor_id: docId,
                     minutes_remaining: newTotal,
                     updated_at: new Date().toISOString()
                 })
+                if (upsertError) throw upsertError
             }
+
+            const { error: aptError } = await updateAppointmentStatus(apt.id, { 
+                status: 'confirmed'
+            })
+            if (aptError) throw aptError
 
             await createNotification({
                 user_id: apt.patient_id,
@@ -437,12 +438,16 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
                                     <CardContent className="p-0">
                                         <div className="p-6 flex flex-col md:flex-row items-center gap-6">
                                             <div className="relative">
-                                                <div className="h-16 w-16 rounded-[1.5rem] bg-slate-100 overflow-hidden ring-4 ring-slate-50">
-                                                    <img 
-                                                        src={`https://i.pravatar.cc/150?u=${apt.patient_id}`} 
-                                                        alt={apt.patient.full_name}
-                                                        className="w-full h-full object-cover"
-                                                    />
+                                                <div className="h-16 w-16 rounded-[1.5rem] bg-slate-100 overflow-hidden ring-4 ring-slate-50 flex items-center justify-center">
+                                                    {apt.patient?.avatar_url ? (
+                                                        <img 
+                                                            src={apt.patient.avatar_url} 
+                                                            alt={apt.patient.full_name}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-lg font-black text-slate-400">{apt.patient?.full_name?.charAt(0) || '?'}</span>
+                                                    )}
                                                 </div>
                                                 <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-500 border-2 border-white" />
                                             </div>
@@ -593,8 +598,8 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
                                                 )}>
                                                     <div className="flex items-center justify-between gap-4">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="h-8 w-8 rounded-xl bg-slate-100 overflow-hidden">
-                                                                <img src={`https://i.pravatar.cc/100?u=${item.user}`} alt="" />
+                                                            <div className="h-8 w-8 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center text-xs font-bold text-slate-400">
+                                                                {(item.user || '?').charAt(0).toUpperCase()}
                                                             </div>
                                                             <div>
                                                                 <p className="text-xs font-black text-slate-900 leading-none">{item.user}</p>

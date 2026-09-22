@@ -295,13 +295,17 @@ export default function EmergencyBookingPage() {
                             : 'border-slate-100 hover:border-red-200 hover:bg-slate-50'}
                         `}
                       >
-                        <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-full overflow-hidden border-4 border-white shadow-md">
-                          <Image 
-                            src={doctor.avatar_url || `https://i.pravatar.cc/150?u=${doctor.id}`} 
-                            alt={doctor.full_name} 
-                            fill 
-                            className="object-cover"
-                          />
+                        <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-full overflow-hidden border-4 border-white shadow-md bg-red-50 flex items-center justify-center">
+                          {doctor.avatar_url ? (
+                            <Image 
+                              src={doctor.avatar_url} 
+                              alt={doctor.full_name} 
+                              fill 
+                              className="object-cover"
+                            />
+                          ) : (
+                            <span className="text-xl font-black text-red-400">{doctor.full_name?.charAt(0) || 'D'}</span>
+                          )}
                         </div>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">

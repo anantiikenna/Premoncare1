@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../l10n/app_localizations.dart';
+import '../../main_common.dart' show localeProvider;
 
-class LanguageRegionScreen extends StatefulWidget {
+class LanguageRegionScreen extends ConsumerStatefulWidget {
   const LanguageRegionScreen({super.key});
 
   @override
-  State<LanguageRegionScreen> createState() => _LanguageRegionScreenState();
+  ConsumerState<LanguageRegionScreen> createState() => _LanguageRegionScreenState();
 }
 
-class _LanguageRegionScreenState extends State<LanguageRegionScreen> {
+class _LanguageRegionScreenState extends ConsumerState<LanguageRegionScreen> {
   String _selectedLanguage = 'English';
   String _selectedRegion = 'Nigeria';
   String _selectedCurrency = 'NGN';
@@ -69,7 +71,11 @@ class _LanguageRegionScreenState extends State<LanguageRegionScreen> {
             title: AppLocalizations.of(context)!.appLanguageLabel,
             options: _languages,
             selected: _selectedLanguage,
-            onChanged: (v) { setState(() => _selectedLanguage = v); _savePreference('locale_language', v); },
+            onChanged: (v) {
+              setState(() => _selectedLanguage = v);
+              _savePreference('locale_language', v);
+              ref.read(localeProvider.notifier).setLanguage(v);
+            },
             textColor: color,
             secondaryColor: secondary,
           ),

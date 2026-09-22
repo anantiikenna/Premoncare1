@@ -95,10 +95,6 @@ export function OTPForm({ email, onVerify, onResend }: OTPFormProps) {
         setError(null)
         try {
             await onVerify(code)
-            // Reset attempts on success (non-blocking)
-            if (email) {
-                try { await supabase.rpc('reset_otp_attempts', { p_email: email }) } catch (_) {}
-            }
         } catch (err: unknown) {
             console.error('OTP verification failed', err)
             setError(getUserFacingError(err, 'That code could not be verified. Please check it and try again.'))

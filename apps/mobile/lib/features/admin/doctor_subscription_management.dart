@@ -243,7 +243,7 @@ class _DoctorSubscriptionManagementState
                   TextButton.icon(
                     onPressed: _fetchSubscriptions,
                     icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text\(AppLocalizations.of(context)!.retryLabel\),
+                    label: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -883,7 +883,7 @@ class _DoctorSubscriptionManagementState
                     showDialog(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text\('Notification\ Settings'\),
+                        title: const Text('Notification Settings'),
                         content: const Text(
                           'Configure subscription notifications.',
                         ),

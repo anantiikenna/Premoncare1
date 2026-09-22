@@ -445,7 +445,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  AppLocalizations.of(context)!.retryLabel,
+                   AppLocalizations.of(context)!.retry,
                   style: TextStyle(
                     color: AppColors.textInverse,
                     fontWeight: FontWeight.w700,

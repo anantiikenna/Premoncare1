@@ -210,7 +210,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                   const SizedBox(height: 20),
                   _buildQuickActions(context, primaryColor),
                   const SizedBox(height: 32),
-                  _buildSectionTitle(AppLocalizations.of(context)!.upcomingSessionsLabel),
+                  _buildSectionTitle(AppLocalizations.of(context)!.upcomingSessions),
                   const SizedBox(height: 20),
                   _buildScheduleList(context, ref, primaryColor),
                   const SizedBox(height: 40),
@@ -313,7 +313,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                         Text(
-                          AppLocalizations.of(context)!.emergencyRequestLabel,
+                           AppLocalizations.of(context)!.emergencyRequest,
                           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.error, letterSpacing: 1),
                         ),
                             const SizedBox(height: 4),
@@ -547,14 +547,14 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildActionItem(context, Icons.calendar_month_rounded, AppLocalizations.of(context)!.scheduleLabel, primaryColor, onTap: () => context.push('/doctor/schedule')),
-          _buildActionItem(context, Icons.person_add_rounded, AppLocalizations.of(context)!.requestsLabel, AppColors.success, onTap: () => context.push('/appointments')),
-          _buildActionItem(context, Icons.history_edu_rounded, AppLocalizations.of(context)!.followUpLabel, AppColors.warning, onTap: () {
+          _buildActionItem(context, Icons.calendar_month_rounded, AppLocalizations.of(context)!.schedule, primaryColor, onTap: () => context.push('/doctor/schedule')),
+          _buildActionItem(context, Icons.person_add_rounded, AppLocalizations.of(context)!.requests, AppColors.success, onTap: () => context.push('/appointments')),
+          _buildActionItem(context, Icons.history_edu_rounded, AppLocalizations.of(context)!.followUp, AppColors.warning, onTap: () {
             showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (ctx) => const ProposeFollowupDialog());
           }),
-          _buildActionItem(context, Icons.medication_rounded, AppLocalizations.of(context)!.prescribeLabel, AppColors.primary, onTap: () => context.push('/appointments')),
-          _buildActionItem(context, Icons.verified_user_rounded, AppLocalizations.of(context)!.complianceLabel, AppColors.info, onTap: () => context.push('/doctor/subscription')),
-          _buildActionItem(context, Icons.payments_rounded, AppLocalizations.of(context)!.paymentsLabel, AppColors.success, onTap: () => context.push('/doctor/payments')),
+          _buildActionItem(context, Icons.medication_rounded, AppLocalizations.of(context)!.prescribe, AppColors.primary, onTap: () => context.push('/appointments')),
+          _buildActionItem(context, Icons.verified_user_rounded, AppLocalizations.of(context)!.compliance, AppColors.info, onTap: () => context.push('/doctor/subscription')),
+          _buildActionItem(context, Icons.payments_rounded, AppLocalizations.of(context)!.payments, AppColors.success, onTap: () => context.push('/doctor/payments')),
         ],
       ),
     );

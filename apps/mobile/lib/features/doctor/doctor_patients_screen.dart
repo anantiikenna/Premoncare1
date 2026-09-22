@@ -135,7 +135,7 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () => ref.invalidate(doctorPatientsProvider),
-                        child: const Text\(AppLocalizations.of(context)!.retryLabel\),
+                        child: Text(AppLocalizations.of(context)!.retry),
                       ),
                     ],
                   ),

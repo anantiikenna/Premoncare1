@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 import '../../l10n/app_localizations.dart';
+import '../../shared/widgets/generic_user_avatar.dart';
 
 class BookingConfirmedScreen extends StatefulWidget {
   final double? consultationFee;

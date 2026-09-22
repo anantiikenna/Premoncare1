@@ -48,8 +48,7 @@ class CreditsScreen extends ConsumerWidget {
                           name: credit['doctor_name'],
                           specialty: credit['specialty'],
                           rate: '₦${credit['hourly_rate']}/hr',
-                          remainingMinutes: credit['minutes_remaining'] as int,
-                          totalMinutes: credit['minutes_remaining'] as int,
+                           remainingMinutes: credit['minutes_remaining'] as int,
                           lastUsed: 'Recently',
                           avatarUrl: credit['avatar_url'],
                         )).toList(),
@@ -260,7 +259,6 @@ class _DoctorCreditCard extends StatelessWidget {
   final String specialty;
   final String rate;
   final int remainingMinutes;
-  final int totalMinutes;
   final String lastUsed;
   final String? avatarUrl;
 
@@ -269,14 +267,12 @@ class _DoctorCreditCard extends StatelessWidget {
     required this.specialty,
     required this.rate,
     required this.remainingMinutes,
-    required this.totalMinutes,
     required this.lastUsed,
     this.avatarUrl,
   });
 
   @override
   Widget build(BuildContext context) {
-    final double progress = totalMinutes > 0 ? remainingMinutes / totalMinutes : 0;
     final bool isLow = remainingMinutes < 15;
     final Color progressColor = isLow ? AppColors.error : AppColors.success;
 
@@ -330,14 +326,19 @@ class _DoctorCreditCard extends StatelessWidget {
           const SizedBox(height: 24),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: LinearProgressIndicator(value: progress, backgroundColor: AppColors.borderLightOf(context), color: progressColor, minHeight: 8),
+            child: LinearProgressIndicator(
+              value: isLow ? 0.15 : null,
+              backgroundColor: AppColors.borderLightOf(context),
+              color: progressColor,
+              minHeight: 8,
+            ),
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Last used $lastUsed', style: AppTypography.caption),
-              Text('$remainingMinutes / $totalMinutes ${AppLocalizations.of(context)!.minsUnit}', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryOf(context))),
+              Text('$remainingMinutes ${AppLocalizations.of(context)!.minsUnit}', style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryOf(context))),
             ],
           ),
           const SizedBox(height: 24),

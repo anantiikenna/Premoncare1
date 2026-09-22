@@ -64,7 +64,7 @@ export default function RootLayout({
             </InactivityProvider>
           </QueryProvider>
         </PostHogProvider>
-        <Toaster position="top-center" richColors theme="light" />
+        <Toaster position="top-center" richColors theme="system" />
         <CookieConsent />
       </body>
     </html>

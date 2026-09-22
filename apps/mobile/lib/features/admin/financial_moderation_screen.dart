@@ -939,7 +939,7 @@ class _FinancialModerationScreenState
             showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text\('Review\ Refunds'\),
+                title: const Text('Review Refunds'),
                 content: const Text('Refund review is under development.'),
                 actions: [
                   TextButton(

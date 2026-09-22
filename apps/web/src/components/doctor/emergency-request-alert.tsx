@@ -143,6 +143,7 @@ export function EmergencyRequestAlert({ doctorId }: { doctorId: string }) {
         .from('appointments')
         .update({ status: newStatus, is_doctor_approved: accept, ...(accept ? {} : { accepted_at: null }) })
         .eq('id', appointmentId)
+        .eq('status', 'emergency_request')
 
       if (error) throw error
 

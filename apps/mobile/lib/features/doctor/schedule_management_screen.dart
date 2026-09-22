@@ -17,27 +17,30 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
   bool _isVacationMode = false;
   bool _emergencyAvailability = false;
   bool _autoAccept = false;
-  final String _timezone = '(GMT+1) West Africa Time (WAT)';
+  bool _isSaving = false;
+  String _timezone = '(GMT+1) West Africa Time (WAT)';
+  List<Map<String, dynamic>> _weeklyHours = [];
+  List<Map<String, String>> _breakTimes = [];
 
-  List<Map<String, dynamic>> _buildWeeklyHours(BuildContext context) {
+  List<Map<String, dynamic>> _defaultWeeklyHours(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return [
-      {'day': 'Monday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-      {'day': 'Tuesday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-      {'day': 'Wednesday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-      {'day': 'Thursday', 'enabled': true, 'start': '08:00 AM', 'end': '06:00 PM'},
-      {'day': 'Friday', 'enabled': true, 'start': '08:00 AM', 'end': '05:00 PM'},
-      {'day': 'Saturday', 'enabled': false, 'start': '09:00 AM', 'end': '01:00 PM'},
-      {'day': 'Sunday', 'enabled': false, 'start': l10n.unavailableStatus, 'end': ''},
+      {'day': 'Monday', 'enabled': true, 'start': '08:00', 'end': '18:00'},
+      {'day': 'Tuesday', 'enabled': true, 'start': '08:00', 'end': '18:00'},
+      {'day': 'Wednesday', 'enabled': true, 'start': '08:00', 'end': '18:00'},
+      {'day': 'Thursday', 'enabled': true, 'start': '08:00', 'end': '18:00'},
+      {'day': 'Friday', 'enabled': true, 'start': '08:00', 'end': '17:00'},
+      {'day': 'Saturday', 'enabled': false, 'start': '09:00', 'end': '13:00'},
+      {'day': 'Sunday', 'enabled': false, 'start': '00:00', 'end': '00:00'},
     ];
   }
 
-  List<Map<String, String>> _buildBreakTimes(BuildContext context) {
+  List<Map<String, String>> _defaultBreakTimes(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return [
-      {'label': l10n.lunchBreak, 'time': '12:00 PM - 01:00 PM'},
-      {'label': l10n.shortBreak, 'time': '04:00 PM - 04:15 PM'},
-      {'label': l10n.personalTime, 'time': '07:30 PM - 08:00 PM'},
+      {'label': l10n.lunchBreak, 'time': '12:00 - 13:00'},
+      {'label': l10n.shortBreak, 'time': '16:00 - 16:15'},
+      {'label': l10n.personalTime, 'time': '19:30 - 20:00'},
     ];
   }
 
@@ -48,19 +51,75 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
   }
 
   Future<void> _fetchSchedule() async {
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('Not signed in');
+      final data = await supabase
+          .from('doctor_schedules')
+          .select('weekly_hours, break_times, vacation_mode, emergency_availability, auto_accept, timezone')
+          .eq('doctor_id', user.id)
+          .maybeSingle();
+      if (mounted) {
+        setState(() {
+          if (data != null) {
+            _weeklyHours = List<Map<String, dynamic>>.from(data['weekly_hours'] as List? ?? []);
+            _breakTimes = List<Map<String, String>>.from(
+              (data['break_times'] as List? ?? []).map((e) => Map<String, String>.from(e as Map)),
+            );
+            _isVacationMode = data['vacation_mode'] as bool? ?? false;
+            _emergencyAvailability = data['emergency_availability'] as bool? ?? false;
+            _autoAccept = data['auto_accept'] as bool? ?? false;
+            if (data['timezone'] != null) _timezone = data['timezone'] as String;
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _saveSchedule() async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _isSaving = true);
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('Not signed in');
+      await supabase.from('doctor_schedules').upsert({
+        'doctor_id': user.id,
+        'weekly_hours': _weeklyHours,
+        'break_times': _breakTimes,
+        'vacation_mode': _isVacationMode,
+        'emergency_availability': _emergencyAvailability,
+        'auto_accept': _autoAccept,
+        'timezone': _timezone,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'doctor_id');
+      if (_emergencyAvailability) {
+        await supabase.from('profiles').update({'is_emergency': true}).eq('id', user.id);
+      }
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.scheduleSavedSuccessfully), backgroundColor: AppColors.success),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.failedToSaveSchedule), backgroundColor: AppColors.error),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final weeklyHours = _buildWeeklyHours(context);
-    final breakTimes = _buildBreakTimes(context);
+    if (_weeklyHours.isEmpty && !_isLoading) {
+      _weeklyHours = _defaultWeeklyHours(context);
+      _breakTimes = _defaultBreakTimes(context);
+    }
+    final weeklyHours = _weeklyHours;
+    final breakTimes = _breakTimes;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
@@ -157,7 +216,7 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
     }
   } catch (e) {
     if (mounted) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.failedToUpdateSchedule), backgroundColor: AppColors.error));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.failedToSaveSchedule), backgroundColor: AppColors.error));
     }
   }
 }),
@@ -276,19 +335,15 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
                     ],
                   ),
           ElevatedButton(
-                onPressed: () async {
-                  final user = supabase.auth.currentUser;
-                  if (user == null) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.scheduleSavedSuccessfully), backgroundColor: AppColors.success),
-                  );
-                },
+                onPressed: _isSaving ? null : _saveSchedule,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size.fromHeight(54),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: Text(l10n.saveSchedule, style: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 16)),
+                child: _isSaving
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2))
+                    : Text(l10n.saveSchedule, style: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 16)),
               ),
           const SizedBox(height: 40),
                 ],

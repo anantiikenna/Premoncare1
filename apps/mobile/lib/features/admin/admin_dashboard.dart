@@ -761,7 +761,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         ),
         _QuickActionItem(
           icon: Icons.account_balance_wallet_rounded,
-          label: AppLocalizations.of(context)!.paymentsLabel,
+           label: AppLocalizations.of(context)!.payments,
           gradient: LinearGradient(
             colors: [
               AppColors.primary,

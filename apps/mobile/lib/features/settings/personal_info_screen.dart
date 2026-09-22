@@ -265,6 +265,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       await supabase.from('profiles').update(updateData).eq('id', user.id);
 
       if (_originalIdUrl != null && _existingIdUrl == null && _selectedIdDocument == null) {
+        updateData['identity_document_url'] = null;
         try {
           final oldPath = _originalIdUrl!.split('/patient-identity-documents/')[1].split('?')[0];
           await supabase.storage.from('patient-identity-documents').remove([oldPath]);
@@ -276,7 +277,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text\('Profile\ updated\ successfully'\),
+            content: Text('Profile updated successfully'),
             backgroundColor: AppColors.success,
           ),
         );

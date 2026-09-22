@@ -2204,3 +2204,368 @@ CREATE POLICY "Authenticated can view profiles"
 CREATE POLICY "Anon can view public profile fields"
   ON public.profiles FOR SELECT TO anon USING (is_profile_visible = true);
 
+
+-- ============================================================
+-- SECURITY HARDENING BATCH (deep audit)
+-- Run this section in Supabase Dashboard SQL Editor
+-- ============================================================
+
+-- 1. handle_new_user: force role=patient, whitelist requested_role
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_requested user_role;
+BEGIN
+  BEGIN
+    v_requested := COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role;
+  EXCEPTION WHEN OTHERS THEN
+    v_requested := 'patient';
+  END;
+  IF v_requested NOT IN ('patient', 'doctor') THEN
+    v_requested := 'patient';
+  END IF;
+
+  INSERT INTO public.profiles (id, email, full_name, role, requested_role, phone)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data ->> 'full_name', ''),
+    'patient',
+    v_requested,
+    NULLIF(NEW.raw_user_meta_data ->> 'phone', '')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 2. Profiles privilege-escalation trigger
+-- Blocks self role/verification escalation; admin can still manage
+CREATE OR REPLACE FUNCTION public.profiles_guard_privileged_columns()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RETURN NEW; -- triggers / service_role
+  END IF;
+
+  IF auth.uid() = NEW.id THEN
+    IF NEW.role IS DISTINCT FROM OLD.role THEN
+      RAISE EXCEPTION 'Cannot change own role';
+    END IF;
+    IF NEW.requested_role IS DISTINCT FROM OLD.requested_role
+       AND NEW.requested_role NOT IN ('patient', 'doctor') THEN
+      RAISE EXCEPTION 'Invalid requested_role';
+    END IF;
+    IF NEW.verification_status IS DISTINCT FROM OLD.verification_status
+       AND NEW.verification_status NOT IN ('pending', 'unsubmitted', 'rejected', 'under_review') THEN
+      RAISE EXCEPTION 'Invalid verification_status transition';
+    END IF;
+    IF NEW.verified_by IS DISTINCT FROM OLD.verified_by
+       OR NEW.subscription_expires_at IS DISTINCT FROM OLD.subscription_expires_at
+       OR NEW.fee_status IS DISTINCT FROM OLD.fee_status THEN
+      IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+        RAISE EXCEPTION 'Unauthorized privileged column change';
+      END IF;
+    END IF;
+  ELSE
+    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+      RAISE EXCEPTION 'Cannot update other profiles';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS profiles_guard_privileged ON public.profiles;
+CREATE TRIGGER profiles_guard_privileged
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.profiles_guard_privileged_columns();
+
+-- 3. Drop over-broad profiles_select_anyone (keep auth/anon policies below)
+DROP POLICY IF EXISTS "profiles_select_anyone" ON public.profiles;
+
+-- 4. increment_time_balance: only doctor self or admin
+CREATE OR REPLACE FUNCTION public.increment_time_balance(
+    p_patient_id UUID,
+    p_doctor_id UUID,
+    p_minutes INTEGER
+)
+RETURNS VOID AS $$
+BEGIN
+  IF p_minutes IS NULL OR p_minutes <= 0 OR p_minutes > 1440 THEN
+    RAISE EXCEPTION 'Invalid minutes';
+  END IF;
+  IF auth.uid() IS NOT NULL
+     AND auth.uid() <> p_doctor_id
+     AND NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
+  INSERT INTO time_balances (patient_id, doctor_id, minutes_remaining)
+  VALUES (p_patient_id, p_doctor_id, p_minutes)
+  ON CONFLICT (patient_id, doctor_id)
+  DO UPDATE SET
+      minutes_remaining = time_balances.minutes_remaining + p_minutes,
+      updated_at = NOW();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 5. approve_payment / reject_payment: bind p_processor_id to auth.uid() when present
+CREATE OR REPLACE FUNCTION public.approve_payment(
+    p_payment_id UUID,
+    p_processor_id UUID
+)
+RETURNS VOID AS $$
+DECLARE
+    v_payment RECORD;
+    v_payer_profile RECORD;
+    v_current_expiry TIMESTAMP WITH TIME ZONE;
+    v_added_months INTEGER;
+    v_admin_setting RECORD;
+    v_processor_role TEXT;
+    v_processor uuid;
+BEGIN
+    v_processor := COALESCE(auth.uid(), p_processor_id);
+    IF auth.uid() IS NOT NULL AND p_processor_id IS DISTINCT FROM auth.uid() THEN
+        RAISE EXCEPTION 'Unauthorized: processor mismatch';
+    END IF;
+
+    SELECT role INTO v_processor_role FROM profiles WHERE id = v_processor;
+    IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
+        RAISE EXCEPTION 'Unauthorized: only admins or recipients can approve payments';
+    END IF;
+
+    SELECT * INTO v_payment FROM payments WHERE id = p_payment_id FOR UPDATE;
+    IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
+    IF v_payment.status = 'approved' THEN RETURN; END IF;
+
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != v_processor THEN
+        RAISE EXCEPTION 'Forbidden: doctors can only approve their own payments';
+    END IF;
+
+    UPDATE payments SET status = 'approved', processed_by = v_processor WHERE id = p_payment_id;
+
+    INSERT INTO notifications (user_id, title, message, type, link)
+    VALUES (v_payment.user_id, 'Payment Approved', 'Your payment of ?' || v_payment.amount || ' has been verified and approved.', 'payment', '/patient/payments');
+
+    IF v_payment.recipient_id IS NOT NULL AND v_payment.duration_minutes IS NOT NULL THEN
+        PERFORM increment_time_balance(v_payment.user_id, v_payment.recipient_id, v_payment.duration_minutes);
+
+        INSERT INTO notifications (user_id, title, message, type, link)
+        VALUES (v_payment.recipient_id, 'Consultation Credit Verified', 'A payment of ?' || v_payment.amount || ' for ' || v_payment.duration_minutes || 'm has been verified.', 'payment', '/doctor/dashboard');
+    ELSIF v_payment.recipient_id IS NULL THEN
+        SELECT * INTO v_payer_profile FROM profiles WHERE id = v_payment.user_id FOR UPDATE;
+        IF v_payer_profile IS NOT NULL AND v_payer_profile.role = 'doctor' THEN
+            v_current_expiry := COALESCE(v_payer_profile.subscription_expires_at, NOW());
+            IF v_current_expiry < NOW() THEN v_current_expiry := NOW(); END IF;
+            v_added_months := CASE WHEN v_payment.duration_minutes < 60 THEN v_payment.duration_minutes ELSE 1 END;
+            v_current_expiry := v_current_expiry + (v_added_months || ' months')::INTERVAL;
+            UPDATE profiles
+            SET subscription_status = 'active', fee_status = 'active', subscription_expires_at = v_current_expiry, last_subscription_payment_at = NOW()
+            WHERE id = v_payment.user_id;
+            INSERT INTO notifications (user_id, title, message, type, link)
+            VALUES (v_payment.user_id, 'Subscription Renewed', 'Your subscription has been renewed. Expires on ' || v_current_expiry::DATE, 'system', '/doctor/dashboard');
+            FOR v_admin_setting IN SELECT * FROM admin_notification_settings LOOP
+                IF 'doctor_verified' = ANY(v_admin_setting.alert_types) THEN
+                    INSERT INTO notifications (user_id, title, message, type, link)
+                    VALUES (v_admin_setting.admin_id, 'Doctor Subscription Renewed', 'Dr. ' || COALESCE(v_payer_profile.full_name, 'Unknown') || ' has renewed their subscription.', 'system', '/admin/reports');
+                END IF;
+            END LOOP;
+        END IF;
+    END IF;
+
+    IF v_payment.recipient_id IS NOT NULL AND v_payment.duration_minutes IS NOT NULL THEN
+        FOR v_admin_setting IN SELECT * FROM admin_notification_settings LOOP
+            IF 'payment_verified' = ANY(v_admin_setting.alert_types) THEN
+                INSERT INTO notifications (user_id, title, message, type, link)
+                VALUES (v_admin_setting.admin_id, 'Consultation Payment Verified', 'A payment of ?' || v_payment.amount || ' for a ' || v_payment.duration_minutes || 'm session was verified.', 'payment', '/admin/reports');
+            END IF;
+        END LOOP;
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.reject_payment(
+    p_payment_id UUID,
+    p_reason TEXT,
+    p_processor_id UUID
+)
+RETURNS VOID AS $$
+DECLARE
+    v_payment RECORD;
+    v_processor_role TEXT;
+    v_processor uuid;
+BEGIN
+    v_processor := COALESCE(auth.uid(), p_processor_id);
+    IF auth.uid() IS NOT NULL AND p_processor_id IS DISTINCT FROM auth.uid() THEN
+        RAISE EXCEPTION 'Unauthorized: processor mismatch';
+    END IF;
+
+    SELECT role INTO v_processor_role FROM profiles WHERE id = v_processor;
+    IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
+        RAISE EXCEPTION 'Unauthorized: only admins or recipients can reject payments';
+    END IF;
+
+    SELECT * INTO v_payment FROM payments WHERE id = p_payment_id FOR UPDATE;
+    IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
+    IF v_payment.status = 'approved' THEN RAISE EXCEPTION 'Already approved'; END IF;
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != v_processor THEN
+        RAISE EXCEPTION 'Forbidden: doctors can only reject their own payments';
+    END IF;
+
+    UPDATE payments SET status = 'rejected', processed_by = v_processor, rejection_reason = p_reason WHERE id = p_payment_id;
+    INSERT INTO notifications (user_id, title, message, type, link)
+    VALUES (v_payment.user_id, 'Payment Rejected', 'Your payment was not approved. Reason: ' || COALESCE(p_reason, 'No reason provided'), 'payment', '/patient/payments');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 6. soft_delete_user: fail closed when auth.uid() is NULL
+CREATE OR REPLACE FUNCTION public.soft_delete_user(p_user_id uuid, p_reason text DEFAULT null)
+RETURNS jsonb AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RETURN jsonb_build_object('error', 'Unauthorized');
+  END IF;
+  IF auth.uid() != p_user_id AND NOT EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
+  ) THEN
+    RETURN jsonb_build_object('error', 'Unauthorized');
+  END IF;
+
+  UPDATE public.profiles
+  SET deleted_at = now(), deletion_reason = p_reason, account_status = 'suspended'
+  WHERE id = p_user_id;
+
+  UPDATE auth.users
+  SET email = 'deleted-' || p_user_id || '@premoncare.invalid',
+      raw_user_meta_data = raw_user_meta_data || '{"deleted": true}'::jsonb
+  WHERE id = p_user_id;
+
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description)
+  VALUES (p_user_id, 'account_soft_deleted', 'security', 'high',
+          'User requested account deletion. Reason: ' || COALESCE(p_reason, 'Not provided'));
+
+  RETURN jsonb_build_object('success', true, 'message', 'Account scheduled for deletion in 30 days');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 7. log_phi_access: bind to auth.uid()
+CREATE OR REPLACE FUNCTION public.log_phi_access(
+  p_user_id uuid, p_action text, p_resource_type text,
+  p_resource_id uuid DEFAULT NULL, p_details jsonb DEFAULT '{}'::jsonb
+)
+RETURNS void AS $$
+DECLARE
+  v_user uuid;
+BEGIN
+  v_user := COALESCE(auth.uid(), p_user_id);
+  IF auth.uid() IS NOT NULL AND p_user_id IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION 'Unauthorized: cannot log for other users';
+  END IF;
+  INSERT INTO audit_logs (user_id, action, action_type, severity, description, details)
+  VALUES (
+    v_user, p_action, 'security',
+    CASE WHEN p_action IN ('medical_record_accessed', 'prescription_accessed', 'phi_exported') THEN 'moderate' ELSE 'info' END,
+    p_resource_type || ' ' || COALESCE(p_action, '') || ' by ' || v_user::text,
+    p_details || jsonb_build_object('resource_type', p_resource_type, 'resource_id', p_resource_id)
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 8. get_admin_financial_stats: require admin
+CREATE OR REPLACE FUNCTION public.get_admin_financial_stats()
+RETURNS json
+AS $$
+declare
+  total_revenue numeric;
+  total_payouts numeric;
+  pending_payouts numeric;
+  total_refunds numeric;
+begin
+  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+  select coalesce(sum(amount), 0) into total_revenue from payments where status = 'approved';
+  select coalesce(sum(amount), 0) into total_payouts from payouts where status = 'approved';
+  select coalesce(sum(amount), 0) into pending_payouts from payouts where status = 'pending';
+  select coalesce(sum(amount), 0) into total_refunds from refunds where status = 'approved';
+  return json_build_object(
+    'total_revenue', total_revenue,
+    'total_payouts', total_payouts,
+    'pending_payouts', pending_payouts,
+    'total_refunds', total_refunds
+  );
+end;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- 9. OTP lockout: stop client-side lockout abuse
+-- reset_otp_attempts must DELETE failures (was no-op on failures)
+CREATE OR REPLACE FUNCTION public.reset_otp_attempts(p_email text)
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.otp_attempts WHERE lower(email) = lower(p_email);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Revoke OTP RPCs from untrusted clients; server verifies OTP only
+REVOKE EXECUTE ON FUNCTION public.record_otp_attempt(text, text) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.reset_otp_attempts(text) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_otp_rate_limit(text) FROM PUBLIC, anon, authenticated;
+
+-- 10. _safe_policy / cleanup / log helpers: no PUBLIC execute
+REVOKE EXECUTE ON FUNCTION public._safe_policy(text, text, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.log_phi_access(uuid, text, text, uuid, jsonb) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_notifications() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_device_sessions() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_login_attempts() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.purge_deleted_accounts() FROM PUBLIC;
+
+-- 11. Payments INSERT: only pending status at insert
+DROP POLICY IF EXISTS "Patients can create own payments" ON public.payments;
+CREATE POLICY "Patients can create own payments"
+  ON public.payments FOR INSERT
+  WITH CHECK (auth.uid() = user_id AND status = 'pending');
+
+-- 12. prescriptions: column-level UPDATE (only acknowledged)
+REVOKE UPDATE ON public.prescriptions FROM authenticated;
+GRANT UPDATE (acknowledged) ON public.prescriptions TO authenticated;
+
+-- 13. FK hygiene: verified_by / forum_reports.resolved_by ON DELETE SET NULL
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_verified_by_fkey;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_verified_by_fkey
+  FOREIGN KEY (verified_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+ALTER TABLE public.forum_reports DROP CONSTRAINT IF EXISTS forum_reports_resolved_by_fkey;
+ALTER TABLE public.forum_reports ADD CONSTRAINT forum_reports_resolved_by_fkey
+  FOREIGN KEY (resolved_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
+
+-- 14. appointments status CHECK: include refunded-adjacent payment statuses not needed;
+-- ensure 'refunded' payments allowed
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.check_constraints cc
+    JOIN information_schema.constraint_column_usage ccu ON cc.constraint_name = ccu.constraint_name
+    WHERE cc.table_name = 'payments' AND ccu.column_name = 'status'
+  ) THEN
+    -- best-effort: drop and re-add payments status check if present
+    BEGIN
+      ALTER TABLE public.payments DROP CONSTRAINT IF EXISTS payments_status_check;
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+    ALTER TABLE public.payments
+      ADD CONSTRAINT payments_status_check
+      CHECK (status IN ('pending', 'approved', 'rejected', 'refunded'));
+  END IF;
+END $$;
+
+-- 15. Re-assert grants after revoke
+GRANT SELECT ON public.profiles TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO service_role;
+GRANT EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_admin_financial_stats() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.export_user_data(uuid) TO authenticated;
+GRANT UPDATE (acknowledged, acknowledged_by, acknowledged_at) ON public.prescriptions TO authenticated;

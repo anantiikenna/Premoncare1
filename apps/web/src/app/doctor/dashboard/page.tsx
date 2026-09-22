@@ -67,7 +67,7 @@ export default async function DoctorDashboard() {
         sessionEarnings: sessionEarnings.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         activePatients: (appointments?.map(a => a.patient_id).filter((v,i,arr) => arr.indexOf(v) === i) || []).length,
         pendingVerifications: pendingPaymentsCount ?? 0,
-        upcomingSessions: todaysAppointments.filter(a => a.status === 'pending' || a.status === 'confirmed').length,
+        upcomingSessions: todaysAppointments.filter(a => ['pending', 'confirmed', 'rescheduled', 'ongoing', 'emergency_accepted'].includes(a.status)).length,
         consultationRate: profile?.consultation_fee ? `₦${Number(profile.consultation_fee).toLocaleString()}` : '₦15,000',
         expectedRevenue,
         taskCompletion
@@ -185,8 +185,10 @@ export default async function DoctorDashboard() {
                                     {appointments?.slice(0, 3).map((apt) => (
                                         <div key={apt.id} className="group relative flex items-center gap-5 p-6 rounded-[2rem] bg-white border border-slate-100 hover:border-primary/20 hover:shadow-2xl transition-all overflow-hidden">
                                             <div className="absolute left-0 top-0 h-full w-1 bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
-                                            <Avatar className="h-14 w-14 rounded-2xl border-2 border-white shadow-sm ring-4 ring-primary/5">
-                                                <AvatarImage src={`https://i.pravatar.cc/150?u=${apt.patient_id}`} />
+                                                <Avatar className="h-14 w-14 rounded-2xl border-2 border-white shadow-sm ring-4 ring-primary/5">
+                                                {apt.patient?.avatar_url ? (
+                                                    <AvatarImage src={apt.patient.avatar_url} />
+                                                ) : null}
                                                 <AvatarFallback>{apt.patient.full_name.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1 min-w-0">

@@ -32,6 +32,7 @@ async function dispatchHandler(req: NextRequest, sessionUser?: any) {
   const { userId, title, message, type, link, sendEmail: shouldEmail, emailTemplate, emailData } = sanitizeObject(parsed.data);
   
   // Authorization check: only admins or the user themselves can dispatch notifications
+  // sessionUser is guaranteed by requireAuth: true
   if (sessionUser && sessionUser.id !== userId) {
     const supabase = await createClient();
     const { data: callerProfile } = await supabase
@@ -46,6 +47,8 @@ async function dispatchHandler(req: NextRequest, sessionUser?: any) {
         error: 'Forbidden: you can only send notifications to yourself' 
       }, { status: 403 });
     }
+  } else if (!sessionUser) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   const supabase = await createClient();

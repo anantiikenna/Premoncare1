@@ -176,13 +176,13 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
           controller: _searchController,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.searchByPatientNameHint,
+            hintText: AppLocalizations.of(context)!.searchByPatientName,
             prefixIcon: const Icon(Icons.search_rounded),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text\(AppLocalizations.of(context)!.cancel\)),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(AppLocalizations.of(context)!.cancel)),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -238,7 +238,7 @@ class _DoctorAppointmentsScreenState extends ConsumerState<DoctorAppointmentsScr
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textSecondaryOf(context),
         labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
-        tabs: [Tab(text: AppLocalizations.of(context)!.todayTab), Tab(text: AppLocalizations.of(context)!.upcomingTab), Tab(text: AppLocalizations.of(context)!.pendingTab), Tab(text: AppLocalizations.of(context)!.pastTab)],
+        tabs: [Tab(text: AppLocalizations.of(context)!.today), Tab(text: AppLocalizations.of(context)!.upcomingTab), Tab(text: AppLocalizations.of(context)!.pendingTab), Tab(text: AppLocalizations.of(context)!.past)],
       ),
     );
   }

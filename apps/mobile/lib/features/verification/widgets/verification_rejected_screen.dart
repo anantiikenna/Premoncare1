@@ -186,7 +186,7 @@ class _ActionTile extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryOf(context), size: 20),
         ],
       ),
     );

@@ -89,7 +89,7 @@ class _PatientMainLayoutState extends ConsumerState<PatientMainLayout> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout_rounded, color: AppColors.error),
-              title: Text(AppLocalizations.of(context)!.logoutLabel, style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+               title: Text(AppLocalizations.of(context)!.logout, style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
               onTap: () async {
                 Navigator.pop(context);
                 final confirmed = await showDialog<bool>(

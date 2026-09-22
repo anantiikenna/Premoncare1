@@ -17,7 +17,8 @@ import {
   ArrowRight,
   LogIn,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  User
 } from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase'
@@ -90,13 +91,8 @@ export default function AccountConversionPage() {
         {/* Left Side: Illustration & Hero */}
         <div className="space-y-8 text-center lg:text-left">
           <div className="relative inline-block">
-            <div className="relative h-48 w-48 md:h-64 md:w-64 rounded-full overflow-hidden border-8 border-white shadow-2xl mx-auto lg:mx-0">
-              <Image 
-                src="https://i.pravatar.cc/300?u=patient_conv" 
-                alt="Patient Profile" 
-                fill 
-                className="object-cover"
-              />
+            <div className="relative h-48 w-48 md:h-64 md:w-64 rounded-full overflow-hidden border-8 border-white shadow-2xl mx-auto lg:mx-0 bg-indigo-100 flex items-center justify-center">
+              <User className="h-24 w-24 text-indigo-400" />
             </div>
             <div className="absolute bottom-4 right-4 h-12 w-12 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg border-4 border-white animate-bounce-slow">
               <CheckCircle2 className="h-6 w-6" />

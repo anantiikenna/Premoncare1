@@ -95,11 +95,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> with SingleTickerPr
         // Rate limit table may not exist yet — proceed with OTP anyway
       }
 
-      // Record the attempt (non-blocking)
-      try {
-        await supabase.rpc('record_otp_attempt', params: {'p_email': email});
-      } catch (_) {}
-
+      // OTP send — no client-side attempt recording (avoids lockout abuse)
       await supabase.auth.signInWithOtp(email: email, shouldCreateUser: false);
       if (mounted) {
         context.push(

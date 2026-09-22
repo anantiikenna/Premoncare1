@@ -179,14 +179,14 @@ class _NotificationControlPanelState
                     fillColor: AppColors.surfaceAltOf(context),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'all', child: Text\('All\ Users'\)),
+                    DropdownMenuItem(value: 'all', child: Text('All Users')),
                     DropdownMenuItem(
                       value: 'patient',
-                      child: Text\('Patients\ Only'\),
+                      child: Text('Patients Only'),
                     ),
                     DropdownMenuItem(
                       value: 'doctor',
-                      child: Text\('Doctors\ Only'\),
+                      child: Text('Doctors Only'),
                     ),
                   ],
                   onChanged: (v) {

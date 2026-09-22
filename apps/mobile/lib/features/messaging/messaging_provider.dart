@@ -75,7 +75,6 @@ final chatMessagesProvider = StreamProvider.autoDispose.family<List<Message>, St
   return supabase
       .from('messages')
       .stream(primaryKey: ['id'])
-      .eq('receiver_id', partnerId)
       .order('created_at', ascending: true)
       .map((data) => data
           .map((m) => Message.fromJson(m))
@@ -96,7 +95,6 @@ final conversationsProvider = StreamProvider.autoDispose<List<ChatContact>>((ref
   final messageStream = supabase
       .from('messages')
       .stream(primaryKey: ['id'])
-      .eq('sender_id', user.id)
       .order('created_at', ascending: false);
 
   await for (final data in messageStream) {

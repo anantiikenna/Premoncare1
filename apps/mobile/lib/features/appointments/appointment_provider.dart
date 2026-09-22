@@ -46,18 +46,54 @@ class Appointment {
       doctorAvatar: json['doctor']?['avatar_url'],
       specialty: json['doctor']?['specialty'],
       appointmentDate: DateTime.parse(json['appointment_date']),
-      status: AppointmentStatus.values.firstWhere(
-        (e) => e.name == json['status'],
-        orElse: () => AppointmentStatus.pending,
-      ),
+      status: _statusFromDb(json['status']),
       reason: json['reason'],
-      mode: ConsultationMode.values.firstWhere(
-        (e) => e.name == json['consultation_mode'],
-        orElse: () => ConsultationMode.text,
-      ),
+      mode: _modeFromDb(json['consultation_mode']),
       durationMinutes: json['duration_minutes'] ?? 15,
       meetingLink: json['meeting_link'],
     );
+  }
+
+  static AppointmentStatus _statusFromDb(String? raw) {
+    switch (raw) {
+      case 'emergency_request':
+        return AppointmentStatus.emergencyRequest;
+      case 'emergency_accepted':
+        return AppointmentStatus.emergencyAccepted;
+      case 'emergency_declined':
+        return AppointmentStatus.emergencyDeclined;
+      case 'in_progress':
+      case 'ongoing':
+        return AppointmentStatus.ongoing;
+      case 'pending':
+        return AppointmentStatus.pending;
+      case 'confirmed':
+        return AppointmentStatus.confirmed;
+      case 'completed':
+        return AppointmentStatus.completed;
+      case 'cancelled':
+      case 'canceled':
+        return AppointmentStatus.cancelled;
+      case 'rescheduled':
+        return AppointmentStatus.rescheduled;
+      default:
+        return AppointmentStatus.pending;
+    }
+  }
+
+  static ConsultationMode _modeFromDb(String? raw) {
+    switch (raw) {
+      case 'video':
+        return ConsultationMode.video;
+      case 'audio':
+        return ConsultationMode.audio;
+      case 'in_person':
+        return ConsultationMode.inPerson;
+      case 'text':
+        return ConsultationMode.text;
+      default:
+        return ConsultationMode.text;
+    }
   }
 }
 

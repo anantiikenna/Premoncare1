@@ -123,7 +123,7 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () => ref.invalidate(searchableDoctorsProvider),
-                  child: Text(AppLocalizations.of(context)!.retryLabel),
+                   child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),

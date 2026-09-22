@@ -62,7 +62,7 @@ export default async function PatientDetailsPage({ params }: { params: { id: str
                             <p className="text-slate-500 font-medium flex items-center gap-4">
                                 <span>ID: PAT-{patient.id.slice(0, 8)}</span>
                                 <span className="h-1 w-1 rounded-full bg-slate-300" />
-                                <span>{patient.blood_group || 'O+'} Positive</span>
+                                <span>{patient.blood_group || 'Not set'}</span>
                                 <span className="h-1 w-1 rounded-full bg-slate-300" />
                                 <span>{patient.weight || '72'}kg • {patient.height || '178'}cm</span>
                             </p>

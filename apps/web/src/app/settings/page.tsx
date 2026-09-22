@@ -217,12 +217,12 @@ export default function SettingsPrivacyPage() {
 
             <div className="bg-red-50 border border-red-100 rounded-2xl p-4">
               <p className="text-sm font-bold text-red-800 leading-relaxed">
-                You are about to permanently delete your account. This action is <span className="underline">irreversible</span> and all data will be lost forever.
+                You are about to deactivate your account. Your profile will be hidden immediately and permanently deleted after a <span className="underline">30-day grace period</span>.
               </p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-black text-slate-800">This will permanently delete:</p>
+              <p className="text-sm font-black text-slate-800">This will deactivate:</p>
               <ul className="space-y-2 mt-2">
                 <li className="flex items-start gap-3 text-sm text-slate-600">
                   <svg className="w-4 h-4 mt-0.5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>

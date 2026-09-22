@@ -130,7 +130,7 @@ export default async function MyPatientsPage() {
                             <CardContent className="p-8 pt-6 space-y-6">
                                 <div className="grid grid-cols-3 gap-4 border-y border-slate-50 py-4">
                                     <div className="text-center">
-                                        <p className="text-xs font-black text-slate-900">{patient.blood_group || 'O+'}</p>
+                                        <p className="text-xs font-black text-slate-900">{patient.blood_group || '—'}</p>
                                         <p className="text-[9px] font-bold text-slate-400 uppercase">Blood</p>
                                     </div>
                                     <div className="text-center border-x border-slate-50">

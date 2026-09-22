@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 import '../../l10n/app_localizations.dart';
 
 class ProposeFollowupDialog extends StatefulWidget {
-  const ProposeFollowupDialog({super.key});
+  final String? patientId;
+  final String? patientName;
+
+  const ProposeFollowupDialog({super.key, this.patientId, this.patientName});
 
   @override
   State<ProposeFollowupDialog> createState() => _ProposeFollowupDialogState();
@@ -14,6 +18,54 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 7));
   TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
   bool _isLoading = false;
+  String? _patientId;
+  String? _patientName;
+  List<Map<String, dynamic>> _patients = [];
+  bool _loadingPatients = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _patientId = widget.patientId;
+    _patientName = widget.patientName;
+    _loadPatients();
+  }
+
+  Future<void> _loadPatients() async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+      final data = await supabase
+          .from('appointments')
+          .select('patient_id, profiles!appointments_patient_id_fkey(id, full_name)')
+          .eq('doctor_id', user.id)
+          .order('created_at', ascending: false)
+          .limit(50);
+      final seen = <String>{};
+      final patients = <Map<String, dynamic>>[];
+      for (final row in data) {
+        final profile = row['profiles'];
+        if (profile is Map && profile['id'] != null) {
+          final id = profile['id'] as String;
+          if (seen.add(id)) {
+            patients.add({'id': id, 'full_name': profile['full_name'] ?? 'Patient'});
+          }
+        }
+      }
+      if (mounted) {
+        setState(() {
+          _patients = patients;
+          _loadingPatients = false;
+          if (_patientId == null && patients.isNotEmpty) {
+            _patientId = patients.first['id'] as String;
+            _patientName = patients.first['full_name'] as String;
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingPatients = false);
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -61,18 +113,51 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
       );
       return;
     }
+    if (_patientId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.selectPatient)),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-    
-    if (mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.followUpProposalSentSuccessfully),
-          backgroundColor: AppColors.success,
-        ),
-      );
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) throw Exception('Not signed in');
+      final profile = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
+      final doctorName = profile?['full_name'] ?? 'Doctor';
+      final dateStr = '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}';
+      final timeStr = _selectedTime.format(context);
+
+      await supabase.from('notifications').insert({
+        'user_id': _patientId,
+        'title': 'New Follow-up Proposal',
+        'message': 'Dr. $doctorName has proposed a follow-up session on $dateStr at $timeStr.',
+        'type': 'appointment_proposal',
+        'link': '/patient/appointments?propose=${user.id}&date=$dateStr&time=$timeStr',
+      });
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.followUpProposalSentSuccessfully),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$e'), backgroundColor: AppColors.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -118,21 +203,58 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
           
           Text(l10n.selectPatient, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 0.5)),
           const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderLightOf(context))),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 12,
-                  backgroundColor: AppColors.primary,
-                  child: Text('S', style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold, fontSize: 9)),
-                ),
-                const SizedBox(width: 12),
-                Text(l10n.sarahJohnsonToday, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context))),
-                const Spacer(),
-                Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textTertiaryOf(context), size: 20),
-              ],
+          InkWell(
+            onTap: _loadingPatients || _patients.isEmpty
+                ? null
+                : () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: AppColors.surfaceOf(context),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                      ),
+                      builder: (ctx) => ListView.builder(
+                        itemCount: _patients.length,
+                        itemBuilder: (_, i) {
+                          final p = _patients[i];
+                          return ListTile(
+                            title: Text(p['full_name'] as String),
+                            selected: p['id'] == _patientId,
+                            onTap: () {
+                              setState(() {
+                                _patientId = p['id'] as String;
+                                _patientName = p['full_name'] as String;
+                              });
+                              Navigator.pop(ctx);
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(color: AppColors.surfaceAltOf(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderLightOf(context))),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 12,
+                    backgroundColor: AppColors.primary,
+                    child: Text(
+                      (_patientName ?? '?').isNotEmpty ? (_patientName![0].toUpperCase()) : '?',
+                      style: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.bold, fontSize: 9),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _loadingPatients ? '...' : (_patientName ?? l10n.selectPatient),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryOf(context)),
+                    ),
+                  ),
+                  Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textTertiaryOf(context), size: 20),
+                ],
+              ),
             ),
           ),
           

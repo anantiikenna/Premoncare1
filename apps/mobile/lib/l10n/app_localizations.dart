@@ -315,11 +315,11 @@ abstract class AppLocalizations {
   /// **'VERIFY & FINALIZE'**
   String get verifyAndFinalize;
 
-  /// No description provided for @continue.
+  /// No description provided for @continueLabel.
   ///
   /// In en, this message translates to:
   /// **'CONTINUE'**
-  String get continue;
+  String get continueLabel;
 
   /// No description provided for @forgotPassword.
   ///

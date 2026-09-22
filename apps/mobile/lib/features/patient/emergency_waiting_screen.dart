@@ -217,7 +217,12 @@ class _EmergencyWaitingScreenState
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              context.go('/doctors/${widget.doctorId}');
+              context.go('/doctor-details', extra: {
+                'id': widget.doctorId,
+                'name': widget.doctorName,
+                'specialty': '',
+                'isEmergency': true,
+              });
             },
             child: Text(
               AppLocalizations.of(context)!.viewDoctor,
@@ -230,7 +235,7 @@ class _EmergencyWaitingScreenState
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              context.go('/patient/dashboard');
+              context.go('/patient_dashboard');
             },
             child: Text(
               AppLocalizations.of(context)!.goHome,
@@ -310,7 +315,7 @@ class _EmergencyWaitingScreenState
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => context.go('/patient/dashboard'),
+            onTap: () => context.go('/patient_dashboard'),
             child: Container(
               width: 44,
               height: 44,

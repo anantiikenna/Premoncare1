@@ -146,7 +146,7 @@ class _AdminScaffoldState extends ConsumerState<AdminScaffold> {
             ListTile(
               leading: const Icon(Icons.logout_rounded, color: AppColors.error),
               title: Text(
-                AppLocalizations.of(context)!.logoutLabel,
+                AppLocalizations.of(context)!.logout,
                 style: const TextStyle(
                   color: AppColors.error,
                   fontWeight: FontWeight.bold,

@@ -253,7 +253,7 @@ class _AskDoctorScreenState extends ConsumerState<AskDoctorScreen> {
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () => context.push('/forum/create'),
-                    child: const Text\('Ask\ the\ First\ Question'\),
+                    child: const Text('Ask the First Question'),
                   ),
                 ],
               ),

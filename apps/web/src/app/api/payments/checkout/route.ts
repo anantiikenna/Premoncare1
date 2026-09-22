@@ -6,7 +6,7 @@ import { z } from 'zod'
 export const dynamic = 'force-dynamic'
 
 const checkoutSchema = z.object({
-  amount: z.number().positive(),
+  amount: z.number().positive().max(5_000_000),
   // userId is discarded from body, explicitly read from secure session
 })
 

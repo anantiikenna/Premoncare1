@@ -37,7 +37,7 @@
   "ndaDescription": "To safeguard diagnostic confidentiality, you enter into a binding reciprocal NDA. You agree not to record, screenshot, or distribute consultations or messages.",
   "termsAcknowledgment": "I acknowledge the Terms & Conditions, HIPAA Privacy Policy, and Non-Disclosure Agreement (NDA)",
   "verifyAndFinalize": "VERIFY & FINALIZE",
-  "continue": "CONTINUE",
+  "continueLabel": "CONTINUE",
   "forgotPassword": "Forgot Password?",
   "forgotPasswordDescription": "No worries! Enter your email address and we'll send you a link to reset your password.",
   "emailAddress": "Email Address",
