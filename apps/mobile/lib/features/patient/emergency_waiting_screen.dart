@@ -145,7 +145,11 @@ class _EmergencyWaitingScreenState
       _showDeclinedDialog();
     } else if (status == 'ongoing' || paymentStatus == 'completed') {
       _navigated = true;
-      context.go('/consultation/active/${widget.appointmentId}');
+      context.go('/consultation/${widget.appointmentId}', extra: {
+        'doctorName': widget.doctorName,
+        'specialty': null,
+        'durationMinutes': widget.durationMinutes,
+      });
     }
   }
 

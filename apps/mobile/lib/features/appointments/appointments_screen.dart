@@ -208,7 +208,8 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
     final now = DateTime.now().toUtc();
     final appointmentTime = appointment.appointmentDate.toUtc();
     final isPast = appointmentTime.isBefore(now);
-    final isJoinable = isConfirmed && appointmentTime.isBefore(now.add(const Duration(minutes: 30)));
+    final isRejoinable = appointment.status == AppointmentStatus.ongoing || appointment.status == AppointmentStatus.emergencyAccepted;
+    final isJoinable = isRejoinable || (isConfirmed && appointmentTime.isBefore(now.add(const Duration(minutes: 30))));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),

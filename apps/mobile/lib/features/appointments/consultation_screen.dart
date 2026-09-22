@@ -26,27 +26,73 @@ class ConsultationScreen extends ConsumerStatefulWidget {
   ConsumerState<ConsultationScreen> createState() => _ConsultationScreenState();
 }
 
-class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
+class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
+    with WidgetsBindingObserver {
   final _jitsiMeet = JitsiMeet();
   bool _isLoading = true;
   bool _isInMeeting = false;
   bool _meetingJoined = false;
+  bool _ended = false;
   bool _isMuted = false;
   bool _isVideoOff = false;
+  bool _isSharingScreen = false;
   int _elapsedSeconds = 0;
   Timer? _timer;
+  String? _otherParticipantName;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _joinMeeting();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
-    if (_meetingJoined) _jitsiMeet.hangUp();
+    if (_meetingJoined && !_ended) _jitsiMeet.hangUp();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Jitsi native SDK handles background/foreground automatically.
+  }
+
+  /// Verifies the current user is actually the patient or doctor of this
+  /// appointment before joining the room (IDOR / unauthorized-join guard).
+  Future<bool> _verifyOwnership() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      final row = await supabase
+          .from('appointments')
+          .select('id, patient_id, doctor_id, status')
+          .eq('id', widget.appointmentId)
+          .maybeSingle();
+
+      if (row == null) return false;
+      if (row['patient_id'] != user.id && row['doctor_id'] != user.id) {
+        return false;
+      }
+
+      final status = row['status'] as String?;
+      // Only allow joining for actionable states
+      const allowed = {
+        'confirmed',
+        'rescheduled',
+        'ongoing',
+        'emergency_accepted',
+        'pending',
+      };
+      return allowed.contains(status);
+    } catch (e) {
+      if (kDebugMode) debugPrint('Ownership check failed: $e');
+      return false;
+    }
   }
 
   Future<void> _joinMeeting() async {
@@ -54,6 +100,35 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
     if (user == null) {
       if (mounted) context.pop();
       return;
+    }
+
+    final owned = await _verifyOwnership();
+    if (!owned) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You are not authorized to join this consultation.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Display name: profile full name (never expose email — PII)
+    String displayName = 'Participant';
+    try {
+      final profile = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
+      final fullName = profile?['full_name'] as String?;
+      if (fullName != null && fullName.trim().isNotEmpty) {
+        displayName = fullName.trim();
+      }
+    } catch (_) {
+      // fall back
     }
 
     final roomName = 'PremonCare-${widget.appointmentId}';
@@ -66,46 +141,65 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
         'startWithVideoMuted': false,
         'disableModeratorIndicator': true,
         'enableEmailInStats': false,
+        // Prevent others from inviting more participants (closed room)
+        'disableDeepLinking': true,
       },
       userInfo: JitsiMeetUserInfo(
-        displayName: user.email ?? 'Patient',
+        displayName: displayName,
       ),
     );
 
     final listener = JitsiMeetEventListener(
       conferenceJoined: (url) {
-        if (mounted) {
-          setState(() {
-            _meetingJoined = true;
-            _isLoading = false;
-            _isInMeeting = true;
-          });
-          _startTimer();
-          _updateAppointmentStatus('ongoing');
-        }
+        if (!mounted || _ended) return;
+        setState(() {
+          _meetingJoined = true;
+          _isLoading = false;
+          _isInMeeting = true;
+        });
+        _startTimer();
+        _updateAppointmentStatus('ongoing');
       },
       conferenceTerminated: (url, error) {
-        if (mounted && (error == null || error.toString().isEmpty)) {
+        if (!mounted || _ended) return;
+        if (error == null || error.toString().isEmpty) {
           _endCall();
+        } else {
+          // Termination due to error: stop timer but do NOT mark completed
+          _timer?.cancel();
+          setState(() {
+            _meetingJoined = false;
+            _isInMeeting = false;
+            _isLoading = false;
+          });
+          if (kDebugMode) debugPrint('Conference terminated with error: $error');
         }
       },
       audioMutedChanged: (muted) {
-        if (mounted) setState(() => _isMuted = muted);
+        if (mounted && !_ended) setState(() => _isMuted = muted);
       },
       videoMutedChanged: (muted) {
-        if (mounted) setState(() => _isVideoOff = muted);
+        if (mounted && !_ended) setState(() => _isVideoOff = muted);
       },
-      participantJoined: (email, name, role, participantId) {},
-      participantLeft: (participantId) {},
+      participantJoined: (email, name, role, participantId) {
+        if (mounted && !_ended) {
+          setState(() => _otherParticipantName = name);
+        }
+      },
+      participantLeft: (participantId) {
+        if (mounted && !_ended) {
+          setState(() => _otherParticipantName = null);
+        }
+      },
       readyToClose: () {
-        if (mounted) _endCall();
+        if (mounted && !_ended) _endCall();
       },
     );
 
     try {
       await _jitsiMeet.join(options, listener);
     } catch (e) {
-      if (mounted) {
+      if (mounted && !_ended) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to join meeting: $e')),
@@ -115,9 +209,12 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
   }
 
   void _startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
+      if (mounted && !_ended) {
         setState(() => _elapsedSeconds++);
+      } else {
+        timer.cancel();
       }
     });
   }
@@ -129,15 +226,52 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
   }
 
   void _endCall() {
+    if (_ended) return;
+    _ended = true;
     _timer?.cancel();
     if (_meetingJoined) _jitsiMeet.hangUp();
+    _meetingJoined = false;
+
     _updateAppointmentStatus('completed');
+    _persistDuration();
+
     if (mounted) {
-      context.go('/consultation-summary/${widget.appointmentId}', extra: {
-        'doctorName': widget.doctorName,
-        'doctorSpecialty': widget.specialty,
-      });
+      _navigateToSummary();
     }
+  }
+
+  /// Exit without touching appointment status (used by error/back paths
+  /// when no actual consultation occurred).
+  void _exitWithoutCompleting() {
+    if (_ended) return;
+    _ended = true;
+    _timer?.cancel();
+    if (_meetingJoined) _jitsiMeet.hangUp();
+    _meetingJoined = false;
+    if (mounted) context.pop();
+  }
+
+  Future<void> _navigateToSummary() async {
+    String? doctorId;
+    num fee = 0;
+    try {
+      final row = await supabase
+          .from('appointments')
+          .select('doctor_id, total_amount')
+          .eq('id', widget.appointmentId)
+          .maybeSingle();
+      doctorId = row?['doctor_id'] as String?;
+      fee = (row?['total_amount'] as num?) ?? 0;
+    } catch (_) {
+      // proceed with defaults
+    }
+    if (!mounted) return;
+    context.go('/consultation-summary/${widget.appointmentId}', extra: {
+      'doctorName': widget.doctorName,
+      'doctorId': doctorId,
+      'fee': fee,
+      'durationMinutes': widget.durationMinutes,
+    });
   }
 
   Future<void> _updateAppointmentStatus(String status) async {
@@ -151,12 +285,31 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
     }
   }
 
+  Future<void> _persistDuration() async {
+    if (_elapsedSeconds <= 0) return;
+    try {
+      final minutes = (_elapsedSeconds / 60).ceil();
+      await supabase
+          .from('appointments')
+          .update({'duration_minutes': minutes})
+          .eq('id', widget.appointmentId);
+    } catch (e) {
+      if (kDebugMode) debugPrint('Failed to persist duration: $e');
+    }
+  }
+
   void _toggleMute() {
     _jitsiMeet.setAudioMuted(!_isMuted);
   }
 
   void _toggleVideo() {
     _jitsiMeet.setVideoMuted(!_isVideoOff);
+  }
+
+  void _toggleScreenShare() {
+    _isSharingScreen = !_isSharingScreen;
+    _jitsiMeet.toggleScreenShare(_isSharingScreen);
+    setState(() {});
   }
 
   @override
@@ -170,7 +323,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
               backgroundColor: AppColors.surfaceOf(context),
               leading: IconButton(
                 icon: Icon(Icons.arrow_back_rounded, color: color),
-                onPressed: () => _endCall(),
+                onPressed: _endCall,
               ),
               title: Column(
                 children: [
@@ -184,7 +337,8 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
                       Icon(Icons.lock_rounded, color: AppColors.success, size: 12),
                       const SizedBox(width: 4),
                       Text(
-                        'End-to-end encrypted',
+                        // TLS-encrypted in transit (NOT end-to-end)
+                        'Encrypted connection',
                         style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 10),
                       ),
                     ],
@@ -242,6 +396,28 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
       child: Column(
         children: [
           const Spacer(),
+          if (_otherParticipantName != null) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.success.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.person_rounded, color: AppColors.success, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$_otherParticipantName joined',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.success),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
@@ -302,11 +478,10 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
                 },
               ),
               _ControlButton(
-                icon: Icons.screen_share_rounded,
-                label: 'Share',
-                onTap: () {
-                  _jitsiMeet.toggleScreenShare(true);
-                },
+                icon: _isSharingScreen ? Icons.stop_screen_share_rounded : Icons.screen_share_rounded,
+                label: _isSharingScreen ? 'Stop Share' : 'Share',
+                isActive: _isSharingScreen,
+                onTap: _toggleScreenShare,
               ),
             ],
           ),
@@ -342,7 +517,10 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              setState(() => _isLoading = true);
+              setState(() {
+                _isLoading = true;
+                _ended = false;
+              });
               _joinMeeting();
             },
             style: ElevatedButton.styleFrom(
@@ -354,7 +532,8 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen> {
           ),
           const SizedBox(height: 12),
           TextButton(
-            onPressed: _endCall,
+            // Do NOT mark appointment completed — no call occurred
+            onPressed: _exitWithoutCompleting,
             child: const Text('Go Back', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
           ),
         ],

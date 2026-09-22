@@ -523,7 +523,7 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
                                                             </DialogContent>
                                                         </Dialog>
                                                     </>
-                                                ) : apt.status === 'confirmed' || apt.status === 'rescheduled' ? (
+                                                ) : apt.status === 'confirmed' || apt.status === 'rescheduled' || apt.status === 'ongoing' || apt.status === 'emergency_accepted' ? (
                                                     <Button 
                                                         className="w-full md:w-40 h-10 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20"
                                                         onClick={() => startMeeting(apt)}

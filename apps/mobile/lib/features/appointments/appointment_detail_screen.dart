@@ -58,7 +58,11 @@ class AppointmentDetailScreen extends ConsumerWidget {
                             const SizedBox(height: 32),
                             _buildSectionTitle(context, 'CLINICAL ACTIONS'),
                             const SizedBox(height: 16),
-                            if (appointment.status == AppointmentStatus.confirmed && appointment.mode == ConsultationMode.video) _VideoCallAction(appointment: appointment),
+                            if ((appointment.status == AppointmentStatus.confirmed ||
+                                    appointment.status == AppointmentStatus.rescheduled ||
+                                    appointment.status == AppointmentStatus.ongoing ||
+                                    appointment.status == AppointmentStatus.emergencyAccepted) &&
+                                appointment.mode == ConsultationMode.video) _VideoCallAction(appointment: appointment),
                             const SizedBox(height: 16),
                             if (appointment.status == AppointmentStatus.pending || appointment.status == AppointmentStatus.confirmed || appointment.status == AppointmentStatus.rescheduled) _RescheduleAction(appointment: appointment),
                             const SizedBox(height: 16),

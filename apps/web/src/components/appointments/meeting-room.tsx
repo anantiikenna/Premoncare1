@@ -20,9 +20,17 @@ interface MeetingRoomProps {
 export function MeetingRoom({ roomName, userName, appointmentId, onClose }: MeetingRoomProps) {
   const jitsiContainerRef = useRef<HTMLDivElement>(null)
   const apiRef = useRef<any>(null)
+  const statusUpdatedRef = useRef(false)
   const [loading, setLoading] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Keep onClose in a ref so effect deps never change when parent re-renders
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   const updateAppointmentStatus = useCallback(async (status: string) => {
     if (!appointmentId) return
@@ -37,12 +45,19 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
     }
   }, [appointmentId])
 
+  const endMeeting = useCallback(async () => {
+    if (statusUpdatedRef.current) return
+    statusUpdatedRef.current = true
+    await updateAppointmentStatus('completed')
+    onCloseRef.current()
+  }, [updateAppointmentStatus])
+
   useEffect(() => {
-    const script = document.createElement('script')
-    script.src = 'https://8x8.vc/vpaas-magic-cookie-8ae09756b1f44059929e7161b9bd1031/external_api.js'
-    script.async = true
-    script.onload = () => {
-      if (jitsiContainerRef.current) {
+    // Guard: don't re-init if API already attached to this container
+    const initMeeting = () => {
+      if (!jitsiContainerRef.current || apiRef.current) return
+
+      try {
         const options = {
           roomName: `PremonCare-${roomName}`,
           width: '100%',
@@ -56,7 +71,8 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
             startWithVideoMuted: false,
             disableModeratorIndicator: true,
             startScreenSharing: false,
-            enableEmailInStats: false
+            enableEmailInStats: false,
+            disableDeepLinking: true
           },
           interfaceConfigOverwrite: {
             TOOLBAR_BUTTONS: [
@@ -77,19 +93,43 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
 
         jitsiApi.addEventListeners({
           readyToClose: () => {
-            updateAppointmentStatus('completed')
-            onClose()
+            endMeeting()
           },
           videoConferenceLeft: () => {
-            updateAppointmentStatus('completed')
-            onClose()
+            endMeeting()
+          },
+          conferenceJoined: () => {
+            // Only mark ongoing after the conference actually joins
+            if (!statusUpdatedRef.current) {
+              updateAppointmentStatus('ongoing')
+            }
           },
           audioMuteStatusChanged: (e: any) => setIsMuted(e.muted),
           videoMuteStatusChanged: (e: any) => setIsVideoOff(e.muted)
         })
-
-        updateAppointmentStatus('ongoing')
+      } catch (e) {
+        setError('Failed to initialize meeting room.')
+        setLoading(false)
       }
+    }
+
+    if (window.JitsiMeetExternalAPI) {
+      initMeeting()
+      return () => {
+        if (apiRef.current) {
+          apiRef.current.dispose()
+          apiRef.current = null
+        }
+      }
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://8x8.vc/vpaas-magic-cookie-8ae09756b1f44059929e7161b9bd1031/external_api.js'
+    script.async = true
+    script.onload = initMeeting
+    script.onerror = () => {
+      setError('Failed to load video SDK. Check your connection.')
+      setLoading(false)
     }
     document.body.appendChild(script)
 
@@ -102,24 +142,34 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
         script.parentNode.removeChild(script)
       }
     }
-  }, [roomName, userName, onClose, updateAppointmentStatus])
+  }, [roomName, userName, updateAppointmentStatus, endMeeting])
 
   return (
     <div className="relative w-full h-full bg-zinc-950 flex flex-col">
       {loading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-zinc-950 text-white gap-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="text-zinc-400 font-medium">Initializing encrypted room...</p>
+          <p className="text-zinc-400 font-medium">Initializing secure room...</p>
         </div>
       )}
-      
+
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-zinc-950 text-white gap-4">
+          <p className="text-red-400 font-medium">{error}</p>
+          <button
+            onClick={() => onCloseRef.current()}
+            className="px-6 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold"
+          >
+            Close
+          </button>
+        </div>
+      )}
+
       <div ref={jitsiContainerRef} className="flex-1 w-full h-full" />
 
-      {/* Custom Overlay Controls (Optional, as Jitsi has its own) */}
-      {!loading && (
+      {!loading && !error && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-3 bg-zinc-900/80 backdrop-blur-md rounded-full border border-zinc-800 shadow-2xl z-20 pointer-events-none opacity-0 hover:opacity-100 transition-opacity">
-            {/* These would be mirror controls if we wanted to sync them, but Jitsi's UI is usually sufficient */}
-            <span className="text-[10px] text-zinc-500 font-mono">SECURE CONNECTION</span>
+            <span className="text-[10px] text-zinc-500 font-mono">ENCRYPTED CONNECTION</span>
         </div>
       )}
     </div>

@@ -358,7 +358,9 @@ class _ConsultationsTab extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(color: AppColors.surfaceOf(context), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.borderLightOf(context))),
-      child: Row(
+      child: Column(
+        children: [
+          Row(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -398,8 +400,55 @@ class _ConsultationsTab extends ConsumerWidget {
             ),
           ),
         ],
+          ),
+          if (_canJoinVideo(appt)) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton.icon(
+                onPressed: () => _joinVideoCall(context, appt),
+                icon: const Icon(Icons.videocam_rounded, size: 18),
+                label: Text(l10n.joinClinicalSessionButton, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.textInverse,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
+  }
+
+  bool _canJoinVideo(Map<String, dynamic> appt) {
+    final status = appt['status'] as String?;
+    final mode = appt['consultation_mode'] as String?;
+    if (mode != 'video') return false;
+    return status == 'confirmed' || status == 'rescheduled' || status == 'ongoing' || status == 'emergency_accepted';
+  }
+
+  Future<void> _joinVideoCall(BuildContext context, Map<String, dynamic> appt) async {
+    final apptId = appt['id'] as String?;
+    if (apptId == null) return;
+    String patientLabel = 'Patient';
+    try {
+      final profile = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', patientId)
+          .maybeSingle();
+      final name = profile?['full_name'] as String?;
+      if (name != null && name.trim().isNotEmpty) patientLabel = name.trim();
+    } catch (_) {}
+    if (!context.mounted) return;
+    context.push('/consultation/$apptId', extra: {
+      'doctorName': patientLabel,
+      'specialty': null,
+      'durationMinutes': appt['duration_minutes'] as int?,
+    });
   }
 }
 

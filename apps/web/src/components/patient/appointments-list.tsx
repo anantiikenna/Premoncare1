@@ -142,9 +142,9 @@ export function PatientAppointmentsList({ userId }: { userId: string }) {
                                     </p>
                                 </CardContent>
                                 <CardFooter className="p-6 pt-2">
-                                    {apt.status === 'confirmed' ? (
+                                    {apt.status === 'confirmed' || apt.status === 'rescheduled' || apt.status === 'ongoing' || apt.status === 'emergency_accepted' ? (
                                         <Button className="w-full h-12 rounded-2xl gap-3 font-black uppercase tracking-widest text-[10px] bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20" onClick={() => setMeetingApt(apt)}>
-                                            <Video className="h-4 w-4" /> Enter Meeting Room
+                                            <Video className="h-4 w-4" /> {apt.status === 'ongoing' ? 'Rejoin Meeting Room' : 'Enter Meeting Room'}
                                         </Button>
                                     ) : (
                                         <Button variant="outline" className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] border-primary/20 text-primary hover:bg-primary/5" disabled>
