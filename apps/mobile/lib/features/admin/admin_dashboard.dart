@@ -8,6 +8,7 @@ import '../../core/app_typography.dart';
 import 'admin_avatar.dart';
 import 'admin_charts_widget.dart';
 import 'admin_shared_widgets.dart';
+import 'admin_scaffold.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
@@ -21,13 +22,15 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   Widget build(BuildContext context) {
     final statsAsync = ref.watch(adminStatsProvider);
 
-    return statsAsync.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(children: [SizedBox(height: 24), AdminStatsSkeleton()]),
-      ),
-      error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingDashboard(e))),
-      data: (stats) => Stack(
+    return AdminScaffold(
+      selectedIndex: 0,
+      body: statsAsync.when(
+        loading: () => const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(children: [SizedBox(height: 24), AdminStatsSkeleton()]),
+        ),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingDashboard(e))),
+        data: (stats) => Stack(
         children: [
           Positioned(
             top: -150,
@@ -98,6 +101,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

@@ -60,6 +60,21 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
       }
     } catch (e) {
       if (kDebugMode) debugPrint('Error fetching doctor profile: $e');
+      // Fallback: try auth metadata if profile fetch fails
+      if (mounted) {
+        final user = supabase.auth.currentUser;
+        final metaName = user?.userMetadata?['full_name'] as String?;
+        final email = user?.email;
+        if (metaName != null || email != null) {
+          setState(() {
+            _profileData = {
+              'full_name': metaName ?? email?.split('@').first ?? 'Doctor',
+              'title': 'Dr.',
+              'is_online': false,
+            };
+          });
+        }
+      }
     }
   }
 
@@ -228,9 +243,18 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
   }
 
   Widget _buildHeader() {
+    final user = supabase.auth.currentUser;
+    var fullName = _profileData?['full_name'] as String?;
+    if (fullName == null || fullName.isEmpty) {
+      fullName = user?.userMetadata?['full_name'] as String?;
+    }
+    if (fullName == null || fullName.isEmpty) {
+      fullName = user?.email?.split('@').first;
+    }
+
     final doctorName = formatDoctorName(
       _profileData?['title'] as String?,
-      _profileData?['full_name'] as String?,
+      fullName,
     );
 
     return Row(

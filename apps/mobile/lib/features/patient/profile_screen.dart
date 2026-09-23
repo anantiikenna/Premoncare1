@@ -45,8 +45,10 @@ class ProfileScreen extends ConsumerWidget {
                   _buildHeader(context),
                   const SizedBox(height: 32),
                   _buildUserCard(context, email, userProfile.asData?.value),
-                  const SizedBox(height: 32),
-                  _buildAccountModeSwitcher(context, userProfile.asData?.value),
+                  if (userProfile.asData?.value?['verification_status'] == 'approved') ...[
+                    const SizedBox(height: 32),
+                    _buildAccountModeSwitcher(context),
+                  ],
                   const SizedBox(height: 32),
                   _buildStatsGrid(context, ref),
                   const SizedBox(height: 32),
@@ -157,8 +159,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAccountModeSwitcher(BuildContext context, Map<String, dynamic>? profile) {
-    final bool isVerified = profile?['verification_status'] == 'approved';
+  Widget _buildAccountModeSwitcher(BuildContext context) {
     final String currentPath = GoRouterState.of(context).matchedLocation;
     final bool isDoctorMode = currentPath.startsWith('/doctor');
 
@@ -170,58 +171,40 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.sync_rounded, color: AppColors.textInverse, size: 18),
+              Icon(Icons.sync_rounded, color: AppColors.textSecondaryOf(context), size: 18),
               const SizedBox(width: 12),
-              Text(AppLocalizations.of(context)!.unifiedAccount, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+              Text(AppLocalizations.of(context)!.unifiedAccount, style: TextStyle(color: AppColors.textSecondaryOf(context), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             ],
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _buildModeTab(AppLocalizations.of(context)!.patientMode, Icons.person_rounded, !isDoctorMode, isDoctorMode ? () => _showModeSwitchDialog(context, 'Patient') : () {})),
+              Expanded(child: _buildModeTab(context, AppLocalizations.of(context)!.patientMode, Icons.person_rounded, !isDoctorMode, isDoctorMode ? () => _showModeSwitchDialog(context, 'Patient') : () {})),
               const SizedBox(width: 12),
-              Expanded(child: _buildModeTab(AppLocalizations.of(context)!.doctorMode, Icons.medical_services_rounded, isDoctorMode, !isDoctorMode ? (isVerified ? () => _showModeSwitchDialog(context, 'Doctor') : null) : () {})),
+              Expanded(child: _buildModeTab(context, AppLocalizations.of(context)!.doctorMode, Icons.medical_services_rounded, isDoctorMode, !isDoctorMode ? () => _showModeSwitchDialog(context, 'Doctor') : () {})),
             ],
           ),
-          if (!isVerified) ...[
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () => context.push('/verify-practitioner'),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.textInverse.withValues(alpha: 0.1))),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textInverse),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(AppLocalizations.of(context)!.completeVerificationPractitioner, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w600))),
-                    const Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.textInverse),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 
-  Widget _buildModeTab(String label, IconData icon, bool isActive, VoidCallback? onTap) {
+  Widget _buildModeTab(BuildContext context, String label, IconData icon, bool isActive, VoidCallback? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : AppColors.textInverse.withValues(alpha: 0.05),
+          color: isActive ? AppColors.primary : AppColors.surfaceAltOf(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isActive ? AppColors.primary : AppColors.textInverse.withValues(alpha: 0.1)),
+          border: Border.all(color: isActive ? AppColors.primary : AppColors.borderOf(context)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: AppColors.textInverse, size: 18),
+            Icon(icon, color: isActive ? AppColors.textInverse : AppColors.textSecondaryOf(context), size: 18),
             const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: AppColors.textInverse, fontSize: 13, fontWeight: FontWeight.w800)),
+            Text(label, style: TextStyle(color: isActive ? AppColors.textInverse : AppColors.textPrimaryOf(context), fontSize: 13, fontWeight: FontWeight.w800)),
           ],
         ),
       ),
