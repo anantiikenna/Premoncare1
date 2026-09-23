@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -27,7 +28,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clinicalEmailAddress => 'Clinical Email Address';
 
   @override
-  String get otpLoginDescription => 'We\'ll send a seven digit one-time code to your email to log you in securely.';
+  String get otpLoginDescription =>
+      'We\'ll send a seven digit one-time code to your email to log you in securely.';
 
   @override
   String get sendOtpCode => 'SEND OTP CODE';
@@ -42,10 +44,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get apple => 'APPLE';
 
   @override
-  String get googleSignInUnavailable => 'Google Sign-In will be available in the next update. Use email sign-in to continue.';
+  String get googleSignInUnavailable =>
+      'Google Sign-In will be available in the next update. Use email sign-in to continue.';
 
   @override
-  String get appleSignInUnavailable => 'Apple Sign-In will be available in the next update. Use email sign-in to continue.';
+  String get appleSignInUnavailable =>
+      'Apple Sign-In will be available in the next update. Use email sign-in to continue.';
 
   @override
   String get noClinicalAccount => 'NO CLINICAL ACCOUNT? ';
@@ -54,19 +58,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccess => 'CREATE ACCESS';
 
   @override
-  String get hipaaCompliantAesEncrypted => 'HIPAA COMPLIANT & AES-256 ENCRYPTED';
+  String get hipaaCompliantAesEncrypted =>
+      'HIPAA COMPLIANT & AES-256 ENCRYPTED';
 
   @override
   String get pleaseEnterEmail => 'Please enter your email address';
 
   @override
-  String get noAccountFound => 'No account found with this email. Please sign up first.';
+  String get noAccountFound =>
+      'No account found with this email. Please sign up first.';
 
   @override
-  String get tooManyFailedAttempts => 'Too many failed attempts. Please try again later.';
+  String get tooManyFailedAttempts =>
+      'Too many failed attempts. Please try again later.';
 
   @override
-  String get otpSendFailed => 'We could not send the verification code. Please try again.';
+  String get otpSendFailed =>
+      'We could not send the verification code. Please try again.';
 
   @override
   String get clinicalIdentity => 'CLINICAL IDENTITY';
@@ -75,7 +83,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourIdentity => 'Your Identity';
 
   @override
-  String get joinEcosystemDescription => 'Join the Premoncare ecosystem and access\nworld-class clinical specialists.';
+  String get joinEcosystemDescription =>
+      'Join the Premoncare ecosystem and access\nworld-class clinical specialists.';
 
   @override
   String get fullLegalName => 'Full Legal Name';
@@ -84,7 +93,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneNumberOptional => 'Phone Number (optional)';
 
   @override
-  String get verificationCodeInfo => 'We will send a seven digit verification code to your email. No password required.';
+  String get verificationCodeInfo =>
+      'We will send a seven digit verification code to your email. No password required.';
 
   @override
   String get legalFramework => 'LEGAL FRAMEWORK';
@@ -93,28 +103,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ourTerms => 'Our Terms';
 
   @override
-  String get reviewTermsDescription => 'Review our clinical commitments and data\nsecurity protocols before proceeding.';
+  String get reviewTermsDescription =>
+      'Review our clinical commitments and data\nsecurity protocols before proceeding.';
 
   @override
   String get termsTitle => '1. Terms & Clinical Quality';
 
   @override
-  String get termsDescription => 'By using Premoncare, you agree to supply correct clinical histories and behave respectfully during telehealth appointments.';
+  String get termsDescription =>
+      'By using Premoncare, you agree to supply correct clinical histories and behave respectfully during telehealth appointments.';
 
   @override
   String get hipaaTitle => '2. HIPAA Data Privacy';
 
   @override
-  String get hipaaDescription => 'Your clinical records are AES-256 encrypted. We strictly follow HIPAA rules and never share medical data without explicit consent.';
+  String get hipaaDescription =>
+      'Your clinical records are AES-256 encrypted. We strictly follow HIPAA rules and never share medical data without explicit consent.';
 
   @override
   String get ndaTitle => '3. Reciprocal NDA Agreement';
 
   @override
-  String get ndaDescription => 'To safeguard diagnostic confidentiality, you enter into a binding reciprocal NDA. You agree not to record, screenshot, or distribute consultations or messages.';
+  String get ndaDescription =>
+      'To safeguard diagnostic confidentiality, you enter into a binding reciprocal NDA. You agree not to record, screenshot, or distribute consultations or messages.';
 
   @override
-  String get termsAcknowledgment => 'I acknowledge the Terms & Conditions, HIPAA Privacy Policy, and Non-Disclosure Agreement (NDA)';
+  String get termsAcknowledgment =>
+      'I acknowledge the Terms & Conditions, HIPAA Privacy Policy, and Non-Disclosure Agreement (NDA)';
 
   @override
   String get verifyAndFinalize => 'VERIFY & FINALIZE';
@@ -126,7 +141,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPassword => 'Forgot Password?';
 
   @override
-  String get forgotPasswordDescription => 'No worries! Enter your email address and we\'ll send you a link to reset your password.';
+  String get forgotPasswordDescription =>
+      'No worries! Enter your email address and we\'ll send you a link to reset your password.';
 
   @override
   String get emailAddress => 'Email Address';
@@ -138,7 +154,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourSecurityImportant => 'Your security is important to us';
 
   @override
-  String get secureResetLinkDescription => 'We\'ll send a secure password reset link to your email address.';
+  String get secureResetLinkDescription =>
+      'We\'ll send a secure password reset link to your email address.';
 
   @override
   String get sendResetLink => 'Send Reset Link';
@@ -153,13 +170,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetWithPhoneNumber => 'Reset with Phone Number';
 
   @override
-  String get phoneResetUnavailable => 'Phone number reset will be available in a future update. Use email reset for now.';
+  String get phoneResetUnavailable =>
+      'Phone number reset will be available in a future update. Use email reset for now.';
 
   @override
   String get backToSignIn => 'Back to Sign In';
 
   @override
-  String get informationSecureEncrypted => 'Your information is secure and encrypted';
+  String get informationSecureEncrypted =>
+      'Your information is secure and encrypted';
 
   @override
   String get emergencyCare => 'EMERGENCY CARE';
@@ -171,7 +190,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetPassword => 'Reset Password';
 
   @override
-  String get createNewPasswordDescription => 'Create a new password to secure your account.';
+  String get createNewPasswordDescription =>
+      'Create a new password to secure your account.';
 
   @override
   String get newPassword => 'New Password';
@@ -201,7 +221,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordsDoNotMatch => 'Passwords do not match.';
 
   @override
-  String get passwordRequirementsNotMet => 'Please meet all password requirements before continuing.';
+  String get passwordRequirementsNotMet =>
+      'Please meet all password requirements before continuing.';
 
   @override
   String get resetting => 'Resetting...';
@@ -210,19 +231,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get makePasswordStrong => 'Make sure your password is strong';
 
   @override
-  String get strongPasswordDescription => 'A strong password keeps your account safe and protects your personal data.';
+  String get strongPasswordDescription =>
+      'A strong password keeps your account safe and protects your personal data.';
 
   @override
   String get passwordResetSuccess => 'Password Reset!';
 
   @override
-  String get passwordResetDescription => 'Your password has been successfully\nreset. You can now sign in with your\nnew password.';
+  String get passwordResetDescription =>
+      'Your password has been successfully\nreset. You can now sign in with your\nnew password.';
 
   @override
   String get accountSecure => 'Your account is secure';
 
   @override
-  String get confirmationEmailSent => 'We\'ve sent a confirmation email to your inbox.';
+  String get confirmationEmailSent =>
+      'We\'ve sent a confirmation email to your inbox.';
 
   @override
   String get goToSignIn => 'Go to Sign In';
@@ -246,10 +270,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetEmailResent => 'Reset email resent';
 
   @override
-  String get resetLinkSentCheckInbox => 'Reset link sent! Check your email inbox.';
+  String get resetLinkSentCheckInbox =>
+      'Reset link sent! Check your email inbox.';
 
   @override
-  String get couldNotSendResetLink => 'We could not send the reset link. Please try again.';
+  String get couldNotSendResetLink =>
+      'We could not send the reset link. Please try again.';
 
   @override
   String get identityVerification => 'IDENTITY VERIFICATION';
@@ -264,7 +290,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit => 'EDIT';
 
   @override
-  String get securityProtocol => 'SECURITY PROTOCOL: Do not disclose this clinical access code to any third party.';
+  String get securityProtocol =>
+      'SECURITY PROTOCOL: Do not disclose this clinical access code to any third party.';
 
   @override
   String get verifying => 'VERIFYING...';
@@ -273,7 +300,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authorizeAndContinue => 'AUTHORIZE & CONTINUE';
 
   @override
-  String get encryptedClinicalAuth => '256-BIT ENCRYPTED CLINICAL AUTHENTICATION';
+  String get encryptedClinicalAuth =>
+      '256-BIT ENCRYPTED CLINICAL AUTHENTICATION';
 
   @override
   String get expiresIn => 'EXPIRES IN';
@@ -288,7 +316,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newVerificationCodeSent => 'A new verification code has been sent';
 
   @override
-  String get resendFailed => 'We could not resend the code. Please wait a moment and try again.';
+  String get resendFailed =>
+      'We could not resend the code. Please wait a moment and try again.';
 
   @override
   String get priorityCare => 'PRIORITY CARE';
@@ -297,7 +326,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseEnter7DigitCode => 'Please enter the complete 7-digit code';
 
   @override
-  String get tooManyAttemptsLocked => 'Too many failed attempts. Account temporarily locked.';
+  String get tooManyAttemptsLocked =>
+      'Too many failed attempts. Account temporarily locked.';
 
   @override
   String tooManyFailedAttemptsTryAgain(Object minutes) {
@@ -316,25 +346,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anErrorOccurred => 'An error occurred. Please try again.';
 
   @override
-  String get adminCannotAccessPatientApp => 'Admin accounts cannot access the patient/doctor app. Please use the Admin app.';
+  String get adminCannotAccessPatientApp =>
+      'Admin accounts cannot access the patient/doctor app. Please use the Admin app.';
 
   @override
   String get sessionExpired => 'Session expired';
 
   @override
-  String get sessionExpiredDescription => 'For your security, please sign in again\nto continue.';
+  String get sessionExpiredDescription =>
+      'For your security, please sign in again\nto continue.';
 
   @override
   String get sessionTimedOut => 'Your session has timed out';
 
   @override
-  String get sessionTimeoutDescription => 'For your safety, we automatically log you out after a period of inactivity.';
+  String get sessionTimeoutDescription =>
+      'For your safety, we automatically log you out after a period of inactivity.';
 
   @override
   String get signInAgain => 'Sign In Again';
 
   @override
-  String get needHelp => 'Need Help?';
+  String get needHelp => 'Need help?';
 
   @override
   String get supportTeam247 => 'Our support team is here for you 24/7.';
@@ -346,31 +379,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSafeWithUs => 'Your data is safe with us';
 
   @override
-  String get industryStandardSecurity => 'We use industry-standard security to protect your information.';
+  String get industryStandardSecurity =>
+      'We use industry-standard security to protect your information.';
 
   @override
   String get permissions => 'Permissions';
 
   @override
-  String get permissionsDescription => 'We need a couple of\npermissions to make your\nexperience seamless';
+  String get permissionsDescription =>
+      'We need a couple of\npermissions to make your\nexperience seamless';
 
   @override
-  String get permissionsExplanation => 'These permissions help us provide secure video\nconsultations and keep you updated on important\ninformation.';
+  String get permissionsExplanation =>
+      'These permissions help us provide secure video\nconsultations and keep you updated on important\ninformation.';
 
   @override
   String get allowCamera => 'Allow camera for consultations';
 
   @override
-  String get allowCameraDescription => 'Use your camera to connect face-to-face with doctors during video consultations for a better experience.';
+  String get allowCameraDescription =>
+      'Use your camera to connect face-to-face with doctors during video consultations for a better experience.';
 
   @override
-  String get videoPrivateEncrypted => 'Your video is private and encrypted end-to-end.';
+  String get videoPrivateEncrypted =>
+      'Your video is private and encrypted end-to-end.';
 
   @override
   String get enableNotifications => 'Enable notifications for updates';
 
   @override
-  String get enableNotificationsDescription => 'Get timely updates about appointments, reminders, test results, prescriptions and important alerts.';
+  String get enableNotificationsDescription =>
+      'Get timely updates about appointments, reminders, test results, prescriptions and important alerts.';
 
   @override
   String get changeSettingsLater => 'You can change this anytime in settings.';
@@ -385,7 +424,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyMatters => 'Your privacy matters';
 
   @override
-  String get privacyMattersDescription => 'We only use permissions to improve your healthcare experience.';
+  String get privacyMattersDescription =>
+      'We only use permissions to improve your healthcare experience.';
 
   @override
   String get premonAdmin => 'Premon Admin';
@@ -397,7 +437,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminEmail => 'Admin Email';
 
   @override
-  String get adminOtpDescription => 'We\'ll send a seven digit verification code to your email.';
+  String get adminOtpDescription =>
+      'We\'ll send a seven digit verification code to your email.';
 
   @override
   String get sendAdminCode => 'Send Admin Code';
@@ -409,16 +450,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseEnterAdminEmail => 'Please enter your admin email address.';
 
   @override
-  String get noAdminAccountFound => 'No account found with this email. Please contact the platform administrator.';
+  String get noAdminAccountFound =>
+      'No account found with this email. Please contact the platform administrator.';
 
   @override
-  String get adminAccessDenied => 'Access denied. This account does not have admin privileges.';
+  String get adminAccessDenied =>
+      'Access denied. This account does not have admin privileges.';
 
   @override
   String get goodMorning => 'Good Morning,';
 
   @override
-  String get welcome => 'Welcome 👋';
+  String get welcome => 'Welcome ðŸ‘‹';
 
   @override
   String get searchSpecialistsClinic => 'Search specialists, clinic...';
@@ -445,7 +488,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get specialists => 'Specialists';
 
   @override
-  String get records => 'RECORDS';
+  String get records => 'Records';
 
   @override
   String get medicalVault => 'Medical Vault';
@@ -457,7 +500,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get p2pTopUp => 'P2P Top-up';
 
   @override
-  String get noSpecialistsAvailable => 'No specialists available at the moment.';
+  String get noSpecialistsAvailable =>
+      'No specialists available at the moment.';
 
   @override
   String get searchDoctors => 'Search Doctors';
@@ -484,7 +528,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get needImmediateCare => 'Need immediate care? Find emergency doctors';
 
   @override
-  String get showingEmergencyDoctors => 'Showing emergency-ready doctors nearby';
+  String get showingEmergencyDoctors =>
+      'Showing emergency-ready doctors nearby';
 
   @override
   String get topRatedDoctors => 'Top Rated Doctors';
@@ -493,7 +538,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get found => 'found';
 
   @override
-  String get noDoctorsAvailableEmergency => 'No emergency doctors available right now';
+  String get noDoctorsAvailableEmergency =>
+      'No emergency doctors available right now';
 
   @override
   String get viewAllDoctors => 'View All Doctors';
@@ -514,10 +560,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearFilters => 'Clear Filters';
 
   @override
-  String get online => 'ONLINE';
+  String get online => 'Online';
 
   @override
-  String get offline => 'OFFLINE';
+  String get offline => 'Offline';
 
   @override
   String get book => 'Book';
@@ -532,13 +578,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allDoctorsVerified => 'All doctors are verified professionals';
 
   @override
-  String get verifyLicensesDescription => 'We verify licenses, qualifications and experience to ensure you receive safe and quality care.';
+  String get verifyLicensesDescription =>
+      'We verify licenses, qualifications and experience to ensure you receive safe and quality care.';
 
   @override
   String get doctorPublicProfile => 'Doctor Public Profile';
 
   @override
-  String get verifiedHealthcareProfessional => 'Verified Healthcare Professional';
+  String get verifiedHealthcareProfessional =>
+      'Verified Healthcare Professional';
 
   @override
   String get verificationPending => 'Verification Pending';
@@ -570,7 +618,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifiedTrusted => 'Verified & Trusted';
 
   @override
-  String get doctorLicenseVerified => 'This doctor\'s license and qualifications have been verified by Premon Care.';
+  String get doctorLicenseVerified =>
+      'This doctor\'s license and qualifications have been verified by Premon Care.';
 
   @override
   String get videoConsultation => 'Video Consultation';
@@ -681,10 +730,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkingBalance => 'Checking balance...';
 
   @override
-  String get emergencyModeDescription => 'Emergency mode triggers instant notification to the specialist for immediate clinical attention.';
+  String get emergencyModeDescription =>
+      'Emergency mode triggers instant notification to the specialist for immediate clinical attention.';
 
   @override
-  String get endToEndEncrypted => 'End-to-end encrypted';
+  String get endToEndEncrypted =>
+      'End-to-end encrypted booking & clinical records';
 
   @override
   String get finalReview => 'Final Review';
@@ -722,10 +773,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingConfirmed => 'Booking\nConfirmed!';
 
   @override
-  String get emergencyConsultScheduled => 'Your priority medical session is scheduled for immediate connection. Complete payment to start.';
+  String get emergencyConsultScheduled =>
+      'Your priority medical session is scheduled for immediate connection. Complete payment to start.';
 
   @override
-  String get bookingScheduled => 'Your appointment has been successfully scheduled and verified.';
+  String get bookingScheduled =>
+      'Your appointment has been successfully scheduled and verified.';
 
   @override
   String get specialist => 'Specialist';
@@ -734,19 +787,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectingAutomatically => 'Connecting automatically...';
 
   @override
-  String get emergencySessionPayNow => 'Emergency session — pay now to connect';
+  String get emergencySessionPayNow =>
+      'Emergency session â€” pay now to connect';
 
   @override
   String get p2pPaymentInstructions => 'P2P Payment Instructions';
 
   @override
-  String get payEmergencyFeeBelow => 'Pay the emergency fee below to start your consultation immediately:';
+  String get payEmergencyFeeBelow =>
+      'Pay the emergency fee below to start your consultation immediately:';
 
   @override
   String get contactDoctorPayment => 'Contact doctor for payment details';
 
   @override
-  String get doctorAlertedAfterPayment => 'Once paid, the doctor will be alerted for immediate session startup.';
+  String get doctorAlertedAfterPayment =>
+      'Once paid, the doctor will be alerted for immediate session startup.';
 
   @override
   String get needAssistance => 'Need assistance?';
@@ -785,7 +841,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clinicalPrescription => 'CLINICAL PRESCRIPTION';
 
   @override
-  String get noPrescriptionsIssued => 'No prescriptions issued for this session.';
+  String get noPrescriptionsIssued =>
+      'No prescriptions issued for this session.';
 
   @override
   String get unableToLoadPrescriptions => 'Unable to load prescriptions.';
@@ -794,7 +851,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get doctorsObservations => 'DOCTOR\'S OBSERVATIONS';
 
   @override
-  String get noObservationsRecorded => 'No observations recorded for this session.';
+  String get noObservationsRecorded =>
+      'No observations recorded for this session.';
 
   @override
   String get unableToLoadObservations => 'Unable to load observations.';
@@ -806,16 +864,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionComplete => 'Session Complete';
 
   @override
-  String get sessionCompleteDescription => 'Your clinical encounter has been verified and securely archived.';
+  String get sessionCompleteDescription =>
+      'Your clinical encounter has been verified and securely archived.';
 
   @override
   String get nextEvaluation => 'NEXT EVALUATION';
 
   @override
-  String get nextEvaluationDescription => 'Scheduled in 7 days to monitor clinical trajectory.';
+  String get nextEvaluationDescription =>
+      'Scheduled in 7 days to monitor clinical trajectory.';
 
   @override
-  String get schedule => 'Schedule';
+  String get schedule => 'SCHEDULE';
 
   @override
   String get pdfReport => 'PDF REPORT';
@@ -857,16 +917,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get doctorUnavailableDescription => 'The doctor is currently unavailable. Let us find you another specialist.';
+  String get doctorUnavailableDescription =>
+      'The doctor is currently unavailable. Let us find you another specialist.';
 
   @override
-  String get requestTimedOut => 'The request timed out. We\'ll find you another available doctor.';
+  String get requestTimedOut =>
+      'The request timed out. We\'ll find you another available doctor.';
 
   @override
   String get waitingForDoctor => 'Waiting for doctor response';
 
   @override
-  String get urgentNotificationDescription => 'The doctor will receive an urgent notification. You\'ll be connected immediately once they accept.';
+  String get urgentNotificationDescription =>
+      'The doctor will receive an urgent notification. You\'ll be connected immediately once they accept.';
 
   @override
   String doctorUnableToTakeCase(Object doctorName) {
@@ -874,7 +937,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noResponseReceived => 'No response received within the time limit.';
+  String get noResponseReceived =>
+      'No response received within the time limit.';
 
   @override
   String get cancelRequest => 'Cancel Request';
@@ -889,7 +953,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadPaymentReceipt => 'Upload Payment Receipt';
 
   @override
-  String get uploadReceiptDescription => 'Upload your payment proof for verification';
+  String get uploadReceiptDescription =>
+      'Upload your payment proof for verification';
 
   @override
   String get uploadReceipt => 'Upload Receipt';
@@ -913,7 +978,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingDoctors => 'Loading doctors...';
 
   @override
-  String get amountPaid => 'Amount Paid (₦)';
+  String get amountPaid => 'Amount Paid (â‚¦)';
 
   @override
   String get paymentMethod => 'Payment Method';
@@ -940,10 +1005,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tipsFasterVerification => 'Tips for faster verification';
 
   @override
-  String get amountVisibleTip => '• Make sure the amount is clearly visible';
+  String get amountVisibleTip => 'â€¢ Make sure the amount is clearly visible';
 
   @override
-  String get clearImageTip => '• Use a clear, well-lit image of the receipt';
+  String get clearImageTip => 'â€¢ Use a clear, well-lit image of the receipt';
 
   @override
   String get pleaseSelectReceipt => 'Please select a receipt image first';
@@ -973,7 +1038,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingFailedDescription => 'We couldn\'t confirm your booking';
 
   @override
-  String get slotUnavailable => 'This time slot is no longer available or has just been\nbooked by someone else.\nPlease choose another time.';
+  String get slotUnavailable =>
+      'This time slot is no longer available or has just been\nbooked by someone else.\nPlease choose another time.';
 
   @override
   String get bookingDetailsLabel => 'Booking Details';
@@ -988,10 +1054,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get needHelpFindingSlot => 'Need help finding a slot?';
 
   @override
-  String get supportTeamHelp => 'Our support team can help you find the next available slot.';
+  String get supportTeamHelp =>
+      'Our support team can help you find the next available slot.';
 
   @override
-  String get contactSupportForAssistance => 'Contact support@premoncare.com for assistance';
+  String get contactSupportForAssistance =>
+      'Contact support@premoncare.com for assistance';
 
   @override
   String get backToHomeLabel => 'Back to Home';
@@ -1003,13 +1071,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slotNotAvailable => 'Slot not available';
 
   @override
-  String get slotNotAvailableDescription => 'This time slot is no longer available. Please select a different time or date.';
+  String get slotNotAvailableDescription =>
+      'This time slot is no longer available. Please select a different time or date.';
 
   @override
   String get paymentFailed => 'Payment Failed';
 
   @override
-  String get paymentFailedDescription => 'We couldn\'t process your payment.\nPlease try again.';
+  String get paymentFailedDescription =>
+      'We couldn\'t process your payment.\nPlease try again.';
 
   @override
   String get tryAgain => 'Try Again';
@@ -1021,7 +1091,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get networkIssueDetected => 'Network issue detected';
 
   @override
-  String get checkInternetConnection => 'Please check your internet connection\nand try again.';
+  String get checkInternetConnection =>
+      'Please check your internet connection\nand try again.';
 
   @override
   String get financialHub => 'FINANCIAL HUB';
@@ -1039,7 +1110,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get history => 'History';
 
   @override
-  String get transactionHistory => 'Transaction history will appear here after your first credit purchase';
+  String get transactionHistory =>
+      'Transaction history will appear here after your first credit purchase';
 
   @override
   String get guide => 'Guide';
@@ -1048,7 +1120,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noCreditsYet => 'No credits yet';
 
   @override
-  String get purchaseCreditsDescription => 'Purchase time credits to consult with your doctors';
+  String get purchaseCreditsDescription =>
+      'Purchase time credits to consult with your doctors';
 
   @override
   String get buyCredits => 'Buy Credits';
@@ -1077,7 +1150,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consult => 'Consult';
 
   @override
-  String get creditsDisclaimer => 'Credits are doctor-specific. Time credits can only be used to consult with the doctor who credited them. Unused time never expires.';
+  String get creditsDisclaimer =>
+      'Credits are doctor-specific. Time credits can only be used to consult with the doctor who credited them. Unused time never expires.';
 
   @override
   String get myDoctorCredits => 'MY DOCTOR CREDITS';
@@ -1098,10 +1172,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couldNotOpenViewer => 'Could not open external viewer';
 
   @override
-  String get phoneCallFeature => 'Phone call feature - start a consultation to use this.';
+  String get phoneCallFeature =>
+      'Phone call feature - start a consultation to use this.';
 
   @override
-  String get videoCallFeature => 'Video call feature - start a consultation to use this.';
+  String get videoCallFeature =>
+      'Video call feature - start a consultation to use this.';
 
   @override
   String get replyPosted => 'Reply posted';
@@ -1180,7 +1256,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get writePostTitle => 'Write a clear and short title for your post';
 
   @override
-  String get provideMoreDetails => 'Provide more details about your question or topic.';
+  String get provideMoreDetails =>
+      'Provide more details about your question or topic.';
 
   @override
   String get enterLicenseNumber => 'Enter license number';
@@ -1210,7 +1287,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addCommentOptional => 'Add a comment (optional)...';
 
   @override
-  String get explainFollowUpNecessary => 'Explain why this follow-up is necessary...';
+  String get explainFollowUpNecessary =>
+      'Explain why this follow-up is necessary...';
 
   @override
   String get searchPatients => 'Search patients...';
@@ -1288,49 +1366,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pauseSubscription => 'Pause Subscription';
 
   @override
-  String get subscriptionPaused => 'Subscription paused. Resume anytime from settings.';
+  String get subscriptionPaused =>
+      'Subscription paused. Resume anytime from settings.';
 
   @override
   String get pause => 'Pause';
 
   @override
-  String get cancelSubscription => 'Cancel your plan and stop future billing';
+  String get cancelSubscription => 'Cancel Subscription';
 
   @override
-  String get subscriptionCancelled => 'Subscription cancelled. Access continues until end of billing period.';
+  String get subscriptionCancelled =>
+      'Subscription cancelled. Access continues until end of billing period.';
 
   @override
   String get confirm => 'Confirm';
 
   @override
-  String get emailAdminForSubscription => 'Email admin@premoncare.com for subscription support';
+  String get emailAdminForSubscription =>
+      'Email admin@premoncare.com for subscription support';
 
   @override
   String get contactSupportEmail => 'Contact support@premoncare.com';
 
   @override
-  String get planSelected => 'Plan selected! Contact support@premoncare.com to complete your upgrade.';
+  String get planSelected =>
+      'Plan selected! Contact support@premoncare.com to complete your upgrade.';
 
   @override
   String get workingHours => 'Working Hours';
 
   @override
-  String get workingHoursDescription => 'Working hours management is being developed. Edit your available slots in the schedule table above.';
+  String get workingHoursDescription =>
+      'Working hours management is being developed. Edit your available slots in the schedule table above.';
 
   @override
   String get unavailableDays => 'Unavailable Days';
 
   @override
-  String get unavailableDaysDescription => 'Date blocking is being developed. Remove individual time slots from the schedule to block specific dates.';
+  String get unavailableDaysDescription =>
+      'Date blocking is being developed. Remove individual time slots from the schedule to block specific dates.';
 
   @override
   String get breakTimes => 'Break Times';
 
   @override
-  String get breakTimesDescription => 'Break scheduling is being developed. Remove time slots from the table to create breaks between appointments.';
+  String get breakTimesDescription =>
+      'Break scheduling is being developed. Remove time slots from the table to create breaks between appointments.';
 
   @override
-  String get failedToSaveSchedule => 'Failed to update emergency availability. Please try again.';
+  String get failedToSaveSchedule =>
+      'Failed to update emergency availability. Please try again.';
 
   @override
   String get scheduleCopiedToAllDays => 'Schedule hours copied to all days';
@@ -1339,7 +1425,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get breakTimeAdded => 'Break time added';
 
   @override
-  String get scheduleSavedSuccessfully => 'Schedule saved successfully ✓';
+  String get scheduleSavedSuccessfully => 'Schedule saved successfully âœ“';
 
   @override
   String rateDoctor(Object doctorName) {
@@ -1384,10 +1470,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToSendOtp => 'Failed to send OTP. Please try again.';
 
   @override
-  String get guestEmergencySessionDetected => 'Guest Emergency Session\nDetected';
+  String get guestEmergencySessionDetected =>
+      'Guest Emergency Session\nDetected';
 
   @override
-  String get guestEmergencyDescription => 'This user accessed emergency care as a guest.\nComplete a few quick steps to create an account.';
+  String get guestEmergencyDescription =>
+      'This user accessed emergency care as a guest.\nComplete a few quick steps to create an account.';
 
   @override
   String get sessionId => 'Session ID';
@@ -1429,13 +1517,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueToCreateAccount => 'Continue to Create Account';
 
   @override
-  String get emergencySessionCompleted => 'Emergency Session Completed Successfully';
+  String get emergencySessionCompleted =>
+      'Emergency Session Completed Successfully';
 
   @override
-  String get continueCreatingAccount => 'Continue creating your secure healthcare account to get the best care experience.';
+  String get continueCreatingAccount =>
+      'Continue creating your secure healthcare account to get the best care experience.';
 
   @override
-  String get checkEmailVerificationCode => 'Check your email for the verification code';
+  String get checkEmailVerificationCode =>
+      'Check your email for the verification code';
 
   @override
   String get enterVerificationCode => 'Enter Verification Code';
@@ -1444,13 +1535,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whyVerifyNumber => 'Why verify your number?';
 
   @override
-  String get continueCareDescription => 'Access your emergency consultation history.';
+  String get continueCareDescription =>
+      'Access your emergency consultation history.';
 
   @override
   String get followUpUpdates => 'Follow-up Updates';
 
   @override
-  String get receiveDoctorUpdates => 'Receive doctor updates and appointment alerts.';
+  String get receiveDoctorUpdates =>
+      'Receive doctor updates and appointment alerts.';
 
   @override
   String get secureRecords => 'Secure Records';
@@ -1468,16 +1561,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skipForNow => 'Skip For Now';
 
   @override
-  String get skippingVerificationWarning => 'Skipping verification may limit access to your consultation records and future healthcare services.';
+  String get skippingVerificationWarning =>
+      'Skipping verification may limit access to your consultation records and future healthcare services.';
 
   @override
-  String get informationEncryptedProtected => 'Your information is encrypted and protected under healthcare privacy standards.';
+  String get informationEncryptedProtected =>
+      'Your information is encrypted and protected under healthcare privacy standards.';
 
   @override
   String get almostThere => 'You\'re almost there!';
 
   @override
-  String get fewMoreDetails => 'Just a few more details to create your secure account.';
+  String get fewMoreDetails =>
+      'Just a few more details to create your secure account.';
 
   @override
   String get personalInformation => 'Personal Information';
@@ -1495,7 +1591,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailAddressOptional => 'Email Address (Optional)';
 
   @override
-  String get importantUpdatesDescription => 'We\'ll use this for important updates and notifications.';
+  String get importantUpdatesDescription =>
+      'We\'ll use this for important updates and notifications.';
 
   @override
   String get location => 'Location';
@@ -1510,16 +1607,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourHealthDataProtected => 'Your health data is protected';
 
   @override
-  String get advancedEncryptionDescription => 'We use advanced encryption to keep your information safe and private.';
+  String get advancedEncryptionDescription =>
+      'We use advanced encryption to keep your information safe and private.';
 
   @override
-  String get youCanUpdateLater => 'You can update this information anytime in your profile settings.';
+  String get youCanUpdateLater =>
+      'You can update this information anytime in your profile settings.';
 
   @override
   String get accountCreatedSuccessfully => 'Account Created\nSuccessfully!';
 
   @override
-  String get welcomeToPremonCare => 'Welcome to Premon Care. You can now access all features, track your health and manage your care.';
+  String get welcomeToPremonCare =>
+      'Welcome to Premon Care. You can now access all features, track your health and manage your care.';
 
   @override
   String get yourAccountIsReady => 'Your Account is Ready';
@@ -1537,7 +1637,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedLabel => 'Saved';
 
   @override
-  String get informationSecureEncryptedSmall => 'Your information is\nsecure and encrypted.';
+  String get informationSecureEncryptedSmall =>
+      'Your information is\nsecure and encrypted.';
 
   @override
   String get whatYouCanDoNext => 'What you can do next';
@@ -1555,7 +1656,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clinicalTimeline => 'CLINICAL TIMELINE';
 
   @override
-  String get contactSupportPremoncare => 'Contact support: support@premoncare.com';
+  String get contactSupportPremoncare =>
+      'Contact support: support@premoncare.com';
 
   @override
   String get logOut => 'Log Out';
@@ -1583,10 +1685,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewRefunds => 'Review Refunds';
 
   @override
-  String get refundReviewUnderDevelopment => 'Refund review is under development.';
+  String get refundReviewUnderDevelopment =>
+      'Refund review is under development.';
 
   @override
-  String get payoutSettingsUnderDevelopment => 'Payout settings are under development.';
+  String get payoutSettingsUnderDevelopment =>
+      'Payout settings are under development.';
 
   @override
   String get payoutsApproved => 'Payouts approved successfully!';
@@ -1607,13 +1711,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationSettings => 'Notification Settings';
 
   @override
-  String get selectDoctorsFirst => 'Navigate to Disputes from the sidebar menu.';
+  String get selectDoctorsFirst =>
+      'Navigate to Disputes from the sidebar menu.';
 
   @override
   String get selectUserFirst => 'Select a user first to block them.';
 
   @override
-  String get riskSettingsUnderDevelopment => 'Risk settings panel is under development.';
+  String get riskSettingsUnderDevelopment =>
+      'Risk settings panel is under development.';
 
   @override
   String get dismissReportAction => 'Report dismissed';
@@ -1634,12 +1740,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get applicationRejected => 'Application rejected.';
 
   @override
-  String failedToLoadDoctors(String error) {
+  String failedToLoadDoctors(Object error) {
     return 'Failed to load doctors: $error';
   }
 
   @override
-  String failedToLoadCounts(String error) {
+  String failedToLoadCounts(Object error) {
     return 'Failed to load counts: $error';
   }
 
@@ -1705,7 +1811,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unifiedAccount => 'UNIFIED ACCOUNT';
 
   @override
-  String get completeVerificationPractitioner => 'Complete verification to unlock Practitioner features';
+  String get completeVerificationPractitioner =>
+      'Complete verification to unlock Practitioner features';
 
   @override
   String get personalInformationMenu => 'Personal Information';
@@ -1726,13 +1833,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpAndSupport => 'Help & Support';
 
   @override
-  String get supportContactInfo => 'Support: support@premoncare.com | WhatsApp: +234 800 000 0000';
+  String get supportContactInfo =>
+      'Support: support@premoncare.com | WhatsApp: +234 800 000 0000';
 
   @override
-  String get aboutText => 'Dedicated and compassionate healthcare professional committed to delivering quality patient care.';
+  String get aboutText =>
+      'Dedicated and compassionate healthcare professional committed to delivering quality patient care.';
 
   @override
-  String get followUpIn7Days => 'Scheduled in 7 days to monitor clinical trajectory.';
+  String get followUpIn7Days =>
+      'Scheduled in 7 days to monitor clinical trajectory.';
 
   @override
   String error(Object error) {
@@ -1740,19 +1850,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get notAuthenticatedPleaseLogIn => 'Not authenticated. Please log in again.';
+  String get notAuthenticatedPleaseLogIn =>
+      'Not authenticated. Please log in again.';
 
   @override
-  String get onlineStatusDisabledInPrivacy => 'Online status is disabled in privacy settings';
+  String get onlineStatusDisabledInPrivacy =>
+      'Online status is disabled in privacy settings';
 
   @override
-  String get nowActiveForEmergencyConsult => 'You are now active for emergency consult requests.';
+  String get nowActiveForEmergencyConsult =>
+      'You are now active for emergency consult requests.';
 
   @override
   String get emergencyPresenceTurnedOff => 'Emergency presence turned off.';
 
   @override
-  String get permissionDeniedProfileSetup => 'Permission denied. Please ensure your profile is fully set up.';
+  String get permissionDeniedProfileSetup =>
+      'Permission denied. Please ensure your profile is fully set up.';
 
   @override
   String failedToUpdatePresence(Object error) {
@@ -1770,7 +1884,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String patientIdDisplay(Object id) {
-    return 'Patient ···$id';
+    return 'Patient Â·Â·Â·$id';
   }
 
   @override
@@ -1849,7 +1963,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get upcoming => 'UPCOMING';
 
   @override
-  String get pendingTab => 'Pending';
+  String get pendingTab => 'PENDING';
 
   @override
   String get past => 'PAST';
@@ -1874,7 +1988,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allSessionsCompletedToday => 'All sessions completed for today!';
 
   @override
-  String get patientCancelledEmergency => 'Patient has cancelled this emergency request.';
+  String get patientCancelledEmergency =>
+      'Patient has cancelled this emergency request.';
 
   @override
   String get timeRemainingToRespond => 'Time remaining to respond';
@@ -1885,7 +2000,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ifYouAcceptPatientWillProceed => 'If you accept, the patient will proceed with payment and you will be connected immediately.';
+  String get ifYouAcceptPatientWillProceed =>
+      'If you accept, the patient will proceed with payment and you will be connected immediately.';
 
   @override
   String get decline => 'Decline';
@@ -1894,7 +2010,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acceptEmergency => 'Accept Emergency';
 
   @override
-  String get emergencyRequestAcceptedProceedPayment => 'Emergency request accepted. Patient will proceed with payment.';
+  String get emergencyRequestAcceptedProceedPayment =>
+      'Emergency request accepted. Patient will proceed with payment.';
 
   @override
   String get doctorMenu => 'Doctor Menu';
@@ -1921,10 +2038,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String get logout => 'Logout';
-
-  @override
-  String get completeVerificationToAccessFinancial => 'Complete verification to access financial hub';
+  String get completeVerificationToAccessFinancial =>
+      'Complete verification to access financial hub';
 
   @override
   String get myPatients => 'My Patients';
@@ -1936,7 +2051,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noPatientsYet => 'No patients yet';
 
   @override
-  String get patientsWhoBookWillAppear => 'Patients who book consultations with you\nwill appear here.';
+  String get patientsWhoBookWillAppear =>
+      'Patients who book consultations with you\nwill appear here.';
 
   @override
   String get noMatchesFound => 'No matches found';
@@ -1945,7 +2061,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noPendingPayments => 'No pending payments';
 
   @override
-  String get paymentsSentWillAppearHere => 'Payments sent to you will appear here.';
+  String get paymentsSentWillAppearHere =>
+      'Payments sent to you will appear here.';
 
   @override
   String get approve => 'Approve';
@@ -1957,10 +2074,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get earningsAndAnalytics => 'Earnings & Analytics';
 
   @override
-  String get dateRangeFilteringBeingDeveloped => 'Date range filtering is being developed. Currently showing all-time earnings.';
+  String get dateRangeFilteringBeingDeveloped =>
+      'Date range filtering is being developed. Currently showing all-time earnings.';
 
   @override
-  String get trackEarningsPerformance => 'Track your earnings and performance\nall in one place.';
+  String get trackEarningsPerformance =>
+      'Track your earnings and performance\nall in one place.';
 
   @override
   String get todayLabel => 'Today';
@@ -1996,7 +2115,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get earningsOverview => 'Earnings Overview';
 
   @override
-  String get earningsNaira => 'Earnings (₦)';
+  String get earningsNaira => 'Earnings (â‚¦)';
 
   @override
   String get earningsBreakdown => 'Earnings Breakdown';
@@ -2005,7 +2124,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewDetails => 'View Details';
 
   @override
-  String get detailedBreakdownBeingDeveloped => 'Detailed breakdown is being developed. The summary above shows your current earnings overview.';
+  String get detailedBreakdownBeingDeveloped =>
+      'Detailed breakdown is being developed. The summary above shows your current earnings overview.';
 
   @override
   String get allTime => 'All time';
@@ -2014,7 +2134,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get greatProgress => 'Great progress!';
 
   @override
-  String get greatProgressDescription => 'You\'re making great progress.\nKeep up the excellent work!';
+  String get greatProgressDescription =>
+      'You\'re making great progress.\nKeep up the excellent work!';
 
   @override
   String get patientDetails => 'Patient Details';
@@ -2026,7 +2147,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get blockPatient => 'Block Patient';
 
   @override
-  String get areYouSureBlockPatient => 'Are you sure you want to block this patient? They won\'t be able to book consultations with you.';
+  String get areYouSureBlockPatient =>
+      'Are you sure you want to block this patient? They won\'t be able to book consultations with you.';
 
   @override
   String get block => 'Block';
@@ -2078,7 +2200,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSharedRecords => 'No shared records';
 
   @override
-  String get recordsSharedWillAppearHere => 'Records shared by the patient will appear here.';
+  String get recordsSharedWillAppearHere =>
+      'Records shared by the patient will appear here.';
 
   @override
   String get couldNotLoadRecords => 'Could not load records';
@@ -2090,7 +2213,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get doctorAvailabilityAndSchedule => 'Doctor Availability & Schedule';
 
   @override
-  String get manageWorkingHoursPreferences => 'Manage your working hours, availability and preferences';
+  String get manageWorkingHoursPreferences =>
+      'Manage your working hours, availability and preferences';
 
   @override
   String get availabilityStatus => 'Availability Status';
@@ -2126,7 +2250,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addBreak => 'Add Break';
 
   @override
-  String get allowEmergencyBookingsOutside => 'Allow emergency bookings outside regular hours';
+  String get allowEmergencyBookingsOutside =>
+      'Allow emergency bookings outside regular hours';
 
   @override
   String get emergencyRate5xNormal => 'Emergency rate: 5x normal rate';
@@ -2135,25 +2260,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoAcceptBookings => 'Auto-Accept Bookings';
 
   @override
-  String get autoAcceptDescription => 'Automatically accept new bookings within your working hours';
+  String get autoAcceptDescription =>
+      'Automatically accept new bookings within your working hours';
 
   @override
-  String get notifiedOfAllNewBookings => 'You will be notified of all new bookings';
+  String get notifiedOfAllNewBookings =>
+      'You will be notified of all new bookings';
 
   @override
   String get saveSchedule => 'Save Schedule';
 
   @override
-  String get emergencyAvailabilityEnabled => 'Emergency availability enabled. Patients can now book emergency consultations.';
+  String get emergencyAvailabilityEnabled =>
+      'Emergency availability enabled. Patients can now book emergency consultations.';
 
   @override
-  String get emergencyAvailabilityDisabled => 'Emergency availability disabled. You will no longer receive emergency consultation requests.';
+  String get emergencyAvailabilityDisabled =>
+      'Emergency availability disabled. You will no longer receive emergency consultation requests.';
 
   @override
   String get subscriptionManagement => 'Subscription Management';
 
   @override
-  String get managePlanBillingBenefits => 'Manage your plan, billing and benefits';
+  String get managePlanBillingBenefits =>
+      'Manage your plan, billing and benefits';
 
   @override
   String get currentPlan => 'Current Plan';
@@ -2162,13 +2292,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumPlan => 'Premium Plan';
 
   @override
-  String get allInOnePremiumHealthcare => 'All-in-one access to premium\nhealthcare features.';
+  String get allInOnePremiumHealthcare =>
+      'All-in-one access to premium\nhealthcare features.';
 
   @override
   String get price => 'Price';
 
   @override
-  String get pricePerMonth => '₦15,000 / month';
+  String get pricePerMonth => 'â‚¦15,000 / month';
 
   @override
   String get nextBillingDate => 'Next billing date: 15 June 2025';
@@ -2234,10 +2365,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pauseYourPlanForAWhile => 'Pause your plan for a while';
 
   @override
-  String get areYouSurePauseSubscription => 'Are you sure you want to pause your subscription? You won\'t be charged during the pause period.';
+  String get areYouSurePauseSubscription =>
+      'Are you sure you want to pause your subscription? You won\'t be charged during the pause period.';
 
   @override
-  String get areYouSureCancelSubscription => 'Are you sure you want to cancel? You\'ll lose access to premium features at the end of your billing period.';
+  String get areYouSureCancelSubscription =>
+      'Are you sure you want to cancel? You\'ll lose access to premium features at the end of your billing period.';
 
   @override
   String get supportTeamHereToHelp => 'Our support team is here to help you.';
@@ -2246,7 +2379,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactAdmin => 'Contact Admin';
 
   @override
-  String get choosePlanWorksBest => 'Choose the plan that works best for you\nand manage your subscription.';
+  String get choosePlanWorksBest =>
+      'Choose the plan that works best for you\nand manage your subscription.';
 
   @override
   String get choosePlan => 'Choose a Plan';
@@ -2255,7 +2389,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get secureAndHassleFree => 'Secure & Hassle-free';
 
   @override
-  String get paymentEncryptedDataProtected => 'Your payment is encrypted and your data is always protected.';
+  String get paymentEncryptedDataProtected =>
+      'Your payment is encrypted and your data is always protected.';
 
   @override
   String get mostPopular => 'Most Popular';
@@ -2267,7 +2402,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get choosePlanButton => 'Choose Plan';
 
   @override
-  String get planSelectedContactSupport => 'Plan selected! Contact support@premoncare.com to complete your upgrade.';
+  String get planSelectedContactSupport =>
+      'Plan selected! Contact support@premoncare.com to complete your upgrade.';
 
   @override
   String get proposeFollowUp => 'Propose Follow-up';
@@ -2294,16 +2430,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendProposalToPatient => 'SEND PROPOSAL TO PATIENT';
 
   @override
-  String get patientWillBeNotified => '* Patient will be notified to confirm and pay.';
+  String get patientWillBeNotified =>
+      '* Patient will be notified to confirm and pay.';
 
   @override
   String get pleaseProvideClinicalReason => 'Please provide a clinical reason';
 
   @override
-  String get followUpProposalSentSuccessfully => 'Follow-up proposal sent successfully';
+  String get followUpProposalSentSuccessfully =>
+      'Follow-up proposal sent successfully';
 
   @override
-  String get howWasConsultationExperience => 'How was your consultation experience?';
+  String get howWasConsultationExperience =>
+      'How was your consultation experience?';
 
   @override
   String get submitReview => 'Submit Review';
@@ -2324,7 +2463,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ourMission => 'Our Mission';
 
   @override
-  String get ourMissionDescription => 'To make quality healthcare accessible to everyone, everywhere through technology.';
+  String get ourMissionDescription =>
+      'To make quality healthcare accessible to everyone, everywhere through technology.';
 
   @override
   String get websiteLabel => 'Website';
@@ -2336,7 +2476,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get madeWithCareInNigeria => 'Made with care in Nigeria';
 
   @override
-  String get aboutDescription => 'Premoncare is a telemedicine platform connecting patients with licensed healthcare providers across Nigeria and Africa.';
+  String get aboutDescription =>
+      'Premoncare is a telemedicine platform connecting patients with licensed healthcare providers across Nigeria and Africa.';
 
   @override
   String get textSizeSection => 'TEXT SIZE';
@@ -2354,7 +2495,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highContrast => 'High Contrast';
 
   @override
-  String get highContrastDescription => 'Increase contrast for better visibility';
+  String get highContrastDescription =>
+      'Increase contrast for better visibility';
 
   @override
   String get reduceAnimations => 'Reduce Animations';
@@ -2366,7 +2508,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenReaderHints => 'Screen Reader Hints';
 
   @override
-  String get screenReaderHintsDescription => 'Add extra labels for screen readers';
+  String get screenReaderHintsDescription =>
+      'Add extra labels for screen readers';
 
   @override
   String get themeSection => 'THEME';
@@ -2390,7 +2533,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get systemDefaultDescription => 'Match your device settings';
 
   @override
-  String get darkModeRefinementNotice => 'Dark mode is being refined. Some screens may still appear in light mode until fully migrated.';
+  String get darkModeRefinementNotice =>
+      'Dark mode is being refined. Some screens may still appear in light mode until fully migrated.';
 
   @override
   String get securitySection => 'SECURITY';
@@ -2399,10 +2543,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get biometricLock => 'Biometric Lock';
 
   @override
-  String get biometricLockDescription => 'Require fingerprint or face to open app';
+  String get biometricLockDescription =>
+      'Require fingerprint or face to open app';
 
   @override
-  String get biometricsNotAvailable => 'Biometrics not available on this device';
+  String get biometricsNotAvailable =>
+      'Biometrics not available on this device';
 
   @override
   String get visibilitySection => 'VISIBILITY';
@@ -2411,7 +2557,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileVisibility => 'Profile Visibility';
 
   @override
-  String get profileVisibilityDescription => 'Allow doctors to see your profile';
+  String get profileVisibilityDescription =>
+      'Allow doctors to see your profile';
 
   @override
   String get onlineStatusSection => 'Online Status';
@@ -2426,13 +2573,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get researchDataSharing => 'Research Data Sharing';
 
   @override
-  String get researchDataSharingDescription => 'Share anonymized data for medical research';
+  String get researchDataSharingDescription =>
+      'Share anonymized data for medical research';
 
   @override
   String get crashReporting => 'Crash Reporting';
 
   @override
-  String get crashReportingDescription => 'Help improve the app by sending crash reports';
+  String get crashReportingDescription =>
+      'Help improve the app by sending crash reports';
 
   @override
   String get activeSessionsSection => 'ACTIVE SESSIONS';
@@ -2441,7 +2590,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get securityTipsSection => 'SECURITY TIPS';
 
   @override
-  String get securityTipsDescription => 'If you see a session you don\'t recognize, log out of all sessions immediately.';
+  String get securityTipsDescription =>
+      'If you see a session you don\'t recognize, log out of all sessions immediately.';
 
   @override
   String get logOutAllSessions => 'Log Out of All Sessions';
@@ -2450,7 +2600,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataExportedTitle => 'Data Exported';
 
   @override
-  String get dataExportedDescription => 'Your data has been copied to the clipboard as JSON. You can paste it into a secure document.';
+  String get dataExportedDescription =>
+      'Your data has been copied to the clipboard as JSON. You can paste it into a secure document.';
 
   @override
   String get exportAgain => 'Export Again';
@@ -2459,7 +2610,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportYourDataTitle => 'Export Your Data';
 
   @override
-  String get exportDescription => 'Get a copy of all your health data, consultation history, and account information.';
+  String get exportDescription =>
+      'Get a copy of all your health data, consultation history, and account information.';
 
   @override
   String get whatsIncludedSection => 'WHAT\'S INCLUDED';
@@ -2501,25 +2653,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howDoIBookConsultation => 'How do I book a consultation?';
 
   @override
-  String get howDoIBookConsultationAnswer => 'Navigate to the Search tab, find a doctor, select a time slot, and confirm your booking. Payment is handled via P2P receipt upload.';
+  String get howDoIBookConsultationAnswer =>
+      'Navigate to the Search tab, find a doctor, select a time slot, and confirm your booking. Payment is handled via P2P receipt upload.';
 
   @override
   String get howDoIUploadPaymentReceipt => 'How do I upload a payment receipt?';
 
   @override
-  String get howDoIUploadPaymentReceiptAnswer => 'After booking, go to Appointments > Pending > Upload Receipt. Take a photo of your bank transfer confirmation.';
+  String get howDoIUploadPaymentReceiptAnswer =>
+      'After booking, go to Appointments > Pending > Upload Receipt. Take a photo of your bank transfer confirmation.';
 
   @override
   String get howDoIBecomeVerifiedDoctor => 'How do I become a verified doctor?';
 
   @override
-  String get howDoIBecomeVerifiedDoctorAnswer => 'Register as a patient first, then go to Profile > Verification Wizard to submit your professional credentials.';
+  String get howDoIBecomeVerifiedDoctorAnswer =>
+      'Register as a patient first, then go to Profile > Verification Wizard to submit your professional credentials.';
 
   @override
   String get whatIsEmergencyCare => 'What is Emergency Care?';
 
   @override
-  String get whatIsEmergencyCareAnswer => 'Emergency Care connects you with available doctors immediately. The cost is 5x the doctor\'s standard rate.';
+  String get whatIsEmergencyCareAnswer =>
+      'Emergency Care connects you with available doctors immediately. The cost is 5x the doctor\'s standard rate.';
 
   @override
   String get contactUsSection => 'CONTACT US';
@@ -2537,7 +2693,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get liveChatAvailability => 'Available Mon-Fri, 9am-5pm WAT';
 
   @override
-  String get liveChatNotice => 'Live chat is available Monday–Friday, 9am–5pm WAT. Email support@premoncare.com for immediate assistance.';
+  String get liveChatNotice =>
+      'Live chat is available Monday–Friday, 9am–5pm WAT. Email support@premoncare.com for immediate assistance.';
 
   @override
   String get languageSection => 'LANGUAGE';
@@ -2561,13 +2718,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifiedStatus => 'Verified';
 
   @override
-  String get otpInfoDescription => 'Premoncare uses email verification codes (OTP) for secure sign-in. No password is required.';
+  String get otpInfoDescription =>
+      'Premoncare uses email verification codes (OTP) for secure sign-in. No password is required.';
 
   @override
   String get noPermissionsGranted => 'No permissions granted';
 
   @override
-  String get doctorsRequestAccess => 'Doctors will request access to your medical records when needed.';
+  String get doctorsRequestAccess =>
+      'Doctors will request access to your medical records when needed.';
 
   @override
   String get revokeLabel => 'Revoke';
@@ -2594,19 +2753,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appointmentAlertsLabel => 'Appointment Alerts';
 
   @override
-  String get remindersForConsultations => 'Reminders for upcoming consultations';
+  String get remindersForConsultations =>
+      'Reminders for upcoming consultations';
 
   @override
   String get paymentAlertsLabel => 'Payment Alerts';
 
   @override
-  String get transactionConfirmations => 'Transaction confirmations and receipts';
+  String get transactionConfirmations =>
+      'Transaction confirmations and receipts';
 
   @override
   String get clinicalUpdatesLabel => 'Clinical Updates';
 
   @override
-  String get prescriptionUpdatesAndRecords => 'Prescription updates and health records';
+  String get prescriptionUpdatesAndRecords =>
+      'Prescription updates and health records';
 
   @override
   String get forumUpdatesLabel => 'Forum Updates';
@@ -2618,7 +2780,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emergencyAlertsLabel => 'Emergency Alerts';
 
   @override
-  String get criticalEmergencyNotifications => 'Critical emergency notifications';
+  String get criticalEmergencyNotifications =>
+      'Critical emergency notifications';
 
   @override
   String get marketingEmailsLabel => 'Marketing Emails';
@@ -2681,7 +2844,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailNotificationsField => 'Email Notifications';
 
   @override
-  String get emailNotificationsDescription => 'Receive updates for payments and account status';
+  String get emailNotificationsDescription =>
+      'Receive updates for payments and account status';
 
   @override
   String get identityVerificationField => 'Identity Verification';
@@ -2729,7 +2893,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationPreferencesTile => 'Notification Preferences';
 
   @override
-  String get chooseNotificationsSubtitle => 'Choose what notifications to receive';
+  String get chooseNotificationsSubtitle =>
+      'Choose what notifications to receive';
 
   @override
   String get languageAndRegionTile => 'Language & Region';
@@ -2813,13 +2978,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyIsPriority => 'Your privacy is our priority';
 
   @override
-  String get industryStandardEncryption => 'We use industry-standard encryption to protect your data.';
+  String get industryStandardEncryption =>
+      'We use industry-standard encryption to protect your data.';
 
   @override
   String get deleteAccountDialogTitle => 'Delete Account';
 
   @override
-  String get deleteAccountWarning => 'You are about to permanently delete your account. This action is irreversible and all data will be lost.';
+  String get deleteAccountWarning =>
+      'You are about to permanently delete your account. This action is irreversible and all data will be lost.';
 
   @override
   String get willPermanentlyDelete => 'This will permanently delete:';
@@ -2828,16 +2995,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileAndPersonalInfo => 'Your profile and personal information';
 
   @override
-  String get allAppointmentsHistory => 'All appointments and consultation history';
+  String get allAppointmentsHistory =>
+      'All appointments and consultation history';
 
   @override
-  String get medicalRecordsAndDocuments => 'Medical records and uploaded documents';
+  String get medicalRecordsAndDocuments =>
+      'Medical records and uploaded documents';
 
   @override
   String get allMessagesAndChatHistory => 'All messages and chat history';
 
   @override
-  String get paymentRecordsAndHistory => 'Payment records and transaction history';
+  String get paymentRecordsAndHistory =>
+      'Payment records and transaction history';
 
   @override
   String get reviewsAndRatingsGiven => 'Reviews and ratings you\'ve given';
@@ -2852,7 +3022,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteMyAccountButton => 'Delete My Account';
 
   @override
-  String get accountScheduledForDeletion => 'Account scheduled for deletion in 30 days.';
+  String get accountScheduledForDeletion =>
+      'Account scheduled for deletion in 30 days.';
 
   @override
   String get termsOfServiceScreenTitle => 'Terms of Service';
@@ -2861,52 +3032,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acceptanceOfTerms => '1. Acceptance of Terms';
 
   @override
-  String get acceptanceOfTermsDescription => 'By accessing and using Premon Care (\"the App\"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the App.';
+  String get acceptanceOfTermsDescription =>
+      'By accessing and using Premon Care (\"the App\"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the App.';
 
   @override
   String get descriptionOfService => '2. Description of Service';
 
   @override
-  String get descriptionOfServiceDescription => 'Premon Care is a telemedicine platform that connects patients with licensed healthcare providers for virtual consultations. We facilitate appointments, secure messaging, and medical record management.';
+  String get descriptionOfServiceDescription =>
+      'Premon Care is a telemedicine platform that connects patients with licensed healthcare providers for virtual consultations. We facilitate appointments, secure messaging, and medical record management.';
 
   @override
   String get userAccounts => '3. User Accounts';
 
   @override
-  String get userAccountsDescription => 'You must register an account to use the App. You are responsible for maintaining the confidentiality of your account credentials. You must provide accurate and complete information during registration.';
+  String get userAccountsDescription =>
+      'You must register an account to use the App. You are responsible for maintaining the confidentiality of your account credentials. You must provide accurate and complete information during registration.';
 
   @override
   String get medicalDisclaimer => '4. Medical Disclaimer';
 
   @override
-  String get medicalDisclaimerDescription => 'Premon Care does not provide medical advice. The App facilitates communication between patients and licensed healthcare providers. All medical decisions are made solely by the treating physician.';
+  String get medicalDisclaimerDescription =>
+      'Premon Care does not provide medical advice. The App facilitates communication between patients and licensed healthcare providers. All medical decisions are made solely by the treating physician.';
 
   @override
   String get paymentTermsSection => '5. Payment Terms';
 
   @override
-  String get paymentTermsDescription => 'Consultation fees are set by individual practitioners. Payment is processed through peer-to-peer transfers. Receipts must be uploaded for verification. Premon Care charges no additional platform fees for patients.';
+  String get paymentTermsDescription =>
+      'Consultation fees are set by individual practitioners. Payment is processed through peer-to-peer transfers. Receipts must be uploaded for verification. Premon Care charges no additional platform fees for patients.';
 
   @override
   String get privacySection => '6. Privacy';
 
   @override
-  String get privacyDescription => 'Your use of the App is also governed by our Privacy Policy. We are committed to protecting your personal and medical data in compliance with applicable data protection laws.';
+  String get privacyDescription =>
+      'Your use of the App is also governed by our Privacy Policy. We are committed to protecting your personal and medical data in compliance with applicable data protection laws.';
 
   @override
   String get limitationOfLiability => '7. Limitation of Liability';
 
   @override
-  String get limitationOfLiabilityDescription => 'Premon Care shall not be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the App.';
+  String get limitationOfLiabilityDescription =>
+      'Premon Care shall not be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the App.';
 
   @override
   String get changesToTerms => '8. Changes to Terms';
 
   @override
-  String get changesToTermsDescription => 'We reserve the right to modify these terms at any time. Changes will be effective upon posting. Continued use of the App constitutes acceptance of modified terms.';
+  String get changesToTermsDescription =>
+      'We reserve the right to modify these terms at any time. Changes will be effective upon posting. Continued use of the App constitutes acceptance of modified terms.';
 
   @override
-  String get contactLegalForQuestions => 'Contact us at legal@premoncare.com for questions about these terms.';
+  String get contactLegalForQuestions =>
+      'Contact us at legal@premoncare.com for questions about these terms.';
 
   @override
   String get clinicalSessionsHeader => 'CLINICAL SESSIONS';
@@ -2924,10 +3104,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyPastTitle => 'No past history found';
 
   @override
-  String get emptyUpcomingDescription => 'Schedule a consultation with our verified specialists to begin your care journey.';
+  String get emptyUpcomingDescription =>
+      'Schedule a consultation with our verified specialists to begin your care journey.';
 
   @override
-  String get emptyPastDescription => 'Your completed clinical records and summaries will appear here.';
+  String get emptyPastDescription =>
+      'Your completed clinical records and summaries will appear here.';
 
   @override
   String get verifiedSpecialist => 'Verified Specialist';
@@ -3019,7 +3201,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmCancellationTitle => 'Confirm Cancellation';
 
   @override
-  String get cancelConfirmationMessage => 'Are you sure you want to cancel this session? This action is permanent and the specialist will be notified.';
+  String get cancelConfirmationMessage =>
+      'Are you sure you want to cancel this session? This action is permanent and the specialist will be notified.';
 
   @override
   String get connectingToConsultation => 'Connecting to consultation...';
@@ -3049,7 +3232,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couldNotConnectTitle => 'Could not connect';
 
   @override
-  String get checkConnectionRetry => 'Please check your connection and try again';
+  String get checkConnectionRetry =>
+      'Please check your connection and try again';
 
   @override
   String get retryButton => 'Retry';
@@ -3061,13 +3245,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unableToConnectTitle => 'Unable to connect\nright now';
 
   @override
-  String get reconnectingDescription => 'Please hold on while we try to reconnect you\nto an available doctor.';
+  String get reconnectingDescription =>
+      'Please hold on while we try to reconnect you\nto an available doctor.';
 
   @override
   String get highDemandTitle => 'High demand right now';
 
   @override
-  String get heavyTrafficDescription => 'We\'re experiencing heavy traffic. You\'re in the queue and we\'ll connect you as soon as a doctor is available.';
+  String get heavyTrafficDescription =>
+      'We\'re experiencing heavy traffic. You\'re in the queue and we\'ll connect you as soon as a doctor is available.';
 
   @override
   String get yourPositionLabel => 'Your position';
@@ -3076,7 +3262,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get estimatedWaitLabel => 'Est. wait: 2-3 min';
 
   @override
-  String get stillTryingToConnect => 'Don\'t worry, we\'re still trying to connect you.\nPlease keep this screen open.';
+  String get stillTryingToConnect =>
+      'Don\'t worry, we\'re still trying to connect you.\nPlease keep this screen open.';
 
   @override
   String get retryConnectionButton => 'Retry Connection';
@@ -3091,7 +3278,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thisIsAnEmergencyTitle => 'This is an emergency?';
 
   @override
-  String get criticalConditionCall911 => 'If your condition is critical, please call your local emergency service immediately.';
+  String get criticalConditionCall911 =>
+      'If your condition is critical, please call your local emergency service immediately.';
 
   @override
   String get needHelpTitle => 'Need help?';
@@ -3106,7 +3294,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get infoSafeWithUs => 'Your info is safe with us';
 
   @override
-  String get callsAndDataSecure => 'All calls and data are secure and encrypted.';
+  String get callsAndDataSecure =>
+      'All calls and data are secure and encrypted.';
 
   @override
   String get loadingLabel => 'Loading...';
@@ -3129,7 +3318,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotificationsYet => 'No notifications yet';
 
   @override
-  String get notificationsEmptyDescription => 'You\'ll see appointment, payment and clinical updates here.';
+  String get notificationsEmptyDescription =>
+      'You\'ll see appointment, payment and clinical updates here.';
 
   @override
   String get accountMenu => 'Account Menu';
@@ -3168,7 +3358,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get perHour => 'per hour';
 
   @override
-  String get noBankDetailsProvided => 'No bank details provided. Please request payment details from the doctor via chat before transferring.';
+  String get noBankDetailsProvided =>
+      'No bank details provided. Please request payment details from the doctor via chat before transferring.';
 
   @override
   String get paymentInstructionsLabel => 'Payment Instructions';
@@ -3226,7 +3417,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionRescheduledSuccess => 'Session rescheduled successfully';
 
   @override
-  String get cancelSessionWarning => 'Are you sure you want to cancel this session? This action is permanent and the specialist will be notified.';
+  String get cancelSessionWarning =>
+      'Are you sure you want to cancel this session? This action is permanent and the specialist will be notified.';
 
   @override
   String get consultationDefault => 'Consultation';
@@ -3329,13 +3521,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get askDoctorTitle => 'Ask a Doctor';
 
   @override
-  String get askDoctorDescription => 'Get answers from verified healthcare professionals.';
+  String get askDoctorDescription =>
+      'Get answers from verified healthcare professionals.';
 
   @override
   String get needUrgentAdvice => 'Need urgent advice?';
 
   @override
-  String get askVerifiedDoctor => 'Ask a verified doctor and receive professional responses.';
+  String get askVerifiedDoctor =>
+      'Ask a verified doctor and receive professional responses.';
 
   @override
   String get askQuestionButton => 'Ask Question';
@@ -3344,7 +3538,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noQuestionsForDoctorsYet => 'No questions for doctors yet';
 
   @override
-  String get forumDisclaimer => 'Forum responses are for educational purposes and do not replace professional consultations.';
+  String get forumDisclaimer =>
+      'Forum responses are for educational purposes and do not replace professional consultations.';
 
   @override
   String get categoryHeartHealth => 'Heart Health';
@@ -3377,28 +3572,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAPost => 'Create a Post';
 
   @override
-  String get createPostDescription => 'Ask a question, share your experience or start a discussion.';
+  String get createPostDescription =>
+      'Ask a question, share your experience or start a discussion.';
 
   @override
-  String get selectCategoryStep => '1. Select Category ';
+  String get selectCategoryStep => '1. Select Category';
 
   @override
-  String get postTitleStep => '2. Post Title ';
+  String get postTitleStep => '2. Post Title';
 
   @override
-  String get describeQuestionStep => '3. Describe Your Question or Topic ';
+  String get describeQuestionStep => '3. Describe Your Question or Topic';
 
   @override
-  String get addAttachmentsStep => '4. Add Attachments ';
+  String get addAttachmentsStep => '4. Add Attachments';
 
   @override
   String get optionalParen => '(Optional)';
 
   @override
-  String get tipMoreDetails => 'Tip: The more details you provide, the better and more helpful the responses you\'ll receive.';
+  String get tipMoreDetails =>
+      'Tip: The more details you provide, the better and more helpful the responses you\'ll receive.';
 
   @override
-  String get uploadImagesOrDocuments => 'You can upload images or documents to provide more context.';
+  String get uploadImagesOrDocuments =>
+      'You can upload images or documents to provide more context.';
 
   @override
   String get addPhoto => 'Add Photo';
@@ -3413,13 +3611,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addOther => 'Add Other';
 
   @override
-  String get supportedFormats => 'Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file';
+  String get supportedFormats =>
+      'Supported formats: JPG, PNG, PDF, DOC â€¢ Max size: 10MB per file';
 
   @override
   String get postAnonymously => 'Post Anonymously';
 
   @override
-  String get nameHiddenFromMembers => 'Your name will be hidden from other members.';
+  String get nameHiddenFromMembers =>
+      'Your name will be hidden from other members.';
 
   @override
   String get postQuestionButton => 'Post Question';
@@ -3433,7 +3633,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityForum => 'Community Forum';
 
   @override
-  String get askShareLearn => 'Ask questions, share experiences and learn from others';
+  String get askShareLearn =>
+      'Ask questions, share experiences and learn from others';
 
   @override
   String get sortByLabel => 'Sort By';
@@ -3498,7 +3699,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notFollowingAnything => 'Not following anything';
 
   @override
-  String get postsYouFollowWillAppearHere => 'Posts you follow will appear here';
+  String get postsYouFollowWillAppearHere =>
+      'Posts you follow will appear here';
 
   @override
   String get notFollowingAnyPosts => 'Not following any posts';
@@ -3519,7 +3721,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityMemberLabel => 'Community Member';
 
   @override
-  String get postedInLabel => '• Posted in ';
+  String get postedInLabel => 'â€¢ Posted in ';
 
   @override
   String get viewsLabel => 'Views';
@@ -3563,10 +3765,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedPostsTab => 'Saved Posts';
 
   @override
-  String get tapBookmarkToSave => 'Tap the bookmark icon on any post to save it here';
+  String get tapBookmarkToSave =>
+      'Tap the bookmark icon on any post to save it here';
 
   @override
-  String get tapFollowToTrack => 'Tap Follow on any post or category to track it here';
+  String get tapFollowToTrack =>
+      'Tap Follow on any post or category to track it here';
 
   @override
   String get followedCategoriesLabel => 'Followed Categories';
@@ -3584,7 +3788,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSharedRecordsEmptyTitle => 'No Shared Records';
 
   @override
-  String get patientsMustShareDesc => 'Patients must explicitly share their vault documents with you for them to appear here.';
+  String get patientsMustShareDesc =>
+      'Patients must explicitly share their vault documents with you for them to appear here.';
 
   @override
   String get viewRecordButton => 'View Record';
@@ -3596,7 +3801,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourVaultIsEmptyTitle => 'Your vault is empty';
 
   @override
-  String get securelyStoreManageDesc => 'Securely store and manage your clinical reports, prescriptions, and medical history in one encrypted location.';
+  String get securelyStoreManageDesc =>
+      'Securely store and manage your clinical reports, prescriptions, and medical history in one encrypted location.';
 
   @override
   String get uploadHealthRecordButton => 'Upload Health Record';
@@ -3608,19 +3814,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get endToEndEncryptionTitle => 'End-to-End Encryption';
 
   @override
-  String get clinicalDataConfidentialDesc => 'Your clinical data is strictly confidential and accessible only by you and your authorized specialists.';
+  String get clinicalDataConfidentialDesc =>
+      'Your clinical data is strictly confidential and accessible only by you and your authorized specialists.';
 
   @override
   String get shareWithDoctorOption => 'Share with Doctor';
 
   @override
-  String get onlyAuthorizedDoctorsDesc => 'Only authorized doctors can view and decrypt this record.';
+  String get onlyAuthorizedDoctorsDesc =>
+      'Only authorized doctors can view and decrypt this record.';
 
   @override
   String get secureVaultUploadTitle => 'Secure Vault Upload';
 
   @override
-  String get filesEncryptedBucketDesc => 'Your files are stored in an encrypted private bucket.';
+  String get filesEncryptedBucketDesc =>
+      'Your files are stored in an encrypted private bucket.';
 
   @override
   String get recordTitleField => 'Record Title';
@@ -3632,7 +3841,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get encryptAndUploadButton => 'Encrypt & Upload to Vault';
 
   @override
-  String get provideTitleAndFileError => 'Please provide a title and select a file';
+  String get provideTitleAndFileError =>
+      'Please provide a title and select a file';
 
   @override
   String get fileSizeMustBeUnder5MB => 'File size must be under 5MB';
@@ -3644,7 +3854,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get encryptedTLS => 'Encrypted TLS';
 
   @override
-  String get messagesEncryptedTLS => 'Messages are encrypted in transit via TLS.';
+  String get messagesEncryptedTLS =>
+      'Messages are encrypted in transit via TLS.';
 
   @override
   String get unreadMessageLabel => '1 Unread Message';
@@ -3653,19 +3864,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startYourConsultationTitle => 'Start your consultation';
 
   @override
-  String get feelFreeToAskDesc => 'Feel free to ask questions or share symptoms with your specialist.';
+  String get feelFreeToAskDesc =>
+      'Feel free to ask questions or share symptoms with your specialist.';
 
   @override
   String get chatsTitle => 'Chats';
 
   @override
-  String get toStartConversationDesc => 'To start a conversation, go to a doctor\'s profile and tap Send Message';
+  String get toStartConversationDesc =>
+      'To start a conversation, go to a doctor\'s profile and tap Send Message';
 
   @override
   String get noConversationsYetTitle => 'No conversations yet';
 
   @override
-  String get startChatSpecialistDesc => 'Start a chat with a specialist to see it here.';
+  String get startChatSpecialistDesc =>
+      'Start a chat with a specialist to see it here.';
 
   @override
   String noMatchesForSearch(Object query) {
@@ -3676,7 +3890,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get professionalCredentialsTitle => 'Professional Credentials';
 
   @override
-  String get helpVerifyExpertiseDesc => 'Help us verify your medical expertise and practice history.';
+  String get helpVerifyExpertiseDesc =>
+      'Help us verify your medical expertise and practice history.';
 
   @override
   String get professionalTitleField => 'Professional Title';
@@ -3697,13 +3912,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get identityVerificationScreenTitle => 'Identity Verification';
 
   @override
-  String get secureUploadGovtIdDesc => 'Securely upload your government-issued identification.';
+  String get secureUploadGovtIdDesc =>
+      'Securely upload your government-issued identification.';
 
   @override
   String get governmentIdLabel => 'Government ID';
 
   @override
-  String get intlPassportOrNationalId => 'International Passport or National ID';
+  String get intlPassportOrNationalId =>
+      'International Passport or National ID';
 
   @override
   String get proofOfAddressLabel => 'Proof of Address';
@@ -3715,13 +3932,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get faceRecognitionTitle => 'Face Recognition';
 
   @override
-  String get verifyIdentityDocumentDesc => 'Verify that you are the person on the identity document.';
+  String get verifyIdentityDocumentDesc =>
+      'Verify that you are the person on the identity document.';
 
   @override
   String get reviewSubmissionTitle => 'Review Submission';
 
   @override
-  String get confirmDetailsBeforeDesc => 'Confirm your details before submitting for official review.';
+  String get confirmDetailsBeforeDesc =>
+      'Confirm your details before submitting for official review.';
 
   @override
   String get docsStatusLabel => 'Docs Status';
@@ -3730,7 +3949,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verificationReadyLabel => 'Verification Ready';
 
   @override
-  String get certifyInfoAccurate => 'I certify that the provided information is accurate and comply with Premon Care Professional Terms.';
+  String get certifyInfoAccurate =>
+      'I certify that the provided information is accurate and comply with Premon Care Professional Terms.';
 
   @override
   String get submitApplicationButton => 'Submit Application';
@@ -3772,7 +3992,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get applicationSubmittedTitle => 'Application Submitted!';
 
   @override
-  String get credentialsUnderReviewDesc => 'Your professional credentials are now under review. This typically takes 24-48 hours. We will notify you once your account has been verified.';
+  String get credentialsUnderReviewDesc =>
+      'Your professional credentials are now under review. This typically takes 24-48 hours. We will notify you once your account has been verified.';
 
   @override
   String get returnToDashboardButton => 'Return to Dashboard';
@@ -3784,49 +4005,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifyYourNumber => 'Verify Your Number';
 
   @override
-  String get verifyPhoneNumberDescription => 'Verify your phone number to continue and secure your emergency care.';
+  String get verifyPhoneNumberDescription =>
+      'Verify your phone number to continue and secure your emergency care.';
 
   @override
   String get createYourProfile => 'Create Your Profile';
 
   @override
-  String get tellUsAboutYourself => 'Tell us a bit about yourself to personalize your healthcare experience.';
+  String get tellUsAboutYourself =>
+      'Tell us a bit about yourself to personalize your healthcare experience.';
 
   @override
   String get emergencyGuestConversionFlow => 'Emergency Guest\nConversion Flow';
 
   @override
-  String get convertGuestUsersDescription => 'Convert emergency guest users to verified accounts for continuity of care and better support.';
+  String get convertGuestUsersDescription =>
+      'Convert emergency guest users to verified accounts for continuity of care and better support.';
 
   @override
   String get yourHealthMatters => 'Your Health Matters';
 
   @override
-  String get healthJourneySupportMessage => 'We\'re here to support you on your health journey. Thank you for choosing Premon Care.';
+  String get healthJourneySupportMessage =>
+      'We\'re here to support you on your health journey. Thank you for choosing Premon Care.';
 
   @override
   String get viewHealthRecords => 'View Health\nRecords';
 
   @override
-  String get viewHealthRecordsDescription => 'Access your emergency consultation and health history.';
+  String get viewHealthRecordsDescription =>
+      'Access your emergency consultation and health history.';
 
   @override
   String get bookAppointments => 'Book\nAppointments';
 
   @override
-  String get bookAppointmentsDescription => 'Schedule consultations with trusted doctors.';
+  String get bookAppointmentsDescription =>
+      'Schedule consultations with trusted doctors.';
 
   @override
   String get getHealthReminders => 'Get Health\nReminders';
 
   @override
-  String get getHealthRemindersDescription => 'Receive medication reminders and follow-ups.';
+  String get getHealthRemindersDescription =>
+      'Receive medication reminders and follow-ups.';
 
   @override
   String get chatWithDoctors => 'Chat with\nDoctors';
 
   @override
-  String get chatWithDoctorsDescription => 'Connect with doctors anytime for follow-up care.';
+  String get chatWithDoctorsDescription =>
+      'Connect with doctors anytime for follow-up care.';
 
   @override
   String get phoneLabel => 'Phone Number';
@@ -3838,7 +4067,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewMyHealthRecord => 'View My Health Record';
 
   @override
-  String get healthDataAlwaysProtected => 'Your health. Your data. Always protected.';
+  String get healthDataAlwaysProtected =>
+      'Your health. Your data. Always protected.';
 
   @override
   String get iIllDoThisLater => 'I\'ll Do This Later';
@@ -3853,19 +4083,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTitle1 => 'Book verified\ndoctors instantly';
 
   @override
-  String get onboardingText1 => 'Find and book trusted doctors in just a few taps.';
+  String get onboardingText1 =>
+      'Find and book trusted doctors in just a few taps.';
 
   @override
   String get onboardingTitle2 => 'Secure video\nconsultations';
 
   @override
-  String get onboardingText2 => 'Talk to your doctor securely from the comfort of your home.';
+  String get onboardingText2 =>
+      'Talk to your doctor securely from the comfort of your home.';
 
   @override
   String get onboardingTitle3 => 'Pay with\ntime credits';
 
   @override
-  String get onboardingText3 => 'Use time credits for consultations - simple, transparent, and fair.';
+  String get onboardingText3 =>
+      'Use time credits for consultations - simple, transparent, and fair.';
 
   @override
   String get skipLabel => 'Skip';
@@ -3919,7 +4152,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get standardSupport => 'Standard support';
 
   @override
-  String get timeCreditsNaira2000 => 'Time credits (₦2,000)';
+  String get timeCreditsNaira2000 => 'Time credits (â‚¦2,000)';
 
   @override
   String get familyAccountNA => 'Family account (N/A)';
@@ -3928,13 +4161,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vipSupport => 'VIP support';
 
   @override
-  String get timeCreditsNaira7500 => 'Time credits (₦7,500)';
+  String get timeCreditsNaira7500 => 'Time credits (â‚¦7,500)';
 
   @override
   String get familyAccountUpTo10 => 'Family account (up to 10)';
 
   @override
-  String get timeCreditsNaira20000 => 'Time credits (₦20,000)';
+  String get timeCreditsNaira20000 => 'Time credits (â‚¦20,000)';
 
   @override
   String get tenConsultationsPerMonth => '10 consultations / month';
@@ -3967,7 +4200,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get doctorAvailabilitySchedule => 'Doctor Availability & Schedule';
 
   @override
-  String get manageWorkingHoursDescription => 'Manage your working hours, availability and preferences';
+  String get manageWorkingHoursDescription =>
+      'Manage your working hours, availability and preferences';
 
   @override
   String get openForBookings => 'You are open for bookings';
@@ -4015,7 +4249,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startConsultationTitle => 'Start your consultation';
 
   @override
-  String get feelFreeToAskDesc2 => 'Feel free to ask questions or share symptoms with your specialist.';
+  String get feelFreeToAskDesc2 =>
+      'Feel free to ask questions or share symptoms with your specialist.';
 
   @override
   String get prescriptionLabel => 'Prescription';
@@ -4111,37 +4346,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userManagement => 'User Management';
 
   @override
-  String get userManagementSubtitle => 'View, manage and take actions on all platform users';
+  String get userManagementSubtitle =>
+      'View, manage and take actions on all platform users';
 
   @override
   String get addUser => 'Add User';
 
   @override
-  String get addUserDescription => 'New users register through the patient portal. Send them the registration link.';
+  String get addUserDescription =>
+      'New users register through the patient portal. Send them the registration link.';
 
   @override
   String get bulkActions => 'Bulk Actions';
 
   @override
-  String get bulkActionsDescription => 'Bulk actions are being developed. Manage users individually through the list above.';
+  String get bulkActionsDescription =>
+      'Bulk actions are being developed. Manage users individually through the list above.';
 
   @override
   String get exportUsers => 'Export Users';
 
   @override
-  String get exportUsersDescription => 'Export is being developed. Use your device\'s screenshot feature to save user data.';
+  String get exportUsersDescription =>
+      'Export is being developed. Use your device\'s screenshot feature to save user data.';
 
   @override
   String get inviteUser => 'Invite User';
 
   @override
-  String get inviteUserDescription => 'Invitations are sent automatically when users register. Direct them to the signup page.';
+  String get inviteUserDescription =>
+      'Invitations are sent automatically when users register. Direct them to the signup page.';
 
   @override
   String get userLogs => 'User Logs';
 
   @override
-  String get userLogsDescription => 'Audit logs are being developed. All admin actions are tracked in the system for compliance.';
+  String get userLogsDescription =>
+      'Audit logs are being developed. All admin actions are tracked in the system for compliance.';
 
   @override
   String get totalUsers => 'Total Users';
@@ -4203,22 +4444,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rejectApplication => 'Reject Application';
 
   @override
-  String get rejectApplicationDescription => 'Please provide a reason for rejecting this application. This will be sent to the user.';
+  String get rejectApplicationDescription =>
+      'Please provide a reason for rejecting this application. This will be sent to the user.';
 
   @override
   String get requestInformation => 'Request Information';
 
   @override
-  String get requestInformationDescription => 'What additional information do you need from the applicant?';
+  String get requestInformationDescription =>
+      'What additional information do you need from the applicant?';
 
   @override
-  String get requestInformationHint => 'E.g. Please upload a clearer copy of your Medical License.';
+  String get requestInformationHint =>
+      'E.g. Please upload a clearer copy of your Medical License.';
 
   @override
   String get sendRequest => 'Send Request';
 
   @override
-  String get infoRequestSentStatus => 'Information request sent. Status set to Under Review.';
+  String get infoRequestSentStatus =>
+      'Information request sent. Status set to Under Review.';
 
   @override
   String get underReviewTab => 'Under Review';
@@ -4277,7 +4522,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get revoke => 'Revoke';
 
   @override
-  String get verificationRevokedSuccessfully => 'Verification revoked successfully';
+  String get verificationRevokedSuccessfully =>
+      'Verification revoked successfully';
 
   @override
   String get identityComparison => 'Identity Comparison';
@@ -4319,7 +4565,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noDocumentsSubmitted => 'No documents submitted';
 
   @override
-  String get noDocumentsYet => 'The applicant has not uploaded any documents yet.';
+  String get noDocumentsYet =>
+      'The applicant has not uploaded any documents yet.';
 
   @override
   String get applicationDateUnknown => 'Application date unknown';
@@ -4459,7 +4706,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disputeResolutionCenter => 'Dispute Resolution Center';
 
   @override
-  String get disputeResolutionSubtitle => 'Manage, review and resolve disputes fairly and efficiently.';
+  String get disputeResolutionSubtitle =>
+      'Manage, review and resolve disputes fairly and efficiently.';
 
   @override
   String get openDisputes => 'Open Disputes';
@@ -4561,7 +4809,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learnMore => 'Learn more';
 
   @override
-  String get fairResolutionText => 'We ensure fair, secure and transparent resolution for all parties involved.';
+  String get fairResolutionText =>
+      'We ensure fair, secure and transparent resolution for all parties involved.';
 
   @override
   String get markAsUnderReview => 'Mark as Under Review';
@@ -4585,7 +4834,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordTitleHint => 'e.g. June Blood Test';
 
   @override
-  String fileSelectedLabel(String fileName) {
+  String fileSelectedLabel(Object fileName) {
     return 'File Selected: $fileName';
   }
 
@@ -4650,7 +4899,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noPendingApplications => 'No pending applications';
 
   @override
-  String get allApplicationsReviewed => 'All doctor applications have been reviewed.';
+  String get allApplicationsReviewed =>
+      'All doctor applications have been reviewed.';
 
   @override
   String get failedToLoadApplications => 'Failed to load applications';
@@ -4659,7 +4909,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRecentTransactions => 'No recent transactions';
 
   @override
-  String get transactionsWillAppear => 'Transactions will appear here once payments are processed.';
+  String get transactionsWillAppear =>
+      'Transactions will appear here once payments are processed.';
 
   @override
   String get refundedLabel => 'Refunded';
@@ -4698,7 +4949,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminProfile => 'Admin Profile';
 
   @override
-  String get adminProfileDeveloped => 'Admin profile settings are being developed. Your account is managed by the platform owner.';
+  String get adminProfileDeveloped =>
+      'Admin profile settings are being developed. Your account is managed by the platform owner.';
 
   @override
   String get permissionsRole => 'Permissions / Role';
@@ -4767,7 +5019,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsInsightsCenter => 'Reports & Insights Center';
 
   @override
-  String get trackPerformanceDescription => 'Track performance, usage and key metrics in real-time';
+  String get trackPerformanceDescription =>
+      'Track performance, usage and key metrics in real-time';
 
   @override
   String get exportReport => 'Export Report';
@@ -4806,7 +5059,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get topPerformingDoctors => 'Top Performing Doctors';
 
   @override
-  String get noDoctorAppointmentsPeriod => 'No doctor appointments in this period';
+  String get noDoctorAppointmentsPeriod =>
+      'No doctor appointments in this period';
 
   @override
   String get doctorColumnHeader => 'Doctor';
@@ -4854,7 +5108,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get systemAuditLogs => 'System & audit logs';
 
   @override
-  String get reportsRealTimeEncrypted => 'All reports are updated in real-time and data is securely encrypted.';
+  String get reportsRealTimeEncrypted =>
+      'All reports are updated in real-time and data is securely encrypted.';
 
   @override
   String get failedToLoadEmergencyQueue => 'Failed to load emergency queue';
@@ -4874,7 +5129,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noEmergencyConsultsWaiting => 'No emergency consults waiting';
 
   @override
-  String get guestEmergencyBookingsWillAppear => 'New guest emergency bookings will appear here for immediate operational review.';
+  String get guestEmergencyBookingsWillAppear =>
+      'New guest emergency bookings will appear here for immediate operational review.';
 
   @override
   String get responseChecklist => 'Response Checklist';
@@ -4883,19 +5139,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmDoctorAvailability => 'Confirm doctor availability';
 
   @override
-  String get ensureSpecialistOnline => 'Ensure the selected specialist is online and responsive.';
+  String get ensureSpecialistOnline =>
+      'Ensure the selected specialist is online and responsive.';
 
   @override
   String get validateEmergencyPayment => 'Validate emergency payment';
 
   @override
-  String get checkP2pEvidence => 'Check P2P evidence before session activation.';
+  String get checkP2pEvidence =>
+      'Check P2P evidence before session activation.';
 
   @override
   String get monitorConversionFollowup => 'Monitor conversion follow-up';
 
   @override
-  String get guideGuestsRecords => 'Guide guests to secure their records after consultation.';
+  String get guideGuestsRecords =>
+      'Guide guests to secure their records after consultation.';
 
   @override
   String get guestPatient => 'Guest Patient';
@@ -4915,16 +5174,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agoLabel => 'ago';
 
   @override
-  String get allClearMessage => 'All clear! No emergency consultations currently waiting. New guest emergency bookings will appear here for immediate operational review.';
+  String get allClearMessage =>
+      'All clear! No emergency consultations currently waiting. New guest emergency bookings will appear here for immediate operational review.';
 
   @override
-  String get chooseCaseFromQueue => 'Choose a case from the queue to view details and respond.';
+  String get chooseCaseFromQueue =>
+      'Choose a case from the queue to view details and respond.';
 
   @override
   String get clinicalDetails => 'Clinical Details';
 
   @override
-  String get connectionIssue => 'There was a connection issue. Please try again.';
+  String get connectionIssue =>
+      'There was a connection issue. Please try again.';
 
   @override
   String get consultationInProgress => 'Consultation in progress';
@@ -4966,8 +5228,281 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknownPatient => 'Unknown Patient';
 
   @override
-  String get infoRequestSent => 'Information request sent. Status set to Under Review.';
+  String get infoRequestSent =>
+      'Information request sent. Status set to Under Review.';
 
   @override
   String get addAdminNotesHint => 'Add a note (optional)...';
+
+  @override
+  String get activeLabel => 'Active';
+
+  @override
+  String get addComment => 'Add a comment';
+
+  @override
+  String get approvedLabel => 'APPROVED';
+
+  @override
+  String get approveLabel => 'Approve';
+
+  @override
+  String get availabilityLabel2 => 'Availability';
+
+  @override
+  String get availableLabel => 'Available';
+
+  @override
+  String get baseConsultationFee => 'Base consultation fee';
+
+  @override
+  String get blockLabel => 'Block';
+
+  @override
+  String get blockPatientLabel => 'Block patient';
+
+  @override
+  String get bookLabel => 'Book';
+
+  @override
+  String get cancelYourPlan => 'Cancel your plan';
+
+  @override
+  String get choosePlanLabel => 'Choose Plan';
+
+  @override
+  String get clinicalRatingLabel => 'Clinical rating';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get completedStatusLabel => 'COMPLETED';
+
+  @override
+  String get connectionProgress => 'Connection progress';
+
+  @override
+  String get consultationComplete => 'Consultation complete';
+
+  @override
+  String get consultationSuccessful => 'Consultation successful';
+
+  @override
+  String get contactSupportLabel => 'Contact support';
+
+  @override
+  String get currentPlanButton => 'Current Plan';
+
+  @override
+  String get currentPlanLabel => 'Current plan';
+
+  @override
+  String get defaultLabel => 'Default';
+
+  @override
+  String get deleteLabel => 'Delete';
+
+  @override
+  String get digitalReceipt => 'Digital receipt';
+
+  @override
+  String get disputedLabel => 'DISPUTED';
+
+  @override
+  String get doctorConsultation => 'Doctor consultation';
+
+  @override
+  String get doctorProfileLabel => 'Doctor profile';
+
+  @override
+  String get doctorRespondTime => 'Doctor response time';
+
+  @override
+  String get emergencyMode => 'Emergency mode';
+
+  @override
+  String get emergencyPaymentNote => 'Emergency payment note';
+
+  @override
+  String get emergencyQueue => 'Emergency Queue';
+
+  @override
+  String get feeBreakdown => 'Fee breakdown';
+
+  @override
+  String get freeLabel => 'Free';
+
+  @override
+  String get goHome => 'Go Home';
+
+  @override
+  String get historyLabel => 'History';
+
+  @override
+  String get locationLabel => 'Location';
+
+  @override
+  String get logOutLabel => 'Log out';
+
+  @override
+  String get medicalRecordsMenu => 'Medical Records';
+
+  @override
+  String get minutesLabel => 'Minutes';
+
+  @override
+  String get minutesReview => 'Minutes review';
+
+  @override
+  String get monthlyValue => 'Monthly';
+
+  @override
+  String get mostPopularLabel => 'Most Popular';
+
+  @override
+  String get needHelpLabel => 'Need help?';
+
+  @override
+  String get noEmergencyConsults => 'No emergency consultations';
+
+  @override
+  String get offlineLabel => 'Offline';
+
+  @override
+  String get offlineStatus => 'Offline';
+
+  @override
+  String get onlineLabel => 'Online';
+
+  @override
+  String get onlineStatus => 'Online';
+
+  @override
+  String get orLabel => 'or';
+
+  @override
+  String get overviewTab => 'Overview';
+
+  @override
+  String get patientDetailsLabel => 'Patient details';
+
+  @override
+  String get pauseLabel => 'Pause';
+
+  @override
+  String get paymentApprovalsLabel => 'Payment approvals';
+
+  @override
+  String get paymentConfirmed => 'Payment confirmed';
+
+  @override
+  String get paymentMethodLabel => 'Payment method';
+
+  @override
+  String get pendingStatusLabel => 'Pending';
+
+  @override
+  String get premiumPlanLabel => 'Premium Plan';
+
+  @override
+  String get priceLabel => 'Price';
+
+  @override
+  String get priorityLabel => 'Priority';
+
+  @override
+  String get rateExperience => 'Rate your experience';
+
+  @override
+  String get reasonLabel => 'Reason';
+
+  @override
+  String get recordsLabel => 'Records';
+
+  @override
+  String get recordsTab => 'Records';
+
+  @override
+  String get rejectLabel => 'Reject';
+
+  @override
+  String get reportsLabel => 'Reports';
+
+  @override
+  String get requestExpiredMessage => 'Request expired';
+
+  @override
+  String get resolveNow => 'Resolve now';
+
+  @override
+  String get reviewSubmitted => 'Review submitted';
+
+  @override
+  String get searchingDoctors => 'Searching doctors';
+
+  @override
+  String get searchingDoctorsMessage =>
+      'Searching for available doctors near you...';
+
+  @override
+  String get sendAgain => 'Send again';
+
+  @override
+  String get sendMessageLabel => 'Send message';
+
+  @override
+  String get sessionCompletedMessage =>
+      'Your session has been completed successfully.';
+
+  @override
+  String get settingsLabel => 'Settings';
+
+  @override
+  String get subscriptionLabel => 'Subscription';
+
+  @override
+  String get subscriptionManagementLabel => 'Subscription Management';
+
+  @override
+  String get supportLabel => 'Support';
+
+  @override
+  String get timeLabel => 'Time';
+
+  @override
+  String get tipConnection => 'Tip: Check your internet connection.';
+
+  @override
+  String get tipRelax => 'Tip: Relax while we find a doctor.';
+
+  @override
+  String get tipSecure => 'Tip: Your session is secure and encrypted.';
+
+  @override
+  String get tipSymptoms => 'Tip: Prepare your symptoms for the doctor.';
+
+  @override
+  String get totalEstimated => 'Total estimated';
+
+  @override
+  String get unlimitedLabel => 'Unlimited';
+
+  @override
+  String get verificationStatusLabel => 'Verification status';
+
+  @override
+  String get verifiedLabelCustom => 'Verified';
+
+  @override
+  String get viewDoctor => 'View Doctor';
+
+  @override
+  String get viewLabel => 'View';
+
+  @override
+  String get whileYouWait => 'While you wait';
+
+  @override
+  String get logout => 'Logout';
 }

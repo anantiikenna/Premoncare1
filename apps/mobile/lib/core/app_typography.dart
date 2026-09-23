@@ -121,4 +121,17 @@ class AppTypography {
 
   static TextStyle captionOf(BuildContext context) => _t(context, caption, AppColors.textTertiaryOf);
   static TextStyle overlineOf(BuildContext context) => _t(context, overline, AppColors.textTertiaryOf);
+
+  // ─── Material aliases used by admin screens ──────────────────────
+  static TextStyle headlineLargeOf(BuildContext context) => h1Of(context);
+  static TextStyle headlineMediumOf(BuildContext context) => h2Of(context);
+  static TextStyle headlineSmallOf(BuildContext context) => h3Of(context);
+  static TextStyle titleLargeOf(BuildContext context) => h3Of(context);
+  static TextStyle titleMediumOf(BuildContext context) => h4Of(context);
+  static TextStyle titleSmallOf(BuildContext context) => h4Of(context);
+
+  static TextStyle headlineMedium(BuildContext context) => h2Of(context);
+  static TextStyle titleLarge(BuildContext context) => h3Of(context);
+  static TextStyle titleMedium(BuildContext context) => h4Of(context);
+  static TextStyle labelMediumOfContext(BuildContext context) => labelMediumOf(context);
 }

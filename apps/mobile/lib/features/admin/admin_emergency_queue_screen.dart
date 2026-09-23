@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
 import '../../l10n/app_localizations.dart';
@@ -289,7 +290,7 @@ class _AdminEmergencyQueueScreenState
       ),
       child: Text(
         label,
-        style: AppTypography.labelMedium(context).copyWith(
+        style: AppTypography.labelMediumOf(context).copyWith(
           color: color,
           fontWeight: FontWeight.w700,
         ),
@@ -412,7 +413,7 @@ class _AdminEmergencyQueueScreenState
                                   ),
                                   child: Text(
                                     AppLocalizations.of(context)!.pendingReview,
-                                    style: AppTypography.labelSmall(
+                                    style: AppTypography.labelSmallOf(
                                       context,
                                     ).copyWith(
                                       color: AppColors.error,
@@ -425,7 +426,7 @@ class _AdminEmergencyQueueScreenState
                           const SizedBox(height: 4),
                           Text(
                             emergencyCase.specialty ?? AppLocalizations.of(context)!.noSpecialtyAssigned,
-                            style: AppTypography.bodySmall(context).copyWith(
+                            style: AppTypography.bodySmallOf(context).copyWith(
                               color: AppColors.textSecondaryOf(context),
                             ),
                           ),
@@ -460,7 +461,7 @@ class _AdminEmergencyQueueScreenState
                     const SizedBox(width: 6),
                     Text(
                       _formatTimeAgo(emergencyCase.createdAt),
-                      style: AppTypography.labelMedium(context).copyWith(
+                      style: AppTypography.labelMediumOf(context).copyWith(
                         color: AppColors.textSecondaryOf(context),
                       ),
                     ),
@@ -495,14 +496,14 @@ class _AdminEmergencyQueueScreenState
                 children: [
                   TextSpan(
                     text: '$label: ',
-                    style: AppTypography.labelMedium(context).copyWith(
+                    style: AppTypography.labelMediumOf(context).copyWith(
                       color: AppColors.textTertiaryOf(context),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   TextSpan(
                     text: value,
-                    style: AppTypography.labelMedium(context).copyWith(
+                    style: AppTypography.labelMediumOf(context).copyWith(
                       color: AppColors.textSecondaryOf(context),
                     ),
                   ),
@@ -580,7 +581,7 @@ class _AdminEmergencyQueueScreenState
                     const SizedBox(height: 4),
                     Text(
                       '${emergencyCase.specialty ?? AppLocalizations.of(context)!.noSpecialty} - ${_getStatusLabel(emergencyCase.status)}',
-                      style: AppTypography.bodyMedium(context).copyWith(
+                      style: AppTypography.bodyMediumOf(context).copyWith(
                         color: statusColor,
                         fontWeight: FontWeight.w600,
                       ),
@@ -701,7 +702,7 @@ class _AdminEmergencyQueueScreenState
           Expanded(
             child: Text(
               label,
-              style: AppTypography.bodyMedium(context).copyWith(
+              style: AppTypography.bodyMediumOf(context).copyWith(
                 color: completed
                     ? AppColors.textPrimaryOf(context)
                     : AppColors.textSecondaryOf(context),
@@ -747,7 +748,7 @@ class _AdminEmergencyQueueScreenState
       children: [
         Text(
           label,
-          style: AppTypography.labelMedium(context).copyWith(
+          style: AppTypography.labelMediumOf(context).copyWith(
             color: AppColors.textTertiaryOf(context),
             fontWeight: FontWeight.w600,
           ),
@@ -755,7 +756,7 @@ class _AdminEmergencyQueueScreenState
         const SizedBox(height: 6),
         Text(
           value,
-          style: AppTypography.bodyMedium(context).copyWith(
+          style: AppTypography.bodyMediumOf(context).copyWith(
             color: AppColors.textPrimaryOf(context),
             height: 1.5,
           ),
@@ -792,7 +793,7 @@ class _AdminEmergencyQueueScreenState
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.chooseCaseFromQueue,
-            style: AppTypography.bodyMedium(context).copyWith(
+            style: AppTypography.bodyMediumOf(context).copyWith(
               color: AppColors.textSecondaryOf(context),
             ),
             textAlign: TextAlign.center,
@@ -833,7 +834,7 @@ class _AdminEmergencyQueueScreenState
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.allClearMessage,
-              style: AppTypography.bodyMedium(context).copyWith(
+              style: AppTypography.bodyMediumOf(context).copyWith(
                 color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,
@@ -856,7 +857,7 @@ class _AdminEmergencyQueueScreenState
           const SizedBox(height: 20),
           Text(
             AppLocalizations.of(context)!.loadingEmergencies,
-            style: AppTypography.bodyMedium(context).copyWith(
+            style: AppTypography.bodyMediumOf(context).copyWith(
               color: AppColors.textSecondaryOf(context),
             ),
           ),
@@ -896,7 +897,7 @@ class _AdminEmergencyQueueScreenState
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.connectionIssue,
-              style: AppTypography.bodyMedium(context).copyWith(
+              style: AppTypography.bodyMediumOf(context).copyWith(
                 color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,

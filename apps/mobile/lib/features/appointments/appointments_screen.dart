@@ -239,7 +239,10 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> with Si
                   children: [
                     Text(appointment.doctorName, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: AppColors.textPrimaryOf(context))),
                     const SizedBox(height: 4),
-                    child: Text(AppLocalizations.of(context)!.verifiedSpecialist, style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700)),
+                    Text(
+                      AppLocalizations.of(context)!.verifiedSpecialist,
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondaryOf(context), fontWeight: FontWeight.w700),
+                    ),
                   ],
                 ),
               ),

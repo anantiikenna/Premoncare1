@@ -957,7 +957,6 @@ class _DisputeResolutionScreenState
                   height: 1.5,
                 ),
               ),
-              ),
               const SizedBox(height: 16),
               Row(
                 children: [

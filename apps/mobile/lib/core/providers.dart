@@ -118,29 +118,34 @@ final patientMedicalRecordsProvider = StreamProvider.autoDispose<List<Map<String
 
 /// Provider for admin dashboard stats (total users, doctors, appointments, revenue)
 final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final results = await Future.wait([
-    supabase.from('profiles').select('id').count(),
-    supabase.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'approved').count(),
-    supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count(),
-    supabase.from('appointments').select('id').count(),
-    supabase.from('appointments').select('id').eq('status', 'completed').count(),
-    supabase.from('appointments').select('id').eq('status', 'cancelled').count(),
-    supabase.from('payments').select('amount').eq('status', 'approved'),
+  final results = await Future.wait<List<dynamic>>([
+    supabase.from('profiles').select('id').count() as Future<List<dynamic>>,
+    supabase.from('profiles').select('id').eq('role', 'doctor').eq('verification_status', 'approved').count() as Future<List<dynamic>>,
+    supabase.from('appointments').select('id').gte('appointment_date', DateTime.now().toIso8601String()).count() as Future<List<dynamic>>,
+    supabase.from('appointments').select('id').count() as Future<List<dynamic>>,
+    supabase.from('appointments').select('id').eq('status', 'completed').count() as Future<List<dynamic>>,
+    supabase.from('appointments').select('id').eq('status', 'cancelled').count() as Future<List<dynamic>>,
+    supabase.from('payments').select('amount').eq('status', 'approved') as Future<List<dynamic>>,
   ]);
 
+  // count() returns Response wrappers; access .count via dynamic when present
+  int countOf(dynamic r) {
+    try { return (r as dynamic).count as int; } catch (_) { return 0; }
+  }
+
   num totalRevenue = 0;
-  final payments = results[6] as List<Map<String, dynamic>>;
+  final payments = results[6].cast<Map<String, dynamic>>();
   for (var p in payments) {
     totalRevenue += (p['amount'] as num?) ?? 0;
   }
 
   return {
-    'totalUsers': results[0].count,
-    'verifiedDoctors': results[1].count,
-    'todayAppointments': results[2].count,
-    'totalAppointments': results[3].count,
-    'completedAppointments': results[4].count,
-    'cancelledAppointments': results[5].count,
+    'totalUsers': countOf(results[0]),
+    'verifiedDoctors': countOf(results[1]),
+    'todayAppointments': countOf(results[2]),
+    'totalAppointments': countOf(results[3]),
+    'completedAppointments': countOf(results[4]),
+    'cancelledAppointments': countOf(results[5]),
     'totalRevenue': totalRevenue,
   };
 });

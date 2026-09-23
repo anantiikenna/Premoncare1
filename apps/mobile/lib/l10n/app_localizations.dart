@@ -61,7 +61,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -69,7 +70,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -81,17 +83,16 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('en')
-  ];
+  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
   /// No description provided for @appTitle.
   ///
@@ -738,7 +739,7 @@ abstract class AppLocalizations {
   /// No description provided for @needHelp.
   ///
   /// In en, this message translates to:
-  /// **'Need Help?'**
+  /// **'Need help?'**
   String get needHelp;
 
   /// No description provided for @supportTeam247.
@@ -906,7 +907,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcome.
   ///
   /// In en, this message translates to:
-  /// **'Welcome 👋'**
+  /// **'Welcome ðŸ‘‹'**
   String get welcome;
 
   /// No description provided for @searchSpecialistsClinic.
@@ -960,7 +961,7 @@ abstract class AppLocalizations {
   /// No description provided for @records.
   ///
   /// In en, this message translates to:
-  /// **'RECORDS'**
+  /// **'Records'**
   String get records;
 
   /// No description provided for @medicalVault.
@@ -1098,13 +1099,13 @@ abstract class AppLocalizations {
   /// No description provided for @online.
   ///
   /// In en, this message translates to:
-  /// **'ONLINE'**
+  /// **'Online'**
   String get online;
 
   /// No description provided for @offline.
   ///
   /// In en, this message translates to:
-  /// **'OFFLINE'**
+  /// **'Offline'**
   String get offline;
 
   /// No description provided for @book.
@@ -1434,7 +1435,7 @@ abstract class AppLocalizations {
   /// No description provided for @endToEndEncrypted.
   ///
   /// In en, this message translates to:
-  /// **'End-to-end encrypted'**
+  /// **'End-to-end encrypted booking & clinical records'**
   String get endToEndEncrypted;
 
   /// No description provided for @finalReview.
@@ -1530,7 +1531,7 @@ abstract class AppLocalizations {
   /// No description provided for @emergencySessionPayNow.
   ///
   /// In en, this message translates to:
-  /// **'Emergency session — pay now to connect'**
+  /// **'Emergency session â€” pay now to connect'**
   String get emergencySessionPayNow;
 
   /// No description provided for @p2pPaymentInstructions.
@@ -1692,7 +1693,7 @@ abstract class AppLocalizations {
   /// No description provided for @schedule.
   ///
   /// In en, this message translates to:
-  /// **'Schedule'**
+  /// **'SCHEDULE'**
   String get schedule;
 
   /// No description provided for @pdfReport.
@@ -1872,7 +1873,7 @@ abstract class AppLocalizations {
   /// No description provided for @amountPaid.
   ///
   /// In en, this message translates to:
-  /// **'Amount Paid (₦)'**
+  /// **'Amount Paid (â‚¦)'**
   String get amountPaid;
 
   /// No description provided for @paymentMethod.
@@ -1926,13 +1927,13 @@ abstract class AppLocalizations {
   /// No description provided for @amountVisibleTip.
   ///
   /// In en, this message translates to:
-  /// **'• Make sure the amount is clearly visible'**
+  /// **'â€¢ Make sure the amount is clearly visible'**
   String get amountVisibleTip;
 
   /// No description provided for @clearImageTip.
   ///
   /// In en, this message translates to:
-  /// **'• Use a clear, well-lit image of the receipt'**
+  /// **'â€¢ Use a clear, well-lit image of the receipt'**
   String get clearImageTip;
 
   /// No description provided for @pleaseSelectReceipt.
@@ -2598,7 +2599,7 @@ abstract class AppLocalizations {
   /// No description provided for @cancelSubscription.
   ///
   /// In en, this message translates to:
-  /// **'Cancel your plan and stop future billing'**
+  /// **'Cancel Subscription'**
   String get cancelSubscription;
 
   /// No description provided for @subscriptionCancelled.
@@ -2688,7 +2689,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleSavedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'Schedule saved successfully ✓'**
+  /// **'Schedule saved successfully âœ“'**
   String get scheduleSavedSuccessfully;
 
   /// No description provided for @rateDoctor.
@@ -3259,13 +3260,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Failed to load doctors: {error}'**
-  String failedToLoadDoctors(String error);
+  String failedToLoadDoctors(Object error);
 
   /// No description provided for @failedToLoadCounts.
   ///
   /// In en, this message translates to:
   /// **'Failed to load counts: {error}'**
-  String failedToLoadCounts(String error);
+  String failedToLoadCounts(Object error);
 
   /// No description provided for @notificationSentSuccessfully.
   ///
@@ -3504,7 +3505,7 @@ abstract class AppLocalizations {
   /// No description provided for @patientIdDisplay.
   ///
   /// In en, this message translates to:
-  /// **'Patient ···{id}'**
+  /// **'Patient Â·Â·Â·{id}'**
   String patientIdDisplay(Object id);
 
   /// No description provided for @view.
@@ -3660,7 +3661,7 @@ abstract class AppLocalizations {
   /// No description provided for @pendingTab.
   ///
   /// In en, this message translates to:
-  /// **'Pending'**
+  /// **'PENDING'**
   String get pendingTab;
 
   /// No description provided for @past.
@@ -3788,12 +3789,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
-
-  /// No description provided for @logout.
-  ///
-  /// In en, this message translates to:
-  /// **'Logout'**
-  String get logout;
 
   /// No description provided for @completeVerificationToAccessFinancial.
   ///
@@ -3942,7 +3937,7 @@ abstract class AppLocalizations {
   /// No description provided for @earningsNaira.
   ///
   /// In en, this message translates to:
-  /// **'Earnings (₦)'**
+  /// **'Earnings (â‚¦)'**
   String get earningsNaira;
 
   /// No description provided for @earningsBreakdown.
@@ -4278,7 +4273,7 @@ abstract class AppLocalizations {
   /// No description provided for @pricePerMonth.
   ///
   /// In en, this message translates to:
-  /// **'₦15,000 / month'**
+  /// **'â‚¦15,000 / month'**
   String get pricePerMonth;
 
   /// No description provided for @nextBillingDate.
@@ -6666,25 +6661,25 @@ abstract class AppLocalizations {
   /// No description provided for @selectCategoryStep.
   ///
   /// In en, this message translates to:
-  /// **'1. Select Category '**
+  /// **'1. Select Category'**
   String get selectCategoryStep;
 
   /// No description provided for @postTitleStep.
   ///
   /// In en, this message translates to:
-  /// **'2. Post Title '**
+  /// **'2. Post Title'**
   String get postTitleStep;
 
   /// No description provided for @describeQuestionStep.
   ///
   /// In en, this message translates to:
-  /// **'3. Describe Your Question or Topic '**
+  /// **'3. Describe Your Question or Topic'**
   String get describeQuestionStep;
 
   /// No description provided for @addAttachmentsStep.
   ///
   /// In en, this message translates to:
-  /// **'4. Add Attachments '**
+  /// **'4. Add Attachments'**
   String get addAttachmentsStep;
 
   /// No description provided for @optionalParen.
@@ -6732,7 +6727,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportedFormats.
   ///
   /// In en, this message translates to:
-  /// **'Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file'**
+  /// **'Supported formats: JPG, PNG, PDF, DOC â€¢ Max size: 10MB per file'**
   String get supportedFormats;
 
   /// No description provided for @postAnonymously.
@@ -6936,7 +6931,7 @@ abstract class AppLocalizations {
   /// No description provided for @postedInLabel.
   ///
   /// In en, this message translates to:
-  /// **'• Posted in '**
+  /// **'â€¢ Posted in '**
   String get postedInLabel;
 
   /// No description provided for @viewsLabel.
@@ -7728,7 +7723,7 @@ abstract class AppLocalizations {
   /// No description provided for @timeCreditsNaira2000.
   ///
   /// In en, this message translates to:
-  /// **'Time credits (₦2,000)'**
+  /// **'Time credits (â‚¦2,000)'**
   String get timeCreditsNaira2000;
 
   /// No description provided for @familyAccountNA.
@@ -7746,7 +7741,7 @@ abstract class AppLocalizations {
   /// No description provided for @timeCreditsNaira7500.
   ///
   /// In en, this message translates to:
-  /// **'Time credits (₦7,500)'**
+  /// **'Time credits (â‚¦7,500)'**
   String get timeCreditsNaira7500;
 
   /// No description provided for @familyAccountUpTo10.
@@ -7758,7 +7753,7 @@ abstract class AppLocalizations {
   /// No description provided for @timeCreditsNaira20000.
   ///
   /// In en, this message translates to:
-  /// **'Time credits (₦20,000)'**
+  /// **'Time credits (â‚¦20,000)'**
   String get timeCreditsNaira20000;
 
   /// No description provided for @tenConsultationsPerMonth.
@@ -9049,7 +9044,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'File Selected: {fileName}'**
-  String fileSelectedLabel(String fileName);
+  String fileSelectedLabel(Object fileName);
 
   /// No description provided for @priorityAlerts.
   ///
@@ -9782,9 +9777,550 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a note (optional)...'**
   String get addAdminNotesHint;
+
+  /// No description provided for @activeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeLabel;
+
+  /// No description provided for @addComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment'**
+  String get addComment;
+
+  /// No description provided for @approvedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'APPROVED'**
+  String get approvedLabel;
+
+  /// No description provided for @approveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approveLabel;
+
+  /// No description provided for @availabilityLabel2.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability'**
+  String get availabilityLabel2;
+
+  /// No description provided for @availableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get availableLabel;
+
+  /// No description provided for @baseConsultationFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Base consultation fee'**
+  String get baseConsultationFee;
+
+  /// No description provided for @blockLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get blockLabel;
+
+  /// No description provided for @blockPatientLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Block patient'**
+  String get blockPatientLabel;
+
+  /// No description provided for @bookLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get bookLabel;
+
+  /// No description provided for @cancelYourPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel your plan'**
+  String get cancelYourPlan;
+
+  /// No description provided for @choosePlanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Plan'**
+  String get choosePlanLabel;
+
+  /// No description provided for @clinicalRatingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinical rating'**
+  String get clinicalRatingLabel;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @completedStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETED'**
+  String get completedStatusLabel;
+
+  /// No description provided for @connectionProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection progress'**
+  String get connectionProgress;
+
+  /// No description provided for @consultationComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultation complete'**
+  String get consultationComplete;
+
+  /// No description provided for @consultationSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultation successful'**
+  String get consultationSuccessful;
+
+  /// No description provided for @contactSupportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support'**
+  String get contactSupportLabel;
+
+  /// No description provided for @currentPlanButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Plan'**
+  String get currentPlanButton;
+
+  /// No description provided for @currentPlanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current plan'**
+  String get currentPlanLabel;
+
+  /// No description provided for @defaultLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get defaultLabel;
+
+  /// No description provided for @deleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteLabel;
+
+  /// No description provided for @digitalReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital receipt'**
+  String get digitalReceipt;
+
+  /// No description provided for @disputedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'DISPUTED'**
+  String get disputedLabel;
+
+  /// No description provided for @doctorConsultation.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor consultation'**
+  String get doctorConsultation;
+
+  /// No description provided for @doctorProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor profile'**
+  String get doctorProfileLabel;
+
+  /// No description provided for @doctorRespondTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor response time'**
+  String get doctorRespondTime;
+
+  /// No description provided for @emergencyMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency mode'**
+  String get emergencyMode;
+
+  /// No description provided for @emergencyPaymentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency payment note'**
+  String get emergencyPaymentNote;
+
+  /// No description provided for @emergencyQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Queue'**
+  String get emergencyQueue;
+
+  /// No description provided for @feeBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee breakdown'**
+  String get feeBreakdown;
+
+  /// No description provided for @freeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get freeLabel;
+
+  /// No description provided for @goHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Home'**
+  String get goHome;
+
+  /// No description provided for @historyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyLabel;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get locationLabel;
+
+  /// No description provided for @logOutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logOutLabel;
+
+  /// No description provided for @medicalRecordsMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical Records'**
+  String get medicalRecordsMenu;
+
+  /// No description provided for @minutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get minutesLabel;
+
+  /// No description provided for @minutesReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes review'**
+  String get minutesReview;
+
+  /// No description provided for @monthlyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthlyValue;
+
+  /// No description provided for @mostPopularLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Popular'**
+  String get mostPopularLabel;
+
+  /// No description provided for @needHelpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help?'**
+  String get needHelpLabel;
+
+  /// No description provided for @noEmergencyConsults.
+  ///
+  /// In en, this message translates to:
+  /// **'No emergency consultations'**
+  String get noEmergencyConsults;
+
+  /// No description provided for @offlineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offlineLabel;
+
+  /// No description provided for @offlineStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offlineStatus;
+
+  /// No description provided for @onlineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get onlineLabel;
+
+  /// No description provided for @onlineStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get onlineStatus;
+
+  /// No description provided for @orLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get orLabel;
+
+  /// No description provided for @overviewTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overviewTab;
+
+  /// No description provided for @patientDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient details'**
+  String get patientDetailsLabel;
+
+  /// No description provided for @pauseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pauseLabel;
+
+  /// No description provided for @paymentApprovalsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment approvals'**
+  String get paymentApprovalsLabel;
+
+  /// No description provided for @paymentConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment confirmed'**
+  String get paymentConfirmed;
+
+  /// No description provided for @paymentMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get paymentMethodLabel;
+
+  /// No description provided for @pendingStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pendingStatusLabel;
+
+  /// No description provided for @premiumPlanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Plan'**
+  String get premiumPlanLabel;
+
+  /// No description provided for @priceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get priceLabel;
+
+  /// No description provided for @priorityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priorityLabel;
+
+  /// No description provided for @rateExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate your experience'**
+  String get rateExperience;
+
+  /// No description provided for @reasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reasonLabel;
+
+  /// No description provided for @recordsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get recordsLabel;
+
+  /// No description provided for @recordsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get recordsTab;
+
+  /// No description provided for @rejectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectLabel;
+
+  /// No description provided for @reportsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reportsLabel;
+
+  /// No description provided for @requestExpiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Request expired'**
+  String get requestExpiredMessage;
+
+  /// No description provided for @resolveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve now'**
+  String get resolveNow;
+
+  /// No description provided for @reviewSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Review submitted'**
+  String get reviewSubmitted;
+
+  /// No description provided for @searchingDoctors.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching doctors'**
+  String get searchingDoctors;
+
+  /// No description provided for @searchingDoctorsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching for available doctors near you...'**
+  String get searchingDoctorsMessage;
+
+  /// No description provided for @sendAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again'**
+  String get sendAgain;
+
+  /// No description provided for @sendMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get sendMessageLabel;
+
+  /// No description provided for @sessionCompletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has been completed successfully.'**
+  String get sessionCompletedMessage;
+
+  /// No description provided for @settingsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsLabel;
+
+  /// No description provided for @subscriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get subscriptionLabel;
+
+  /// No description provided for @subscriptionManagementLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Management'**
+  String get subscriptionManagementLabel;
+
+  /// No description provided for @supportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get supportLabel;
+
+  /// No description provided for @timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get timeLabel;
+
+  /// No description provided for @tipConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Check your internet connection.'**
+  String get tipConnection;
+
+  /// No description provided for @tipRelax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Relax while we find a doctor.'**
+  String get tipRelax;
+
+  /// No description provided for @tipSecure.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Your session is secure and encrypted.'**
+  String get tipSecure;
+
+  /// No description provided for @tipSymptoms.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Prepare your symptoms for the doctor.'**
+  String get tipSymptoms;
+
+  /// No description provided for @totalEstimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Total estimated'**
+  String get totalEstimated;
+
+  /// No description provided for @unlimitedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get unlimitedLabel;
+
+  /// No description provided for @verificationStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification status'**
+  String get verificationStatusLabel;
+
+  /// No description provided for @verifiedLabelCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get verifiedLabelCustom;
+
+  /// No description provided for @viewDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'View Doctor'**
+  String get viewDoctor;
+
+  /// No description provided for @viewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get viewLabel;
+
+  /// No description provided for @whileYouWait.
+  ///
+  /// In en, this message translates to:
+  /// **'While you wait'**
+  String get whileYouWait;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -9793,24 +10329,24 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

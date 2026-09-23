@@ -138,11 +138,10 @@ class _AdminAuditTimelineScreenState
   }
 
   String _timeAgo(DateTime dt, BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 60) return loc.minutesAgoShort(diff.inMinutes);
-    if (diff.inHours < 24) return loc.hoursAgoShort(diff.inHours);
-    if (diff.inDays < 7) return loc.daysAgoShort(diff.inDays);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${dt.month}/${dt.day}/${dt.year}';
   }
 
@@ -152,7 +151,7 @@ class _AdminAuditTimelineScreenState
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(dt.year, dt.month, dt.day);
     if (target == today) return loc.todayLabel;
-    if (target == today.subtract(const Duration(days: 1))) return loc.yesterday;
+    if (target == today.subtract(const Duration(days: 1))) return 'Yesterday';
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
@@ -539,6 +538,7 @@ class _AdminAuditTimelineScreenState
               _filteredLogs.isNotEmpty
                   ? _formatDateHeader(
                       DateTime.parse(_filteredLogs.first['created_at']),
+                      context,
                     )
                   : 'No Logs',
               style: TextStyle(
@@ -628,7 +628,7 @@ class _AdminAuditTimelineScreenState
 
         return _buildTimelineItem(
           time: _formatTime(createdAt),
-          relativeTime: _timeAgo(createdAt),
+          relativeTime: _timeAgo(createdAt, context),
           dotColor: dotColor,
           isLast: index == _filteredLogs.length - 1,
           child: _buildEventCard(

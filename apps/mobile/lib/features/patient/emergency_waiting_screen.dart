@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/user_facing_errors.dart';
 import 'patient_providers.dart';

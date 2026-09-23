@@ -256,14 +256,14 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                       color: AppColors.error,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: AppColors.textInverse, size: 16),
-                        SizedBox(width: 8),
+                        const Icon(Icons.warning_amber_rounded, color: AppColors.textInverse, size: 16),
+                        const SizedBox(width: 8),
                         Text(
                            AppLocalizations.of(context)!.emergencyRequest,
-                          style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
+                          style: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1),
                         ),
                       ],
                     ),
@@ -386,12 +386,12 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                               side: BorderSide(color: AppColors.borderOf(context)),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.close_rounded, size: 20),
-                                SizedBox(width: 8),
-                                Text(AppLocalizations.of(context)!.decline, style: TextStyle(fontWeight: FontWeight.w900)),
+                                const Icon(Icons.close_rounded, size: 20),
+                                const SizedBox(width: 8),
+                                Text(AppLocalizations.of(context)!.decline, style: const TextStyle(fontWeight: FontWeight.w900)),
                               ],
                             ),
                           ),
@@ -416,12 +416,12 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
                                     height: 22,
                                     child: CircularProgressIndicator(color: AppColors.textInverse, strokeWidth: 2),
                                   )
-                                : const Row(
+                                : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.check_rounded, size: 20),
-                                      SizedBox(width: 8),
-                                      Text(AppLocalizations.of(context)!.acceptEmergency, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                                      const Icon(Icons.check_rounded, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(AppLocalizations.of(context)!.acceptEmergency, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
                                     ],
                                   ),
                           ),

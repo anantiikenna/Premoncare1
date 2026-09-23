@@ -66,11 +66,10 @@ class DoctorPaymentsScreen extends ConsumerWidget {
       try {
         final user = supabase.auth.currentUser;
         if (user == null) throw Exception('Not signed in');
-        final { error } = await supabase.rpc(
+        await supabase.rpc(
           'approve_payment',
           params: {'p_payment_id': paymentId, 'p_processor_id': user.id},
         );
-        if (error != null) throw error;
         messenger.showSnackBar(
           const SnackBar(content: Text('Payment approved'), backgroundColor: AppColors.success),
         );
@@ -87,11 +86,10 @@ class DoctorPaymentsScreen extends ConsumerWidget {
       try {
         final user = supabase.auth.currentUser;
         if (user == null) throw Exception('Not signed in');
-        final { error } = await supabase.rpc(
+        await supabase.rpc(
           'reject_payment',
           params: {'p_payment_id': paymentId, 'p_reason': 'Rejected by doctor', 'p_processor_id': user.id},
         );
-        if (error != null) throw error;
         messenger.showSnackBar(
           const SnackBar(content: Text('Payment rejected'), backgroundColor: AppColors.success),
         );

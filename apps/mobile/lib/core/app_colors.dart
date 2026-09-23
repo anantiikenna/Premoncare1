@@ -105,4 +105,9 @@ class AppColors {
 
   static Color infoLightOf(BuildContext context) =>
       _isDark(context) ? const Color(0xFF164E63) : infoLight;
+
+  static Color warningOf(BuildContext context) => warning;
+  static Color successOf(BuildContext context) => success;
+  static Color errorOf(BuildContext context) => error;
+  static Color infoOf(BuildContext context) => info;
 }

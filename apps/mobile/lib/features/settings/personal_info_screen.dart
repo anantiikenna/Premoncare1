@@ -734,7 +734,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-            child: Text(AppLocalizations.of(context)!.selectGenderTitle, style: AppTypography.h4Of(ctx)),
+              Text(AppLocalizations.of(context)!.selectGenderTitle, style: AppTypography.h4Of(ctx)),
               const SizedBox(height: 16),
               for (final gender in ['male', 'female', 'other', 'prefer not to say'])
                 ListTile(

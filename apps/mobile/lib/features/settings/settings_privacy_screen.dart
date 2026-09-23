@@ -777,8 +777,9 @@ class _SettingsPrivacyCenterScreenState
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
-                          child: Text(AppLocalizations.of(context)!.cancelLabel, style: TextStyle(
-                            ),
+                          child: Text(
+                            AppLocalizations.of(context)!.cancelLabel,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ),
                       ),
@@ -807,11 +808,12 @@ class _SettingsPrivacyCenterScreenState
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                AppLocalizations.of(context)!.accountScheduledForDeletion,
-                              ),
-                            );
+                                        SnackBar(
+                                          content: Text(
+                                            AppLocalizations.of(context)!.accountScheduledForDeletion,
+                                          ),
+                                        ),
+                                      );
                                       context.go('/login');
                                     }
                                   } catch (e) {

@@ -135,7 +135,7 @@
   "noAdminAccountFound": "No account found with this email. Please contact the platform administrator.",
   "adminAccessDenied": "Access denied. This account does not have admin privileges.",
   "goodMorning": "Good Morning,",
-  "welcome": "Welcome 👋",
+  "welcome": "Welcome ðŸ‘‹",
   "searchSpecialistsClinic": "Search specialists, clinic...",
   "consultationCredits": "CONSULTATION CREDITS",
   "minutes": "minutes",
@@ -239,7 +239,7 @@
   "bookingScheduled": "Your appointment has been successfully scheduled and verified.",
   "specialist": "Specialist",
   "connectingAutomatically": "Connecting automatically...",
-  "emergencySessionPayNow": "Emergency session — pay now to connect",
+  "emergencySessionPayNow": "Emergency session â€” pay now to connect",
   "p2pPaymentInstructions": "P2P Payment Instructions",
   "payEmergencyFeeBelow": "Pay the emergency fee below to start your consultation immediately:",
   "contactDoctorPayment": "Contact doctor for payment details",
@@ -296,7 +296,7 @@
   "payingTo": "Paying To",
   "selectDoctor": "Select a doctor",
   "loadingDoctors": "Loading doctors...",
-  "amountPaid": "Amount Paid (₦)",
+  "amountPaid": "Amount Paid (â‚¦)",
   "paymentMethod": "Payment Method",
   "bankTransfer": "Bank Transfer",
   "p2pTransfer": "P2P Transfer",
@@ -305,8 +305,8 @@
   "submitForVerification": "Submit for Verification",
   "receiptSubmitted": "Receipt submitted for verification",
   "tipsFasterVerification": "Tips for faster verification",
-  "amountVisibleTip": "• Make sure the amount is clearly visible",
-  "clearImageTip": "• Use a clear, well-lit image of the receipt",
+  "amountVisibleTip": "â€¢ Make sure the amount is clearly visible",
+  "clearImageTip": "â€¢ Use a clear, well-lit image of the receipt",
   "pleaseSelectReceipt": "Please select a receipt image first",
   "pleaseEnterAmount": "Please enter the amount paid",
   "pleaseSelectDoctor": "Please select the doctor you are paying",
@@ -432,7 +432,7 @@
   "failedToSaveSchedule": "Failed to update emergency availability. Please try again.",
   "scheduleCopiedToAllDays": "Schedule hours copied to all days",
   "breakTimeAdded": "Break time added",
-  "scheduleSavedSuccessfully": "Schedule saved successfully ✓",
+  "scheduleSavedSuccessfully": "Schedule saved successfully âœ“",
   "rateDoctor": "Rate Dr. {doctorName}",
   "howWasConsultation": "How was your consultation experience?",
   "sessionRescheduled": "Session rescheduled successfully",
@@ -568,11 +568,9 @@
   "practitionerHub": "PRACTITIONER HUB",
   "emergencyRequest": "EMERGENCY REQUEST",
   "emergencyGuest": "Emergency Guest",
-  "patientIdDisplay": "Patient ···{id}",
+  "patientIdDisplay": "Patient Â·Â·Â·{id}",
   "view": "VIEW",
   "justNow": "Just now",
-  "online": "ONLINE",
-  "offline": "OFFLINE",
   "totalClinicalRevenue": "TOTAL CLINICAL REVENUE",
   "monthly": "MONTHLY",
   "analytics": "Analytics",
@@ -583,7 +581,6 @@
   "todaySessions": "Today Sessions",
   "clinicalRating": "Clinical Rating",
   "avgSession": "Avg. Session",
-  "schedule": "Schedule",
   "requests": "Requests",
   "followUp": "Follow-up",
   "prescribe": "Prescribe",
@@ -595,7 +592,6 @@
   "pending": "PENDING",
   "scheduleNavigation": "SCHEDULE NAVIGATION",
   "clinicalOperations": "CLINICAL OPERATIONS",
-  "searchByPatientName": "Search by patient name...",
   "today": "TODAY",
   "upcoming": "UPCOMING",
   "pendingTab": "PENDING",
@@ -620,8 +616,6 @@
   "earnings": "Earnings",
   "paymentApprovals": "Payment Approvals",
   "settings": "Settings",
-  "logout": "Logout",
-  "logOut": "Log Out",
   "completeVerificationToAccessFinancial": "Complete verification to access financial hub",
   "myPatients": "My Patients",
   "failedToLoadPatients": "Failed to load patients",
@@ -646,7 +640,7 @@
   "earningsLabel": "Earnings",
   "ratingLabel": "Rating",
   "earningsOverview": "Earnings Overview",
-  "earningsNaira": "Earnings (₦)",
+  "earningsNaira": "Earnings (â‚¦)",
   "earningsBreakdown": "Earnings Breakdown",
   "viewDetails": "View Details",
   "detailedBreakdownBeingDeveloped": "Detailed breakdown is being developed. The summary above shows your current earnings overview.",
@@ -664,7 +658,6 @@
   "patientIdLabel": "Patient ID: {id}...",
   "overview": "OVERVIEW",
   "consultationsTab": "CONSULTATIONS",
-  "records": "RECORDS",
   "appointmentSummary": "Appointment Summary",
   "couldNotLoadData": "Could not load data",
   "totalAppointments": "Total Appointments",
@@ -683,9 +676,6 @@
   "youAreOpenForBookings": "You are open for bookings",
   "vacationMode": "Vacation Mode",
   "turnOnToPauseBookings": "Turn on to pause bookings",
-  "workingHours": "Working Hours",
-  "unavailableDays": "Unavailable Days",
-  "breakTimes": "Break Times",
   "emergencyAvailability": "Emergency Availability",
   "timezone": "Timezone",
   "weeklyWorkingHours": "Weekly Working Hours",
@@ -700,14 +690,13 @@
   "saveSchedule": "Save Schedule",
   "emergencyAvailabilityEnabled": "Emergency availability enabled. Patients can now book emergency consultations.",
   "emergencyAvailabilityDisabled": "Emergency availability disabled. You will no longer receive emergency consultation requests.",
-  "failedToSaveSchedule": "Failed to update emergency availability. Please try again.",
   "subscriptionManagement": "Subscription Management",
   "managePlanBillingBenefits": "Manage your plan, billing and benefits",
   "currentPlan": "Current Plan",
   "premiumPlan": "Premium Plan",
   "allInOnePremiumHealthcare": "All-in-one access to premium\nhealthcare features.",
   "price": "Price",
-  "pricePerMonth": "₦15,000 / month",
+  "pricePerMonth": "â‚¦15,000 / month",
   "nextBillingDate": "Next billing date: 15 June 2025",
   "unlimited": "Unlimited",
   "priority": "Priority",
@@ -718,7 +707,6 @@
   "viewHistory": "View History",
   "billingCycle": "Billing Cycle",
   "monthly2": "Monthly",
-  "paymentMethod": "Payment Method",
   "default2": "Default",
   "yourPlanUsage": "Your Plan Usage",
   "resetsOn15June2025": "Resets on 15 June 2025",
@@ -731,12 +719,9 @@
   "getMoreBenefitsFeatures": "Get more benefits and features",
   "pauseYourPlanForAWhile": "Pause your plan for a while",
   "areYouSurePauseSubscription": "Are you sure you want to pause your subscription? You won't be charged during the pause period.",
-  "cancelSubscription": "Cancel your plan and stop future billing",
   "areYouSureCancelSubscription": "Are you sure you want to cancel? You'll lose access to premium features at the end of your billing period.",
-  "needHelp": "Need Help?",
   "supportTeamHereToHelp": "Our support team is here to help you.",
   "contactAdmin": "Contact Admin",
-  "contactSupport": "Contact Support",
   "choosePlanWorksBest": "Choose the plan that works best for you\nand manage your subscription.",
   "choosePlan": "Choose a Plan",
   "secureAndHassleFree": "Secure & Hassle-free",
@@ -757,7 +742,6 @@
   "pleaseProvideClinicalReason": "Please provide a clinical reason",
   "followUpProposalSentSuccessfully": "Follow-up proposal sent successfully",
   "howWasConsultationExperience": "How was your consultation experience?",
-  "addCommentOptional": "Add a comment (optional)...",
   "submitReview": "Submit Review",
   "thankYouForFeedback": "Thank you for your feedback!",
   "aboutPremonCareTitle": "About Premon Care",
@@ -835,7 +819,7 @@
   "phoneSupportLabel": "Phone Support",
   "liveChatLabel": "Live Chat",
   "liveChatAvailability": "Available Mon-Fri, 9am-5pm WAT",
-  "liveChatNotice": "Live chat is available Monday\u2013Friday, 9am\u20135pm WAT. Email support@premoncare.com for immediate assistance.",
+  "liveChatNotice": "Live chat is available Monday–Friday, 9am–5pm WAT. Email support@premoncare.com for immediate assistance.",
   "languageSection": "LANGUAGE",
   "appLanguageLabel": "App Language",
   "regionSection": "REGION",
@@ -1058,36 +1042,17 @@
   "downloadSummaryButton": "Download Summary",
   "shareDetailsButton": "Share Details",
   "reportIssueButton": "Report Issue",
-  "sessionDateLabel": "SESSION DATE",
-  "sessionTimeLabel": "SESSION TIME",
   "durationLabel": "DURATION",
   "consultationLabel": "CONSULTATION",
-  "joinClinicalSessionButton": "JOIN CLINICAL SESSION",
-  "rescheduleSessionButton": "RESCHEDULE SESSION",
-  "cancelSessionButton": "CANCEL SESSION",
-  "confirmRescheduleTitle": "Confirm Reschedule",
   "rescheduleSessionTo": "Reschedule this session to {date} at {time}? The other party will be notified.",
   "sessionRescheduledSuccess": "Session rescheduled successfully",
-  "confirmCancellationTitle": "Confirm Cancellation",
   "cancelSessionWarning": "Are you sure you want to cancel this session? This action is permanent and the specialist will be notified.",
-  "keepSessionButton": "KEEP SESSION",
-  "confirmCancelButton": "CONFIRM CANCEL",
-  "appointmentNotFound": "Appointment not found",
   "consultationDefault": "Consultation",
-  "endToEndEncrypted": "End-to-end encrypted",
-  "connectingToConsultation": "Connecting to consultation...",
-  "settingUpSecureRoom": "Setting up your secure video room",
-  "endCallButton": "End Call",
-  "unmuteButton": "Unmute",
-  "muteButton": "Mute",
-  "cameraOffButton": "Camera Off",
-  "cameraOnButton": "Camera On",
   "shareButtonShort": "Share",
   "retryButtonShort": "Retry",
   "goBackButtonShort": "Go Back",
   "emergencyTitle": "Emergency",
   "sosLabel": "SOS",
-  "retryingConnection": "Retrying connection...",
   "emergencyLineLabel": "Emergency line: +234-XXX-XXXX",
   "notificationsTitle": "Notifications",
   "notificationDefault": "Notification",
@@ -1111,7 +1076,6 @@
   "emergencyDeclinedNotificationTitle": "Emergency Request Declined",
   "emergencyAcceptedNotificationMessage": "{doctorName} has accepted your emergency consultation request. Please proceed with payment.",
   "emergencyDeclinedNotificationMessage": "Unfortunately, {doctorName} is unable to take your case right now.",
-
   "askDoctorTitle": "Ask a Doctor",
   "askDoctorDescription": "Get answers from verified healthcare professionals.",
   "needUrgentAdvice": "Need urgent advice?",
@@ -1126,7 +1090,6 @@
   "categoryGeneralHealth": "General Health",
   "repliesCountLower": "replies",
   "likesCountLower": "likes",
-
   "createPostTitle": "Create Post",
   "saveDraft": "Save Draft",
   "createAPost": "Create a Post",
@@ -1142,12 +1105,11 @@
   "addDocument": "Add Document",
   "addLabResult": "Add Lab Result",
   "addOther": "Add Other",
-  "supportedFormats": "Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file",
+  "supportedFormats": "Supported formats: JPG, PNG, PDF, DOC â€¢ Max size: 10MB per file",
   "postAnonymously": "Post Anonymously",
   "nameHiddenFromMembers": "Your name will be hidden from other members.",
   "postQuestionButton": "Post Question",
   "failedToPostError": "Failed to post: {error}",
-
   "communityForum": "Community Forum",
   "askShareLearn": "Ask questions, share experiences and learn from others",
   "sortByLabel": "Sort By",
@@ -1161,7 +1123,6 @@
   "allTopics": "All Topics",
   "failedToLoadCategoriesError": "Failed to load categories: {error}",
   "askAQuestionFAB": "Ask a Question",
-
   "myActivityTitle": "My Activity",
   "myPostsTab": "My Posts",
   "savedTab": "Saved",
@@ -1173,13 +1134,12 @@
   "notFollowingAnything": "Not following anything",
   "postsYouFollowWillAppearHere": "Posts you follow will appear here",
   "notFollowingAnyPosts": "Not following any posts",
-
   "postDetailTitle": "Post Detail",
   "forumBreadcrumb": "Forum",
   "postDetailsBreadcrumb": "Post Details",
   "doctorRoleLabel": "Doctor",
   "communityMemberLabel": "Community Member",
-  "postedInLabel": "• Posted in ",
+  "postedInLabel": "â€¢ Posted in ",
   "viewsLabel": "Views",
   "repliesLabel": "Replies",
   "likesLabel": "Likes",
@@ -1191,7 +1151,6 @@
   "helpfulCount": "Helpful ({count})",
   "replyButtonLabel": "Reply",
   "writeReplyHint": "Write a reply...",
-
   "savedAndFollowedTitle": "Saved & Followed",
   "savedPostsTab": "Saved Posts",
   "tapBookmarkToSave": "Tap the bookmark icon on any post to save it here",
@@ -1199,12 +1158,10 @@
   "followedCategoriesLabel": "Followed Categories",
   "followedPostsLabel": "Followed Posts",
   "unfollowLabel": "Unfollow",
-
   "sharedPatientRecordsTitle": "Shared Patient Records",
   "noSharedRecordsEmptyTitle": "No Shared Records",
   "patientsMustShareDesc": "Patients must explicitly share their vault documents with you for them to appear here.",
   "viewRecordButton": "View Record",
-
   "secureMedicalStorageTitle": "SECURE MEDICAL STORAGE",
   "yourVaultIsEmptyTitle": "Your vault is empty",
   "securelyStoreManageDesc": "Securely store and manage your clinical reports, prescriptions, and medical history in one encrypted location.",
@@ -1214,7 +1171,6 @@
   "clinicalDataConfidentialDesc": "Your clinical data is strictly confidential and accessible only by you and your authorized specialists.",
   "shareWithDoctorOption": "Share with Doctor",
   "onlyAuthorizedDoctorsDesc": "Only authorized doctors can view and decrypt this record.",
-
   "secureVaultUploadTitle": "Secure Vault Upload",
   "filesEncryptedBucketDesc": "Your files are stored in an encrypted private bucket.",
   "recordTitleField": "Record Title",
@@ -1223,7 +1179,6 @@
   "provideTitleAndFileError": "Please provide a title and select a file",
   "fileSizeMustBeUnder5MB": "File size must be under 5MB",
   "selectPdfOrMedicalImage": "Select PDF or Medical Image",
-
   "encryptedTLS": "Encrypted TLS",
   "messagesEncryptedTLS": "Messages are encrypted in transit via TLS.",
   "unreadMessageLabel": "1 Unread Message",
@@ -1234,7 +1189,6 @@
   "noConversationsYetTitle": "No conversations yet",
   "startChatSpecialistDesc": "Start a chat with a specialist to see it here.",
   "noMatchesForSearch": "No matches for \"{query}\"",
-
   "professionalCredentialsTitle": "Professional Credentials",
   "helpVerifyExpertiseDesc": "Help us verify your medical expertise and practice history.",
   "professionalTitleField": "Professional Title",
@@ -1270,7 +1224,6 @@
   "applicationSubmittedTitle": "Application Submitted!",
   "credentialsUnderReviewDesc": "Your professional credentials are now under review. This typically takes 24-48 hours. We will notify you once your account has been verified.",
   "returnToDashboardButton": "Return to Dashboard",
-
   "pleaseEnterValidEmail": "Please enter a valid email address",
   "verifyYourNumber": "Verify Your Number",
   "verifyPhoneNumberDescription": "Verify your phone number to continue and secure your emergency care.",
@@ -1290,7 +1243,6 @@
   "chatWithDoctorsDescription": "Connect with doctors anytime for follow-up care.",
   "phoneLabel": "Phone Number",
   "emailLabel": "Email Address",
-  "fullNameLabel": "Full Name",
   "viewMyHealthRecord": "View My Health Record",
   "healthDataAlwaysProtected": "Your health. Your data. Always protected.",
   "iIllDoThisLater": "I'll Do This Later",
@@ -1319,12 +1271,12 @@
   "timeCreditsIncluded": "Time credits included",
   "familyAccountUpTo5": "Family account (up to 5)",
   "standardSupport": "Standard support",
-  "timeCreditsNaira2000": "Time credits (₦2,000)",
+  "timeCreditsNaira2000": "Time credits (â‚¦2,000)",
   "familyAccountNA": "Family account (N/A)",
   "vipSupport": "VIP support",
-  "timeCreditsNaira7500": "Time credits (₦7,500)",
+  "timeCreditsNaira7500": "Time credits (â‚¦7,500)",
   "familyAccountUpTo10": "Family account (up to 10)",
-  "timeCreditsNaira20000": "Time credits (₦20,000)",
+  "timeCreditsNaira20000": "Time credits (â‚¦20,000)",
   "tenConsultationsPerMonth": "10 consultations / month",
   "renewsOnMay25": "Renews on May 25, 2025",
   "fortyPercentUsed": "40% used",
@@ -1338,7 +1290,6 @@
   "manageWorkingHoursDescription": "Manage your working hours, availability and preferences",
   "openForBookings": "You are open for bookings",
   "pauseBookingsDescription": "Turn on to pause bookings",
-
   "premonCareSupport": "Premon Care Support",
   "yesterdayLabel": "Yesterday",
   "dayMon": "Mon",
@@ -1364,61 +1315,11 @@
   "licenseNumberLabel": "License Number",
   "uploadIdLabel": "Government ID",
   "proofOfAddressLabel2": "Proof of Address",
-
-  "askAQuestionFAB": "Ask a Question",
-  "communityForum": "Community Forum",
-  "askShareLearn": "Ask questions, share experiences and learn from others",
-  "sortByLabel": "Sort By",
-  "latestLabel": "Latest",
-  "mostAnsweredLabel": "Most Answered",
-  "mostLikedLabel": "Most Liked",
-  "allTopics": "All Topics",
-  "trendingDiscussions": "Trending Discussions",
-  "trendingLabel": "Trending",
-  "popularLabel": "Popular",
-  "latestDiscussions": "Latest Discussions",
-  "failedToLoadCategoriesError": "Failed to load categories: {error}",
   "submitLabel": "Submit",
   "noRepliesYet": "No replies yet",
   "beFirstToReply": "Be the first to reply",
   "general": "General",
-  "createPostTitle": "Create Post",
   "saveDraftLabel": "Save Draft",
-  "createAPost": "Create a Post",
-  "createPostDescription": "Ask a question, share your experience or start a discussion.",
-  "selectCategoryStep": "1. Select Category ",
-  "postTitleStep": "2. Post Title ",
-  "describeQuestionStep": "3. Describe Your Question or Topic ",
-  "addAttachmentsStep": "4. Add Attachments ",
-  "optionalParen": "(Optional)",
-  "tipMoreDetails": "Tip: The more details you provide, the better and more helpful the responses you'll receive.",
-  "uploadImagesOrDocuments": "You can upload images or documents to provide more context.",
-  "addPhoto": "Add Photo",
-  "addDocument": "Add Document",
-  "addLabResult": "Add Lab Result",
-  "addOther": "Add Other",
-  "supportedFormats": "Supported formats: JPG, PNG, PDF, DOC • Max size: 10MB per file",
-  "postAnonymously": "Post Anonymously",
-  "nameHiddenFromMembers": "Your name will be hidden from other members.",
-  "postQuestionButton": "Post Question",
-  "failedToPostError": "Failed to post: {error}",
-  "postDetailTitle": "Post Detail",
-  "forumBreadcrumb": "Forum",
-  "postDetailsBreadcrumb": "Post Details",
-  "doctorRoleLabel": "Doctor",
-  "communityMemberLabel": "Community Member",
-  "postedInLabel": "• Posted in ",
-  "viewsLabel": "Views",
-  "repliesLabel": "Replies",
-  "likesLabel": "Likes",
-  "followLabel": "Follow",
-  "topRepliesLabel": "Top Replies",
-  "allRepliesLabel": "All Replies",
-  "doctorAnswersLabel": "Doctor Answers",
-  "verifiedDoctorBadge": "Verified Doctor",
-  "helpfulCount": "Helpful ({count})",
-  "replyButtonLabel": "Reply",
-  "writeReplyHint": "Write a reply...",
   "monthJan": "Jan",
   "monthFeb": "Feb",
   "monthMar": "Mar",
@@ -1433,7 +1334,6 @@
   "monthDec": "Dec",
   "consultationFallback": "Consultation",
   "durationMinUnit": "min",
-
   "userManagement": "User Management",
   "userManagementSubtitle": "View, manage and take actions on all platform users",
   "addUser": "Add User",
@@ -1464,16 +1364,13 @@
   "emergencyIntervention": "Emergency Intervention",
   "approveDoctorQuestion": "Approve Doctor?",
   "approveDoctorDescription": "Are you sure you want to approve {name}? This will immediately grant them practitioner access and operational scheduling capabilities.",
-  "approve": "Approve",
   "rejectApplication": "Reject Application",
   "rejectApplicationDescription": "Please provide a reason for rejecting this application. This will be sent to the user.",
-  "reject": "Reject",
   "requestInformation": "Request Information",
   "requestInformationDescription": "What additional information do you need from the applicant?",
   "requestInformationHint": "E.g. Please upload a clearer copy of your Medical License.",
   "sendRequest": "Send Request",
   "infoRequestSentStatus": "Information request sent. Status set to Under Review.",
-  "pendingTab": "Pending",
   "underReviewTab": "Under Review",
   "verifiedTab": "Verified",
   "rejectedTab": "Rejected",
@@ -1498,11 +1395,9 @@
   "liveSelfie": "Live Selfie",
   "viewBtn": "View",
   "userIdLabel": "User ID",
-  "licenseNumberLabel": "License Number",
   "yearsOfExperience": "Years of Experience",
   "specializationLabel": "Specialization",
   "idType": "ID Type",
-  "verificationStatus": "Verification Status",
   "medicalLicense": "Medical License",
   "idDocumentFront": "ID Document (Front)",
   "idDocumentBack": "ID Document (Back)",
@@ -1593,7 +1488,6 @@
   "resolveDisputeAction": "Resolve Dispute",
   "closeDisputeAction": "Close Dispute",
   "noDescription": "No description",
-
   "unknownDoctor": "Unknown Doctor",
   "healthcareProvider": "Healthcare Provider",
   "recordTitleHint": "e.g. June Blood Test",
@@ -1601,11 +1495,10 @@
   "@fileSelectedLabel": {
     "placeholders": {
       "fileName": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
-
   "priorityAlerts": "Priority Alerts",
   "analyticsOverview": "Analytics Overview",
   "recentDoctorApplications": "Recent Doctor Applications",
@@ -1692,7 +1585,7 @@
   "systemAuditLogs": "System & audit logs",
   "reportsRealTimeEncrypted": "All reports are updated in real-time and data is securely encrypted.",
   "failedToLoadEmergencyQueue": "Failed to load emergency queue",
-  "emergencyQueueSubtitle": "{pending} pending \u2022 {accepted} accepted today",
+  "emergencyQueueSubtitle": "{pending} pending • {accepted} accepted today",
   "acceptedStatusLabel": "ACCEPTED",
   "watchingLabel": "WATCHING",
   "noEmergencyConsultsWaiting": "No emergency consults waiting",
@@ -1726,26 +1619,514 @@
   "symptomsLabel": "Symptoms",
   "timeOfRequest": "Time of Request",
   "unknownPatient": "Unknown Patient",
-  "reasonForRejection": "Reason for rejection...",
   "infoRequestSent": "Information request sent. Status set to Under Review.",
-  "failedToLoadDoctors": "Failed to load doctors: {error}",
+  "addAdminNotesHint": "Add a note (optional)...",
+  "activeLabel": "Active",
+  "addComment": "Add a comment",
+  "approvedLabel": "APPROVED",
+  "approveLabel": "Approve",
+  "availabilityLabel2": "Availability",
+  "availableLabel": "Available",
+  "baseConsultationFee": "Base consultation fee",
+  "blockLabel": "Block",
+  "blockPatientLabel": "Block patient",
+  "bookLabel": "Book",
+  "cancelYourPlan": "Cancel your plan",
+  "choosePlanLabel": "Choose Plan",
+  "clinicalRatingLabel": "Clinical rating",
+  "completed": "Completed",
+  "completedStatusLabel": "COMPLETED",
+  "connectionProgress": "Connection progress",
+  "consultationComplete": "Consultation complete",
+  "consultationSuccessful": "Consultation successful",
+  "contactSupportLabel": "Contact support",
+  "currentPlanButton": "Current Plan",
+  "currentPlanLabel": "Current plan",
+  "defaultLabel": "Default",
+  "deleteLabel": "Delete",
+  "digitalReceipt": "Digital receipt",
+  "disputedLabel": "DISPUTED",
+  "doctorConsultation": "Doctor consultation",
+  "doctorProfileLabel": "Doctor profile",
+  "doctorRespondTime": "Doctor response time",
+  "emergencyMode": "Emergency mode",
+  "emergencyPaymentNote": "Emergency payment note",
+  "emergencyQueue": "Emergency Queue",
+  "feeBreakdown": "Fee breakdown",
+  "freeLabel": "Free",
+  "goHome": "Go Home",
+  "historyLabel": "History",
+  "locationLabel": "Location",
+  "logOutLabel": "Log out",
+  "medicalRecordsMenu": "Medical Records",
+  "minutesLabel": "Minutes",
+  "minutesReview": "Minutes review",
+  "monthlyValue": "Monthly",
+  "mostPopularLabel": "Most Popular",
+  "needHelpLabel": "Need help?",
+  "noEmergencyConsults": "No emergency consultations",
+  "offlineLabel": "Offline",
+  "offlineStatus": "Offline",
+  "onlineLabel": "Online",
+  "onlineStatus": "Online",
+  "orLabel": "or",
+  "overviewTab": "Overview",
+  "patientDetailsLabel": "Patient details",
+  "pauseLabel": "Pause",
+  "paymentApprovalsLabel": "Payment approvals",
+  "paymentConfirmed": "Payment confirmed",
+  "paymentMethodLabel": "Payment method",
+  "pendingStatusLabel": "Pending",
+  "premiumPlanLabel": "Premium Plan",
+  "priceLabel": "Price",
+  "priorityLabel": "Priority",
+  "rateExperience": "Rate your experience",
+  "reasonLabel": "Reason",
+  "recordsLabel": "Records",
+  "recordsTab": "Records",
+  "rejectLabel": "Reject",
+  "reportsLabel": "Reports",
+  "requestExpiredMessage": "Request expired",
+  "resolveNow": "Resolve now",
+  "reviewSubmitted": "Review submitted",
+  "searchingDoctors": "Searching doctors",
+  "searchingDoctorsMessage": "Searching for available doctors near you...",
+  "sendAgain": "Send again",
+  "sendMessageLabel": "Send message",
+  "sessionCompletedMessage": "Your session has been completed successfully.",
+  "settingsLabel": "Settings",
+  "subscriptionLabel": "Subscription",
+  "subscriptionManagementLabel": "Subscription Management",
+  "supportLabel": "Support",
+  "timeLabel": "Time",
+  "tipConnection": "Tip: Check your internet connection.",
+  "tipRelax": "Tip: Relax while we find a doctor.",
+  "tipSecure": "Tip: Your session is secure and encrypted.",
+  "tipSymptoms": "Tip: Prepare your symptoms for the doctor.",
+  "totalEstimated": "Total estimated",
+  "unlimitedLabel": "Unlimited",
+  "verificationStatusLabel": "Verification status",
+  "verifiedLabelCustom": "Verified",
+  "viewDoctor": "View Doctor",
+  "viewLabel": "View",
+  "whileYouWait": "While you wait",
+  "logout": "Logout",
+  "@tooManyFailedAttemptsTryAgain": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
+  },
+  "@attemptsRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@aboutDoctor": {
+    "placeholders": {
+      "doctorName": {
+        "type": "Object"
+      }
+    }
+  },
+  "@sessionMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
+  },
+  "@followUpDays": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@sendingEmergencyRequest": {
+    "placeholders": {
+      "doctorName": {
+        "type": "Object"
+      }
+    }
+  },
+  "@doctorReadyConsultation": {
+    "placeholders": {
+      "doctorName": {
+        "type": "Object"
+      }
+    }
+  },
+  "@doctorUnableToTakeCase": {
+    "placeholders": {
+      "doctorName": {
+        "type": "Object"
+      }
+    }
+  },
+  "@acrossActiveDoctors": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToReply": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@comingSoon": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "@deleteRecordConfirmation": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "@recordDeleted": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToDelete": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToUpdateAccess": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToPickImage": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToUpdateProfile": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@rateDoctor": {
+    "placeholders": {
+      "doctorName": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToJoinMeeting": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@otpSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "Object"
+      }
+    }
+  },
+  "@errorLoadingDashboard": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@titleReportDeveloped": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
   "@failedToLoadDoctors": {
     "placeholders": {
       "error": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
-  "failedToLoadCounts": "Failed to load counts: {error}",
   "@failedToLoadCounts": {
     "placeholders": {
       "error": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
-  "addAdminNotesHint": "Add a note (optional)...",
-  "applicationRejected": "Application rejected.",
-  "dateOfBirth": "Date of Birth",
-  "doctorVerifiedSuccessfully": "Doctor verified successfully!"
+  "@failedToSendNotification": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToUpdateChannel": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@error": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToUpdatePresence": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@patientIdDisplay": {
+    "placeholders": {
+      "id": {
+        "type": "Object"
+      }
+    }
+  },
+  "@pctCompleted": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "@keepGoingMoreSessions": {
+    "placeholders": {
+      "remaining": {
+        "type": "Object"
+      }
+    }
+  },
+  "@minuteEmergencyConsultation": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToBlock": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@patientIdLabel": {
+    "placeholders": {
+      "id": {
+        "type": "Object"
+      }
+    }
+  },
+  "@rescheduleConfirmationMessage": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "@unreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@uploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@rescheduleSessionTo": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
+  },
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "Object"
+      }
+    }
+  },
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "@emergencyAcceptedNotificationMessage": {
+    "placeholders": {
+      "doctorName": {
+        "type": "Object"
+      }
+    }
+  },
+  "@emergencyDeclinedNotificationMessage": {
+    "placeholders": {
+      "doctorName": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToPostError": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failedToLoadCategoriesError": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@helpfulCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@noMatchesForSearch": {
+    "placeholders": {
+      "query": {
+        "type": "Object"
+      }
+    }
+  },
+  "@approveDoctorDescription": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "@revokeVerificationDescription": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "@approvePayoutsDescription": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@appointmentsTodayCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@verifiedDoctorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@appointmentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@completedCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@cancelledCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@rescheduledCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@emergencyQueueSubtitle": {
+    "placeholders": {
+      "accepted": {
+        "type": "Object"
+      },
+      "pending": {
+        "type": "Object"
+      }
+    }
+  },
+  "@paymentStatus": {
+    "placeholders": {
+      "status": {
+        "type": "Object"
+      }
+    }
+  }
 }

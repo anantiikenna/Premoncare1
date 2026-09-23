@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/app_colors.dart';
+import '../../core/supabase_locator.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/user_facing_errors.dart';
 import 'patient_providers.dart';

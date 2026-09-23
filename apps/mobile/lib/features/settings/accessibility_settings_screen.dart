@@ -42,9 +42,9 @@ class AccessibilitySettingsScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                Text(AppLocalizations.of(context)!.previewLabel, style: TextStyle(fontSize: 16 * accessibility.textScale, fontWeight: FontWeight.w800, color: color)),
+                Text(AppLocalizations.of(context)!.previewLabel, style: TextStyle(fontSize: 16.0 * accessibility.textScale, fontWeight: FontWeight.w800, color: color)),
                 const SizedBox(height: 4),
-                Text(AppLocalizations.of(context)!.previewDescription, style: TextStyle(fontSize: 14 * accessibility.textScale, color: secondary)),
+                Text(AppLocalizations.of(context)!.previewDescription, style: TextStyle(fontSize: 14.0 * accessibility.textScale, color: secondary)),
                 const SizedBox(height: 16),
                 Slider(
                   value: accessibility.textScale,
@@ -67,15 +67,15 @@ class AccessibilitySettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Text(AppLocalizations.of(context)!.displaySection, style: AppTypography.overlineOf(context).copyWith(letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          _buildToggle(icon: Icons.contrast_rounded, color: AppColors.primary, title: AppLocalizations.of(context)!.highContrast, subtitle: AppLocalizations.of(context)!.highContrastDescription, value: accessibility.highContrast, onChanged: (v) => notifier.setHighContrast(v)),
-          _buildToggle(icon: Icons.animation_rounded, color: AppColors.warning, title: AppLocalizations.of(context)!.reduceAnimations, subtitle: AppLocalizations.of(context)!.reduceAnimationsDescription, value: accessibility.reduceAnimations, onChanged: (v) => notifier.setReduceAnimations(v)),
-          _buildToggle(icon: Icons.accessibility_new_rounded, color: AppColors.success, title: AppLocalizations.of(context)!.screenReaderHints, subtitle: AppLocalizations.of(context)!.screenReaderHintsDescription, value: accessibility.screenReaderHints, onChanged: (v) => notifier.setScreenReaderHints(v)),
+          _buildToggle(context, icon: Icons.contrast_rounded, color: AppColors.primary, title: AppLocalizations.of(context)!.highContrast, subtitle: AppLocalizations.of(context)!.highContrastDescription, value: accessibility.highContrast, onChanged: (v) => notifier.setHighContrast(v)),
+          _buildToggle(context, icon: Icons.animation_rounded, color: AppColors.warning, title: AppLocalizations.of(context)!.reduceAnimations, subtitle: AppLocalizations.of(context)!.reduceAnimationsDescription, value: accessibility.reduceAnimations, onChanged: (v) => notifier.setReduceAnimations(v)),
+          _buildToggle(context, icon: Icons.accessibility_new_rounded, color: AppColors.success, title: AppLocalizations.of(context)!.screenReaderHints, subtitle: AppLocalizations.of(context)!.screenReaderHintsDescription, value: accessibility.screenReaderHints, onChanged: (v) => notifier.setScreenReaderHints(v)),
         ],
       ),
     );
   }
 
-  Widget _buildToggle({required IconData icon, required Color color, required String title, required String subtitle, required bool value, required ValueChanged<bool> onChanged}) {
+  Widget _buildToggle(BuildContext context, {required IconData icon, required Color color, required String title, required String subtitle, required bool value, required ValueChanged<bool> onChanged}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
