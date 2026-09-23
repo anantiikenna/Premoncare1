@@ -233,7 +233,23 @@ class PatientDashboard extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error loading doctors: $error')),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.failedToLoadDoctorsGeneric,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(availableDoctorsProvider),
+                child: Text(AppLocalizations.of(context)!.retry),
+              ),
+            ],
+          ),
+        ),
       );
     });
   }

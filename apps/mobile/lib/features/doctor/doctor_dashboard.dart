@@ -574,7 +574,13 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
           _buildActionItem(context, Icons.calendar_month_rounded, AppLocalizations.of(context)!.schedule, primaryColor, onTap: () => context.push('/doctor/schedule')),
           _buildActionItem(context, Icons.person_add_rounded, AppLocalizations.of(context)!.requests, AppColors.success, onTap: () => context.push('/appointments')),
           _buildActionItem(context, Icons.history_edu_rounded, AppLocalizations.of(context)!.followUp, AppColors.warning, onTap: () {
-            showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (ctx) => const ProposeFollowupDialog());
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              useSafeArea: true,
+              builder: (ctx) => const ProposeFollowupDialog(),
+            );
           }),
           _buildActionItem(context, Icons.medication_rounded, AppLocalizations.of(context)!.prescribe, AppColors.primary, onTap: () => context.push('/appointments')),
           _buildActionItem(context, Icons.verified_user_rounded, AppLocalizations.of(context)!.compliance, AppColors.info, onTap: () => context.push('/doctor/subscription')),

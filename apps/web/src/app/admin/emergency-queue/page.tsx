@@ -51,6 +51,7 @@ export default function AdminEmergencyQueuePage() {
                 .from('profiles')
                 .select('id, full_name, specialty')
                 .eq('role', 'doctor')
+                .eq('verification_status', 'approved')
                 .eq('is_online', true)
 
             if (!onlineDoctors || onlineDoctors.length === 0) {

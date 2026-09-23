@@ -1,27 +1,75 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/supabase_locator.dart';
 
-/// Provider for the list of doctors for manual payment selection
-final availableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final data = await supabase
-      .from('profiles')
-      .select('id, full_name, consultation_fee, payment_instructions, specializations_list, hourly_rate')
-      .eq('role', 'doctor')
-      .order('full_name');
-  
-  return List<Map<String, dynamic>>.from(data);
+Stream<List<Map<String, dynamic>>> _watchApprovedDoctors({
+  required String select,
+  required String channelName,
+  required Ref ref,
+}) {
+  final controller = StreamController<List<Map<String, dynamic>>>();
+
+  Future<void> load() async {
+    try {
+      final data = await supabase
+          .from('profiles')
+          .select(select)
+          .eq('role', 'doctor')
+          .eq('verification_status', 'approved')
+          .order('is_online', ascending: false)
+          .order('full_name');
+      if (!controller.isClosed) {
+        controller.add(List<Map<String, dynamic>>.from(data));
+      }
+    } catch (e) {
+      if (!controller.isClosed) controller.addError(e);
+    }
+  }
+
+  load();
+
+  final channel = supabase
+      .channel(channelName)
+      .onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'profiles',
+        filter: const PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'role',
+          value: 'doctor',
+        ),
+        callback: (_) => load(),
+      )
+      ..subscribe();
+
+  ref.onDispose(() {
+    channel.unsubscribe();
+    controller.close();
+  });
+
+  return controller.stream;
+}
+
+/// Live list of approved doctors for manual payment / record sharing
+final availableDoctorsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  return _watchApprovedDoctors(
+    select:
+        'id, full_name, consultation_fee, payment_instructions, specializations_list, hourly_rate, is_online',
+    channelName: 'available-doctors-live',
+    ref: ref,
+  );
 });
 
-/// Provider for searchable doctor list with all profile fields
-final searchableDoctorsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final data = await supabase
-      .from('profiles')
-      .select('id, full_name, title, specialty, consultation_fee, is_online, is_emergency')
-      .eq('role', 'doctor')
-      .order('full_name');
-  
-  return List<Map<String, dynamic>>.from(data);
+/// Live searchable list of approved doctors (online first)
+final searchableDoctorsProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  return _watchApprovedDoctors(
+    select: 'id, full_name, title, specialty, consultation_fee, is_online, is_emergency',
+    channelName: 'searchable-doctors-live',
+    ref: ref,
+  );
 });
 
 /// Provider for patient's personal payment history

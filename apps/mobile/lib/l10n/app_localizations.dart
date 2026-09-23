@@ -3268,6 +3268,18 @@ abstract class AppLocalizations {
   /// **'Failed to load doctors: {error}'**
   String failedToLoadDoctors(Object error);
 
+  /// No description provided for @failedToLoadDoctorsGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load doctors'**
+  String get failedToLoadDoctorsGeneric;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get somethingWentWrong;
+
   /// No description provided for @failedToLoadCounts.
   ///
   /// In en, this message translates to:

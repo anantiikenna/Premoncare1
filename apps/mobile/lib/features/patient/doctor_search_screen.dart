@@ -119,11 +119,15 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
               children: [
                 Icon(Icons.error_outline, color: AppColors.error, size: 48),
                 const SizedBox(height: 12),
-                Text('Failed to load doctors', style: AppTypography.bodyLarge),
+                Text(
+                  AppLocalizations.of(context)!.failedToLoadDoctorsGeneric,
+                  style: AppTypography.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () => ref.invalidate(searchableDoctorsProvider),
-                   child: Text(AppLocalizations.of(context)!.retry),
+                  child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),
@@ -631,9 +635,12 @@ class _DoctorSearchScreenState extends ConsumerState<DoctorSearchScreen> {
     final emergencyDoctors = doctors
         .where((d) => d['is_emergency'] == true)
         .toList();
-    final displayDoctors = emergencyDoctors.isNotEmpty
-        ? emergencyDoctors
-        : doctors;
+    final onlineEmergency = emergencyDoctors
+        .where((d) => d['is_online'] == true)
+        .toList();
+    final displayDoctors = onlineEmergency.isNotEmpty
+        ? onlineEmergency
+        : emergencyDoctors;
 
     if (displayDoctors.isEmpty) {
       return Padding(

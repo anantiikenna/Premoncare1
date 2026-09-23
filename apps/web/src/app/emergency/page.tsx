@@ -105,6 +105,8 @@ export default function EmergencyBookingPage() {
   }
 
   useEffect(() => {
+    let cancelled = false
+
     async function fetchDoctors() {
       setLoading(true)
       const now = new Date().toISOString()
@@ -118,10 +120,25 @@ export default function EmergencyBookingPage() {
         .eq('is_online', true)
         .eq('is_emergency', true)
 
-      if (data) setDoctors(data)
-      setLoading(false)
+      if (!cancelled && data) setDoctors(data)
+      if (!cancelled) setLoading(false)
     }
+
     fetchDoctors()
+
+    const channel = supabase
+      .channel('emergency:doctors-live')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles', filter: 'role=eq.doctor' },
+        () => { fetchDoctors() }
+      )
+      .subscribe()
+
+    return () => {
+      cancelled = true
+      supabase.removeChannel(channel)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

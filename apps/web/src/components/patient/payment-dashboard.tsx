@@ -33,6 +33,7 @@ export function PaymentDashboard({ userId }: PaymentDashboardProps) {
             .from('profiles')
             .select('id, full_name, consultation_fee, negotiated_fee, payment_instructions')
             .eq('role', 'doctor')
+            .eq('verification_status', 'approved')
         
         if (doctorsData) setDoctors(doctorsData)
 

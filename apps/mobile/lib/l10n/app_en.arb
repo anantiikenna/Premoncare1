@@ -528,6 +528,8 @@
   "doctorVerifiedSuccessfully": "Doctor verified successfully!",
   "applicationRejected": "Application rejected.",
   "failedToLoadDoctors": "Failed to load doctors: {error}",
+  "failedToLoadDoctorsGeneric": "Failed to load doctors",
+  "somethingWentWrong": "Something went wrong",
   "failedToLoadCounts": "Failed to load counts: {error}",
   "notificationSentSuccessfully": "Notification sent successfully",
   "pleaseFillAllFields": "Please fill in all fields",

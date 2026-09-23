@@ -69,7 +69,21 @@ class RecordSharingSheet extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Text('Error: $err'),
+              error: (err, _) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.failedToLoadDoctorsGeneric,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => ref.invalidate(availableDoctorsProvider),
+                    child: Text(AppLocalizations.of(context)!.retry),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

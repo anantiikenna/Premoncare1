@@ -407,6 +407,7 @@ export async function getDoctors(supabase: SupabaseClient, specialty?: string) {
         .from('profiles')
         .select('id, full_name, avatar_url, specialty, experience_years, clinic_address, consultation_fee')
         .eq('role', 'doctor')
+        .eq('verification_status', 'approved')
         
     if (specialty && specialty !== 'All') {
         query = query.eq('specialty', specialty)
@@ -576,6 +577,7 @@ export async function getDoctorsWithRatings(supabase: SupabaseClient, specialty?
             reviews:reviews(rating)
         `)
         .eq('role', 'doctor')
+        .eq('verification_status', 'approved')
         
     if (specialty && specialty !== 'All') {
         query = query.eq('specialty', specialty)

@@ -183,7 +183,7 @@ class AdminErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Something went wrong',
+              AppLocalizations.of(context)!.somethingWentWrong,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -205,9 +205,9 @@ class AdminErrorState extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text(
-                  'Retry',
-                  style: TextStyle(fontWeight: FontWeight.w800),
+                label: Text(
+                  AppLocalizations.of(context)!.retry,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

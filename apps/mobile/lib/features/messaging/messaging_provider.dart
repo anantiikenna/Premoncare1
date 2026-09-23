@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/supabase_locator.dart';
 
 enum MessageType { text, attachment, audio, location }
@@ -85,22 +87,19 @@ final chatMessagesProvider = StreamProvider.autoDispose.family<List<Message>, St
 });
 
 /// Provider for the list of unique conversations (Inbox)
-final conversationsProvider = StreamProvider.autoDispose<List<ChatContact>>((ref) async* {
+/// Rebuilds on new messages AND on partner profile presence (is_online) updates.
+final conversationsProvider = StreamProvider.autoDispose<List<ChatContact>>((ref) {
   final user = supabase.auth.currentUser;
-  if (user == null) {
-      yield [];
-      return;
-  }
+  if (user == null) return Stream.value(const []);
 
-  final messageStream = supabase
-      .from('messages')
-      .stream(primaryKey: ['id'])
-      .order('created_at', ascending: false);
+  final controller = StreamController<List<ChatContact>>();
+  List<Map<String, dynamic>>? lastMessages;
 
-  await for (final data in messageStream) {
+  Future<void> emitContacts(List<Map<String, dynamic>> data) async {
+    lastMessages = data;
     if (data.isEmpty) {
-      yield [];
-      continue;
+      if (!controller.isClosed) controller.add(const []);
+      return;
     }
 
     final messages = data.map((m) => Message.fromJson(m)).toList();
@@ -116,7 +115,7 @@ final conversationsProvider = StreamProvider.autoDispose<List<ChatContact>>((ref
         .from('profiles')
         .select('id, full_name, avatar_url, specialty, is_online')
         .inFilter('id', partnerIds);
-    
+
     final Map<String, Map<String, dynamic>> profileMap = {
       for (var p in profilesData) p['id']: p
     };
@@ -135,8 +134,37 @@ final conversationsProvider = StreamProvider.autoDispose<List<ChatContact>>((ref
       );
     }).toList();
 
-    yield contacts;
+    if (!controller.isClosed) controller.add(contacts);
   }
+
+  final messageSub = supabase
+      .from('messages')
+      .stream(primaryKey: ['id'])
+      .order('created_at', ascending: false)
+      .listen(emitContacts, onError: (Object e) {
+    if (!controller.isClosed) controller.addError(e);
+  });
+
+  final presenceChannel = supabase
+      .channel('chat-presence:${user.id}')
+      .onPostgresChanges(
+        event: PostgresChangeEvent.update,
+        schema: 'public',
+        table: 'profiles',
+        callback: (_) {
+          final msgs = lastMessages;
+          if (msgs != null) emitContacts(msgs);
+        },
+      )
+      ..subscribe();
+
+  ref.onDispose(() {
+    messageSub.cancel();
+    presenceChannel.unsubscribe();
+    controller.close();
+  });
+
+  return controller.stream;
 });
 
 class MessagingService {

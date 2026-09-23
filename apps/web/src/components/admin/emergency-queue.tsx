@@ -52,6 +52,7 @@ export function EmergencyQueue() {
             .from('profiles')
             .select('*')
             .eq('role', 'doctor')
+            .eq('verification_status', 'approved')
             .eq('is_online', true)
 
         if (data) setAvailableDoctors(data)
@@ -68,6 +69,13 @@ export function EmergencyQueue() {
                 { event: '*', schema: 'public', table: 'appointments', filter: 'is_emergency=eq.true' },
                 () => {
                     fetchQueue()
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'profiles', filter: 'role=eq.doctor' },
+                () => {
+                    fetchDoctors()
                 }
             )
             .subscribe()
@@ -244,6 +252,7 @@ export function EmergencyQueue() {
                             .from('profiles')
                             .select('id')
                             .eq('role', 'doctor')
+                            .eq('verification_status', 'approved')
                             .eq('is_online', true)
                         if (onlineDoctors && onlineDoctors.length > 0) {
                             try {

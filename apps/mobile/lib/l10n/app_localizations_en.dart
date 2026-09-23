@@ -1745,6 +1745,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get failedToLoadDoctorsGeneric => 'Failed to load doctors';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
   String failedToLoadCounts(Object error) {
     return 'Failed to load counts: $error';
   }

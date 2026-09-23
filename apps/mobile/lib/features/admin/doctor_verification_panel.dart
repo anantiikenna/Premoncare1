@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -119,9 +120,12 @@ class _DoctorVerificationPanelState
       }
 
       if (_searchQuery.isNotEmpty) {
-        query = query.or(
-          'full_name.ilike.%$_searchQuery%,email.ilike.%$_searchQuery%',
-        );
+        final safeQuery = _searchQuery.replaceAll(RegExp(r"[,'()\\]"), ' ').trim();
+        if (safeQuery.isNotEmpty) {
+          query = query.or(
+            'full_name.ilike.%$safeQuery%,email.ilike.%$safeQuery%',
+          );
+        }
       }
 
       final response = await query.order('created_at', ascending: false);
@@ -129,11 +133,12 @@ class _DoctorVerificationPanelState
         setState(() => _doctors = List<Map<String, dynamic>>.from(response));
       }
     } catch (e) {
+      if (kDebugMode) debugPrint('Doctors load failed: $e');
       if (mounted) {
-        setState(() => _error = e.toString());
+        setState(() => _error = AppLocalizations.of(context)!.failedToLoadDoctorsGeneric);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.failedToLoadDoctors(e.toString())),
+            content: Text(AppLocalizations.of(context)!.failedToLoadDoctorsGeneric),
             backgroundColor: AppColors.error,
           ),
         );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
@@ -34,7 +35,10 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
   Future<void> _loadPatients() async {
     try {
       final user = supabase.auth.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        if (mounted) setState(() => _loadingPatients = false);
+        return;
+      }
       final data = await supabase
           .from('appointments')
           .select('patient_id, profiles!appointments_patient_id_fkey(id, full_name)')
@@ -62,7 +66,8 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
           }
         });
       }
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) debugPrint('Follow-up patients load failed: $e');
       if (mounted) setState(() => _loadingPatients = false);
     }
   }
@@ -164,19 +169,26 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceOf(context),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(32),
+    final mq = MediaQuery.of(context);
+    return Padding(
+      padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
+      child: Container(
+        width: double.infinity,
+        constraints: BoxConstraints(maxHeight: mq.size.height * 0.92),
+        padding: EdgeInsets.fromLTRB(32, 32, 32, 16 + mq.padding.bottom),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceOf(context),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(32),
+            topRight: Radius.circular(32),
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -360,7 +372,9 @@ class _ProposeFollowupDialogState extends State<ProposeFollowupDialog> {
             ),
           ),
           const SizedBox(height: 12),
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }
