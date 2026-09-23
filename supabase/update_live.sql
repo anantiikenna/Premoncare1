@@ -445,6 +445,16 @@ BEGIN
   END IF;
 END $$;
 
+-- payment_status: add 'refunded' (used by financial_moderation_screen.dart)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'refunded' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'payment_status')) THEN
+    ALTER TYPE public.payment_status ADD VALUE 'refunded' AFTER 'disputed';
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
+
 -- ============================================================
 -- FIX: Update appointments status CHECK to include 'rescheduled'
 -- (used by admin_reports_screen.dart)
@@ -2526,9 +2536,10 @@ CREATE POLICY "Patients can create own payments"
   ON public.payments FOR INSERT
   WITH CHECK (auth.uid() = user_id AND status = 'pending');
 
--- 12. prescriptions: column-level UPDATE (only acknowledged)
+-- 12. prescriptions: clients never UPDATE this table (doctors INSERT, patients SELECT).
+-- Column-level GRANTs on non-existent "acknowledged*" columns are intentionally omitted.
 REVOKE UPDATE ON public.prescriptions FROM authenticated;
-GRANT UPDATE (acknowledged) ON public.prescriptions TO authenticated;
+REVOKE UPDATE ON public.prescriptions FROM anon;
 
 -- 13. FK hygiene: verified_by / forum_reports.resolved_by ON DELETE SET NULL
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_verified_by_fkey;
@@ -2538,24 +2549,26 @@ ALTER TABLE public.forum_reports DROP CONSTRAINT IF EXISTS forum_reports_resolve
 ALTER TABLE public.forum_reports ADD CONSTRAINT forum_reports_resolved_by_fkey
   FOREIGN KEY (resolved_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
 
--- 14. appointments status CHECK: include refunded-adjacent payment statuses not needed;
--- ensure 'refunded' payments allowed
+-- 14. payment_status enum: add 'refunded' (used by financial_moderation_screen.dart)
 DO $$
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM information_schema.check_constraints cc
-    JOIN information_schema.constraint_column_usage ccu ON cc.constraint_name = ccu.constraint_name
-    WHERE cc.table_name = 'payments' AND ccu.column_name = 'status'
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_enum
+    WHERE enumlabel = 'refunded'
+      AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'payment_status')
   ) THEN
-    -- best-effort: drop and re-add payments status check if present
-    BEGIN
-      ALTER TABLE public.payments DROP CONSTRAINT IF EXISTS payments_status_check;
-    EXCEPTION WHEN OTHERS THEN NULL;
-    END;
-    ALTER TABLE public.payments
-      ADD CONSTRAINT payments_status_check
-      CHECK (status IN ('pending', 'approved', 'rejected', 'refunded'));
+    ALTER TYPE public.payment_status ADD VALUE 'refunded' AFTER 'disputed';
   END IF;
+EXCEPTION WHEN duplicate_object OR invalid_catalog_name THEN
+  NULL;
+END $$;
+
+-- payments.status is an enum (payment_status), not text — no text CHECK needed.
+-- Drop any legacy text CHECK that would reject valid enum values.
+DO $$
+BEGIN
+  ALTER TABLE public.payments DROP CONSTRAINT IF EXISTS payments_status_check;
+EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- 15. Re-assert grants after revoke
@@ -2568,4 +2581,3 @@ GRANT EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) TO 
 GRANT EXECUTE ON FUNCTION public.get_admin_financial_stats() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.export_user_data(uuid) TO authenticated;
-GRANT UPDATE (acknowledged, acknowledged_by, acknowledged_at) ON public.prescriptions TO authenticated;
