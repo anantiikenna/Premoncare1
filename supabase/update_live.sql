@@ -2509,11 +2509,11 @@ end;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- 9. OTP lockout: stop client-side lockout abuse
--- reset_otp_attempts must DELETE failures (was no-op on failures)
+-- reset_otp_attempts must DELETE failures (was no-op on failures; otp_attempts table does not exist)
 CREATE OR REPLACE FUNCTION public.reset_otp_attempts(p_email text)
 RETURNS void AS $$
 BEGIN
-  DELETE FROM public.otp_attempts WHERE lower(email) = lower(p_email);
+  DELETE FROM public.login_attempts WHERE lower(email) = lower(p_email) AND success = false;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 

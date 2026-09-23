@@ -1,6 +1,7 @@
 -- Premon Care Unified Database Schema
--- Last Updated: 2026-07-31
+-- Last Updated: 2026-09-23
 -- Includes: Profiles, Medical Vault, Subscriptions, Appointments, Real-time Messaging, and Doctor Scheduling.
+-- Security hardening batch applied (mirrors update_live.sql SECURITY HARDENING BATCH).
 
 SET ROLE postgres;
 
@@ -15,7 +16,7 @@ create type fee_status as enum ('none', 'awaiting_admin_proposal', 'awaiting_doc
 create type forum_post_status as enum ('approved', 'pending', 'rejected');
 create type forum_report_status as enum ('pending', 'reviewed', 'action_taken', 'dismissed');
 create type account_status as enum ('active', 'suspended', 'banned');
-create type payment_status as enum ('pending', 'approved', 'rejected', 'disputed');
+create type payment_status as enum ('pending', 'approved', 'rejected', 'disputed', 'refunded');
 create type payment_method as enum ('digital', 'manual');
 create type record_type as enum ('lab_result', 'prescription', 'imaging', 'immunization', 'clinical_note', 'other');
 create type audit_action_type as enum ('verification', 'financial', 'security', 'system');
@@ -520,10 +521,10 @@ create policy "Patients can view own payments"
   on payments for select
   using (auth.uid() = user_id);
 
--- Patients can create payments for themselves
+-- Patients can create payments for themselves (only as pending at insert)
 create policy "Patients can create own payments"
   on payments for insert
-  with check (auth.uid() = user_id);
+  with check (auth.uid() = user_id AND status = 'pending');
 
 -- Doctors can view payments where they are the recipient
 create policy "Doctors can view their received payments"
@@ -749,17 +750,28 @@ create policy "Admins can update system settings"
 -- FUNCTIONS & TRIGGERS
 -- ============================================================
 
--- Function to auto-create profile on user signup
+-- Function to auto-create profile on user signup (always role=patient; requested_role whitelisted)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_requested user_role;
 BEGIN
+  BEGIN
+    v_requested := COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role;
+  EXCEPTION WHEN OTHERS THEN
+    v_requested := 'patient';
+  END;
+  IF v_requested NOT IN ('patient', 'doctor') THEN
+    v_requested := 'patient';
+  END IF;
+
   INSERT INTO public.profiles (id, email, full_name, role, requested_role, phone)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data ->> 'full_name', ''),
-    COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role,
-    COALESCE(NEW.raw_user_meta_data ->> 'requested_role', 'patient')::user_role,
+    'patient',
+    v_requested,
     NULLIF(NEW.raw_user_meta_data ->> 'phone', '')
   );
   RETURN NEW;
@@ -770,6 +782,47 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
   EXECUTE PROCEDURE public.handle_new_user();
+
+-- Privilege-escalation guard: block self role/verification escalation; admin can still manage
+CREATE OR REPLACE FUNCTION public.profiles_guard_privileged_columns()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RETURN NEW; -- triggers / service_role
+  END IF;
+
+  IF auth.uid() = NEW.id THEN
+    IF NEW.role IS DISTINCT FROM OLD.role THEN
+      RAISE EXCEPTION 'Cannot change own role';
+    END IF;
+    IF NEW.requested_role IS DISTINCT FROM OLD.requested_role
+       AND NEW.requested_role NOT IN ('patient', 'doctor') THEN
+      RAISE EXCEPTION 'Invalid requested_role';
+    END IF;
+    IF NEW.verification_status IS DISTINCT FROM OLD.verification_status
+       AND NEW.verification_status NOT IN ('pending', 'unsubmitted', 'rejected', 'under_review') THEN
+      RAISE EXCEPTION 'Invalid verification_status transition';
+    END IF;
+    IF NEW.verified_by IS DISTINCT FROM OLD.verified_by
+       OR NEW.subscription_expires_at IS DISTINCT FROM OLD.subscription_expires_at
+       OR NEW.fee_status IS DISTINCT FROM OLD.fee_status THEN
+      IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+        RAISE EXCEPTION 'Unauthorized privileged column change';
+      END IF;
+    END IF;
+  ELSE
+    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+      RAISE EXCEPTION 'Cannot update other profiles';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+CREATE TRIGGER profiles_guard_privileged
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.profiles_guard_privileged_columns();
 
 -- Function to handle schedule initialization on profile promotion
 CREATE OR REPLACE FUNCTION public.initialize_doctor_schedule()
@@ -852,10 +905,19 @@ CREATE OR REPLACE FUNCTION increment_time_balance(
 )
 RETURNS VOID AS $$
 BEGIN
+    IF p_minutes IS NULL OR p_minutes <= 0 OR p_minutes > 1440 THEN
+        RAISE EXCEPTION 'Invalid minutes';
+    END IF;
+    IF auth.uid() IS NOT NULL
+       AND auth.uid() <> p_doctor_id
+       AND NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+        RAISE EXCEPTION 'Unauthorized';
+    END IF;
+
     INSERT INTO time_balances (patient_id, doctor_id, minutes_remaining)
     VALUES (p_patient_id, p_doctor_id, p_minutes)
     ON CONFLICT (patient_id, doctor_id)
-    DO UPDATE SET 
+    DO UPDATE SET
         minutes_remaining = time_balances.minutes_remaining + p_minutes,
         updated_at = NOW();
 END;
@@ -873,9 +935,14 @@ DECLARE
     v_added_months INTEGER;
     v_admin_setting RECORD;
     v_processor_role TEXT;
+    v_processor uuid;
 BEGIN
-    -- Authorization: only admins or payment recipients can approve
-    SELECT role INTO v_processor_role FROM profiles WHERE id = p_processor_id;
+    v_processor := COALESCE(auth.uid(), p_processor_id);
+    IF auth.uid() IS NOT NULL AND p_processor_id IS DISTINCT FROM auth.uid() THEN
+        RAISE EXCEPTION 'Unauthorized: processor mismatch';
+    END IF;
+
+    SELECT role INTO v_processor_role FROM profiles WHERE id = v_processor;
     IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
         RAISE EXCEPTION 'Unauthorized: only admins or recipients can approve payments';
     END IF;
@@ -884,12 +951,11 @@ BEGIN
     IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
     IF v_payment.status = 'approved' THEN RETURN; END IF;
 
-    -- Recipients can only approve their own payments
-    IF v_processor_role = 'doctor' AND v_payment.recipient_id != p_processor_id THEN
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != v_processor THEN
         RAISE EXCEPTION 'Forbidden: doctors can only approve their own payments';
     END IF;
 
-    UPDATE payments SET status = 'approved', processed_by = p_processor_id WHERE id = p_payment_id;
+    UPDATE payments SET status = 'approved', processed_by = v_processor WHERE id = p_payment_id;
 
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (v_payment.user_id, 'Payment Approved', 'Your payment of ₦' || v_payment.amount || ' has been verified and approved.', 'payment', '/patient/payments');
@@ -947,22 +1013,26 @@ RETURNS VOID AS $$
 DECLARE
     v_payment RECORD;
     v_processor_role TEXT;
+    v_processor uuid;
 BEGIN
-    -- Authorization: only admins or payment recipients can reject
-    SELECT role INTO v_processor_role FROM profiles WHERE id = p_processor_id;
+    v_processor := COALESCE(auth.uid(), p_processor_id);
+    IF auth.uid() IS NOT NULL AND p_processor_id IS DISTINCT FROM auth.uid() THEN
+        RAISE EXCEPTION 'Unauthorized: processor mismatch';
+    END IF;
+
+    SELECT role INTO v_processor_role FROM profiles WHERE id = v_processor;
     IF v_processor_role IS NULL OR v_processor_role NOT IN ('admin', 'doctor') THEN
         RAISE EXCEPTION 'Unauthorized: only admins or recipients can reject payments';
     END IF;
 
     SELECT * INTO v_payment FROM payments WHERE id = p_payment_id FOR UPDATE;
     IF v_payment IS NULL THEN RAISE EXCEPTION 'Payment not found'; END IF;
-
-    -- Recipients can only reject their own payments
-    IF v_processor_role = 'doctor' AND v_payment.recipient_id != p_processor_id THEN
+    IF v_payment.status = 'approved' THEN RAISE EXCEPTION 'Already approved'; END IF;
+    IF v_processor_role = 'doctor' AND v_payment.recipient_id != v_processor THEN
         RAISE EXCEPTION 'Forbidden: doctors can only reject their own payments';
     END IF;
 
-    UPDATE payments SET status = 'rejected', rejection_reason = p_reason, processed_by = p_processor_id WHERE id = p_payment_id;
+    UPDATE payments SET status = 'rejected', processed_by = v_processor, rejection_reason = p_reason WHERE id = p_payment_id;
 
     INSERT INTO notifications (user_id, title, message, type, link)
     VALUES (v_payment.user_id, 'Payment Rejected', 'Your payment of ₦' || v_payment.amount || ' was rejected. Reason: ' || COALESCE(p_reason, 'No reason provided.'), 'payment', '/patient/payments');
@@ -985,7 +1055,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 CREATE OR REPLACE FUNCTION public.soft_delete_user(p_user_id uuid, p_reason text DEFAULT null)
 RETURNS jsonb AS $$
 BEGIN
-  -- Only the user themselves or an admin can trigger
+  IF auth.uid() IS NULL THEN
+    RETURN jsonb_build_object('error', 'Unauthorized');
+  END IF;
   IF auth.uid() != p_user_id AND NOT EXISTS (
     SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
   ) THEN
@@ -1182,17 +1254,23 @@ CREATE OR REPLACE FUNCTION public.log_phi_access(
   p_details jsonb DEFAULT '{}'::jsonb
 )
 RETURNS void AS $$
+DECLARE
+  v_user uuid;
 BEGIN
+  v_user := COALESCE(auth.uid(), p_user_id);
+  IF auth.uid() IS NOT NULL AND p_user_id IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION 'Unauthorized: cannot log for other users';
+  END IF;
   INSERT INTO audit_logs (user_id, action, action_type, severity, description, details)
   VALUES (
-    p_user_id,
+    v_user,
     p_action,
     'security',
     CASE
       WHEN p_action IN ('medical_record_accessed', 'prescription_accessed', 'phi_exported') THEN 'moderate'
       ELSE 'info'
     END,
-    p_resource_type || ' ' || COALESCE(p_action, '') || ' by ' || p_user_id::text,
+    p_resource_type || ' ' || COALESCE(p_action, '') || ' by ' || v_user::text,
     p_details || jsonb_build_object('resource_type', p_resource_type, 'resource_id', p_resource_id)
   );
 END;
@@ -1275,31 +1353,34 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 CREATE OR REPLACE FUNCTION public.reset_otp_attempts(p_email text)
 RETURNS void AS $$
 BEGIN
-    INSERT INTO public.login_attempts (email, success)
-    VALUES (lower(p_email), true);
+    DELETE FROM public.login_attempts WHERE lower(email) = lower(p_email) AND success = false;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
-REVOKE EXECUTE ON FUNCTION public.check_otp_rate_limit(text) FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.record_otp_attempt(text, text) FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.reset_otp_attempts(text) FROM PUBLIC;
-
-GRANT EXECUTE ON FUNCTION public.check_otp_rate_limit(text) TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.record_otp_attempt(text, text) TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.reset_otp_attempts(text) TO anon, authenticated;
+-- Revoke OTP RPCs from untrusted clients; server verifies OTP only
+REVOKE EXECUTE ON FUNCTION public.check_otp_rate_limit(text) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.record_otp_attempt(text, text) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.reset_otp_attempts(text) FROM PUBLIC, anon, authenticated;
 
 -- GDPR function GRANTs
 GRANT EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) TO authenticated;
-REVOKE EXECUTE ON FUNCTION public.export_user_data(uuid) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.export_user_data(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.export_user_data(uuid) TO authenticated;
 
 -- HIPAA audit function GRANTs
 GRANT EXECUTE ON FUNCTION public.log_phi_access(uuid, text, text, uuid, jsonb) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.log_phi_access(uuid, text, text, uuid, jsonb) FROM PUBLIC, anon;
 
 -- Data retention function GRANTs (service_role only — for cron jobs)
 GRANT EXECUTE ON FUNCTION public.purge_deleted_accounts() TO service_role;
 GRANT EXECUTE ON FUNCTION public.cleanup_old_notifications() TO service_role;
 GRANT EXECUTE ON FUNCTION public.cleanup_old_device_sessions() TO service_role;
+GRANT EXECUTE ON FUNCTION public.cleanup_old_login_attempts() TO service_role;
+REVOKE EXECUTE ON FUNCTION public.purge_deleted_accounts() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_notifications() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_device_sessions() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.cleanup_old_login_attempts() FROM PUBLIC;
 
 -- ============================================================
 -- REALTIME
@@ -1608,6 +1689,9 @@ declare
   pending_payouts numeric;
   total_refunds numeric;
 begin
+  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
   select coalesce(sum(amount), 0) into total_revenue from payments where status = 'approved';
   select coalesce(sum(amount), 0) into total_payouts from payouts where status = 'approved';
   select coalesce(sum(amount), 0) into pending_payouts from payouts where status = 'pending';
@@ -1688,9 +1772,11 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.record_permissions TO service_rol
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_profiles TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.medical_profiles TO service_role;
 
--- prescriptions
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.prescriptions TO authenticated;
+-- prescriptions (clients never UPDATE — doctors INSERT, patients SELECT)
+GRANT SELECT, INSERT, DELETE ON public.prescriptions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.prescriptions TO service_role;
+REVOKE UPDATE ON public.prescriptions FROM authenticated;
+REVOKE UPDATE ON public.prescriptions FROM anon;
 
 -- consultation_notes
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.consultation_notes TO authenticated;
@@ -1728,8 +1814,7 @@ GRANT EXECUTE ON FUNCTION public.increment_reply_helpful(UUID) TO authenticated;
 
 -- SECURITY: Explicit REVOKE from anon for all SECURITY DEFINER functions
 -- (Supabase grants anon EXECUTE by default; REVOKE FROM PUBLIC is insufficient)
--- Only check_otp_rate_limit, record_otp_attempt, reset_otp_attempts
--- are callable by anon (pre-auth login flow).
+-- Only admin/service-only helpers are revoked; OTP RPCs are fully revoked from clients above
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.initialize_doctor_schedule() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.update_doctor_review_count() FROM anon;
@@ -1742,6 +1827,28 @@ REVOKE EXECUTE ON FUNCTION public.approve_payment(UUID, UUID) FROM anon;
 REVOKE EXECUTE ON FUNCTION public.reject_payment(UUID, TEXT, UUID) FROM anon;
 REVOKE EXECUTE ON FUNCTION public.get_admin_financial_stats() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) FROM anon;
+
+-- SECURITY: Revoke anon SELECT from sensitive/PHI tables
+-- (profiles/doctor_schedules/appointments/time_balances keep public listing grants above)
+REVOKE SELECT ON public.payments FROM anon;
+REVOKE SELECT ON public.messages FROM anon;
+REVOKE SELECT ON public.notifications FROM anon;
+REVOKE SELECT ON public.medical_records FROM anon;
+REVOKE SELECT ON public.health_records FROM anon;
+REVOKE SELECT ON public.medical_documents FROM anon;
+REVOKE SELECT ON public.fee_negotiation_messages FROM anon;
+REVOKE SELECT ON public.record_permissions FROM anon;
+REVOKE SELECT ON public.medical_profiles FROM anon;
+REVOKE SELECT ON public.prescriptions FROM anon;
+REVOKE SELECT ON public.consultation_notes FROM anon;
+REVOKE SELECT ON public.admin_notification_settings FROM anon;
+REVOKE SELECT ON public.device_sessions FROM anon;
+REVOKE SELECT ON public.payouts FROM anon;
+REVOKE SELECT ON public.refunds FROM anon;
+REVOKE SELECT ON public.disputes FROM anon;
+REVOKE SELECT ON public.blocked_users FROM anon;
+REVOKE SELECT ON public.doctor_subscriptions FROM anon;
+REVOKE SELECT ON public.audit_logs FROM anon;
 
 -- SECURITY: Explicit REVOKE from authenticated for admin/service-only functions
 -- These functions have internal auth checks but should not be callable by
