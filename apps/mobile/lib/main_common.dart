@@ -28,9 +28,6 @@ final accessibilityProvider = ChangeNotifierProvider<AccessibilityProvider>((ref
 const _languageToLocale = <String, Locale>{
   'English': Locale('en'),
   'French': Locale('fr'),
-  'Yoruba': Locale('yo'),
-  'Igbo': Locale('ig'),
-  'Hausa': Locale('ha'),
   'Swahili': Locale('sw'),
 };
 
@@ -119,9 +116,6 @@ class PremonCareApp extends ConsumerWidget {
       supportedLocales: const [
         Locale('en'),
         Locale('fr'),
-        Locale('yo'),
-        Locale('ig'),
-        Locale('ha'),
         Locale('sw'),
       ],
       builder: (context, child) {

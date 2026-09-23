@@ -19,7 +19,7 @@ class _LanguageRegionScreenState extends ConsumerState<LanguageRegionScreen> {
   String _selectedRegion = 'Nigeria';
   String _selectedCurrency = 'NGN';
 
-  static const _languages = ['English', 'French', 'Yoruba', 'Igbo', 'Hausa', 'Swahili'];
+  static const _languages = ['English', 'French', 'Swahili'];
   static const _regions = ['Nigeria', 'Ghana', 'Kenya', 'South Africa', 'United States', 'United Kingdom'];
   static const _currencies = ['NGN', 'GHS', 'KES', 'ZAR', 'USD', 'GBP'];
 
@@ -34,6 +34,7 @@ class _LanguageRegionScreenState extends ConsumerState<LanguageRegionScreen> {
     if (!mounted) return;
     setState(() {
       _selectedLanguage = prefs.getString('locale_language') ?? 'English';
+      if (!_languages.contains(_selectedLanguage)) _selectedLanguage = 'English';
       _selectedRegion = prefs.getString('locale_region') ?? 'Nigeria';
       _selectedCurrency = prefs.getString('locale_currency') ?? 'NGN';
     });
