@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { HeartPulse, Menu, X } from "lucide-react";
+import { HeartPulse, Menu, X, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { hasAndroidDownload } from "@/lib/android-download";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +17,7 @@ export function Header() {
     { name: 'About', href: '#about' },
     { name: 'Doctors', href: '#doctors' },
     { name: 'Community', href: '/patient/forum' },
+    ...(hasAndroidDownload ? [{ name: 'Get App', href: '/download' }] : []),
   ];
 
   return (
@@ -48,6 +50,12 @@ export function Header() {
       </nav>
       
       <div className="flex items-center gap-4">
+        {hasAndroidDownload && (
+          <Link href="/download" className="hidden sm:flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2 text-primary hover:bg-primary hover:text-white transition-colors font-bold text-sm shadow-sm" aria-label="Download the Android app">
+            <Download className="h-4 w-4 shrink-0" />
+            <span className="hidden md:inline">Get App</span>
+          </Link>
+        )}
         <Link href="/login" className="hidden sm:block">
           <Button variant="ghost" className="font-bold text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl">
             Sign In
