@@ -19,9 +19,11 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  Linkedin
+  Linkedin,
+  Download
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
+import { androidDownload, androidDownloadSizeLabel, hasAndroidDownload } from "@/lib/android-download";
 
 // Pre-render at build time; silently revalidate in the background every hour.
 // Users always get instant static HTML — no DB call at request time.
@@ -81,6 +83,15 @@ export default async function Home() {
                     </span>
                   </Button>
                 </Link>
+                {hasAndroidDownload && (
+                  <Link href="/download">
+                    <Button variant="outline" size="lg" className="group relative h-14 md:h-16 w-52 md:w-56 rounded-[2rem] border-primary/40 text-primary font-black overflow-hidden hover:bg-primary/5 transition-all duration-300 shadow-xl">
+                      <span className="relative z-10 flex items-center justify-center gap-2 tracking-widest uppercase text-sm">
+                        <Download className="h-5 w-5 shrink-0" /> Android App
+                      </span>
+                    </Button>
+                  </Link>
+                )}
                 <div className="flex items-center gap-4 px-6 py-2 glass-panel rounded-3xl">
                   <div className="flex -space-x-4">
                     {doctorPortraits.map((src, i) => (
@@ -233,6 +244,13 @@ export default async function Home() {
                     Join the Future
                   </Button>
                 </Link>
+                {hasAndroidDownload && (
+                  <Link href="/download" className="w-full sm:w-auto">
+                    <Button variant="outline" size="lg" className="group h-16 md:h-20 w-full sm:px-12 rounded-[2.5rem] border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-slate-900 text-lg md:text-xl font-black shadow-2xl transition-transform hover:scale-105">
+                      <Download className="h-5 w-5 md:h-6 md:w-6 shrink-0" /> Download the App
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -263,6 +281,20 @@ export default async function Home() {
                 </Link>
               ))}
             </div>
+            {hasAndroidDownload && (
+              <Link
+                href="/download"
+                className="inline-flex items-center gap-3 rounded-2xl bg-primary/10 px-5 py-3 text-primary hover:bg-primary hover:text-white transition-colors duration-300 shadow-sm font-black text-sm mx-auto md:mx-0"
+              >
+                <Download className="h-5 w-5 shrink-0" />
+                <span className="text-left leading-tight">
+                  Download Android App
+                  <span className="block text-[10px] font-bold uppercase tracking-widest opacity-80">
+                    v{androidDownload.version} &middot; {androidDownloadSizeLabel}
+                  </span>
+                </span>
+              </Link>
+            )}
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-10 md:gap-16 text-center md:text-left">
