@@ -87,7 +87,7 @@ export default async function Home() {
                   <Link href="/download">
                     <Button variant="outline" size="lg" className="group relative h-14 md:h-16 w-52 md:w-56 rounded-[2rem] border-primary/40 text-primary font-black overflow-hidden hover:bg-primary/5 transition-all duration-300 shadow-xl">
                       <span className="relative z-10 flex items-center justify-center gap-2 tracking-widest uppercase text-sm">
-                        <Download className="h-5 w-5 shrink-0" /> Android App
+                        <Download className="h-5 w-5 shrink-0" /> Get the App
                       </span>
                     </Button>
                   </Link>
@@ -288,7 +288,7 @@ export default async function Home() {
               >
                 <Download className="h-5 w-5 shrink-0" />
                 <span className="text-left leading-tight">
-                  Download Android App
+                  Download the App
                   <span className="block text-[10px] font-bold uppercase tracking-widest opacity-80">
                     v{androidDownload.version} &middot; {androidDownloadSizeLabel}
                   </span>

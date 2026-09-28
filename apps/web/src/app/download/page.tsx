@@ -40,9 +40,14 @@ export default function DownloadPage() {
       <section className="px-6 lg:px-20 py-16 md:py-24">
         <div className="mx-auto max-w-4xl space-y-10">
           <div className="space-y-4 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary">
-              <Smartphone className="h-4 w-4" />
-              Android App
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary">
+                <Smartphone className="h-4 w-4" />
+                Android App
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-secondary/60 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                iOS Coming Soon
+              </div>
             </div>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground">
               Premoncare for Android
@@ -120,7 +125,7 @@ export default function DownloadPage() {
                   <p className="flex items-start gap-2 rounded-2xl bg-secondary/50 p-4 text-xs font-medium leading-5 text-muted-foreground">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     Android 8.0 and newer only allow installations from sources you approve. This
-                    APK is not on the Google Play Store, and iOS is not supported yet.
+                    APK is not on the Google Play Store. iOS coming soon.
                   </p>
                 </CardContent>
               </Card>

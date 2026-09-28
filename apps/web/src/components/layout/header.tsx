@@ -51,7 +51,7 @@ export function Header() {
       
       <div className="flex items-center gap-4">
         {hasAndroidDownload && (
-          <Link href="/download" className="hidden sm:flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2 text-primary hover:bg-primary hover:text-white transition-colors font-bold text-sm shadow-sm" aria-label="Download the Android app">
+          <Link href="/download" className="hidden sm:flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2 text-primary hover:bg-primary hover:text-white transition-colors font-bold text-sm shadow-sm" aria-label="Download the mobile app">
             <Download className="h-4 w-4 shrink-0" />
             <span className="hidden md:inline">Get App</span>
           </Link>
