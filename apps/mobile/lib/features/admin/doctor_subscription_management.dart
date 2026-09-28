@@ -1089,26 +1089,32 @@ class _SubscriptionRow extends StatelessWidget {
               children: [
                 AdminAvatar(imageUrl: avatarUrl, name: name, radius: 16),
                 const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                        color: AppColors.textPrimaryOf(context),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          color: AppColors.textPrimaryOf(context),
+                        ),
                       ),
-                    ),
-                    Text(
-                      plan,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: AppColors.textTertiaryOf(context),
-                        fontWeight: FontWeight.w600,
+                      Text(
+                        plan,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: AppColors.textTertiaryOf(context),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -1120,6 +1126,8 @@ class _SubscriptionRow extends StatelessWidget {
               children: [
                 Text(
                   plan,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -1128,6 +1136,8 @@ class _SubscriptionRow extends StatelessWidget {
                 ),
                 Text(
                   amount,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -1146,8 +1156,11 @@ class _SubscriptionRow extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   expiry,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 9,
+                    height: 1.2,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textTertiaryOf(context),
                   ),
@@ -1162,6 +1175,8 @@ class _SubscriptionRow extends StatelessWidget {
               children: [
                 Text(
                   lastPay,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -1170,8 +1185,11 @@ class _SubscriptionRow extends StatelessWidget {
                 ),
                 Text(
                   payDate,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 9,
+                    height: 1.2,
                     color: AppColors.textTertiaryOf(context),
                     fontWeight: FontWeight.w600,
                   ),
@@ -1384,33 +1402,46 @@ class _SmallDoctorItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AdminAvatar(imageUrl: avatarUrl, name: name, radius: 14),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 12,
                     color: AppColors.textPrimaryOf(context),
                   ),
                 ),
-                Text(
-                  sub,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    color: AppColors.warning,
-                    fontWeight: FontWeight.w800,
-                  ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        sub,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    _StatusBadge(label: 'Remind'),
+                  ],
                 ),
               ],
             ),
           ),
-          _StatusBadge(label: 'Remind'),
         ],
       ),
     );

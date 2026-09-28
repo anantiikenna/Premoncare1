@@ -225,12 +225,16 @@ class _ChatTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        contact.fullName,
-                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context)),
+                      Expanded(
+                        child: Text(
+                          contact.fullName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.textPrimaryOf(context)),
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         _formatTime(context, contact.lastMessage.createdAt),
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textTertiaryOf(context)),
@@ -240,6 +244,8 @@ class _ChatTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     contact.specialty ?? AppLocalizations.of(context)!.premonCareSupport,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondaryOf(context)),
                   ),
                   const SizedBox(height: 6),

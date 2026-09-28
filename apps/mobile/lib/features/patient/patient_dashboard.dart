@@ -93,8 +93,15 @@ class PatientDashboard extends ConsumerWidget {
           children: [
             Icon(Icons.search_rounded, color: AppColors.textTertiaryOf(context), size: 20),
             const SizedBox(width: 16),
-            Text(AppLocalizations.of(context)!.searchSpecialistsClinic, style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600)),
-            const Spacer(),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.searchSpecialistsClinic,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: AppColors.textTertiaryOf(context), fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(width: 12),
             Icon(Icons.tune_rounded, color: AppColors.textSecondaryOf(context), size: 20),
           ],
         ),
@@ -181,8 +188,23 @@ class PatientDashboard extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 1.5)),
-        TextButton(onPressed: onSeeAll, child: Text(AppLocalizations.of(context)!.seeAll, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13))),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: AppColors.textSecondaryOf(context), letterSpacing: 1.5),
+          ),
+        ),
+        TextButton(
+          onPressed: onSeeAll,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: const Size(0, 32),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(AppLocalizations.of(context)!.seeAll, maxLines: 1, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800, fontSize: 13)),
+        ),
       ],
     );
   }

@@ -438,6 +438,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: AppColors.textSecondaryOf(context),
               fontSize: 11,
@@ -447,6 +449,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -516,21 +520,29 @@ class _UserListItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      user['full_name'] ?? l10n.userNameFallback,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimaryOf(context),
+                    Expanded(
+                      child: Text(
+                        user['full_name'] ?? l10n.userNameFallback,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textPrimaryOf(context),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _RoleBadge(role: user['role'] ?? 'patient'),
+                    Flexible(
+                      child: _RoleBadge(role: user['role'] ?? 'patient'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   user['email'] ?? l10n.emailFallback,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColors.textSecondaryOf(context),
                     fontSize: 12,

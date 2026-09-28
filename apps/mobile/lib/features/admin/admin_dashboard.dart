@@ -290,7 +290,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           crossAxisCount: 2,
           mainAxisSpacing: 14,
           crossAxisSpacing: 14,
-          childAspectRatio: 1.5,
+          childAspectRatio: 1.15,
           children: [
             AdminStatCard(
               title: AppLocalizations.of(context)!.totalUsers,
@@ -325,7 +325,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         crossAxisCount: 2,
         mainAxisSpacing: 14,
         crossAxisSpacing: 14,
-        childAspectRatio: 1.5,
+        childAspectRatio: 1.15,
         children: List.generate(
           4,
           (_) => AdminStatCard(
@@ -712,7 +712,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       crossAxisCount: 3,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.22,
+      childAspectRatio: 1.1,
       children: [
         _QuickActionItem(
           icon: Icons.verified_user_rounded,
@@ -804,20 +804,30 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            color: AppColors.textSecondaryOf(context),
-            letterSpacing: 1.5,
+        Expanded(
+          child: Text(
+            title.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textSecondaryOf(context),
+              letterSpacing: 1.5,
+            ),
           ),
         ),
         if (onSeeAll != null)
           TextButton(
             onPressed: onSeeAll,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(0, 32),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             child: Text(
               AppLocalizations.of(context)!.viewAll,
+              maxLines: 1,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w700,
@@ -1199,7 +1209,7 @@ class _QuickActionItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: gradient,
           borderRadius: BorderRadius.circular(24),
@@ -1215,19 +1225,22 @@ class _QuickActionItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.25),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: AppColors.textInverse, size: 22),
+              child: Icon(icon, color: AppColors.textInverse, size: 20),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             Text(
               label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 11,
+                height: 1.2,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textInverse,
               ),

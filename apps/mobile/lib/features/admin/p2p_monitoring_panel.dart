@@ -435,7 +435,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.4,
+      childAspectRatio: 1.15,
       children: [
         _P2PStatCard(
           title: 'Total P2P Volume',
@@ -843,7 +843,7 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
       crossAxisCount: 5,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 0.8,
+      childAspectRatio: 0.75,
       children: [
         _QuickAction(
           icon: Icons.remove_red_eye_outlined,
@@ -901,13 +901,17 @@ class _P2PMonitoringPanelState extends ConsumerState<P2PMonitoringPanel> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppColors.textPrimaryOf(context),
-            letterSpacing: -0.5,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+              letterSpacing: -0.5,
+            ),
           ),
         ),
         if (onSeeAll != null)
@@ -974,6 +978,8 @@ class _P2PStatCard extends StatelessWidget {
             children: [
               Text(
                 value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
@@ -984,6 +990,8 @@ class _P2PStatCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 10,
                   color: AppColors.textTertiaryOf(context),
@@ -994,9 +1002,12 @@ class _P2PStatCard extends StatelessWidget {
           ),
           Text(
             trend,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: isNegative ? AppColors.error : AppColors.textSecondaryOf(context),
               fontSize: 11,
+              height: 1.2,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -1638,20 +1649,23 @@ class _QuickAction extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 22),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 9,
+              height: 1.2,
               fontWeight: FontWeight.w800,
               color: color,
             ),

@@ -624,7 +624,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
-      childAspectRatio: 1.25,
+      childAspectRatio: 1.05,
       children: [
         _buildKpiCard(
           AppLocalizations.of(context)!.totalUsers,
@@ -695,14 +695,19 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           const SizedBox(height: 8),
           Text(
             title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 11,
+              height: 1.2,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimaryOf(context),
             ),
           ),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
@@ -728,12 +733,16 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              Text(
-                'vs ${_previousPeriodLabel()}',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textTertiaryOf(context),
+              Flexible(
+                child: Text(
+                  'vs ${_previousPeriodLabel()}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
                 ),
               ),
             ],

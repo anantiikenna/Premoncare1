@@ -368,7 +368,7 @@ class _FinancialModerationScreenState
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.4,
+      childAspectRatio: 1.15,
       children: [
         _FinanceStatCard(
           title: AppLocalizations.of(context)!.totalRevenue,
@@ -896,16 +896,22 @@ class _FinancialModerationScreenState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w900,
-            color: AppColors.textPrimaryOf(context),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+            ),
           ),
         ),
+        const SizedBox(width: 8),
         const Text(
           'View All',
+          maxLines: 1,
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -923,7 +929,7 @@ class _FinancialModerationScreenState
       crossAxisCount: 5,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 0.8,
+      childAspectRatio: 0.75,
       children: [
         _QuickAction(
           icon: Icons.check_circle_outline_rounded,
@@ -933,7 +939,7 @@ class _FinancialModerationScreenState
         ),
         _QuickAction(
           icon: Icons.replay_rounded,
-          label: 'Review\ Refunds',
+          label: 'Review Refunds',
           color: AppColors.error,
           onTap: () {
             showDialog(
@@ -1071,13 +1077,17 @@ class _FinancialModerationScreenState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            color: AppColors.textPrimaryOf(context),
-            letterSpacing: -0.5,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimaryOf(context),
+              letterSpacing: -0.5,
+            ),
           ),
         ),
         if (onSeeAll != null)
@@ -1144,6 +1154,8 @@ class _FinanceStatCard extends StatelessWidget {
             children: [
               Text(
                 value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
@@ -1154,6 +1166,8 @@ class _FinanceStatCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 10,
                   color: AppColors.textTertiaryOf(context),
@@ -1173,20 +1187,26 @@ class _FinanceStatCard extends StatelessWidget {
                   size: 12,
                 ),
               if (!isTransactionCount) const SizedBox(width: 4),
-              Text(
-                trend,
-                style: TextStyle(
-                  color: isTransactionCount
-                      ? AppColors.textSecondaryOf(context)
-                      : (trendPositive ? AppColors.success : AppColors.error),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+              Flexible(
+                child: Text(
+                  trend,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isTransactionCount
+                        ? AppColors.textSecondaryOf(context)
+                        : (trendPositive ? AppColors.success : AppColors.error),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               const SizedBox(width: 4),
               if (!isTransactionCount)
                 Text(
                   AppLocalizations.of(context)!.vsLastMonth,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColors.textTertiaryOf(context),
                     fontSize: 10,
@@ -1791,20 +1811,23 @@ class _QuickAction extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 22),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 9,
+              height: 1.2,
               fontWeight: FontWeight.w800,
               color: color,
             ),

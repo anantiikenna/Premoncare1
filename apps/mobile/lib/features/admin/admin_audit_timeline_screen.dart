@@ -532,45 +532,56 @@ class _AdminAuditTimelineScreenState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Text(
-              _filteredLogs.isNotEmpty
-                  ? _formatDateHeader(
-                      DateTime.parse(_filteredLogs.first['created_at']),
-                      context,
-                    )
-                  : 'No Logs',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimaryOf(context),
+        Expanded(
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  _filteredLogs.isNotEmpty
+                      ? _formatDateHeader(
+                          DateTime.parse(_filteredLogs.first['created_at']),
+                          context,
+                        )
+                      : 'No Logs',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              width: 4,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.borderOf(context),
-                shape: BoxShape.circle,
+              const SizedBox(width: 8),
+              Container(
+                width: 4,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.borderOf(context),
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${_filteredLogs.length} events',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondaryOf(context),
+              const SizedBox(width: 8),
+              Text(
+                '${_filteredLogs.length} events',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondaryOf(context),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        const SizedBox(width: 8),
         const Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Newest First',
+              maxLines: 1,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -657,12 +668,14 @@ class _AdminAuditTimelineScreenState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            width: 70,
+            width: 84,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   time,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -672,8 +685,11 @@ class _AdminAuditTimelineScreenState
                 const SizedBox(height: 2),
                 Text(
                   relativeTime,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 9,
+                    height: 1.2,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondaryOf(context),
                   ),
@@ -843,30 +859,33 @@ class _AdminAuditTimelineScreenState
                     spacing: 12,
                     runSpacing: 8,
                     children: metaData.map((meta) {
+                      final label = meta.value == null
+                          ? meta.label
+                          : (meta.label.isEmpty
+                              ? meta.value!
+                              : '${meta.label} ${meta.value!}');
                       return Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (meta.label.isNotEmpty)
-                            Text(
-                              '${meta.label} ',
-                              style: TextStyle(
-                                color: AppColors.textTertiaryOf(context),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          if (meta.value != null)
-                            Text(
-                              meta.value!,
-                              style: TextStyle(
-                                color: AppColors.textPrimaryOf(context),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
+                          if (label.isNotEmpty)
+                            Flexible(
+                              child: Text(
+                                label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: meta.value == null
+                                      ? AppColors.textTertiaryOf(context)
+                                      : AppColors.textPrimaryOf(context),
+                                  fontSize: 10,
+                                  fontWeight: meta.value == null
+                                      ? FontWeight.w600
+                                      : FontWeight.w800,
+                                ),
                               ),
                             ),
                           if (meta.icon != null) ...[
-                            if (meta.label.isNotEmpty || meta.value != null)
-                              const SizedBox(width: 4),
+                            if (label.isNotEmpty) const SizedBox(width: 4),
                             Icon(
                               meta.icon,
                               color: AppColors.textTertiaryOf(context),

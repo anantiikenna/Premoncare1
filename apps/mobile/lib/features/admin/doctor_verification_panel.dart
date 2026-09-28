@@ -1309,12 +1309,16 @@ class _DoctorVerificationPanelState
                             size: 14,
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            email,
-                            style: TextStyle(
-                              color: AppColors.textTertiaryOf(context),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                          Expanded(
+                            child: Text(
+                              email,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: AppColors.textTertiaryOf(context),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -1329,12 +1333,16 @@ class _DoctorVerificationPanelState
                             size: 14,
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            phone,
-                            style: TextStyle(
-                              color: AppColors.textTertiaryOf(context),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                          Expanded(
+                            child: Text(
+                              phone,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: AppColors.textTertiaryOf(context),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -1342,16 +1350,19 @@ class _DoctorVerificationPanelState
                     ],
                     const SizedBox(height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          createdAt != null
-                              ? 'Applied on: ${createdAt.day} ${_monthName(createdAt.month)} ${createdAt.year}'
-                              : 'Application date unknown',
-                          style: TextStyle(
-                            color: AppColors.textTertiaryOf(context),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Text(
+                            createdAt != null
+                                ? 'Applied on: ${createdAt.day} ${_monthName(createdAt.month)} ${createdAt.year}'
+                                : 'Application date unknown',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppColors.textTertiaryOf(context),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],

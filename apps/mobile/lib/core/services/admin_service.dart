@@ -117,11 +117,13 @@ class AdminService {
 
   Future<Map<String, dynamic>> getUserManagementStats() async {
     // In production, use a dedicated RPC or view. Here we query totals.
+    // NOTE: count() must be called directly on from() (HEAD + int).
+    // Calling .select().count() returns a PostgrestResponse, not an int.
     final total = await _client.from('profiles').count(CountOption.exact);
-    final doctors = await _client.from('profiles').select('id').eq('role', 'doctor').count(CountOption.exact);
-    final patients = await _client.from('profiles').select('id').eq('role', 'patient').count(CountOption.exact);
-    final suspended = await _client.from('profiles').select('id').eq('account_status', 'suspended').count(CountOption.exact);
-    final pending = await _client.from('profiles').select('id').eq('verification_status', 'pending').count(CountOption.exact);
+    final doctors = await _client.from('profiles').count(CountOption.exact).eq('role', 'doctor');
+    final patients = await _client.from('profiles').count(CountOption.exact).eq('role', 'patient');
+    final suspended = await _client.from('profiles').count(CountOption.exact).eq('account_status', 'suspended');
+    final pending = await _client.from('profiles').count(CountOption.exact).eq('verification_status', 'pending');
 
     return {
       'total': total,
