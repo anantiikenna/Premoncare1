@@ -12,14 +12,17 @@ export interface AuditLogEntry {
 export async function logAuditEvent(entry: AuditLogEntry): Promise<void> {
     try {
         const supabase = createClient()
-        await supabase.from('audit_logs').insert({
-            actor_id: entry.actor_id,
+        const { error } = await supabase.from('audit_logs').insert({
+            user_id: entry.actor_id,
             action: entry.action,
-            target_user_id: entry.target_user_id || null,
-            resource_type: entry.resource_type || null,
-            resource_id: entry.resource_id || null,
-            details: entry.details || null,
+            details: {
+                ...(entry.details || {}),
+                ...(entry.target_user_id ? { target_user_id: entry.target_user_id } : {}),
+                ...(entry.resource_type ? { resource_type: entry.resource_type } : {}),
+                ...(entry.resource_id ? { resource_id: entry.resource_id } : {}),
+            },
         })
+        if (error) console.error('Audit log failed:', error.message)
     } catch (error) {
         console.error('Audit log failed:', error)
     }

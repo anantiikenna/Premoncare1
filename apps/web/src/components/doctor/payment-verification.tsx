@@ -37,10 +37,7 @@ export function PaymentVerification({ doctorId }: { doctorId: string }) {
         try {
             const { error } = await supabase
                 .from('payments')
-                .update({ 
-                    status,
-                    updated_at: new Date().toISOString()
-                })
+                .update({ status })
                 .eq('id', paymentId)
 
             if (error) throw error

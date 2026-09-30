@@ -1,4 +1,8 @@
-const DEFAULTS = {
+// Android APK download — metadata lives HERE (in the app), not in .env.
+// On every release, update these four values with the ones printed by
+// scripts/release-apk.ps1 (version, size, SHA-256). The file name only
+// changes if the Flutter flavor/output name changes.
+const APK_META = {
   version: "1.0.0",
   fileName: "app-user-release.apk",
   sizeBytes: 190683196,
@@ -9,12 +13,13 @@ function clean(value: string | undefined, fallback: string): string {
   return value && value.trim().length > 0 ? value.trim() : fallback;
 }
 
+// Only the URL comes from .env (the stable /releases/latest/download/ link).
 export const androidDownload = {
   url: clean(process.env.NEXT_PUBLIC_ANDROID_APK_URL, ""),
-  version: clean(process.env.NEXT_PUBLIC_ANDROID_APK_VERSION, DEFAULTS.version),
-  fileName: clean(process.env.NEXT_PUBLIC_ANDROID_APK_FILENAME, DEFAULTS.fileName),
-  sizeBytes: Number(clean(process.env.NEXT_PUBLIC_ANDROID_APK_SIZE_BYTES, String(DEFAULTS.sizeBytes))),
-  sha256: clean(process.env.NEXT_PUBLIC_ANDROID_APK_SHA256, DEFAULTS.sha256).toLowerCase(),
+  version: APK_META.version,
+  fileName: APK_META.fileName,
+  sizeBytes: APK_META.sizeBytes,
+  sha256: APK_META.sha256.toLowerCase(),
 };
 
 export const hasAndroidDownload = androidDownload.url.length > 0;

@@ -11,7 +11,7 @@ interface Profile {
   full_name: string
   email?: string
   avatar_url?: string
-  is_verified?: boolean
+  verification_status?: string
   role?: string
   created_at?: string
 }
@@ -36,7 +36,7 @@ export default function SettingsPrivacyPage() {
       setEmail(user.email || '')
       const { data } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, is_verified, role, created_at')
+        .select('id, full_name, avatar_url, verification_status, role, created_at')
         .eq('id', user.id)
         .single()
       setProfile(data)
@@ -132,14 +132,14 @@ export default function SettingsPrivacyPage() {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-black text-slate-800">{profile?.full_name || 'User'}</h2>
-              {profile?.is_verified && (
+              {profile?.verification_status === 'approved' && (
                 <svg className="w-5 h-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               )}
             </div>
             <p className="text-sm font-semibold text-slate-500">{email}</p>
-            {profile?.is_verified && (
+            {profile?.verification_status === 'approved' && (
               <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 rounded-lg border border-emerald-100">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <span className="text-xs font-bold text-emerald-700">Identity Verified</span>

@@ -10,6 +10,7 @@ interface Review {
     rating: number
     comment: string | null
     created_at: string
+    is_anonymous?: boolean | null
     patient: {
         full_name: string
         avatar_url: string | null
@@ -58,12 +59,12 @@ export function ReviewList({ reviews }: ReviewListProps) {
                         <CardContent className="p-5">
                             <div className="flex items-start gap-4">
                                 <Avatar className="h-10 w-10 border">
-                                    <AvatarImage src={review.patient.avatar_url || ''} />
-                                    <AvatarFallback>{review.patient.full_name?.charAt(0)}</AvatarFallback>
+                                    <AvatarImage src={review.is_anonymous ? '' : (review.patient.avatar_url || '')} />
+                                    <AvatarFallback>{review.is_anonymous ? 'A' : review.patient.full_name?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 space-y-2">
                                     <div className="flex justify-between items-center">
-                                        <h4 className="font-semibold text-sm">{review.patient.full_name}</h4>
+                                        <h4 className="font-semibold text-sm">{review.is_anonymous ? 'Anonymous Patient' : review.patient.full_name}</h4>
                                         <span className="text-xs text-muted-foreground">
                                             {format(new Date(review.created_at), 'MMM d, yyyy')}
                                         </span>

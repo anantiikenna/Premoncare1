@@ -241,7 +241,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
                                     <div key={review.id} className="bg-slate-50 rounded-2xl p-4 space-y-2">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-bold text-sm text-slate-900">{review.patient?.full_name || 'Patient'}</span>
+                                                <span className="font-bold text-sm text-slate-900">{review.is_anonymous ? 'Anonymous Patient' : (review.patient?.full_name || 'Patient')}</span>
                                                 <div className="flex items-center gap-0.5">
                                                     {Array.from({ length: 5 }).map((_, i) => (
                                                         <Star key={i} className={`h-3 w-3 ${i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />

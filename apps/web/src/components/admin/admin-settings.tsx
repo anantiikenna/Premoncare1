@@ -47,18 +47,23 @@ export function AdminSettings() {
 
         // 2. Personal Admin Settings
         if (user) {
-            const { data: personalData } = await supabase
-                .from('admin_notification_settings')
-                .select('*')
-                .eq('admin_id', user.id)
-                .single()
+            const [{ data: personalData }, { data: profileData }] = await Promise.all([
+                supabase
+                    .from('admin_notification_settings')
+                    .select('*')
+                    .eq('admin_id', user.id)
+                    .maybeSingle(),
+                supabase
+                    .from('profiles')
+                    .select('email_alerts_enabled')
+                    .eq('id', user.id)
+                    .maybeSingle(),
+            ])
 
-            if (personalData) {
-                setAdminSettings({
-                    enabled: personalData.email_notifications_enabled,
-                    types: personalData.alert_types || []
-                })
-            }
+            setAdminSettings({
+                enabled: profileData?.email_alerts_enabled ?? true,
+                types: personalData?.alert_types || []
+            })
         }
 
         setLoading(false)
@@ -92,16 +97,24 @@ export function AdminSettings() {
 
         // Save Personal
         if (userId) {
-            const { error: personalError } = await supabase
-                .from('admin_notification_settings')
-                .upsert({
-                    admin_id: userId,
-                    email_notifications_enabled: adminSettings.enabled,
-                    alert_types: adminSettings.types || []
-                })
+            const [{ error: personalError }, { error: profileError }] = await Promise.all([
+                supabase
+                    .from('admin_notification_settings')
+                    .upsert({
+                        admin_id: userId,
+                        alert_types: adminSettings.types || []
+                    }),
+                supabase
+                    .from('profiles')
+                    .update({ email_alerts_enabled: adminSettings.enabled })
+                    .eq('id', userId)
+            ])
 
             if (personalError) {
                 toast.error('Failed to update notification preferences: ' + personalError.message)
+            }
+            if (profileError) {
+                toast.error('Failed to update email alerts preference: ' + profileError.message)
             }
         }
 

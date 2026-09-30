@@ -68,7 +68,7 @@ export function ModerationDashboard() {
             // Update post status
             const { error: postError } = await supabase
                 .from('forum_posts')
-                .update({ status: action, rejection_reason: reason || null })
+                .update({ status: action })
                 .eq('id', postId)
 
             if (postError) throw postError
