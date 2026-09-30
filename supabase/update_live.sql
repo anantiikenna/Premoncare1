@@ -2581,3 +2581,36 @@ GRANT EXECUTE ON FUNCTION public.increment_time_balance(UUID, UUID, INTEGER) TO 
 GRANT EXECUTE ON FUNCTION public.get_admin_financial_stats() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.soft_delete_user(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.export_user_data(uuid) TO authenticated;
+
+-- ============================================================
+-- 16. COLUMN DRIFT FIXES (Sept 2026 live-DB audit)
+-- ============================================================
+-- Live DB was missing columns that schema.sql defines / the app needs.
+
+-- 16.1 profiles.title (defined in schema.sql line 37, absent on live).
+--      Mobile verification select was silently failing without it.
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS title text;
+
+-- 16.2 reviews.is_anonymous (mobile consultation summary "Post Anonymously").
+ALTER TABLE public.reviews ADD COLUMN IF NOT EXISTS is_anonymous boolean DEFAULT false;
+
+-- 16.3 blocked_users insert policy for non-admins (block feature is RLS-gated).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'blocked_users'
+      AND policyname = 'Users can block patients'
+  ) THEN
+    CREATE POLICY "Users can block patients"
+      ON public.blocked_users
+      FOR INSERT
+      TO authenticated
+      WITH CHECK (auth.uid() = blocked_by);
+  END IF;
+END $$;
+
+GRANT SELECT ON public.reviews TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.reviews TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.reviews TO service_role;
