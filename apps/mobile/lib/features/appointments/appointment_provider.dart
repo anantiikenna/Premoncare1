@@ -141,7 +141,7 @@ final appointmentsProvider = StreamProvider<List<Appointment>>((ref) async* {
     
     final profilesResponse = await supabase
         .from('profiles')
-        .select('id, full_name, title, avatar_url, specialty')
+        .select('id, full_name, avatar_url, specialty')
         .inFilter('id', partnerIds);
     
     final profileMap = {

@@ -63,7 +63,7 @@ class _DoctorEmergencyRequestScreenState extends ConsumerState<DoctorEmergencyRe
     try {
       final data = await supabase
           .from('profiles')
-          .select('full_name, title')
+          .select('full_name')
           .eq('id', supabase.auth.currentUser?.id ?? '')
           .single();
       if (mounted) {

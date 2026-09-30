@@ -12,7 +12,7 @@ final _supabase = Supabase.instance.client;
 
 class EmergencyCase {
   final String id;
-  final String patientId;
+  final String? patientId;
   final String? patientName;
   final String? patientAvatarUrl;
   final String? specialty;
@@ -24,7 +24,7 @@ class EmergencyCase {
 
   const EmergencyCase({
     required this.id,
-    required this.patientId,
+    this.patientId,
     this.patientName,
     this.patientAvatarUrl,
     this.specialty,
@@ -37,18 +37,14 @@ class EmergencyCase {
 
   factory EmergencyCase.fromJson(Map<String, dynamic> json) {
     final profile = json['patient_profile'] as Map<String, dynamic>?;
-    final symptom = json['symptom_entries'] as List<dynamic>?;
-    final symptomEntry =
-        symptom != null && symptom.isNotEmpty ? symptom.first : null;
 
     return EmergencyCase(
       id: json['id'] as String,
-      patientId: json['patient_id'] as String,
+      patientId: json['patient_id'] as String?,
       patientName: profile?['full_name'] as String?,
       patientAvatarUrl: profile?['avatar_url'] as String?,
       specialty: json['specialty'] as String?,
       reason: json['reason'] as String?,
-      symptomDescription: symptomEntry?['description'] as String?,
       status: json['status'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       isUrgent: json['is_emergency'] as bool? ?? false,
@@ -62,77 +58,88 @@ class EmergencyQueueAsync {
   const EmergencyQueueAsync({required this.cases});
 }
 
+const _activeEmergencyStatuses = [
+  'emergency_request',
+  'emergency_accepted',
+  'emergency_active',
+  'ongoing',
+];
+
+Future<EmergencyQueueAsync> _buildQueue(
+  List<Map<String, dynamic>> rows,
+) async {
+  final patientIds = <String>{};
+  for (final r in rows) {
+    final pid = r['patient_id'];
+    if (pid is String) patientIds.add(pid);
+  }
+
+  final profilesMap = <String, Map<String, dynamic>>{};
+
+  // Enrichment must never fail the whole queue — guest bookings have a
+  // nullable patient_id and the table may be blocked by RLS/grants.
+  try {
+    if (patientIds.isNotEmpty) {
+      final profilesQuery = await _supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .inFilter('id', patientIds.toList());
+      for (final p in profilesQuery) {
+        final pid = p['id'];
+        if (pid is String) profilesMap[pid] = p;
+      }
+    }
+  } catch (_) {}
+
+  final emergencyCases =
+      rows.map((e) {
+        final caseId = e['id'] as String;
+        final patientId = e['patient_id'] as String?;
+        final patientProfile =
+            patientId != null ? profilesMap[patientId] : null;
+
+        return EmergencyCase(
+          id: caseId,
+          patientId: patientId,
+          patientName: patientProfile?['full_name'] as String?,
+          patientAvatarUrl: patientProfile?['avatar_url'] as String?,
+          specialty: e['specialty'] as String?,
+          reason: e['reason'] as String?,
+          status: e['status'] as String?,
+          createdAt: DateTime.parse(e['created_at'] as String),
+          isUrgent: e['is_emergency'] as bool? ?? false,
+        );
+      }).toList();
+
+  return EmergencyQueueAsync(cases: emergencyCases);
+}
+
 final emergencyQueueProvider =
     StreamProvider.autoDispose<EmergencyQueueAsync>((ref) async* {
-      final stream = _supabase
+      // 1) Initial REST snapshot — works even if Realtime is unavailable.
+      final initial = await _supabase
           .from('appointments')
-          .stream(primaryKey: ['id'])
+          .select('*')
           .eq('is_emergency', true)
-          .inFilter('status', [
-            'emergency_request',
-            'emergency_accepted',
-            'emergency_active',
-            'ongoing',
-          ])
-          .order('created_at', ascending: false);
+          .inFilter('status', _activeEmergencyStatuses)
+          .order('created_at', ascending: false)
+          .limit(50);
+      yield await _buildQueue(List<Map<String, dynamic>>.from(initial));
 
-      await for (final events in stream) {
-        if (events.isEmpty) {
-          yield const EmergencyQueueAsync(cases: []);
-          return;
+      // 2) Live updates — if Realtime drops, keep the last snapshot shown.
+      try {
+        final stream = _supabase
+            .from('appointments')
+            .stream(primaryKey: ['id'])
+            .eq('is_emergency', true)
+            .inFilter('status', _activeEmergencyStatuses)
+            .order('created_at', ascending: false);
+
+        await for (final events in stream) {
+          yield await _buildQueue(List<Map<String, dynamic>>.from(events));
         }
-
-        final caseIds = events.map((e) => e['id'] as String).toList();
-
-        final profilesQuery = await _supabase
-            .from('profiles')
-            .select('id, full_name, avatar_url')
-            .inFilter('id', events.map((e) => e['patient_id'] as String).toList());
-
-        final profilesMap = <String, Map<String, dynamic>>{};
-        for (final p in profilesQuery) {
-          profilesMap[p['id'] as String] = p;
-        }
-
-        final symptomsQuery = await _supabase
-            .from('symptom_entries')
-            .select('id, description, appointment_id')
-            .inFilter('appointment_id', caseIds);
-
-        final symptomsMap = <String, List<Map<String, dynamic>>>{};
-        for (final s in symptomsQuery) {
-          final apptId = s['appointment_id'] as String;
-          symptomsMap.putIfAbsent(apptId, () => []).add(s);
-        }
-
-        final emergencyCases =
-            events.map((e) {
-              final caseId = e['id'] as String;
-              final patientId = e['patient_id'] as String;
-              final patientProfile = profilesMap[patientId];
-              final caseSymptoms = symptomsMap[caseId];
-              final firstSymptom =
-                  caseSymptoms != null && caseSymptoms.isNotEmpty
-                      ? caseSymptoms.first
-                      : null;
-
-              return EmergencyCase(
-                id: caseId,
-                patientId: patientId,
-                patientName: patientProfile?['full_name'] as String?,
-                patientAvatarUrl:
-                    patientProfile?['avatar_url'] as String?,
-                specialty: e['specialty'] as String?,
-                reason: e['reason'] as String?,
-                symptomDescription:
-                    firstSymptom?['description'] as String?,
-                status: e['status'] as String?,
-                createdAt: DateTime.parse(e['created_at'] as String),
-                isUrgent: e['is_emergency'] as bool? ?? false,
-              );
-            }).toList();
-
-        yield EmergencyQueueAsync(cases: emergencyCases);
+      } catch (_) {
+        // Realtime unavailable — the REST snapshot is already on screen.
       }
     });
 
@@ -202,6 +209,26 @@ class _AdminEmergencyQueueScreenState
               children: [
                 Row(
                   children: [
+                    IconButton(
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/admin-dashboard');
+                        }
+                      },
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: AppColors.textPrimaryOf(context),
+                      ),
+                      tooltip: 'Back',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -901,6 +928,54 @@ class _AdminEmergencyQueueScreenState
                 color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
+              children: [
+                FilledButton.icon(
+                  onPressed: () => ref.invalidate(emergencyQueueProvider),
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: Text(AppLocalizations.of(context)!.tryAgain),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    foregroundColor: AppColors.textInverse,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/admin-dashboard');
+                    }
+                  },
+                  icon: const Icon(Icons.dashboard_outlined, size: 18),
+                  label: Text(
+                    AppLocalizations.of(context)!.backToDashboard,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

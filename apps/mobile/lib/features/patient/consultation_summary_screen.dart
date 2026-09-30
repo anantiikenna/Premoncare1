@@ -72,19 +72,19 @@ class _ConsultationSummaryScreenState
 
       final response = await supabase
           .from('profiles')
-          .select('average_rating, total_reviews')
+          .select('rating, review_count')
           .eq('id', _doctorId)
           .single();
 
-      final currentAvg = (response['average_rating'] as num?)?.toDouble() ?? 0.0;
-      final currentTotal = (response['total_reviews'] as num?)?.toInt() ?? 0;
+      final currentAvg = (response['rating'] as num?)?.toDouble() ?? 0.0;
+      final currentTotal = (response['review_count'] as num?)?.toInt() ?? 0;
 
       final newTotal = currentTotal + 1;
       final newAvg = ((currentAvg * currentTotal) + ratingValue) / newTotal;
 
       await supabase.from('profiles').update({
-        'average_rating': double.parse(newAvg.toStringAsFixed(1)),
-        'total_reviews': newTotal,
+        'rating': double.parse(newAvg.toStringAsFixed(2)),
+        'review_count': newTotal,
       }).eq('id', _doctorId);
 
       ref.invalidate(patientAppointmentsProvider);

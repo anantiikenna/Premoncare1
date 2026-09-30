@@ -177,8 +177,8 @@ class _PatientDetailsLayoutState extends ConsumerState<PatientDetailsLayout> wit
               Navigator.pop(ctx);
               try {
                 await supabase.from('blocked_users').insert({
-                  'blocker_id': supabase.auth.currentUser?.id,
-                  'blocked_id': widget.patientId,
+                  'user_id': widget.patientId,
+                  'blocked_by': supabase.auth.currentUser?.id,
                 });
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(

@@ -45,7 +45,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
     try {
       final data = await supabase
           .from('profiles')
-          .select('full_name, title, specialty, about_text, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url, is_online')
+          .select('full_name, specialty, about_text, experience_years, hourly_rate, consultation_fee, verification_status, avatar_url, is_online')
           .eq('id', widget.doctorId)
           .single();
       if (mounted) setState(() { _profile = data; _loading = false; });
@@ -163,38 +163,47 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
 
   Widget _buildPageHeader() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(AppLocalizations.of(context)!.doctorPublicProfile, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context))),
-                const SizedBox(width: 8),
-                Icon(Icons.verified_user_outlined, color: AppColors.textSecondaryOf(context), size: 18),
-              ],
-            ),
-            const SizedBox(height: 4),
-            if (_isVerified)
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 children: [
-                  const Icon(Icons.verified_rounded, color: AppColors.success, size: 14),
-                  const SizedBox(width: 4),
-                  Text(AppLocalizations.of(context)!.verifiedHealthcareProfessional, style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700)),
-                ],
-              )
-            else
-              Row(
-                children: [
-                  const Icon(Icons.pending_outlined, color: AppColors.warning, size: 14),
-                  const SizedBox(width: 4),
-                  Text(AppLocalizations.of(context)!.verificationPending, style: TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
+                  Flexible(
+                    child: Text(
+                      AppLocalizations.of(context)!.doctorPublicProfile,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimaryOf(context)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.verified_user_outlined, color: AppColors.textSecondaryOf(context), size: 18),
                 ],
               ),
-          ],
+              const SizedBox(height: 4),
+              if (_isVerified)
+                Row(
+                  children: [
+                    const Icon(Icons.verified_rounded, color: AppColors.success, size: 14),
+                    const SizedBox(width: 4),
+                    Flexible(child: Text(AppLocalizations.of(context)!.verifiedHealthcareProfessional, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w700))),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    const Icon(Icons.pending_outlined, color: AppColors.warning, size: 14),
+                    const SizedBox(width: 4),
+                    Flexible(child: Text(AppLocalizations.of(context)!.verificationPending, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w700))),
+                  ],
+                ),
+            ],
+          ),
         ),
+        const SizedBox(width: 12),
         GestureDetector(
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -209,6 +218,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
               border: Border.all(color: AppColors.borderOf(context)),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.share_outlined, color: AppColors.textPrimaryOf(context), size: 14),
                 const SizedBox(width: 6),
@@ -304,10 +314,14 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
                       Text(_displaySpecialty, style: const TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 16),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildHeroStat(Icons.person_outline, expLabel, AppLocalizations.of(context)!.experience),
-                          _buildHeroStat(Icons.monetization_on_outlined, '₦${_hourlyRate.toStringAsFixed(0)}/hr', AppLocalizations.of(context)!.rate),
+                          Expanded(
+                            child: _buildHeroStat(Icons.person_outline, expLabel, AppLocalizations.of(context)!.experience),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildHeroStat(Icons.monetization_on_outlined, '₦${_hourlyRate.toStringAsFixed(0)}/hr', AppLocalizations.of(context)!.rate),
+                          ),
                         ],
                       ),
                     ],
@@ -329,34 +343,42 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
           children: [
             Icon(icon, color: AppColors.textInverse, size: 14),
             const SizedBox(width: 4),
-            Text(value, style: const TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold)),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(value, maxLines: 1, style: const TextStyle(color: AppColors.textInverse, fontSize: 12, fontWeight: FontWeight.bold)),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 2),
-        Text(label, style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.7), fontSize: 9)),
+        Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.7), fontSize: 9)),
       ],
     );
   }
 
   Widget _buildQuickInfoGrid() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      clipBehavior: Clip.none,
-      child: Row(
-        children: [
-          _buildInfoCard(Icons.videocam_rounded, AppLocalizations.of(context)!.videoConsultation, _isOnline ? AppLocalizations.of(context)!.availableStatus : AppLocalizations.of(context)!.unavailableStatus, AppColors.primary),
-          _buildInfoCard(Icons.chat_bubble_rounded, AppLocalizations.of(context)!.chatSupport, _isOnline ? AppLocalizations.of(context)!.availableStatus : AppLocalizations.of(context)!.unavailableStatus, AppColors.primary),
-          _buildInfoCard(Icons.access_time_rounded, AppLocalizations.of(context)!.responseTime, _isOnline ? '~5 min' : 'N/A', AppColors.warning),
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(
+          child: _buildInfoCard(Icons.videocam_rounded, AppLocalizations.of(context)!.videoConsultation, _isOnline ? AppLocalizations.of(context)!.availableStatus : AppLocalizations.of(context)!.unavailableStatus, AppColors.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildInfoCard(Icons.chat_bubble_rounded, AppLocalizations.of(context)!.chatSupport, _isOnline ? AppLocalizations.of(context)!.availableStatus : AppLocalizations.of(context)!.unavailableStatus, AppColors.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildInfoCard(Icons.access_time_rounded, AppLocalizations.of(context)!.responseTime, _isOnline ? '~5 min' : 'N/A', AppColors.warning),
+        ),
+      ],
     );
   }
 
   Widget _buildInfoCard(IconData icon, String title, String status, Color color) {
     return Container(
-      width: 130,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
@@ -367,9 +389,9 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
         children: [
           Icon(icon, color: color, size: 28),
           const SizedBox(height: 12),
-          Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context), height: 1.2)),
+          Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimaryOf(context), height: 1.2)),
           const SizedBox(height: 4),
-          Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context))),
+          Text(status, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _isOnline ? AppColors.success : AppColors.textTertiaryOf(context))),
         ],
       ),
     );

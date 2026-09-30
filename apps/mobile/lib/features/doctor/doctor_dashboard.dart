@@ -44,7 +44,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     try {
       final data = await supabase
           .from('profiles')
-          .select('full_name, title, is_online')
+          .select('full_name, is_online')
           .eq('id', userId)
           .single();
 

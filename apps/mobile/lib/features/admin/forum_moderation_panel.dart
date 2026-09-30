@@ -289,13 +289,27 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
                     const SizedBox(height: 24),
                     _buildStatsRow(),
                     const SizedBox(height: 24),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(flex: 3, child: _buildRecentReports()),
-                        const SizedBox(width: 24),
-                        Expanded(flex: 2, child: _buildQuickActions()),
-                      ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth < 700) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildRecentReports(),
+                              const SizedBox(height: 24),
+                              _buildQuickActions(),
+                            ],
+                          );
+                        }
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 3, child: _buildRecentReports()),
+                            const SizedBox(width: 24),
+                            Expanded(flex: 2, child: _buildQuickActions()),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 32),
                     _buildRecentModerationActions(),
@@ -309,106 +323,142 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
   }
 
   Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+        return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Forum Moderation Dashboard',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimaryOf(context),
-                letterSpacing: -0.5,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Forum Moderation Dashboard',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: isWide ? 28 : 22,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimaryOf(context),
+                      letterSpacing: -0.5,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Overview of forum activities, reports, and moderation actions.',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textTertiaryOf(context),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Overview of forum activities, reports, and moderation actions.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textTertiaryOf(context),
-                fontWeight: FontWeight.w500,
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceOf(context),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.borderLightOf(context)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 16,
+                    color: AppColors.textTertiaryOf(context),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'All Time',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: AppColors.textSecondaryOf(context),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceOf(context),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.borderLightOf(context)),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.calendar_today_outlined,
-                size: 16,
-                color: AppColors.textTertiaryOf(context),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'All Time',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: AppColors.textSecondaryOf(context),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 
   Widget _buildStatsRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            'Pending Reports',
-            _pendingReportsCount.toString(),
-            'Require review',
-            Icons.flag_outlined,
-            AppColors.error,
+    final cards = <Widget>[
+      _buildStatCard(
+        'Pending Reports',
+        _pendingReportsCount.toString(),
+        'Require review',
+        Icons.flag_outlined,
+        AppColors.error,
+      ),
+      _buildStatCard(
+        'Flagged Posts',
+        _flaggedPostsCount.toString(),
+        'Awaiting moderation',
+        Icons.gpp_maybe_outlined,
+        AppColors.warning,
+      ),
+      _buildStatCard(
+        'Total Posts',
+        _totalPostsCount.toString(),
+        'All time',
+        Icons.chat_bubble_outline,
+        AppColors.primary,
+      ),
+      _buildStatCard(
+        'Active Categories',
+        _activeCategoriesCount.toString(),
+        'Forum sections',
+        Icons.folder_outlined,
+        AppColors.success,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 700) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < cards.length; i++) ...[
+                if (i > 0) const SizedBox(width: 16),
+                Expanded(child: cards[i]),
+              ],
+            ],
+          );
+        }
+
+        // Narrow screens: 2x2 grid so labels never char-stack.
+        Widget statRow(Widget a, Widget b) => IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: a),
+              const SizedBox(width: 16),
+              Expanded(child: b),
+            ],
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildStatCard(
-            'Flagged Posts',
-            _flaggedPostsCount.toString(),
-            'Awaiting moderation',
-            Icons.gpp_maybe_outlined,
-            AppColors.warning,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildStatCard(
-            'Total Posts',
-            _totalPostsCount.toString(),
-            'All time',
-            Icons.chat_bubble_outline,
-            AppColors.primary,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildStatCard(
-            'Active Categories',
-            _activeCategoriesCount.toString(),
-            'Forum sections',
-            Icons.folder_outlined,
-            AppColors.success,
-          ),
-        ),
-      ],
+        );
+
+        return Column(
+          children: [
+            statRow(cards[0], cards[1]),
+            const SizedBox(height: 16),
+            statRow(cards[2], cards[3]),
+          ],
+        );
+      },
     );
   }
 
@@ -420,7 +470,7 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(16),
@@ -437,18 +487,18 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Text(
             value,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w900,
               color: AppColors.textPrimaryOf(context),
             ),
@@ -456,19 +506,25 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           const SizedBox(height: 4),
           Text(
             title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 13,
               color: AppColors.textSecondaryOf(context),
               fontWeight: FontWeight.bold,
+              height: 1.25,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             subtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 11,
               color: color,
               fontWeight: FontWeight.bold,
+              height: 1.25,
             ),
           ),
         ],
@@ -490,16 +546,22 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Pending Reports',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: AppColors.textPrimaryOf(context),
+              Expanded(
+                child: Text(
+                  'Pending Reports',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '${_pendingReports.length} items',
+                maxLines: 1,
                 style: TextStyle(
                   color: AppColors.textTertiaryOf(context),
                   fontWeight: FontWeight.bold,
@@ -615,9 +677,12 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
                 const SizedBox(height: 4),
                 Text(
                   'In post: "$postTitle"',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColors.textSecondaryOf(context),
                     fontSize: 12,
+                    height: 1.3,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -629,11 +694,15 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
                       radius: 10,
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      'Reported by $reporterName • ${_timeAgo(createdAt)}',
-                      style: TextStyle(
-                        color: AppColors.textTertiaryOf(context),
-                        fontSize: 11,
+                    Expanded(
+                      child: Text(
+                        'Reported by $reporterName • ${_timeAgo(createdAt)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.textTertiaryOf(context),
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                   ],
@@ -787,6 +856,8 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
             Expanded(
               child: Text(
                 title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
@@ -819,12 +890,16 @@ class _ForumModerationPanelState extends ConsumerState<ForumModerationPanel> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Recent Moderation Actions',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: AppColors.textPrimaryOf(context),
+              Expanded(
+                child: Text(
+                  'Recent Moderation Actions',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: AppColors.textPrimaryOf(context),
+                  ),
                 ),
               ),
             ],

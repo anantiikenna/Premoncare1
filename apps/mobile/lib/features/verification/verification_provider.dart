@@ -108,7 +108,7 @@ class VerificationNotifier extends Notifier<VerificationState> {
 
       final data = await supabase
           .from('profiles')
-          .select('verification_status, title, specialty, experience_years, medical_license_number, rejection_reason')
+          .select('verification_status, specialty, experience_years, medical_license_number, rejection_reason')
           .eq('id', user.id)
           .single();
 
@@ -244,7 +244,6 @@ class VerificationNotifier extends Notifier<VerificationState> {
       final experienceYears = experienceMatch != null ? int.parse(experienceMatch.group(0)!) : 0;
 
       await supabase.from('profiles').update({
-        'title': state.title,
         'specialty': state.specialty,
         'experience_years': experienceYears,
         'verification_document_url': state.licenseUrl,
