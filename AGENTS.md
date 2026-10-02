@@ -67,7 +67,7 @@ Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a we
 ## Video Consultation (Mobile)
 - **Native SDK**: Mobile uses `jitsi_meet_flutter_sdk: ^13.1.0` for real-time video consultations (not iframe).
 - **API**: `JitsiMeet().join(options, listener)` with `JitsiMeetEventListener` callbacks.
-- **Room Naming**: `PremiumHealthcare-{appointmentId}` on server `https://8x8.vc`.
+- **Room Naming**: `PremonCare-{appointmentId}` on server `https://8x8.vc` (MUST match `meeting-room.tsx` — pinned by tests on both platforms).
 - **Event Callbacks**: `conferenceJoined`, `conferenceTerminated`, `audioMutedChanged`, `videoMutedChanged`, `readyToClose`.
 - **Controls**: Mute, camera toggle, chat, screen share, end call.
 - **Navigation**: Appointment detail screen passes `doctorName`, `specialty`, `durationMinutes` as extras to the consultation route.

@@ -439,7 +439,7 @@ An Uber-style emergency consultation flow for urgent medical needs.
 Native Jitsi Meet integration for real-time video consultations.
 
 - **SDK:** `jitsi_meet_flutter_sdk: ^13.1.0`
-- **Room Naming:** `PremiumHealthcare-{appointmentId}` on server `https://8x8.vc`
+- **Room Naming:** `PremonCare-{appointmentId}` on server `https://8x8.vc`
 - **Controls:** Mute, camera toggle, chat, screen share, end call
 - **Event Callbacks:** `conferenceJoined`, `conferenceTerminated`, `audioMutedChanged`, `videoMutedChanged`, `readyToClose`
 - **Navigation:** Appointment detail screen passes `doctorName`, `specialty`, `durationMinutes` to consultation route

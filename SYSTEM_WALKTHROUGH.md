@@ -94,8 +94,8 @@ The platform supports a high-urgency flow for critical health situations:
 
 ### Telemedicine
 - **Web**: Secure video consultations via Jitsi Meet Iframe API (`8x8.vc`). Dynamic room creation per appointment ID.
-- **Mobile**: Native Jitsi SDK (`jitsi_meet_flutter_sdk: ^12.1.3`). Real-time mute/video toggle synced to Jitsi. Controls: mute, camera, chat, screen share, end call.
-- **Automatic Room Creation**: No external accounts required; rooms are dynamically generated as `PremiumHealthcare-{appointmentId}`.
+- **Mobile**: Native Jitsi SDK (`jitsi_meet_flutter_sdk: ^13.1.0`). Real-time mute/video toggle synced to Jitsi. Controls: mute, camera, chat, screen share, end call.
+- **Automatic Room Creation**: No external accounts required; rooms are dynamically generated as `PremonCare-{appointmentId}`.
 
 ### 💬 Real-Time Clinical Communications (Mobile & Web)
 - **Secure Messaging**: End-to-end HIPAA-conscious messaging via Supabase Realtime.

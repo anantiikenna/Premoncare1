@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 import '../../core/app_colors.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/meeting_room.dart';
 import '../../core/supabase_locator.dart';
 
 class ConsultationScreen extends ConsumerStatefulWidget {
@@ -131,7 +132,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
       // fall back
     }
 
-    final roomName = 'PremonCare-${widget.appointmentId}';
+    final roomName = buildConsultationRoomName(widget.appointmentId);
 
     final options = JitsiMeetConferenceOptions(
       serverURL: 'https://8x8.vc',
