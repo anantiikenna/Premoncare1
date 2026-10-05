@@ -220,8 +220,8 @@ export const POST = async (req) => {
 ### Testing Strategy
 | Layer | Tool | Command | What to Test |
 |---|---|---|---|
-| **Unit** | Dart `test`, Jest | `flutter test`, `npm run test` | Business logic, data transforms, utility functions |
-| **Widget/Component** | Flutter widget tests, React Testing Library | `flutter test`, `npm run test` | UI rendering, user interactions |
+| **Unit** | Dart `test`, Jest | `flutter test`, `npx jest --ci` | Business logic, data transforms, utility functions |
+| **Widget/Component** | Flutter widget tests, React Testing Library | `flutter test`, `npx jest --ci` | UI rendering, user interactions |
 | **Integration** | Flutter integration tests, Playwright/Cypress | `flutter test integration_test/` | End-to-end flows (booking, payment, messaging) |
 | **API** | Supabase SQL Editor, curl/Postman | Manual | RLS policies, RPC functions, edge functions |
 | **Security** | Manual review | Manual | RLS bypass attempts, role escalation, IDOR |
@@ -230,7 +230,42 @@ export const POST = async (req) => {
 - Web: `apps/web/src/__tests__/` — Jest + React Testing Library
 - Mobile: `apps/mobile/test/` — Flutter widget tests
 
-**Agent rule:** When adding a new feature, always check for existing test patterns in the codebase. Match the existing test framework and conventions. Never remove existing tests.
+#### Testing Is Mandatory (learned the hard way — do not skip)
+- **Every bug fix MUST include a regression test** whenever the defect is at logic level (e.g., join-gate payment checks, status transitions, post-call routing). The video-consultation audit (F1–F6) exists because these paths were untested.
+- **Every new feature ships with tests**: minimum one unit/widget test covering the happy path plus the failure/permission path. Web components get RTL tests; mobile screens get widget tests.
+- **Security-sensitive changes** (auth, roles, payments, middleware, RLS-adjacent queries) require tests at BOTH layers: automated test + manual verification of the DB policy.
+- **Never delete, skip, or `it.skip` an existing test to get green.** Fix the code or fix the test — deleting coverage is a regression.
+- Run the **affected** suites before committing: touch `apps/web` → jest; touch `apps/mobile` → flutter test; touch both → both (sequentially, see quirks below).
+- Coverage gates are real: `npm run test -- --coverage --ci` enforces 30% branches/functions/lines in CI. Untested new code pulls the ratio down — add tests in the same PR.
+
+#### Verified Test Commands & Environment Quirks (this machine/repo)
+- **Web:** from `apps/web`: `$env:CI='true'; npx jest --ci --runInBand --forceExit --silent` — plain `npm run test` can hang (watch mode/stderr pipe). Redirect output to a temp file on slow machines.
+- **Never run web + mobile suites in parallel** — CPU contention causes multi-minute timeouts. Run sequentially with generous timeouts (jest ~2–10 min cold, flutter test ~1.5–3 min).
+- **Type gate:** `npx tsc --noEmit` from `apps/web`. ESLint is known to hang — flag it to the user instead of skipping verification silently.
+- **Flutter:** `flutter test` must run with workdir `apps/mobile` (repo root has no `test/`). `dart analyze lib` cold runs can exceed 5 minutes — use large timeouts and write output to a file, then read it.
+- PowerShell may report jest stderr as "NativeCommandError" noise — check the output file and `Tests:` summary line, not the stream label.
+
+#### Test Harness Rules (discovered by debugging — violating these breaks tests)
+- **React dedupe is load-bearing:** `apps/web/jest.config.js` `moduleNameMapper` pins `react`, `react/(.*)`, `react-dom`, `react-dom/(.*)` to `apps/web/node_modules` because `@testing-library/react` hoists to the workspace root with a different React copy (→ "Objects are not valid as a React child" in ANY rendering test). **Never remove those mappings.**
+- **Jest module-hoisting:** variables referenced inside `jest.mock(...)` factories MUST be prefixed `mock` (e.g., `mockSupabase`), or jest throws at runtime.
+- **Supabase mocks:** chain shape is `from() → select()/update() → eq()/maybeSingle()` — mock every link the code touches.
+- **Flutter widget-test harness order (load-bearing):** in `setUpAll`: `SharedPreferences.setMockInitialValues({})` **before** `Supabase.initialize(url: ..., anonKey: 'test-anon-key')`; wrap `ProviderScope(overrides: [initialThemeModeProvider.overrideWith(...)])` around pumped widgets so system theme can't flip assertions.
+- **Jitsi web mock:** set `(window as any).JitsiMeetExternalAPI = MockClass` in `beforeEach`, `delete` it in `afterEach`; also stub `HTMLMediaElement.prototype.play/pause` (jsdom lacks them).
+
+#### Cross-Platform Contracts Pinned by Tests
+- **Jitsi room name:** `PremonCare-{appointmentId}` on `https://8x8.vc` — enforced by BOTH `apps/mobile/test/meeting_room_test.dart` and `apps/web/src/__tests__/components/meeting-room.test.tsx`. Renaming rooms or changing servers requires editing the mobile builder, the web component, and both tests in the same commit.
+- Same idea for any shared enum/status string: search both platforms AND both test dirs before changing.
+
+#### Test Priority Backlog (highest value first)
+1. Middleware/session guards: `proxy.ts`, `supabase-middleware.ts`, `role-redirect.ts` (admin blocking, role cookie caching, matcher excludes `/api/`)
+2. `withSecurity` route-handler tests: 403 role mismatch, 429 rate limit, XSS sanitization, JWT-sourced identity
+3. Mobile `router.dart` redirect rules (admin 3-layer block) via widget test
+4. HIPAA inactivity timers: `InactivityDetector` (mobile) + `InactivityProvider` (web) with `fake_async`
+5. Emergency flow math/state: 5× price formula, 3-min accept timeout → `emergency_declined`, payment gate
+6. `audit.ts` log shape (no PHI, `user_id` field), GDPR export/delete RPC wrappers
+7. Providers: `appointment_provider` status mapping, `verification_provider` wizard payload, `forum`/`messaging`/`records` (record_permissions scoping)
+
+**Agent rule:** When adding a new feature, always check for existing test patterns in the codebase. Match the existing test framework and conventions. Never remove existing tests. When you discover a new test-runner quirk, document it in this section.
 
 ### CI/CD Gates
 GitHub Actions runs on every push to `main`/`develop` and all PRs:

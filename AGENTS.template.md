@@ -147,9 +147,27 @@ raw handler → reads userId from request body → trusts client-supplied data
 
 **Agent rule:** Check for existing test patterns before adding tests. Match the existing framework. Never remove existing tests.
 
+#### Testing Requirements (non-negotiable)
+- **Every bug fix includes a regression test** when the defect is at logic level. A fix without a test will regress silently.
+- **Every new feature ships with tests** in the same change: minimum one test for the happy path AND one for the failure/permission path.
+- **Security-sensitive changes** (auth, roles, payments, middleware, RLS-adjacent queries) require an automated test plus manual verification of the DB policy.
+- **Never delete, `skip`, or `.only` an existing test to make the suite green.** Fix the code or fix the test.
+- **Run the affected suites before committing** — the suite you touched, not necessarily everything (but run everything before claiming a milestone is done).
+- **Coverage thresholds are CI gates** — untested new code lowers the ratio; add tests alongside the code that creates the gap.
+
+#### Verified Commands & Harness Notes (keep this section current)
+Document in this file, as they are discovered:
+- The exact commands that actually work in this repo/CI (include flags like `--ci`, output redirection, required working directory). If the default command (`npm test`) hangs or misbehaves, write the working invocation here.
+- Order-of-initialization gotchas in test harnesses (mocks registered before imports, prefs seeded before clients, provider overrides wrapping pumped widgets).
+- Module-resolution quirks (duplicate framework copies, hoisting rules such as `mock`-prefixed variables inside `jest.mock` factories, path mappings).
+- Cross-platform/layer contracts that tests pin (shared enum strings, room/URL formats, API payload shapes). Changing the production code for these requires updating ALL pinning tests in the same commit.
+
+**Agent rule:** When a test fails unexpectedly, suspect the harness before the product code — but if the harness is wrong, fix and document it here so the next agent doesn't rediscover it.
+
 ### CI/CD Gates
 - All linters must pass (`npm run lint`, `flutter analyze`)
 - All type checks must pass (`tsc --noEmit`, `dart analyze`)
+- **All tests must pass (`npx jest --ci`, `flutter test`)**
 - Build must succeed
 - No secrets in committed files
 - No hardcoded URLs — use environment variables
@@ -161,8 +179,9 @@ Before marking ANY task as complete, agents MUST complete this verification sequ
 **Web (Next.js):**
 1. Run `npm run typecheck` (or `npx tsc --noEmit`) — zero errors required
 2. Run `npm run lint` (or `npx eslint src/`) — zero warnings required
-3. Run `npm run build` — clean build required
-4. Verify no regressions in related components (check imports, shared types)
+3. Run the test suite (e.g., `npx jest --ci`) — zero failures required; ADD/UPDATE tests as part of this task
+4. Run `npm run build` — clean build required
+5. Verify no regressions in related components (check imports, shared types)
 
 **Mobile (Flutter):**
 1. Run `flutter analyze` — zero errors required
@@ -343,6 +362,8 @@ When starting ANY task in this codebase:
 - [ ] Verify RLS policies if touching data access
 - [ ] Check secrets boundary (server vs client)
 - [ ] Run lint/typecheck before committing
+- [ ] **Add or update tests for every behavior change** (bug fix → regression test; feature → happy + failure path)
+- [ ] **Run the affected test suites before committing**
 - [ ] Update `CHANGELOG.md` if the change is user-facing
 - [ ] Never commit secrets or PHI
 - [ ] **Run the mandatory audit phase** (see "Mandatory Audit Phase" above)
@@ -372,4 +393,4 @@ After completing a task, document what was verified:
 ---
 
 *Last Updated: [DATE]*
-*Template version: 1.0.0*
+*Template version: 1.1.0*
