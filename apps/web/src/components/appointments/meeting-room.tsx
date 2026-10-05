@@ -21,6 +21,7 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
   const jitsiContainerRef = useRef<HTMLDivElement>(null)
   const apiRef = useRef<any>(null)
   const statusUpdatedRef = useRef(false)
+  const joinedAtRef = useRef<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
@@ -48,9 +49,21 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
   const endMeeting = useCallback(async () => {
     if (statusUpdatedRef.current) return
     statusUpdatedRef.current = true
-    await updateAppointmentStatus('completed')
+    if (appointmentId) {
+      try {
+        const supabase = createClient()
+        const update: Record<string, unknown> = { status: 'completed' }
+        if (joinedAtRef.current) {
+          const elapsedMs = Date.now() - joinedAtRef.current
+          update.duration_minutes = Math.max(1, Math.ceil(elapsedMs / 60000))
+        }
+        await supabase.from('appointments').update(update).eq('id', appointmentId)
+      } catch (e) {
+        console.error('Failed to update appointment status:', e)
+      }
+    }
     onCloseRef.current()
-  }, [updateAppointmentStatus])
+  }, [appointmentId])
 
   useEffect(() => {
     // Guard: don't re-init if API already attached to this container
@@ -75,13 +88,10 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
             disableDeepLinking: true
           },
           interfaceConfigOverwrite: {
+            // HIPAA minimum-necessary: no invite/recording/livestream/download
             TOOLBAR_BUTTONS: [
-                'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
-                'fodeviceselection', 'hangup', 'profile', 'chat', 'recording',
-                'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
-                'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts',
-                'tileview', 'videobackgroundblur', 'download', 'help', 'mute-everyone',
-                'security'
+                'microphone', 'camera', 'desktop', 'chat', 'hangup',
+                'fullscreen', 'tileview', 'settings'
             ],
             SETTINGS_SECTIONS: [ 'devices', 'language', 'profile', 'calendar' ],
             SHOW_CHROME_EXTENSION_BANNER: false
@@ -101,6 +111,7 @@ export function MeetingRoom({ roomName, userName, appointmentId, onClose }: Meet
           conferenceJoined: () => {
             // Only mark ongoing after the conference actually joins
             if (!statusUpdatedRef.current) {
+              joinedAtRef.current = Date.now()
               updateAppointmentStatus('ongoing')
             }
           },

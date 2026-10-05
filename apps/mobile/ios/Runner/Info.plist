@@ -26,6 +26,10 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSCameraUsageDescription</key>
+		<string>Premoncare needs camera access so you can join video consultations with your doctor.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Premoncare needs microphone access so you can speak with your doctor during video consultations.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>

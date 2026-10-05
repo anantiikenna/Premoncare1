@@ -19,6 +19,7 @@ class Appointment {
   final ConsultationMode mode;
   final int durationMinutes;
   final String? meetingLink;
+  final String paymentStatus;
 
   Appointment({
     required this.id,
@@ -34,6 +35,7 @@ class Appointment {
     required this.mode,
     required this.durationMinutes,
     this.meetingLink,
+    this.paymentStatus = 'pending',
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class Appointment {
       mode: _modeFromDb(json['consultation_mode']),
       durationMinutes: json['duration_minutes'] ?? 15,
       meetingLink: json['meeting_link'],
+      paymentStatus: json['payment_status'] as String? ?? 'pending',
     );
   }
 

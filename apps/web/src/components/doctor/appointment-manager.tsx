@@ -528,12 +528,12 @@ export function DoctorAppointmentManager({ appointments, docId, doctorName }: { 
                                                             </DialogContent>
                                                         </Dialog>
                                                     </>
-                                                ) : apt.status === 'confirmed' || apt.status === 'rescheduled' || apt.status === 'ongoing' || apt.status === 'emergency_accepted' ? (
+                                                ) : apt.status === 'confirmed' || apt.status === 'rescheduled' || apt.status === 'ongoing' || apt.status === 'completed' || (apt.status === 'emergency_accepted' && apt.payment_status === 'completed') ? (
                                                     <Button 
                                                         className="w-full md:w-40 h-10 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20"
                                                         onClick={() => startMeeting(apt)}
                                                     >
-                                                        <Video className="h-4 w-4 mr-2" /> Start Meeting
+                                                        <Video className="h-4 w-4 mr-2" /> {apt.status === 'ongoing' || apt.status === 'completed' ? 'Rejoin Meeting' : 'Start Meeting'}
                                                     </Button>
                                                 ) : (
                                                     <Badge className="bg-slate-100 text-slate-400 border-none font-black text-[9px] uppercase tracking-widest px-4 py-2">

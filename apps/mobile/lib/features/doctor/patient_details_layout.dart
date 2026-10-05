@@ -427,7 +427,13 @@ class _ConsultationsTab extends ConsumerWidget {
     final status = appt['status'] as String?;
     final mode = appt['consultation_mode'] as String?;
     if (mode != 'video') return false;
-    return status == 'confirmed' || status == 'rescheduled' || status == 'ongoing' || status == 'emergency_accepted';
+    if (status == 'emergency_accepted') {
+      return appt['payment_status'] == 'completed';
+    }
+    return status == 'confirmed' ||
+        status == 'rescheduled' ||
+        status == 'ongoing' ||
+        status == 'completed';
   }
 
   Future<void> _joinVideoCall(BuildContext context, Map<String, dynamic> appt) async {

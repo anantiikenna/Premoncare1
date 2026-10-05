@@ -100,7 +100,10 @@ describe('MeetingRoom', () => {
     })
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
     expect(mockUpdateCalls).toHaveLength(2)
-    expect(mockUpdateCalls[1].payload).toEqual({ status: 'completed' })
+    expect(mockUpdateCalls[1].payload).toEqual({
+      status: 'completed',
+      duration_minutes: 1,
+    })
 
     act(() => {
       mockListeners.readyToClose()

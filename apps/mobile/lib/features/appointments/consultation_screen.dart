@@ -71,7 +71,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
     try {
       final row = await supabase
           .from('appointments')
-          .select('id, patient_id, doctor_id, status')
+          .select('id, patient_id, doctor_id, status, payment_status')
           .eq('id', widget.appointmentId)
           .maybeSingle();
 
@@ -87,9 +87,15 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
         'rescheduled',
         'ongoing',
         'emergency_accepted',
-        'pending',
+        'completed',
       };
-      return allowed.contains(status);
+      if (!allowed.contains(status)) return false;
+
+      // Emergency rooms unlock only after payment is completed
+      if (status == 'emergency_accepted') {
+        return row['payment_status'] == 'completed';
+      }
+      return true;
     } catch (e) {
       if (kDebugMode) debugPrint('Ownership check failed: $e');
       return false;
@@ -144,6 +150,17 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
         'enableEmailInStats': false,
         // Prevent others from inviting more participants (closed room)
         'disableDeepLinking': true,
+        // HIPAA minimum-necessary: no invite/recording/livestream/download
+        'toolbarButtons': [
+          'microphone',
+          'camera',
+          'desktop',
+          'chat',
+          'hangup',
+          'fullscreen',
+          'tileview',
+          'settings',
+        ],
       },
       userInfo: JitsiMeetUserInfo(
         displayName: displayName,
@@ -255,6 +272,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
   Future<void> _navigateToSummary() async {
     String? doctorId;
     num fee = 0;
+    final userId = supabase.auth.currentUser?.id;
     try {
       final row = await supabase
           .from('appointments')
@@ -267,6 +285,12 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
       // proceed with defaults
     }
     if (!mounted) return;
+    // Doctors return to their dashboard — the summary screen is the
+    // patient's review flow.
+    if (userId != null && userId == doctorId) {
+      context.go('/doctor_dashboard');
+      return;
+    }
     context.go('/consultation-summary/${widget.appointmentId}', extra: {
       'doctorName': widget.doctorName,
       'doctorId': doctorId,
