@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useMemo, ReactNode } from "react";
 import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
@@ -12,13 +12,14 @@ export function InactivityProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [showWarning, setShowWarning] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
   const WARNING_TIME = 14 * 60 * 1000; // 14 minutes
-  
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const showWarningRef = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -34,16 +35,21 @@ export function InactivityProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
+  const setWarning = (value: boolean) => {
+    showWarningRef.current = value;
+    setShowWarning(value);
+  };
+
   const resetTimers = () => {
     if (!session) return;
-    
+
     if (timerRef.current) clearTimeout(timerRef.current);
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-    
-    setShowWarning(false);
+
+    setWarning(false);
 
     warningTimerRef.current = setTimeout(() => {
-      setShowWarning(true);
+      setWarning(true);
     }, WARNING_TIME);
 
     timerRef.current = setTimeout(async () => {
@@ -56,19 +62,19 @@ export function InactivityProvider({ children }: { children: ReactNode }) {
     if (!session) {
       if (timerRef.current) clearTimeout(timerRef.current);
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setShowWarning(false);
+      setWarning(false);
       return;
     }
 
     resetTimers();
 
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-    
+
     const handleActivity = () => {
-      // Throttle timer resets to avoid performance issues
-      if (!showWarning) {
-        resetTimers();
-      }
+      // Once the warning is showing the countdown is locked: the user must
+      // explicitly click "Stay Logged In" — activity must NOT postpone logout.
+      if (showWarningRef.current) return;
+      resetTimers();
     };
 
     events.forEach(event => window.addEventListener(event, handleActivity, { passive: true }));
@@ -78,7 +84,7 @@ export function InactivityProvider({ children }: { children: ReactNode }) {
       if (timerRef.current) clearTimeout(timerRef.current);
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
     };
-  }, [session, showWarning]); // include showWarning so we don't reset if warning is showing unless explicitly requested
+  }, [session]); // NOT showWarning — re-running on warning visibility cleared the logout timer (bug: 15-min logout never fired)
 
   const handleStayLoggedIn = () => {
     resetTimers();

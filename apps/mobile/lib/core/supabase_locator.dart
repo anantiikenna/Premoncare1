@@ -16,7 +16,12 @@ Future<void> initSupabase() async {
   await Supabase.initialize(url: url, publishableKey: key);
 }
 
-final supabase = Supabase.instance.client;
+SupabaseClient? _debugSupabaseOverride;
+
+@visibleForTesting
+set debugSupabaseOverride(SupabaseClient? client) => _debugSupabaseOverride = client;
+
+SupabaseClient get supabase => _debugSupabaseOverride ?? Supabase.instance.client;
 
 // In-memory cache for user role to avoid querying on every navigation
 String? _cachedRole;
