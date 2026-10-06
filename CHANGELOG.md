@@ -9,8 +9,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ### Added
 - **Android App Release v1.0.1**: Video-consultation hardening release (`1.0.1+2`, tag `v1.0.1` on `premoncare-releases`).
+- **Testing (Tier 2)**: HIPAA inactivity suites on both platforms (10 web provider regression tests + 8 mobile widget tests via `@visibleForTesting debugSupabaseOverride`), `audit.ts` unit tests (PHI-free payload shape), and the cross-platform emergency pricing contract tests. 118 web / 12 mobile tests total.
 
 ### Fixed
+- **Unified emergency pricing (money parity)**: Web and mobile now share one contract — `rate = consultation_fee || hourly_rate || 50`, `amount = round(rate × 5 × duration ÷ 60)` (5× base hourly rate per spec). The old web formula charged `consultation_fee × 5` per 15-minute block (≈4× the spec), while the old mobile formula priced off `hourly_rate` alone (₦0 when unset). Pinned by identical fixtures in `emergency-pricing.test.ts` + `pricing_test.dart`.
+- **HIPAA inactivity logout (web)**: The 15-minute auto-logout never fired — the warning state in the effect deps caused a re-arm loop that perpetually postponed logout and flashed the warning for a single frame. Fixed with a ref-guarded activity handler; 10 regression tests.
+- **Doctor rate display (mobile)**: `doctor_details` read `hourly_rate` only (DEFAULT 0 → "₦0/hr" and ₦0 bookings when unset); now resolves `consultation_fee → hourly_rate → 50`.
 - **Emergency payment gate (F3)**: Join/Start Meeting buttons for `emergency_accepted` appointments now require `payment_status='completed'` on both web and mobile; entering the room no longer bypasses the pay step.
 - **Completed rejoin (F4)**: `completed` consultations can rejoin their room again (label "Rejoin Meeting"); mobile ownership gate no longer allows `pending` status.
 - **Doctor post-call routing (F2)**: Doctors ending a call are routed to the doctor dashboard instead of the patient review screen (which inserted reviews with the wrong `patient_id`).

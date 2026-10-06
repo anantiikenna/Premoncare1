@@ -254,15 +254,16 @@ export const POST = async (req) => {
 
 #### Cross-Platform Contracts Pinned by Tests
 - **Jitsi room name:** `PremonCare-{appointmentId}` on `https://8x8.vc` — enforced by BOTH `apps/mobile/test/meeting_room_test.dart` and `apps/web/src/__tests__/components/meeting-room.test.tsx`. Renaming rooms or changing servers requires editing the mobile builder, the web component, and both tests in the same commit.
+- **Emergency price:** `rate = consultation_fee || hourly_rate || 50`; `amount = round(rate × 5 × duration ÷ 60)` (5× base hourly rate — NEVER the old `fee × 5 / 15` block formula, which charged 4× the spec). Implementations: `apps/web/src/lib/emergency-pricing.ts` ↔ `apps/mobile/lib/core/pricing.dart`, pinned by `emergency-pricing.test.ts` and `pricing_test.dart` with identical fixtures. Changing the formula requires editing both libs and both tests in the same commit.
 - Same idea for any shared enum/status string: search both platforms AND both test dirs before changing.
 
 #### Test Priority Backlog (highest value first)
-1. Middleware/session guards: `proxy.ts`, `supabase-middleware.ts`, `role-redirect.ts` (admin blocking, role cookie caching, matcher excludes `/api/`)
+1. Middleware/session guards: `proxy.ts`, `supabase-middleware.ts`, `role-redirect.ts` (admin blocking, role cookie caching, matcher excludes `/api/`) — **done**
 2. `withSecurity` route-handler tests: 403 role mismatch, 429 rate limit, XSS sanitization, JWT-sourced identity
 3. Mobile `router.dart` redirect rules (admin 3-layer block) via widget test
-4. HIPAA inactivity timers: `InactivityDetector` (mobile) + `InactivityProvider` (web) with `fake_async`
-5. Emergency flow math/state: 5× price formula, 3-min accept timeout → `emergency_declined`, payment gate
-6. `audit.ts` log shape (no PHI, `user_id` field), GDPR export/delete RPC wrappers
+4. HIPAA inactivity timers: `InactivityDetector` (mobile) + `InactivityProvider` (web) with `fake_async` — **done**
+5. Emergency flow math/state: 5× price formula (**done**), 3-min accept timeout → `emergency_declined`, payment gate
+6. `audit.ts` log shape (no PHI, `user_id` field) — **done**; GDPR export/delete RPC wrappers
 7. Providers: `appointment_provider` status mapping, `verification_provider` wizard payload, `forum`/`messaging`/`records` (record_permissions scoping)
 
 **Agent rule:** When adding a new feature, always check for existing test patterns in the codebase. Match the existing test framework and conventions. Never remove existing tests. When you discover a new test-runner quirk, document it in this section.
