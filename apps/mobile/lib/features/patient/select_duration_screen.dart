@@ -4,6 +4,7 @@ import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/generic_user_avatar.dart';
 import '../../shared/widgets/mesh_circle.dart';
 import '../../core/app_colors.dart';
+import '../../core/pricing.dart';
 import '../../core/utils.dart';
 
 
@@ -30,7 +31,9 @@ class _SelectDurationScreenState extends State<SelectDurationScreen> {
 
   double get _ratePerMinute => (widget.hourlyRate / 60) * (widget.isEmergency ? 5 : 1);
 
-  int _priceForDuration(int minutes) => (_ratePerMinute * minutes).toInt();
+  int _priceForDuration(int minutes) => widget.isEmergency
+      ? emergencyAmount(hourlyRate: widget.hourlyRate, durationMinutes: minutes)
+      : (_ratePerMinute * minutes).toInt();
 
   @override
   Widget build(BuildContext context) {

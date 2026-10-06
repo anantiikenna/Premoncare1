@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/supabase_locator.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_typography.dart';
+import '../../core/pricing.dart';
 import '../../l10n/app_localizations.dart';
 
 import '../../shared/widgets/generic_user_avatar.dart';
@@ -57,7 +58,10 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
 
   String get _displayName => _profile?['full_name'] as String? ?? widget.doctorName;
   String get _displaySpecialty => _profile?['specialty'] as String? ?? widget.specialty;
-  double get _hourlyRate => (_profile?['hourly_rate'] as num?)?.toDouble() ?? 5000.0;
+  double get _hourlyRate => resolveHourlyRate(
+        consultationFee: (_profile?['consultation_fee'] as num?)?.toDouble(),
+        hourlyRate: (_profile?['hourly_rate'] as num?)?.toDouble(),
+      );
   int get _experienceYears => _profile?['experience_years'] as int? ?? 0;
   String get _about => _profile?['about_text'] as String? ?? 'Dedicated and compassionate healthcare professional committed to delivering quality patient care.';
   bool get _isOnline => _profile?['is_online'] == true;

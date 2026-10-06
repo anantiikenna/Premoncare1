@@ -24,6 +24,7 @@ import Image from 'next/image'
 import { OTPForm } from '@/components/auth/otp-form'
 import { toast } from 'sonner'
 import { getUserFacingError } from '@/lib/user-facing-errors'
+import { emergencyAmount, emergencyHourlyRate } from '@/lib/emergency-pricing'
 async function dispatchNotificationViaApi(payload: {
   userId: string;
   title: string;
@@ -51,6 +52,7 @@ interface EmergencyDoctor {
   specialty?: string | null
   avatar_url?: string | null
   consultation_fee?: number | null
+  hourly_rate?: number | null
   experience_years?: number | null
   clinic_address?: string | null
   payment_instructions?: string | null
@@ -112,7 +114,7 @@ export default function EmergencyBookingPage() {
       const now = new Date().toISOString()
       const { data } = await supabase
         .from('profiles')
-        .select('id, full_name, specialty, avatar_url, consultation_fee, experience_years, clinic_address, payment_instructions, is_online, is_emergency, reviews(rating)')
+        .select('id, full_name, specialty, avatar_url, consultation_fee, hourly_rate, experience_years, clinic_address, payment_instructions, is_online, is_emergency, reviews(rating)')
         .eq('role', 'doctor')
         .eq('verification_status', 'approved')
         .eq('subscription_status', 'active')
@@ -160,7 +162,7 @@ export default function EmergencyBookingPage() {
       localStorage.setItem('premon_guest_email', email)
       localStorage.setItem('premon_guest_phone', phone)
 
-      const totalAmount = ((selectedDoctor.consultation_fee || 50) * duration * 5 / 15)
+      const totalAmount = emergencyAmount(selectedDoctor.consultation_fee, selectedDoctor.hourly_rate, duration)
 
       const { data: appointmentData, error: bookingError } = await supabase
         .from('appointments')
@@ -340,7 +342,7 @@ export default function EmergencyBookingPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xl font-black text-red-600">₦{((doctor.consultation_fee || 50) * 5).toLocaleString()}</div>
+                          <div className="text-xl font-black text-red-600">₦{emergencyHourlyRate(doctor.consultation_fee, doctor.hourly_rate).toLocaleString()}</div>
                           <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Emergency Rate</div>
                         </div>
                       </div>
@@ -411,7 +413,7 @@ export default function EmergencyBookingPage() {
                     <div>
                       <div className="text-xs font-bold uppercase tracking-widest opacity-50">Total Emergency Fee</div>
                       <div className="text-2xl font-black">
-                        ₦{((selectedDoctor?.consultation_fee || 50) * duration * 5 / 15).toLocaleString()}
+                        ₦{emergencyAmount(selectedDoctor?.consultation_fee, selectedDoctor?.hourly_rate, duration).toLocaleString()}
                       </div>
                     </div>
                   </div>
