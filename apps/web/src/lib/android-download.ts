@@ -3,10 +3,10 @@
 // scripts/release-apk.ps1 (version, size, SHA-256). The file name only
 // changes if the Flutter flavor/output name changes.
 const APK_META = {
-  version: "1.0.0",
+  version: "1.0.1",
   fileName: "app-user-release.apk",
-  sizeBytes: 190683196,
-  sha256: "6208c0c09b1ec835610bbfe96d51e4ba42e32e9fa381a26a9bc32c20bbc7469c",
+  sizeBytes: 190847040,
+  sha256: "fa6f5fbdb4b506c1ba6b645a4594411f74e7ccf7ac6e0934c2b5eabfc3a2787a",
 };
 
 function clean(value: string | undefined, fallback: string): string {

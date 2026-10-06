@@ -8,6 +8,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased] - 2026-07-31
 
 ### Added
+- **Android App Release v1.0.1**: Video-consultation hardening release (`1.0.1+2`, tag `v1.0.1` on `premoncare-releases`).
+
+### Fixed
+- **Emergency payment gate (F3)**: Join/Start Meeting buttons for `emergency_accepted` appointments now require `payment_status='completed'` on both web and mobile; entering the room no longer bypasses the pay step.
+- **Completed rejoin (F4)**: `completed` consultations can rejoin their room again (label "Rejoin Meeting"); mobile ownership gate no longer allows `pending` status.
+- **Doctor post-call routing (F2)**: Doctors ending a call are routed to the doctor dashboard instead of the patient review screen (which inserted reviews with the wrong `patient_id`).
+- **iOS permissions (F1)**: Added `NSCameraUsageDescription` + `NSMicrophoneUsageDescription` to `Info.plist` — Jitsi calls would have crashed on iOS.
+- **Call duration (F5)**: Web meeting room now persists `duration_minutes` on call end, matching mobile.
+- **Jitsi toolbar (F6)**: Trimmed to mic/camera/screen/chat/hangup/fullscreen/tileview/settings on web and mobile — removes invite/recording/livestreaming/download (HIPAA + no invite-link leakage).
+- **Cross-platform docs (F7)**: `AGENTS.md`, `README.md`, `SYSTEM_WALKTHROUGH.md` room naming corrected to `PremonCare-{appointmentId}` (pinned by tests on both platforms).
+
+### Added
+- **Testing**: Middleware/session guard suite (proxy matcher, `updateSession` role guards + `premon_role` cookie caching, `role-redirect`), cross-platform Jitsi room parity tests, upgraded `next/server` test harness (cookie jars, `NextResponse.next`, status handling). 92 web tests total. AGENTS.md/AGENTS.template.md now mandate regression tests for bug fixes and record verified test commands + harness rules.
 - **GDPR Right to Erasure**: `soft_delete_user()` RPC marks profile as deleted, anonymizes auth email. `purge_deleted_accounts()` permanently deletes after 30-day grace period. Both web and mobile settings updated to use soft-delete API.
 - **GDPR Right to Portability**: `export_user_data()` RPC returns JSON of all user data (profile, appointments, messages, medical records, prescriptions, payments, reviews, forum posts/replies). Web: `/api/user/export` download endpoint. Mobile: `download_data_screen.dart` calls RPC and copies to clipboard.
 - **HIPAA PHI Audit Logging**: `log_phi_access()` RPC for tracking medical records, prescriptions, and messages access. Audit logs include user_id, action, resource_type, and details.
