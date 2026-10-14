@@ -7,8 +7,6 @@ on:
       - 'apps/mobile/**'
   pull_request:
     branches: [main]
-    paths:
-      - 'apps/mobile/**'
 
 jobs:
   analyze:

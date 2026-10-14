@@ -276,6 +276,16 @@ Document in this file, as they are discovered:
 - No hardcoded URLs — use environment variables
 - No `console.log`/`print()` with sensitive data in production
 
+#### Branch Verification Workflow (CI/CD-gated merges)
+The default branch is protected — the ONLY path for changes to land is a pull request whose CI run is fully green. Red checks = the work stays on its branch; it never reaches the default branch.
+
+1. Branch off the default branch with a namespaced name: `feature/…`, `fix/…`, `test/…` (e.g. `test/verification-suite`).
+   - **Why `/`, not `_`:** `/` is git's namespace separator — the ecosystem convention (git-flow, GitHub, GitLab). It groups branches by type in `git branch`, PR lists, and CI. Branch names are not files, so file naming rules (snake_case) do not apply. `test_verification-suite` works but is off-convention.
+2. Push the branch → open a PR into the default branch.
+3. CI runs ALL jobs on EVERY PR — the `pull_request` triggers carry **no path filters**, so every required status check reports on every PR (path-filtered runs would leave required checks pending and block merges).
+4. All checks green → merge the PR. Any check red → fix on the same branch and push; CI re-runs. **Never merge red.**
+5. Branch protection (repo Settings → Branches → rule for the default branch): require a PR before merging, require the status checks listed in your workflow job names, disallow bypass, no force-pushes.
+
 ### Mandatory Audit Phase (Every Task)
 Before marking ANY task as complete, agents MUST complete this verification sequence:
 
@@ -380,7 +390,7 @@ Database errors: Never expose raw error messages to client
 - Commit messages: `type(scope): description`
 - Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `perf`
 - Never commit `.env` files or secrets
-- Branch naming: `feature/description`, `fix/description`
+- Branch naming: `feature/description`, `fix/description`, `test/description` (e.g. `test/verification-suite`) — `/` is a namespace separator (git convention), not snake_case; branch names are not files
 - Always run lint/typecheck before committing
 
 ---
@@ -473,6 +483,7 @@ When starting ANY task in this codebase:
 - [ ] **Run the mandatory walk-through** (see "Mandatory Walk-Through" above)
 - [ ] **Verify zero type/lint errors before committing**
 - [ ] **Commit with descriptive message** following `type(scope): description` convention
+- [ ] **Open a PR, never push to the default branch directly** — merge only when every CI check is green (see Branch Verification Workflow above)
 
 ---
 
