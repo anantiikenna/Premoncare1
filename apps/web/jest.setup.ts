@@ -4,10 +4,14 @@ import '@testing-library/jest-dom'
 if (typeof globalThis.Request === 'undefined') {
   globalThis.Request = class Request {
     url: string
+    method: string
     init?: RequestInit
+    headers: Headers
     constructor(url: string | URL, init?: RequestInit) {
       this.url = typeof url === 'string' ? url : url.toString()
+      this.method = (init?.method ?? 'GET').toUpperCase()
       this.init = init
+      this.headers = new Headers(init?.headers)
     }
   } as unknown as typeof Request
 }
@@ -16,21 +20,49 @@ if (typeof globalThis.Response === 'undefined') {
     status = 200
     ok = true
     headers = new Headers()
-    constructor(_body?: BodyInit | null, _init?: ResponseInit) {}
-    json() { return Promise.resolve({}) }
-    text() { return Promise.resolve('') }
+    _bodyText: string | null
+    constructor(body?: BodyInit | null, init?: ResponseInit) {
+      this._bodyText = body == null ? null : String(body)
+      if (init?.status !== undefined) {
+        try {
+          this.status = init.status
+          this.ok = this.status >= 200 && this.status < 300
+        } catch {}
+      }
+      if (init?.headers) this.headers = new Headers(init.headers)
+    }
+    json() { return Promise.resolve(this._bodyText == null ? {} : JSON.parse(this._bodyText)) }
+    text() { return Promise.resolve(this._bodyText ?? '') }
   } as unknown as typeof Response
 }
 if (typeof globalThis.Headers === 'undefined') {
   globalThis.Headers = class Headers {
     _map = new Map<string, string>()
-    constructor(_init?: HeadersInit) {}
-    append(name: string, value: string) { this._map.set(name, value) }
-    delete(name: string) { this._map.delete(name) }
-    get(name: string) { return this._map.get(name) ?? null }
-    has(name: string) { return this._map.has(name) }
-    set(name: string, value: string) { this._map.set(name, value) }
-    forEach(cb: (value: string, key: string) => void) { this._map.forEach(cb) }
+    constructor(init?: HeadersInit) {
+      if (!init) return
+      let entries: Array<[string, string]>
+      if (Array.isArray(init)) {
+        entries = init
+      } else if (typeof (init as { forEach?: unknown }).forEach === 'function') {
+        entries = []
+        ;(init as { forEach: (cb: (value: string, key: string) => void) => void }).forEach((value, key) =>
+          entries.push([key, value])
+        )
+      } else {
+        entries = Object.entries(init as Record<string, string>)
+      }
+      for (const [key, value] of entries) this._map.set(key.toLowerCase(), String(value))
+    }
+    append(name: string, value: string) {
+      const key = name.toLowerCase()
+      const previous = this._map.get(key)
+      this._map.set(key, previous ? `${previous}, ${value}` : value)
+    }
+    delete(name: string) { this._map.delete(name.toLowerCase()) }
+    get(name: string) { return this._map.get(name.toLowerCase()) ?? null }
+    has(name: string) { return this._map.has(name.toLowerCase()) }
+    set(name: string, value: string) { this._map.set(name.toLowerCase(), String(value)) }
+    forEach(cb: (value: string, key: string) => void) { this._map.forEach((value, key) => cb(value, key)) }
   } as unknown as typeof Headers
 }
 
