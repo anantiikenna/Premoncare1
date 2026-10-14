@@ -129,6 +129,109 @@ raw handler → reads userId from request body → trusts client-supplied data
 
 ---
 
+## Continuous Data-Reflection Audit & UI/UX Test Procedure
+
+**Use for:** every change that touches data (queries, schemas, statuses, APIs, derived counts, labels) — and for UI changes. Run this procedure top to bottom. Nothing ships until Step 5 is green.
+
+---
+
+### STEP 1 — FIND THE SOURCE OF TRUTH (before writing code)
+
+1. Identify the entity the user's words map to (e.g. "Properties" → which table/endpoint actually holds them?).
+2. Verify with **row counts against the LIVE database**, not assumptions:
+   `select count(*)` on every candidate table (plots, approvals, map_areas…).
+3. Record the result:
+   - **Authoritative source:** `<table/endpoint>` (rows: N)
+   - **Empty/seed/legacy sources:** `<table>` (rows: 0 — do not read)
+4. If two tables could hold the same concept (e.g. `plots` vs `map_areas`), the source with live rows wins. Note the choice in the commit message.
+
+### STEP 2 — CONTINUOUS HIERARCHY AUDIT (every single change)
+
+Before editing, build the **blast-radius map**: the changed field/data at the center, every consumer radiating outward. Grep the whole repo for each name:
+
+```
+<old-field-name>  <old-table-name>  <old-status-enum>  <old-label>
+hrefs/links containing the route  ·  API routes  ·  shared lib functions
+tests  ·  docs (*.md)  ·  SQL schema files
+```
+
+Audit matrix — fill this in for EVERY change (add rows until empty):
+
+| # | Layer | Files | Reads changed data? | Updated? |
+|---|-------|-------|--------------------|----------|
+| 1 | Database / schema (Schema.sql + update_live.sql, both!) | | | |
+| 2 | API / server routes (`/api/…`) | | | |
+| 3 | Shared lib / domain logic (`src/lib/…`) | | | |
+| 4 | Parent pages (lists, dashboards, counts, cards) | | | |
+| 5 | Child/detail pages (by id, tabs, panels) | | | |
+| 6 | Sibling pages (anything showing the same entity: badges, filters, legends, empty states) | | | |
+| 7 | Navigation / quick actions / links / redirects | | | |
+| 8 | Tests (unit + integration + fixtures) | | | |
+| 9 | Documentation (README, walkthrough, spec, CHANGELOG) | | | |
+| 10 | Audit log / history instrumentation | | | |
+
+**Propagation rules (apply in this order):**
+- **Count changed** → find EVERY card/stat/label that displays it.
+- **Status/enum changed** → update EVERY status→label map, status→color map, status→badge-variant map, legend, filter option, and sort order. One new enum value = N map entries, not one.
+- **Field/table renamed** → all queries, selects, joins, embeds, exports.
+- **Hierarchy (parent→child)** → parent shows child counts/names; child shows parent name/ID; both must agree. A child type split into subtypes means the parent's grouping/filter logic changes too.
+- **Route/param added** → every entry point that should link into it (list → detail → deep link `?param=`), including wiring the param through each component layer until it reaches the leaf.
+
+Rules of engagement:
+- Never delete a working feature to satisfy the audit — replace its input.
+- Retired features: remove **UI/code references only**; keep DB tables/columns (future may need it) unless the user explicitly orders a destructive change.
+- Fix every row in the matrix, or write "N/A — reason" in it. The matrix is the review artifact; include its summary in the final report.
+
+### STEP 3 — IMPLEMENT (focused, no drive-by refactors)
+
+- Match existing code style, libraries, and patterns in the repo.
+- Business logic lives in one shared module — never duplicated in components.
+- Demo/fictional data stays clearly separated from official data.
+- No comments unless the repo already comments that kind of line.
+
+### STEP 4 — GET THE UI/UX TEST SKILL ONLINE (before writing UI tests)
+
+> Tooling changes fast — **search the web first**, never trust training-data test tooling. (Session example: verified Playwright/Next.js 16 conventions live before writing tests.)
+
+1. Web search: `<framework> <version> UI testing best practices <current year>`, e.g. `Next.js 16 Playwright responsive dark mode visual regression 2026`.
+2. Read 1–2 authoritative results (official docs > vendor blogs) and note:
+   - Correct locator strategy (role/text/testid first — never brittle CSS chains)
+   - Correct test-runner invocation for THIS repo's versions
+   - Viewports/device profiles to cover
+3. If a project skill fits (available_skills), load it. Otherwise follow the freshly fetched guidance. Record the source URL in your test file header or report so the choice is auditable.
+
+### STEP 5 — VERIFY (all three must pass; fix → re-run until green)
+
+| Gate | Command (adapt to repo) | Pass = |
+|------|------------------------|--------|
+| Lint | `npm run lint` | 0 errors |
+| Types/Build | `npm run build` | exit 0 |
+| Tests | `npm run test` | 100% green |
+
+- If a shell command hangs/timeouts: retry once, then redirect output to a temp file and read it (`cmd *> out.txt; echo $LASTEXITCODE`).
+
+### STEP 6 — UI/UX TESTING (live app, per the skill fetched in Step 4)
+
+- **E2E happy path** against the real app (build+start, not dev): login → navigate → select record → verify detail → perform action → verify the record appears. Assert **on user-visible text**, not internals.
+- **Data-parity assertion (the critical one):** for each dashboard/list number, fetch the same count from the database/API in the test and assert equality. This is what catches "page reads empty legacy table" bugs.
+- **Responsive matrix:** 320, 360, 768, 1280 px — no overflow, no clipped controls, touch targets ≥ 40 px, primary actions reachable one-handed.
+- **Theme:** test light AND dark, and test the state where the host re-renders client-side (SPA bailout) — reload with stored dark preference and assert the theme survives.
+- **States:** loading skeletons, empty states, error messages (user-friendly, no raw DB/stack errors).
+- **Visual diff:** screenshots at fixed viewports; compare to baseline; review diffs — never bulk-approve snapshot updates.
+- **AuthZ sanity:** a lower-privilege role must not see admin-only actions (hidden buttons AND server-side check).
+- Known project-specific checks (from this repo): [test credentials for the local seed]; [diagnostic headers/scripts for localhost if any]; [deploy-host quirks, e.g. client-side-rendered SPA — re-verify hydration-sensitive behavior on the deployed URL].
+
+### STEP 7 — REPORT, COMMIT, SHIP
+
+1. **Report** the audit matrix + test results + any N/A rows to the user.
+2. **Commit** only intended files (never `.env*`, keys, untracked junk):
+   `fix: <what> — reflects <source> across <pages touched>`
+3. **Push**, then confirm `git status -sb` shows in-sync with `origin`.
+4. Confirm the deploy pipeline picked it up (auto-deploy hosts re-run Steps 5–6 on the live URL; smoke-test one page there).
+5. Update the walkthrough/spec doc if pages, routes, or roles changed.
+
+---
+
 ## Engineering Discipline
 
 ### Code Review Policy
@@ -393,4 +496,4 @@ After completing a task, document what was verified:
 ---
 
 *Last Updated: [DATE]*
-*Template version: 1.1.0*
+*Template version: 1.2.0*
