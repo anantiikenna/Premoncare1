@@ -28,7 +28,7 @@ final doctorAppointmentsProvider = StreamProvider.autoDispose<List<Map<String, d
         final patientMap = {for (final p in patientsResult) p['id'] as String: p};
 
         return data.map((item) {
-          final patientData = patientMap[item['patient_id'] as String?] as Map<String, dynamic>?;
+          final patientData = patientMap[item['patient_id'] as String?];
           final isProfileVisible = (patientData?['is_profile_visible'] as bool?) ?? true;
           final patientName = isProfileVisible
               ? (patientData?['full_name'] as String? ?? 'Guest')

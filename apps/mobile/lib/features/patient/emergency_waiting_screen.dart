@@ -7,8 +7,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/app_colors.dart';
 import '../../core/supabase_locator.dart';
 import '../../l10n/app_localizations.dart';
-import '../../core/user_facing_errors.dart';
-import 'patient_providers.dart';
 
 class EmergencyWaitingScreen extends ConsumerStatefulWidget {
   final String appointmentId;
@@ -36,7 +34,6 @@ class _EmergencyWaitingScreenState
   RealtimeChannel? _appointmentChannel;
   RealtimeChannel? _doctorStatusChannel;
 
-  String _currentStatus = 'emergency_request';
   bool _navigated = false;
 
   int _elapsedSeconds = 0;
@@ -117,13 +114,6 @@ class _EmergencyWaitingScreenState
         .subscribe();
   }
 
-  void _handleDoctorUpdate(PostgresChangePayload payload) {
-    final status = payload.newRecord['status'] as String?;
-    if (status != null && mounted) {
-      setState(() => _currentStatus = status);
-    }
-  }
-
   void _handleDoctorStatusUpdate(PostgresChangePayload payload) {
     final isOnline = payload.newRecord['is_online'] as bool? ?? false;
     final isActive = isOnline;
@@ -138,7 +128,6 @@ class _EmergencyWaitingScreenState
     if (!mounted || _navigated) return;
 
     setState(() {
-      _currentStatus = status;
       _doctorTimer?.cancel();
     });
 

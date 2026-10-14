@@ -23,7 +23,6 @@ class _ScheduleManagementScreenState extends State<ScheduleManagementScreen> {
   List<Map<String, String>> _breakTimes = [];
 
   List<Map<String, dynamic>> _defaultWeeklyHours(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return [
       {'day': 'Monday', 'enabled': true, 'start': '08:00', 'end': '18:00'},
       {'day': 'Tuesday', 'enabled': true, 'start': '08:00', 'end': '18:00'},
