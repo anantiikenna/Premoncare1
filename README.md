@@ -221,14 +221,26 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 > **Security:** `SUPABASE_SERVICE_ROLE_KEY`, `FIREBASE_*`, and `LOOPS_API_KEY` are server-side only. Never add them to mobile or client bundles.
 
-### Mobile (`apps/mobile/.env`)
+### Mobile (`apps/mobile/dev.json`)
 
-```env
-SUPABASE_URL=https://your-supabase-url.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
+Mobile injects config at compile time via `--dart-define` — there is **no `.env` file** and nothing is bundled into the APK.
+
+```bash
+cd apps/mobile
+cp dev.json.sample dev.json   # gitignored; fill in real values
+flutter run --flavor user --dart-define-from-file=dev.json
 ```
 
-> **Security:** Mobile only uses the anon key + RLS. Never put Firebase Admin SDK or service role keys here.
+`dev.json`:
+
+```json
+{
+  "SUPABASE_URL": "https://your-supabase-url.supabase.co",
+  "SUPABASE_ANON_KEY": "your-anon-key"
+}
+```
+
+> **Security:** Mobile only uses the anon key + RLS. Never put Firebase Admin SDK or service role keys here (CI passes the anon values as `--dart-define` from GitHub secrets).
 
 ---
 
@@ -250,17 +262,17 @@ make format       # Prettier formatting
 ```bash
 cd apps/mobile
 
-flutter run --flavor user            # Run user app (patients/doctors)
-flutter run --flavor admin           # Run admin app
-flutter run --flavor user --release  # Release build
+flutter run --flavor user --dart-define-from-file=dev.json            # Run user app (patients/doctors)
+flutter run --flavor admin --dart-define-from-file=dev.json           # Run admin app
+flutter run --flavor user --release --dart-define-from-file=dev.json  # Release build
 ```
 
 ### Build APKs
 
 ```bash
 cd apps/mobile
-flutter build apk --flavor user --dart-define=ENV=production
-flutter build apk --flavor admin --dart-define=ENV=production
+flutter build apk --flavor user --dart-define=ENV=production --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+flutter build apk --flavor admin --dart-define=ENV=production --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
 ```
 
 ### Full CI (Local)
@@ -571,7 +583,7 @@ export const POST = async (req) => {
 
 | Secret | Location | NEVER |
 |---|---|---|
-| Supabase Anon Key | `apps/web/.env.local`, `apps/mobile` (public) | Never expose to server-side admin operations |
+| Supabase Anon Key | `apps/web/.env.local`, `apps/mobile/dev.json` (public) | Never expose to server-side admin operations |
 | Supabase Service Role Key | `apps/web/.env.local` ONLY | Never add to mobile, never commit to git |
 | Firebase Admin SDK | `apps/web/.env.local` ONLY | Never add to mobile workspace |
 | Loops API Key | `apps/web/.env.local` ONLY | Never add to mobile workspace |

@@ -1,19 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+const String _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const String _supabaseKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 Future<void> initSupabase() async {
-  final url = dotenv.env['SUPABASE_URL'];
-  final key = dotenv.env['SUPABASE_ANON_KEY'];
-
-  if (url == null || url.isEmpty || key == null || key.isEmpty) {
+  if (_supabaseUrl.isEmpty || _supabaseKey.isEmpty) {
     throw Exception(
-      'Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env file. '
-      'Copy .env.sample to .env and fill in your credentials.',
+      'Missing SUPABASE_URL or SUPABASE_ANON_KEY. '
+      'Pass them via --dart-define or --dart-define-from-file=dev.json '
+      '(copy dev.json.sample to dev.json).',
     );
   }
 
-  await Supabase.initialize(url: url, publishableKey: key);
+  await Supabase.initialize(url: _supabaseUrl, publishableKey: _supabaseKey);
 }
 
 SupabaseClient? _debugSupabaseOverride;
