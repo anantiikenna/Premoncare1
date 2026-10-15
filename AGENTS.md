@@ -362,7 +362,7 @@ Rules of engagement:
 2. `withSecurity` route-handler tests: 403 role mismatch, 429 rate limit, XSS sanitization, JWT-sourced identity
 3. Mobile `router.dart` redirect rules (admin 3-layer block) via widget test
 4. HIPAA inactivity timers: `InactivityDetector` (mobile) + `InactivityProvider` (web) with `fake_async` — **done**
-5. Emergency flow math/state: 5× price formula (**done**), 3-min accept timeout → `emergency_declined`, payment gate
+5. Emergency flow math/state: 5× price formula, 3-min accept timeout → `emergency_declined`, payment gate (**done**) — `emergency-waiting.test.tsx` + `emergency_appointment_model_test.dart`
 6. `audit.ts` log shape (no PHI, `user_id` field) — **done**; GDPR export/delete RPC wrappers
 7. Providers: `appointment_provider` status mapping, `verification_provider` wizard payload, `forum`/`messaging`/`records` (record_permissions scoping)
 
