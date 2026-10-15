@@ -33,6 +33,14 @@ jobs:
         working-directory: apps/mobile
     steps:
       - uses: actions/checkout@v4
+      - name: Create .env (declared pubspec asset)
+        run: |
+          cat > .env <<EOF
+          SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          FIREBASE_PROJECT_ID=premoncare-firebase-fbsvc
+          API_BASE_URL=https://premoncare.netlify.app
+          EOF
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.0'
@@ -50,6 +58,14 @@ jobs:
         working-directory: apps/mobile
     steps:
       - uses: actions/checkout@v4
+      - name: Create .env (declared pubspec asset)
+        run: |
+          cat > .env <<EOF
+          SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          FIREBASE_PROJECT_ID=premoncare-firebase-fbsvc
+          API_BASE_URL=https://premoncare.netlify.app
+          EOF
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
