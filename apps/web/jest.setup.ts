@@ -7,11 +7,33 @@ if (typeof globalThis.Request === 'undefined') {
     method: string
     init?: RequestInit
     headers: Headers
+    _bodyText: string | null
     constructor(url: string | URL, init?: RequestInit) {
       this.url = typeof url === 'string' ? url : url.toString()
       this.method = (init?.method ?? 'GET').toUpperCase()
       this.init = init
       this.headers = new Headers(init?.headers)
+      const body = (init as { body?: unknown } | undefined)?.body
+      this._bodyText = body == null ? null : typeof body === 'string' ? body : String(body)
+    }
+    json() {
+      if (this._bodyText == null) {
+        return Promise.reject(new TypeError('Could not parse body as JSON'))
+      }
+      try {
+        return Promise.resolve(JSON.parse(this._bodyText))
+      } catch (e) {
+        return Promise.reject(e)
+      }
+    }
+    text() {
+      return Promise.resolve(this._bodyText ?? '')
+    }
+    clone() {
+      return new (this.constructor as typeof Request)(this.url, {
+        ...this.init,
+        body: this._bodyText ?? undefined,
+      })
     }
   } as unknown as typeof Request
 }
