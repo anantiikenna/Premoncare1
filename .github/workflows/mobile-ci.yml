@@ -34,7 +34,7 @@ jobs:
       - run: flutter analyze --no-fatal-infos
 
   test:
-    name: Test
+    name: Mobile Test
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -398,9 +398,9 @@ GitHub Actions runs on every push to `main`/`develop` and on every PR to `main`.
 1. Branch off `main` with a namespaced name: `feature/…`, `fix/…`, `test/…` (e.g. `test/verification-suite`).
    - **Why `/`, not `_`:** `/` is git's namespace separator — the ecosystem convention (git-flow, GitHub, GitLab). It groups branches by type in `git branch`, PR lists, and CI. Branch names are not files, so file naming rules (snake_case) do not apply. `test_verification-suite` works but is off-convention.
 2. Push the branch → open a PR into `main`.
-3. CI runs ALL jobs on EVERY PR (no path filters): Web CI — `Lint`, `Type Check`, `Test` (Jest incl. security suites + ratcheted coverage gates), `Build`; Mobile CI — `Analyze`, `Test`, `Build Android`.
+3. CI runs ALL jobs on EVERY PR (no path filters): Web CI — `Lint`, `Type Check`, `Test` (Jest incl. security suites + ratcheted coverage gates), `Build`; Mobile CI — `Analyze`, `Mobile Test`, `Build Android`.
 4. All checks green → merge the PR. Any check red → fix on the same branch and push; CI re-runs. **Never merge red.**
-5. Branch protection (GitHub → Settings → Branches → rule for `main`): require a PR before merging, require status checks `Lint`, `Type Check`, `Test`, `Build`, `Analyze`, `Build Android`, disallow bypass, no force-pushes.
+5. Branch protection (GitHub → Settings → Branches → rule for `main`): require a PR before merging, require status checks `Lint`, `Type Check`, `Test`, `Build`, `Analyze`, `Mobile Test`, `Build Android`, disallow bypass, no force-pushes.
 
 ### Error Handling Convention
 ```
