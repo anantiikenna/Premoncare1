@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:collection/collection.dart';
 import '../../core/app_colors.dart';
-import '../../l10n/app_localizations.dart';
 import 'appointment_provider.dart';
 
 

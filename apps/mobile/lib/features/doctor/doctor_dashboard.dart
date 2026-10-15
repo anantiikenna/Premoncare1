@@ -141,7 +141,7 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
     }
 
     try {
-      final response = await supabase.from('profiles').update({
+      await supabase.from('profiles').update({
         'is_online': newStatus,
         'last_seen': DateTime.now().toUtc().toIso8601String(),
       }).eq('id', userId).select();
@@ -479,20 +479,6 @@ class _DoctorDashboardState extends ConsumerState<DoctorDashboard> {
               _buildGlassButton('Analytics', Icons.bar_chart_rounded, () => context.push('/doctor/earnings')),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMainCardChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: AppColors.textInverse.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 14),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: AppColors.textInverse, fontSize: 11, fontWeight: FontWeight.w900)),
         ],
       ),
     );

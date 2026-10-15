@@ -336,7 +336,7 @@ Rules of engagement:
 - **Security-sensitive changes** (auth, roles, payments, middleware, RLS-adjacent queries) require tests at BOTH layers: automated test + manual verification of the DB policy.
 - **Never delete, skip, or `it.skip` an existing test to get green.** Fix the code or fix the test — deleting coverage is a regression.
 - Run the **affected** suites before committing: touch `apps/web` → jest; touch `apps/mobile` → flutter test; touch both → both (sequentially, see quirks below).
-- Coverage gates are real: `npm run test -- --coverage --ci` enforces 30% branches/functions/lines in CI. Untested new code pulls the ratio down — add tests in the same PR.
+- Coverage gates are real: `npm run test -- --coverage --ci` enforces the ratcheted floor (currently 6% statements/branches/lines, 4% functions — RAISE the numbers when you add substantial tests, never lower them). Untested new code pulls the ratio down — add tests in the same PR.
 
 #### Verified Test Commands & Environment Quirks (this machine/repo)
 - **Web:** from `apps/web`: `$env:CI='true'; npx jest --ci --runInBand --forceExit --silent` — plain `npm run test` can hang (watch mode/stderr pipe). Redirect output to a temp file on slow machines.
@@ -369,12 +369,12 @@ Rules of engagement:
 **Agent rule:** When adding a new feature, always check for existing test patterns in the codebase. Match the existing test framework and conventions. Never remove existing tests. When you discover a new test-runner quirk, document it in this section.
 
 ### CI/CD Gates
-GitHub Actions runs on every push to `main`/`develop` and all PRs:
+GitHub Actions runs on every push to `main`/`develop` and on every PR to `main`. The `pull_request` triggers intentionally carry **no path filters** so every required check reports on every PR (path-filtered runs would leave required checks pending and block merges):
 
 **Web (`.github/workflows/web-ci.yml`):**
 1. `npm run lint` — ESLint with zero warnings
 2. `npm run typecheck` — TypeScript strict mode
-3. `npm run test -- --coverage --ci` — Jest with coverage thresholds (30% branches/functions/lines)
+3. `npm run test -- --coverage --ci` — Jest with ratcheted coverage thresholds (6% statements/branches/lines, 4% functions)
 4. `npm run build` — Next.js production build
 
 **Mobile (`.github/workflows/mobile-ci.yml`):**
@@ -391,6 +391,16 @@ GitHub Actions runs on every push to `main`/`develop` and all PRs:
 - `make ci` — runs lint + typecheck + test + build for web
 - `make lint` — runs all linters
 - `make test` — runs all tests
+
+**Branch Verification Workflow (CI/CD-gated merges):**
+`main` is protected — the ONLY path for changes to land is a pull request whose CI run is fully green. Red checks = the work stays on its branch; it never reaches `main`.
+
+1. Branch off `main` with a namespaced name: `feature/…`, `fix/…`, `test/…` (e.g. `test/verification-suite`).
+   - **Why `/`, not `_`:** `/` is git's namespace separator — the ecosystem convention (git-flow, GitHub, GitLab). It groups branches by type in `git branch`, PR lists, and CI. Branch names are not files, so file naming rules (snake_case) do not apply. `test_verification-suite` works but is off-convention.
+2. Push the branch → open a PR into `main`.
+3. CI runs ALL jobs on EVERY PR (no path filters): Web CI — `Lint`, `Type Check`, `Test` (Jest incl. security suites + ratcheted coverage gates), `Build`; Mobile CI — `Analyze`, `Mobile Test`, `Build Android`.
+4. All checks green → merge the PR. Any check red → fix on the same branch and push; CI re-runs. **Never merge red.**
+5. Branch protection (GitHub → Settings → Branches → rule for `main`): require a PR before merging, require status checks `Lint`, `Type Check`, `Test`, `Build`, `Analyze`, `Mobile Test`, `Build Android`, disallow bypass, no force-pushes.
 
 ### Error Handling Convention
 ```
@@ -463,5 +473,5 @@ Database errors: Never expose raw Supabase error messages to client
 - Commit messages: `type(scope): description` (e.g., `fix(mobile): avatar upload RLS path`)
 - Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `perf`
 - Never commit `.env` files, secrets, or API keys
-- Branch naming: `feature/short-description`, `fix/short-description`
+- Branch naming: `feature/short-description`, `fix/short-description`, `test/short-description` (e.g., `test/verification-suite`) — `/` is a namespace separator (git convention), not snake_case; branch names are not files
 - Always run lint/typecheck before committing
