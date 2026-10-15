@@ -47,7 +47,7 @@ The core Next.js project uses `apps/web/src/proxy.ts` (formerly `middleware.ts`)
 ## AI Build Diagnostics
 - **FCM Notifications**: Backend logic for push notifications resides in `apps/web/src/lib/notification-service.ts`.
 - **Transactional Emails (Loops)**: The backend unifies Push and Email notifications. When a payload sets `send_email: true`, the service fetches the user's secure email from `auth.users` via Supabase Admin API and dispatches an email via `loops`. **Requires `LOOPS_API_KEY` in `apps/web/.env`**.
-- **Security Boundary**: **Firebase Admin SDK keys (Private Key, etc.) and Loops API keys MUST NEVER be added to `apps/mobile` or `.env` files in that workspace.** They are strictly server-side credentials and must only reside in `apps/web`.
+- **Security Boundary**: **Firebase Admin SDK keys (Private Key, etc.) and Loops API keys MUST NEVER be added to `apps/mobile` or its config files (`.env`, `dev.json`).** They are strictly server-side credentials and must only reside in `apps/web`. Mobile config is injected at compile time via `--dart-define` (`dev.json` → `--dart-define-from-file`) — never as a bundled asset.
 - **Token Sync**: Mobile clients only retrieve and sync their `fcm_token` to the Supabase `profiles` table. For push notifications (admin broadcasts, emergency alerts), mobile dispatches via the web API `/api/notifications/dispatch` to leverage Firebase Admin SDK server-side. Mobile never holds Firebase credentials.
 
 ## AI Build Diagnostics
@@ -177,7 +177,7 @@ SOC 2 applies to cloud infrastructure providers, not directly to Premoncare. How
 ### Secrets Management
 | Secret | Location | NEVER |
 |---|---|---|
-| Supabase Anon Key | `apps/web/.env.local`, `apps/mobile` (public) | Never expose to server-side admin operations |
+| Supabase Anon Key | `apps/web/.env.local`, `apps/mobile/dev.json` (public) | Never expose to server-side admin operations |
 | Supabase Service Role Key | `apps/web/.env.local` ONLY | Never add to mobile, never commit to git, never expose in client bundles |
 | Firebase Admin SDK | `apps/web/.env.local` ONLY | Never add to mobile workspace |
 | Loops API Key | `apps/web/.env.local` ONLY | Never add to mobile workspace |
