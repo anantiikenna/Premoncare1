@@ -601,8 +601,8 @@ After completing any change that affects the user experience, agents MUST perfor
 
 #### Test Priority Backlog (highest value first)
 1. Middleware/session guards: `proxy.ts`, `supabase-middleware.ts`, `role-redirect.ts` (admin blocking, role cookie caching, matcher excludes `/api/`) — **done**
-2. `withSecurity` route-handler tests: 403 role mismatch, 429 rate limit, XSS sanitization, JWT-sourced identity
-3. Mobile `router.dart` redirect rules (admin 3-layer block) via widget test
+2. `withSecurity` route-handler tests: 403 role mismatch, 429 rate limit, XSS sanitization, JWT-sourced identity — **done** (`with-security.test.ts`: CORS/preflight, 60/min rate limit + rightmost-XFF keying + webhook bypass, 401 no-session/Bearer-fallback, 403 role mismatch + missing profile, JWT-sourced identity vs attacker body, 500 without stack leak; `security.test.ts`: `sanitizeInput`/`sanitizeObject` XSS suite)
+3. Mobile `router.dart` redirect rules (admin 3-layer block) via widget test — **on hold (per maintainer)**
 4. HIPAA inactivity timers: `InactivityDetector` (mobile) + `InactivityProvider` (web) with `fake_async` — **done**
 5. Emergency flow math/state: 5× price formula, 3-min accept timeout → `emergency_declined`, payment gate (**done**) — `emergency-waiting.test.tsx` + `emergency_appointment_model_test.dart`
 6. `audit.ts` log shape (no PHI, `user_id` field) — **done**; GDPR export/delete RPC wrappers — **done** (`user-gdpr-routes.test.ts`: JWT-sourced identity, IDOR guard, 429/403 passthroughs, no DB-detail leaks)
