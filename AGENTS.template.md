@@ -131,7 +131,7 @@ raw handler → reads userId from request body → trusts client-supplied data
 
 ## Continuous Data-Reflection Audit & UI/UX Test Procedure
 
-**Use for:** every change that touches data (queries, schemas, statuses, APIs, derived counts, labels) — and for UI changes. Run this procedure top to bottom. Nothing ships until Step 5 is green.
+**Use for:** every change that touches data (queries, schemas, statuses, APIs, derived counts, labels) — and for UI changes. Run this procedure top to bottom. Nothing ships until Step 5 is green. **The visual pass is part of the loop for every UI/UX change:** any change that alters rendered UI must also complete Step 6 (UI/UX Testing — responsive/theme/states/visual diff) before it is called done — audit UI/UX the same way you audit data.
 
 ---
 
@@ -211,6 +211,8 @@ Rules of engagement:
 - If a shell command hangs/timeouts: retry once, then redirect output to a temp file and read it (`cmd *> out.txt; echo $LASTEXITCODE`).
 
 ### STEP 6 — UI/UX TESTING (live app, per the skill fetched in Step 4)
+
+**The visual pass is now part of the loop for UI/UX changes** — Step 6 is mandatory (not optional polish) whenever rendered UI changes. A UI/UX change is incomplete until the visual pass below has been run and recorded in the audit log (see "Visual Pass" in the Audit Log Template):
 
 - **E2E happy path** against the real app (build+start, not dev): login → navigate → select record → verify detail → perform action → verify the record appears. Assert **on user-visible text**, not internals.
 - **Data-parity assertion (the critical one):** for each dashboard/list number, fetch the same count from the database/API in the test and assert equality. This is what catches "page reads empty legacy table" bugs.
@@ -480,6 +482,7 @@ When starting ANY task in this codebase:
 - [ ] Update `CHANGELOG.md` if the change is user-facing
 - [ ] Never commit secrets or PHI
 - [ ] **Run the mandatory audit phase** (see "Mandatory Audit Phase" above)
+- [ ] **Audit UI/UX** — the visual pass is part of the loop: run Step 6 (responsive/theme/states/visual diff) for every UI/UX change
 - [ ] **Run the mandatory walk-through** (see "Mandatory Walk-Through" above)
 - [ ] **Verify zero type/lint errors before committing**
 - [ ] **Commit with descriptive message** following `type(scope): description` convention
@@ -501,6 +504,7 @@ After completing a task, document what was verified:
 - **Dark Mode:** [CSS variables verified/not applicable]
 - **Stream Cleanup:** [subscriptions cancelled/not applicable]
 - **Error Handling:** [no empty catch blocks verified]
+- **Visual Pass (UI/UX changes):** [pass/fail/N/A — responsive 320/360/768/1280, light+dark theme, loading/empty/error states, visual diff reviewed]
 - **Walk-Through:** [pass/fail — issues found or "no issues"]
 ```
 

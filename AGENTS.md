@@ -359,7 +359,7 @@ export const POST = async (req) => {
 
 ## Continuous Data-Reflection Audit & UI/UX Test Procedure
 
-**Use for:** every change that touches data (queries, schemas, statuses, APIs, derived counts, labels) — and for UI changes. Run this procedure top to bottom. Nothing ships until Step 5 is green.
+**Use for:** every change that touches data (queries, schemas, statuses, APIs, derived counts, labels) — and for UI changes. Run this procedure top to bottom. Nothing ships until Step 5 is green. **The visual pass is part of the loop for every UI/UX change:** any change that alters rendered UI must also complete Step 6 (UI/UX Testing — responsive/theme/states/visual diff) before it is called done — audit UI/UX the same way you audit data.
 
 ### STEP 1 — FIND THE SOURCE OF TRUTH (before writing code)
 
@@ -436,6 +436,8 @@ Rules of engagement:
 - If a shell command hangs/timeouts: retry once, then redirect output to a temp file and read it (`cmd *> out.txt; echo $LASTEXITCODE`). Never run web + mobile suites in parallel.
 
 ### STEP 6 — UI/UX TESTING (live app, per the skill fetched in Step 4)
+
+**The visual pass is now part of the loop for UI/UX changes** — Step 6 is mandatory (not optional polish) whenever rendered UI changes. A UI/UX change is incomplete until the visual pass below has been run and recorded in the audit log (see "Visual Pass" in the Audit Log Template):
 
 - **E2E happy path** against the real app (build+start, not dev): login → navigate → select record → verify detail → perform action → verify the record appears. Assert **on user-visible text**, not internals.
 - **Data-parity assertion (the critical one):** for each dashboard/list number, fetch the same count from the database/API in the test and assert equality. This is what catches "page reads empty legacy table" bugs.
@@ -590,6 +592,7 @@ After completing any change that affects the user experience, agents MUST perfor
 - **Jitsi web mock:** set `(window as any).JitsiMeetExternalAPI = MockClass` in `beforeEach`, `delete` it in `afterEach`; also stub `HTMLMediaElement.prototype.play/pause` (jsdom lacks them).
 - **Supabase builder fakes (mobile):** fakes of the postgrest chain must match the *declared* return types (`SupabaseQueryBuilder.select` → `PostgrestFilterBuilder<PostgrestList>`, not a transform builder — a mismatch fails only at runtime via noSuchMethod forwarder type-checks, and `Notifier.build`'s async fetches SWALLOW it). Never cast `then` callbacks to `FutureOr Function(dynamic)` (contravariance makes it throw); call them via dynamic dispatch. One class cannot implement two instantiations of `RawPostgrestBuilder` (`Future<List>` vs `Future<Map>` conflict) — split into filter/transform/map fakes over a shared recorder. See `verification_provider_test.dart`.
 - **Riverpod 3 + instant fakes:** `container.read()` yields to microtasks before the element's state is set, so an unawaited fetch started in `Notifier.build` that resolves on a microtask can read `state` BEFORE init (throws "uninitialized provider", often swallowed by the provider's own catch). Builder fakes must resolve on the EVENT queue (`Future.delayed(Duration.zero, ...)`) — microtask resolution (`Future.value`) lands inside the init window; a real network never does.
+- **Typed `then` beats noSuchMethod for postgrest fakes:** a `then` answered through `noSuchMethod` always returns runtime `Future<dynamic>`, which fails strict subtype checks inside `Future.wait` (`Future<dynamic>` is not `Future<Null>`/`Future<List<…>>`). Implement `then` as a real override returning a genuinely-typed future (`Future<PostgrestList>.delayed(...).then(onValue)`) on every fake the production code awaits, and keep `noSuchMethod` only for the unawaited chain members (`eq`/`insert`/`single`/…). Also: `Future.wait` over autoDispose stream hydration + instant fakes requires an active `container.listen` subscription while awaiting `provider.future`, or the element disposes during loading ("provider was disposed during loading state").
 
 #### Cross-Platform Contracts Pinned by Tests
 - **Jitsi room name:** `PremonCare-{appointmentId}` on `https://8x8.vc` — enforced by BOTH `apps/mobile/test/meeting_room_test.dart` and `apps/web/src/__tests__/components/meeting-room.test.tsx`. Renaming rooms or changing servers requires editing the mobile builder, the web component, and both tests in the same commit.
@@ -603,7 +606,7 @@ After completing any change that affects the user experience, agents MUST perfor
 4. HIPAA inactivity timers: `InactivityDetector` (mobile) + `InactivityProvider` (web) with `fake_async` — **done**
 5. Emergency flow math/state: 5× price formula, 3-min accept timeout → `emergency_declined`, payment gate (**done**) — `emergency-waiting.test.tsx` + `emergency_appointment_model_test.dart`
 6. `audit.ts` log shape (no PHI, `user_id` field) — **done**; GDPR export/delete RPC wrappers — **done** (`user-gdpr-routes.test.ts`: JWT-sourced identity, IDOR guard, 429/403 passthroughs, no DB-detail leaks)
-7. Providers: `appointment_provider` status mapping, `verification_provider` wizard payload — **done** (`verification_provider_test.dart`: wizard step machine, consultation-mode toggle, submit payload contract with JWT-sourced id, storage bucket routing, status hydration); `forum`/`messaging`/`records` (record_permissions scoping) — remaining
+7. Providers: `appointment_provider` status mapping, `verification_provider` wizard payload — **done** (`verification_provider_test.dart`: wizard step machine, consultation-mode toggle, submit payload contract with JWT-sourced id, storage bucket routing, status hydration); `forum`/`messaging`/`records` (record_permissions scoping) — **done** (`records_forum_messaging_test.dart`: MedicalRecord/ForumPost/Message `fromJson` contracts, patient vs doctor records scoping, forum visibility (approved OR own-pending), chat two-party filter, conversationsProvider inbox grouping, service write contracts for upload/toggleAuthorization/createPost/toggleSavePost/upvotePost RPC/sendMessage/markAsRead; JWT-sourced ids, no PHI in logs, guest no-ops)
 
 **Agent rule:** When adding a new feature, always check for existing test patterns in the codebase. Match the existing test framework and conventions. Never remove existing tests. When you discover a new test-runner quirk, document it in this section.
 
@@ -758,6 +761,7 @@ When starting ANY task in this codebase:
 - [ ] Update `CHANGELOG.md` if the change is user-facing
 - [ ] Never commit secrets or PHI
 - [ ] **Run the Continuous Data-Reflection Audit** (source of truth + 10-layer blast matrix)
+- [ ] **Audit UI/UX** — the visual pass is part of the loop: run Step 6 (responsive/theme/states/visual diff) for every UI/UX change
 - [ ] **Run the mandatory walk-through** for user-facing changes
 - [ ] **Verify zero type/lint errors before committing**
 - [ ] **Commit with descriptive message** following `type(scope): description` convention
@@ -778,6 +782,7 @@ After completing a task, document what was verified:
 - **Dark Mode:** [CSS variables verified/not applicable]
 - **Stream Cleanup:** [subscriptions cancelled/not applicable]
 - **Error Handling:** [no empty catch blocks verified]
+- **Visual Pass (UI/UX changes):** [pass/fail/N/A — responsive 320/360/768/1280, light+dark theme, loading/empty/error states, visual diff reviewed]
 - **Walk-Through:** [pass/fail — issues found or "no issues"]
 ```
 
