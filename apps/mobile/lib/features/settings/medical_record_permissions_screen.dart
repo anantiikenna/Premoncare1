@@ -26,11 +26,14 @@ class _MedicalRecordPermissionsScreenState extends ConsumerState<MedicalRecordPe
   Future<void> _loadPermissions() async {
     try {
       final user = supabase.auth.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        if (!mounted) return;
+        setState(() => _loading = false);
+        return;
+      }
       final result = await supabase
           .from('record_permissions')
-          .select('*, profiles!record_permissions_doctor_id_fkey(full_name, specialty)')
-          .eq('patient_id', user.id);
+          .select('*, profiles!record_permissions_doctor_id_fkey(full_name, specialty)');
       if (!mounted) return;
       setState(() {
         _permissions = List<Map<String, dynamic>>.from(result as List);
