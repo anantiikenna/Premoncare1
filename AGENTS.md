@@ -351,6 +351,8 @@ Rules of engagement:
 - **Supabase mocks:** chain shape is `from() → select()/update() → eq()/maybeSingle()` — mock every link the code touches.
 - **Flutter widget-test harness order (load-bearing):** in `setUpAll`: `SharedPreferences.setMockInitialValues({})` **before** `Supabase.initialize(url: ..., anonKey: 'test-anon-key')`; wrap `ProviderScope(overrides: [initialThemeModeProvider.overrideWith(...)])` around pumped widgets so system theme can't flip assertions.
 - **Jitsi web mock:** set `(window as any).JitsiMeetExternalAPI = MockClass` in `beforeEach`, `delete` it in `afterEach`; also stub `HTMLMediaElement.prototype.play/pause` (jsdom lacks them).
+- **Supabase builder fakes (mobile):** fakes of the postgrest chain must match the *declared* return types (`SupabaseQueryBuilder.select` → `PostgrestFilterBuilder<PostgrestList>`, not a transform builder — a mismatch fails only at runtime via noSuchMethod forwarder type-checks, and `Notifier.build`'s async fetches SWALLOW it). Never cast `then` callbacks to `FutureOr Function(dynamic)` (contravariance makes it throw); call them via dynamic dispatch. One class cannot implement two instantiations of `RawPostgrestBuilder` (`Future<List>` vs `Future<Map>` conflict) — split into filter/transform/map fakes over a shared recorder. See `verification_provider_test.dart`.
+- **Riverpod 3 + instant fakes:** `container.read()` yields to microtasks before the element's state is set, so an unawaited fetch started in `Notifier.build` that resolves on a microtask can read `state` BEFORE init (throws "uninitialized provider", often swallowed by the provider's own catch). Builder fakes must resolve on the EVENT queue (`Future.delayed(Duration.zero, ...)`) — microtask resolution (`Future.value`) lands inside the init window; a real network never does.
 
 #### Cross-Platform Contracts Pinned by Tests
 - **Jitsi room name:** `PremonCare-{appointmentId}` on `https://8x8.vc` — enforced by BOTH `apps/mobile/test/meeting_room_test.dart` and `apps/web/src/__tests__/components/meeting-room.test.tsx`. Renaming rooms or changing servers requires editing the mobile builder, the web component, and both tests in the same commit.
@@ -364,7 +366,7 @@ Rules of engagement:
 4. HIPAA inactivity timers: `InactivityDetector` (mobile) + `InactivityProvider` (web) with `fake_async` — **done**
 5. Emergency flow math/state: 5× price formula, 3-min accept timeout → `emergency_declined`, payment gate (**done**) — `emergency-waiting.test.tsx` + `emergency_appointment_model_test.dart`
 6. `audit.ts` log shape (no PHI, `user_id` field) — **done**; GDPR export/delete RPC wrappers — **done** (`user-gdpr-routes.test.ts`: JWT-sourced identity, IDOR guard, 429/403 passthroughs, no DB-detail leaks)
-7. Providers: `appointment_provider` status mapping, `verification_provider` wizard payload, `forum`/`messaging`/`records` (record_permissions scoping)
+7. Providers: `appointment_provider` status mapping, `verification_provider` wizard payload — **done** (`verification_provider_test.dart`: wizard step machine, consultation-mode toggle, submit payload contract with JWT-sourced id, storage bucket routing, status hydration); `forum`/`messaging`/`records` (record_permissions scoping) — remaining
 
 **Agent rule:** When adding a new feature, always check for existing test patterns in the codebase. Match the existing test framework and conventions. Never remove existing tests. When you discover a new test-runner quirk, document it in this section.
 
