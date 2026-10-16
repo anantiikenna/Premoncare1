@@ -1,8 +1,46 @@
-# AI Agents Configuration (Premon Care)
+# AI Agents Configuration — Premon Care
 
-This project is structured as a **Monorepo (npm workspaces)** with frontend clients separated into web and mobile workspaces.
+> **Purpose:** This file tells AI agents how to work in this codebase. Every agent MUST read this file before making changes. Update this file when the project evolves.
+
+## Project Overview
+
+- **Name:** Premon Care (Premoncare)
+- **Description:** Telehealth platform connecting patients with verified doctors — appointments, emergency consultations, video visits, medical records, messaging, and a social forum.
+- **Stack:** Next.js 16 (web) + Flutter (mobile) + Supabase (PostgreSQL, Auth, Storage, Realtime)
+- **Monorepo:** Yes — npm workspaces (`apps/*`, `packages/*`)
+- **Domain:** Healthcare (HIPAA / GDPR apply — see Compliance section)
+
+---
 
 ## Project Architecture
+
+### Directory Structure
+```
+/
+├── apps/
+│   ├── web/          # Next.js 16 (App Router + Proxy)
+│   └── mobile/       # Flutter (flavors: user, admin)
+├── packages/         # Shared libraries
+├── supabase/         # Database schema, migrations
+│   ├── schema.sql    # Single source of truth for DB (fresh install)
+│   └── update_live.sql  # Cumulative live migrations
+└── AGENTS.md         # This file
+```
+
+### Tech Stack
+| Layer | Technology | Notes |
+|---|---|---|
+| **Frontend (Web)** | Next.js 16.2.1 | App Router + `proxy.ts` (session boundary) |
+| **Frontend (Mobile)** | Flutter | Flavors: `user` (patients/doctors), `admin` |
+| **Backend** | Supabase (self-hosted on Coolify) | Auth, DB, Storage, Realtime |
+| **Database** | PostgreSQL | RLS enabled on every table |
+| **Push Notifications** | FCM | Server-side only (Firebase Admin SDK in web) |
+| **Email** | Loops | Transactional (server-side only) |
+| **Deployment (Web)** | Netlify | CI/CD via GitHub Actions |
+| **Deployment (Mobile)** | Manual APK / Firebase-ready | Flavor-based binaries |
+| **Payments** | Manual P2P receipt upload | Digital gateways (Dodo, Paystack) disabled |
+
+### Project Architecture (summary)
 - **Monorepo**: Root `package.json` utilizing npm workspaces (`apps/*`, `packages/*`).
 - **Web App (`apps/web`)**: Next.js 16.2.1 (App Router + Proxy).
 - **Mobile App (`apps/mobile`)**: Flutter.
@@ -14,8 +52,33 @@ This project is structured as a **Monorepo (npm workspaces)** with frontend clie
 The core Next.js project uses `apps/web/src/proxy.ts` (formerly `middleware.ts`) for session management and route protection.
 
 ## Context for Agents
-- **Session Handling**: Next.js uses `apps/web/src/proxy.ts` -> `apps/web/src/lib/supabase-middleware.ts`. **Performance Rule**: Middleware matcher must exclude `/api/` routes (since `withSecurity` protects them). Middleware caches the user role in a `premon_role` cookie to eliminate redundant database queries on page loads. Agents must preserve this caching architecture.
+
+### What You Must Know Before Changing Code
+
+1. **Data flows through multiple layers.** A change to the database schema affects Supabase, the web API, and the mobile client. Always check all three.
+2. **RLS is the primary security boundary.** Application code can have bugs. RLS policies cannot be bypassed by application bugs. Always verify RLS when touching data access.
+3. **Realtime is event-driven.** Many features depend on Supabase Realtime subscriptions (appointments, emergency handshake, messaging, forum). Adding a new table or column for real-time sync requires adding it to the Realtime publication and setting `REPLICA IDENTITY FULL`.
+4. **Secrets have strict boundaries.** Server-side keys (Firebase Admin SDK, Loops API key, service role key) MUST NEVER exist in client-side code. Mobile never holds server credentials.
+5. **Admin is isolated.** Admin users are blocked from patient/doctor interfaces at 3 layers (login, splash/router on mobile; middleware, login form, route redirects on web). Never route admin users through patient/doctor flows.
+
+### API Security Pattern
+Every API route MUST use the security wrapper:
+```ts
+// ALWAYS
+export const POST = withSecurity(async (req, { sessionUser }) => { /* role-checked, JWT-sourced id */ })
+
+// NEVER
+export const POST = async (req) => { const { userId } = await req.json() /* UNTRUSTED */ }
+```
+
+### Session Handling
+- **Authentication Method:** Email + password via Supabase Auth. Sessions are managed through `@supabase/ssr` cookies on web and the Supabase client on mobile.
+- Web: `apps/web/src/proxy.ts` → `apps/web/src/lib/supabase-middleware.ts` validates sessions on every request. **Performance Rule**: Middleware matcher must exclude `/api/` routes (since `withSecurity` protects them) and cache the user role in a `premon_role` cookie to prevent redundant DB queries.
+- Mobile: Supabase client with anon key + RLS only.
+- Session tokens live in httpOnly cookies on web (via `@supabase/ssr`) — never in `localStorage`.
 - **Inactivity Timeout**: Both Web (`InactivityProvider`) and Mobile (`InactivityDetector`) implement a strict 15-minute inactivity auto-logout to comply with HIPAA. The timers are tied to active Supabase sessions and reset via user pointer/keyboard events.
+
+### Core domain rules
 - **API Endpoints**: Any core API route (`apps/web/src/app/api/...`) MUST be wrapped in the `withSecurity` higher-order function from `apps/web/src/lib/security.ts` to enforce Rate Limiting, strict CORS, and Role-Based Access checking. Never read sensitive IDs directly from the request body—extract them securely from the `sessionUser` parameter.
 - **Input Validation**: Use `zod` and `isomorphic-dompurify` integrated in `security.ts` to guarantee payload sanitization against server-side XSS.
 - **Data Fetching**: Prefer Server Components in the web app with `createServerClient` from `apps/web/src/lib/supabase-server.ts`.
@@ -44,14 +107,98 @@ The core Next.js project uses `apps/web/src/proxy.ts` (formerly `middleware.ts`)
     ```
   - Without these explicit grants, the Flutter client and Next.js web app (via `supabase-js`) will fail with a `42501` permission denied error when attempting to query the tables.
 
+## Data Architecture
+
+### Database Schema — SQL File Management Rule
+
+**Only two SQL files are maintained for schema management:**
+
+```
+supabase/schema.sql      → Fresh install (full schema from scratch)
+supabase/update_live.sql → Existing DB  (safe incremental migration)
+```
+
+#### schema.sql
+- Contains the complete database schema for a new installation
+- Includes: extensions, enums, tables, indexes, RLS policies, triggers, functions
+- Run once when setting up a new database
+- After running, execute `supabase/mock_data.sql` for demo data
+
+#### update_live.sql
+- Safe to re-run on an existing database
+- Uses `IF NOT EXISTS`, `ON CONFLICT DO NOTHING`, and exception handling (`EXCEPTION WHEN duplicate_object THEN NULL`)
+- Adds new enums, columns, tables, RLS, triggers, indexes
+- Migrates existing data when adding new columns
+
+#### Mock data files
+```
+supabase/mock_data.sql  → Demo/seed data (run after schema.sql)
+supabase/cleanup.sql    → Removes demo data (keeps schema)
+```
+
+#### What NOT to do
+- Do NOT create standalone migration files (e.g., `003_add_feature.sql`)
+- Do NOT create numbered migration files (e.g., `001_initial.sql`, `002_rls.sql`)
+- Do NOT create temporary migration files for individual features
+- Every schema change goes into **schema.sql** (fresh) AND **update_live.sql** (incremental)
+
+#### Pattern for adding a new feature to SQL
+
+When adding a new table/column/enum:
+
+1. **schema.sql** — add the full definition in the correct section (enums, tables, RLS, triggers)
+2. **update_live.sql** — add the incremental version with `IF NOT EXISTS`, `DO $$ BEGIN ... EXCEPTION` blocks, and data migration
+3. **mock_data.sql** — add demo data if applicable
+4. **cleanup.sql** — add cleanup if applicable
+
+**In update_live.sql (incremental pattern):**
+```sql
+DO $$
+BEGIN
+  CREATE TYPE public.new_status AS ENUM ('A','B','C');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.new_table (
+  id uuid primary key default gen_random_uuid(),
+  ...
+);
+
+ALTER TABLE public.new_table ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  CREATE POLICY "new_table_select_auth"
+    ON public.new_table FOR SELECT TO authenticated USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+```
+
+**Also required for every new table (see Supabase Security section):**
+- Explicit `GRANT` statements for `anon` / `authenticated` / `service_role`
+- RLS policies covering all CRUD operations
+
+### Data Flow Pattern
+```
+User Action → Client UI → API/SDK → Database (RLS enforced) → Realtime (if applicable) → Other Clients
+```
+
+### Realtime Requirements
+For any table that needs real-time sync:
+1. Add `REPLICA IDENTITY FULL`
+2. Add to the `supabase_realtime` publication
+3. Add RLS policies for `SELECT` (authenticated users)
+4. Add client-side subscription filtering by relevant ID
+
+### Database change audit (summary)
+Full procedure: see the **Continuous Data-Reflection Audit** (Step 1: verify the source of truth against LIVE row counts; Step 2: build the blast-radius matrix across all 10 layers).
+
 ## AI Build Diagnostics
+- **Browser logs**: Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a web build error occurs, check the forwarded logs from the server-side build agent.
 - **FCM Notifications**: Backend logic for push notifications resides in `apps/web/src/lib/notification-service.ts`.
 - **Transactional Emails (Loops)**: The backend unifies Push and Email notifications. When a payload sets `send_email: true`, the service fetches the user's secure email from `auth.users` via Supabase Admin API and dispatches an email via `loops`. **Requires `LOOPS_API_KEY` in `apps/web/.env`**.
 - **Security Boundary**: **Firebase Admin SDK keys (Private Key, etc.) and Loops API keys MUST NEVER be added to `apps/mobile` or its config files (`.env`, `dev.json`).** They are strictly server-side credentials and must only reside in `apps/web`. Mobile config is injected at compile time via `--dart-define` (`dev.json` → `--dart-define-from-file`) — never as a bundled asset.
 - **Token Sync**: Mobile clients only retrieve and sync their `fcm_token` to the Supabase `profiles` table. For push notifications (admin broadcasts, emergency alerts), mobile dispatches via the web API `/api/notifications/dispatch` to leverage Firebase Admin SDK server-side. Mobile never holds Firebase credentials.
-
-## AI Build Diagnostics
-Built-in `browserLogForwarding` is enabled in `apps/web/next.config.ts`. If a web build error occurs, check the forwarded logs from the server-side build agent.
 
 ## Core Systems & Mobile Architecture
 - **Messaging & Sync**: Web and Mobile clients communicate through **Supabase Realtime**. The messaging system listens to the `messages` table and supports rich attachments (JSONB). The Social Forum uses a global `StreamProvider` to broadcast posts.
@@ -312,6 +459,41 @@ Rules of engagement:
 
 ## Engineering Discipline
 
+### Mandatory Audit Phase (Every Task)
+Before marking ANY task as complete, agents MUST complete this verification sequence:
+
+**Web (Next.js):**
+1. Run `npm run typecheck` (or `npx tsc --noEmit`) — zero errors required
+2. Run `npm run lint` (or `npx eslint src/`) — zero warnings required (ESLint is known to hang on this machine — flag it to the user, never skip silently)
+3. Run `npm run test` — all tests pass (required for **every** change: feature, bugfix, refactor or SQL — not only new features)
+4. Run `npm run build` — clean build required
+5. Verify no regressions in related components (check imports, shared types)
+
+**Mobile (Flutter):**
+1. Run `flutter analyze` — zero errors required (`--no-fatal-infos`; infos are tolerated, errors/warnings are not)
+2. Run `flutter test` — all tests pass
+3. Run `flutter build apk --flavor user --debug` — clean build
+4. Verify no regressions in related widgets/screens
+
+**Database (Supabase):**
+1. If schema changed: verify `GRANT` statements exist for new tables
+2. If new table: verify RLS policies cover all CRUD operations
+3. If Realtime needed: verify `REPLICA IDENTITY FULL` and publication membership
+4. Run affected queries in Supabase SQL Editor to verify RLS enforcement
+5. **Schema changes are only done when applied to a real database** — file edits alone do not migrate the DB. Apply `update_live.sql` (or `schema.sql` for fresh installs), then smoke-test the affected write/read path (e.g. insert + read back) so enum/column mismatches are caught immediately
+
+**Cross-cutting checks:**
+- [ ] No hardcoded URLs — use environment variables
+- [ ] No secrets in client-side code
+- [ ] No PHI/PII in console/logs
+- [ ] All new API routes wrapped in `withSecurity`
+- [ ] All new database tables have RLS + GRANTs
+- [ ] CSS uses CSS variables (not hardcoded colors) for dark mode support
+- [ ] Stream subscriptions stored and cancelled in `dispose()`/cleanup
+- [ ] Error handling: no empty catch blocks — log or surface errors
+
+**Agent rule:** Never claim a task is "done" without running the audit phase. If the analyzer/linter/build tool hangs, flag the issue to the user rather than skipping verification.
+
 ### Code Review Policy
 - All changes require review before merge to `main`
 - Security-sensitive changes (auth, payments, RLS, API routes) require 2 reviewers
@@ -337,6 +519,61 @@ Rules of engagement:
 - **Never delete, skip, or `it.skip` an existing test to get green.** Fix the code or fix the test — deleting coverage is a regression.
 - Run the **affected** suites before committing: touch `apps/web` → jest; touch `apps/mobile` → flutter test; touch both → both (sequentially, see quirks below).
 - Coverage gates are real: `npm run test -- --coverage --ci` enforces the ratcheted floor (currently 6% statements/branches/lines, 4% functions — RAISE the numbers when you add substantial tests, never lower them). Untested new code pulls the ratio down — add tests in the same PR.
+
+**Agent rule (feature completeness):** A feature is not done when its UI exists — it is done when tests prove the feature works AND its results actually surface everywhere users can see them. Every new feature must ship with end-to-end coverage of:
+1. **The core action** (create/book/upload/approve/delete) completing successfully.
+2. **Every reflection of that action** — counts, list rows, badges, labels, stat cards, empty states, exports, links/navigation and deep-link params that display or depend on the new data.
+3. **Data parity** — the test fetches the count/record from the API inside the test and asserts the UI shows the same value. Never hard-code record counts in tests (they break the moment real data changes).
+
+```text
+New feature
+   ↓
+Its core action has an E2E test (happy path)
+   ↓
+Every place the result is reflected (list/count/label/link) has an assertion
+   ↓
+Parity: UI value === API value (fetched inside the test)
+   ↓
+Test cleans up any records it created (never pollute shared/demo data)
+```
+
+For this product the E2E suite must additionally guard the domain-critical pipelines end-to-end: **emergency booking** (request → doctor accept/decline → price gate → checkout redirect), **video consultation** (room name `PremonCare-{appointmentId}` joins on both platforms), and **realtime messaging/forum** (subscription fires, message renders for the other party). Add equivalent pipeline guards for any new real-time or payment flow.
+
+### Mandatory Walk-Through (Every User-Facing Change)
+After completing any change that affects the user experience, agents MUST perform an end-to-end walk-through of the affected flow (this is the E2E gate — the repo has no automated `test:e2e` script).
+
+**Before walk-through:**
+- [ ] Dev server is running (`npm run dev` for web, `flutter run --flavor user --dart-define-from-file=dev.json` for mobile)
+- [ ] You are logged in as the relevant role (patient, doctor, admin — seeded: `admin@premoncare.com`/`AdminPass123!`, doctors `DoctorPass123!`, patients `Patient123!`)
+- [ ] Database has test data covering the changed feature
+
+**Walk-through checklist:**
+1. **Entry point** — How does the user reach this feature? (URL, button, notification, deep link)
+2. **Happy path** — Complete the primary action from start to finish without errors
+3. **Loading states** — Verify spinners/skeletons appear while data loads
+4. **Empty states** — Verify the UI handles no-data gracefully (not a blank screen or crash)
+5. **Error states** — Trigger a failure (invalid input, network error) and verify friendly error messages
+6. **Role-based access** — Verify the feature works for each authorized role and blocks unauthorized roles
+7. **Mobile responsiveness** — If web, verify at 320/360/768/1280px, touch targets ≥ 40px
+8. **Dark mode** — If CSS variables/`AppColors` were changed, verify both light and dark themes render correctly
+9. **Real-time** — If applicable, open two browser tabs/devices and verify changes sync live
+10. **Navigation** — Verify back buttons, breadcrumbs, and redirects work correctly
+11. **Session** — Verify the feature handles expired sessions gracefully (redirect to login, not a crash)
+
+**Document the walk-through:**
+```markdown
+### Walk-Through: [Feature Name]
+- **Entry Point:** [How I reached the feature]
+- **Happy Path:** [Pass/Fail — notes]
+- **Empty State:** [Pass/Fail/N/A]
+- **Error State:** [Pass/Fail — notes]
+- **Role Access:** [Which roles tested]
+- **Dark Mode:** [Pass/Fail/N/A]
+- **Real-Time:** [Pass/Fail/N/A]
+- **Issues Found:** [List any bugs discovered during walk-through]
+```
+
+**Agent rule:** If the walk-through reveals a bug, fix it before marking the task complete. Document any known limitations or follow-up items.
 
 #### Verified Test Commands & Environment Quirks (this machine/repo)
 - **Web:** from `apps/web`: `$env:CI='true'; npx jest --ci --runInBand --forceExit --silent` — plain `npm run test` can hang (watch mode/stderr pipe). Redirect output to a temp file on slow machines.
@@ -394,6 +631,8 @@ GitHub Actions runs on every push to `main`/`develop` and on every PR to `main`.
 - `make lint` — runs all linters
 - `make test` — runs all tests
 
+**E2E gate:** There is no automated `test:e2e` script — the **Mandatory Walk-Through** (below) is the E2E gate. CI runs the unit/widget/integration suites on every push/PR; the walk-through covers the feature core actions + visible reflections + UI↔API data parity and must pass before a user-facing change is called done.
+
 **Branch Verification Workflow (CI/CD-gated merges):**
 `main` is protected — the ONLY path for changes to land is a pull request whose CI run is fully green. Red checks = the work stays on its branch; it never reaches `main`.
 
@@ -449,6 +688,30 @@ Database errors: Never expose raw Supabase error messages to client
 
 **Agent rule:** If you discover a potential data exposure during code review or development, IMMEDIATELY flag it as a security incident. Do not attempt to fix it silently.
 
+### Error & Incident Protocol
+
+**When you find a bug:**
+1. **Check if it's a security issue** (auth bypass, data leak, privilege escalation, IDOR)
+2. **Check if it affects data integrity** (wrong writes, missing validation, status transitions)
+3. **Check if it affects real-time sync** (stale data, missing events, missing publication membership)
+4. **Fix the root cause**, not the symptom
+5. **Add a regression test** (logic-level defects — see Testing Is Mandatory)
+6. **Update `CHANGELOG.md`** with the fix
+7. **Verify the fix** with tests or manual walk-through
+
+**When you're unsure:**
+1. Read the existing code patterns in similar files
+2. Check `CHANGELOG.md` for context on past decisions
+3. Search for related issues in git history
+4. Ask the user for clarification — don't guess on security-critical decisions
+
+### Compliance Certification Path
+1. **Document** — This file IS your documentation baseline
+2. **Implement** — Technical controls (RLS, encryption, audit logs, inactivity timeout)
+3. **Verify** — Test controls, run security reviews (see Mandatory Audit Phase)
+4. **Certify** — Engage auditor for HIPAA / SOC 2 / ISO 27001 when the business needs it
+5. **Maintain** — Update this file when controls change
+
 ### Data Retention & Deletion
 | Data Type | Retention | Deletion Method |
 |---|---|---|
@@ -477,3 +740,48 @@ Database errors: Never expose raw Supabase error messages to client
 - Never commit `.env` files, secrets, or API keys
 - Branch naming: `feature/short-description`, `fix/short-description`, `test/short-description` (e.g., `test/verification-suite`) — `/` is a namespace separator (git convention), not snake_case; branch names are not files
 - Always run lint/typecheck before committing
+
+---
+
+## Agent Workflow Checklist
+
+When starting ANY task in this codebase:
+
+- [ ] Read this `AGENTS.md` file
+- [ ] Read `CHANGELOG.md` for recent context
+- [ ] Identify affected files across all layers (DB → API → UI)
+- [ ] Check existing patterns in similar files
+- [ ] Verify RLS policies if touching data access
+- [ ] Check secrets boundary (server vs client)
+- [ ] Run lint/typecheck before committing
+- [ ] **Run the test suite — for every change, not only new features**
+- [ ] Update `CHANGELOG.md` if the change is user-facing
+- [ ] Never commit secrets or PHI
+- [ ] **Run the Continuous Data-Reflection Audit** (source of truth + 10-layer blast matrix)
+- [ ] **Run the mandatory walk-through** for user-facing changes
+- [ ] **Verify zero type/lint errors before committing**
+- [ ] **Commit with descriptive message** following `type(scope): description` convention
+
+---
+
+## Audit Log Template
+
+After completing a task, document what was verified:
+
+```markdown
+### Audit: [Task Name]
+- **Typecheck:** [pass/fail — errors if any]
+- **Lint:** [pass/fail — warnings if any]
+- **Build:** [pass/fail]
+- **Tests:** [pass/fail — count]
+- **RLS/Security:** [checked/not applicable]
+- **Dark Mode:** [CSS variables verified/not applicable]
+- **Stream Cleanup:** [subscriptions cancelled/not applicable]
+- **Error Handling:** [no empty catch blocks verified]
+- **Walk-Through:** [pass/fail — issues found or "no issues"]
+```
+
+---
+
+*Last Updated: 2026-10-16*
+*Template version: 1.0.0*
